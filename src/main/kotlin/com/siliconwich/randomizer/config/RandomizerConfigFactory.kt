@@ -2,7 +2,7 @@ package com.siliconwich.randomizer.config
 
 
 object RandomizerConfigFactory{
-    fun defaultConfig():RandomizerConfig{
+    fun defaultConfig():RandomizerCollection{
         return RandomizerConfigImp()
     }
 }
