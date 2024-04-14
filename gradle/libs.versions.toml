@@ -1,9 +1,8 @@
 [versions]
-p7ProjectGroupName = "com.siliconwich.p7"
-p7GradlePluginVersion = "0.0.1"
-p7Version = "0.0.1"
+groupName = "com.siliconwich"
+version = "0.0.0"
 
-javaVersion = "17"
+jvmVersion = "8"
 
 coroutineVersion = "1.6.1"
 dagger2Version = "2.46.1"
@@ -27,6 +26,7 @@ composeTestVersion = "1.1.1"
 
 anvilVersion = "2.4.9"
 composeVersion = "1.4.0"
+kotlin="1.9.20"
 [libraries]
 
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protocolBufferVersion" }
@@ -62,7 +62,8 @@ apache-commons-text = { module = "org.apache.commons:commons-text", version.ref 
 apache-commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "apacheCommonCsvVersion" }
 apache-commons-io = { module = "commons-io:commons-io", version.ref = "apacheCommonIOVersion" }
 apache-commons-math3 = {module="org.apache.commons:commons-math3", version.ref="apacheCommonMath"}
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version = "1.6.10" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+
 rsyntaxtextarea = { module = "com.fifesoft:rsyntaxtextarea", version = "3.2.0" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutineVersion" }
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }

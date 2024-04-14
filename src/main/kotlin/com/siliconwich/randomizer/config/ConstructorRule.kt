@@ -1,4 +1,4 @@
-package com.siliconwich.randomizer
+package com.siliconwich.randomizer.config
 
 /**
  * TODO make constructor rules to be able to linked together into a boolean guanlet.

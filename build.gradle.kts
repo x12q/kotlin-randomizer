@@ -1,9 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.9.23"
+    val ktVersion = libs.versions.kotlin.get()
+    kotlin("jvm") version ktVersion
 }
 
-group = "com.siliconwich.p7"
-version = "1.0-SNAPSHOT"
+group = libs.versions.groupName.get()
+version = libs.versions.version.get()
 
 repositories {
     mavenCentral()
@@ -11,11 +12,14 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    implementation(libs.michaelbull.kotlinResult)
+    testImplementation(libs.kotest.assertions.core)
+    implementation(libs.kotlin.reflect)
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(8)
 }

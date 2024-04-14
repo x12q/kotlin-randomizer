@@ -1,8 +1,8 @@
 package com.siliconwich.randomizer.config
 
 
-object RandomizerConfigs{
-    fun empty():RandomizerConfig{
+object RandomizerConfigFactory{
+    fun defaultConfig():RandomizerConfig{
         return RandomizerConfigImp()
     }
 }

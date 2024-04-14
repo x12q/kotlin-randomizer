@@ -4,14 +4,16 @@ import com.siliconwich.randomizer.ClassData
 import com.siliconwich.randomizer.parameter.ParameterRandomizer
 
 class RandomizerConfigImp : RandomizerConfig {
-    override val parameterCustomRandomizerMap: Map<ClassData, ParameterRandomizer<Any>>
-        get() = TODO("Not yet implemented")
 
-    override fun addRandomizer(randomizer: ParameterRandomizer<Any>) {
+    private val parameterCustomRandomizerMMap: Map<ClassData, List<ParameterRandomizer<Any>>> = mutableMapOf()
+
+    override val parameterCustomRandomizerMap: Map<ClassData, List<ParameterRandomizer<Any>>> = parameterCustomRandomizerMMap
+
+    override fun addCustomRandomizer(randomizer: ParameterRandomizer<Any>) {
         TODO("Not yet implemented")
     }
 
-    override fun getCustomRandomizer(key: ClassData): ParameterRandomizer<Any>? {
+    override fun getCustomRandomizer(key: ClassData): List<ParameterRandomizer<Any>> {
         TODO("Not yet implemented")
     }
 
