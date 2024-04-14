@@ -11,6 +11,6 @@ object RandomizerOut {
     ): T {
         val producer = Randomizer(random, config)
         val q =ClassData.from<T>()
-        return producer.makeRandomInstance(q) as T
+        return producer.random(q) as T
     }
 }
