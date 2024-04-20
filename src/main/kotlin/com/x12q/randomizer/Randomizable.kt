@@ -1,9 +1,4 @@
-package com.siliconwich.randomizer
-
-import com.siliconwich.randomizer.config.RandomizerCollection
-import com.siliconwich.randomizer.config.RandomizerConfigFactory
-import kotlin.random.Random
-import kotlin.reflect.KClass
+package com.x12q.randomizer
 
 /**
  * Requirement:
@@ -24,30 +19,4 @@ import kotlin.reflect.KClass
  *              - a class name
  *              - a factory function
  */
-
-// for class + parameter
 annotation class Randomizable
-
-
-interface ParamRule{
-    val paramName:String
-    val paramType:KClass<*>
-    val parentClass: KClass<*>?
-    fun factoryFunction()
-}
-
-interface ClassRule{
-    val clazz: KClass<*>
-    fun factoryFunction()
-}
-
-object RandomizerOut {
-    inline fun <reified T : Any> makeRandomInstance(
-        random: Random = Random,
-        config: RandomizerCollection = RandomizerConfigFactory.defaultConfig(),
-    ): T {
-        val producer = Randomizer(random, config)
-        val q =RDClassData.from<T>()
-        return producer.random(q) as T
-    }
-}

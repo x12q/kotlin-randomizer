@@ -1,8 +1,10 @@
 plugins {
-    val ktVersion = libs.versions.kotlin.get()
-    kotlin("jvm") version ktVersion
+    val kotlinVersion = libs.versions.kotlin.get()
+    kotlin("jvm") version kotlinVersion
+    kotlin("kapt") version kotlinVersion
+    alias(libs.plugins.anvil)
 }
-
+val javaVersion = libs.versions.jvmVersion.get().toInt()
 group = libs.versions.groupName.get()
 version = libs.versions.version.get()
 
@@ -15,11 +17,14 @@ dependencies {
     implementation(libs.michaelbull.kotlinResult)
     testImplementation(libs.kotest.assertions.core)
     implementation(libs.kotlin.reflect)
+    implementation(libs.dagger)
+    kapt(libs.dagger.compiler)
+    kaptTest(libs.dagger.compiler)
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(javaVersion)
 }

@@ -1,7 +1,7 @@
-package com.siliconwich.randomizer.config
+package com.x12q.randomizer.config
 
-import com.siliconwich.randomizer.RDClassData
-import com.siliconwich.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 
 /**
  * Configuration for the main Randomizer

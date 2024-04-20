@@ -1,4 +1,4 @@
-package com.siliconwich.randomizer.config
+package com.x12q.randomizer.config
 
 
 object RandomizerConfigFactory{

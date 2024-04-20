@@ -1,10 +1,19 @@
-package com.siliconwich.randomizer
+package com.x12q.randomizer
 
-import com.siliconwich.randomizer.config.RandomizerCollection
+import com.github.michaelbull.result.*
+
+import com.x12q.randomizer.config.RandomizerCollection
+import com.x12q.randomizer.di.RDSingleton
+import com.x12q.randomizer.err.ErrorReport
+import com.x12q.randomizer.err.RandomizerErrors
+import com.x12q.randomizer.randomizer.di.DefaultRandom
+import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
 
-class Randomizer(
+@RDSingleton
+class Randomizer @Inject constructor(
+    @DefaultRandom
     private val random: Random,
     private val randomizerCollection: RandomizerCollection,
 ) {
@@ -15,7 +24,7 @@ class Randomizer(
 
     fun random(classData: RDClassData): Any? {
         val classRef: KClass<*> = classData.kClass
-        val primitive = makePrimitiveOrNull(classData)
+        val primitive = defaultPrimitiveRandomOrNull(classData)
         if (primitive != null) {
             return primitive
         }
@@ -41,6 +50,26 @@ class Randomizer(
     }
 
     private fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData): Any? {
+        val rs = randomConstructorParameterRs(kParam, parentClassData)
+        when (rs) {
+            is Ok -> {
+                return rs.value
+            }
+            is Err -> {
+                val er = rs.error
+                if (er.isType(RandomizerErrors.ClassifierNotSupported.header)) {
+                    throw er.toException()
+                } else {
+                    return null
+                }
+            }
+        }
+    }
+
+    private fun randomConstructorParameterRs(
+        kParam: KParameter,
+        parentClassData: RDClassData
+    ): Result<Any?, ErrorReport> {
         /**
          * There are 2 types of parameter:
          * - clear-type parameter
@@ -57,20 +86,25 @@ class Randomizer(
                  */
                 val paramData = RDClassData(classifier, paramKType)
 
-                val randomizers = this.randomizerCollection.getCustomRandomizer(paramData)
-                randomizers?.also { rl->
-                    for(r in rl){
-                        /**
-                         * The problem is the randomizers itself, it must house the entire randomizing logic within itself in order to do the generation.
-                         * If I connect the randomizer back to these random function, it will become a circle loop.
-                         * Therefore, the randomizer must be terminal operations (like a factory function)
-                         */
-                        val randomInstances = r.random(paramData,kParam)
-                    }
-                }
+//                val randomizers = this.randomizerCollection.getCustomRandomizer(paramData)
+//                randomizers?.also { rl ->
+//                    for (randomizer in rl) {
+//                        /**
+//                         * The problem is the randomizers itself, it must house the entire randomizing logic within itself in order to do the generation.
+//                         * If I connect the randomizer back to these random function, it will become a circle loop.
+//                         * Therefore, the randomizer must be terminal operations (like a factory function)
+//                         */
+//                        val randomInstance = randomizer.random(paramData, kParam)
+//                        if (randomInstance != null) {
+//                            return Ok(randomInstance)
+//                        } else {
+//                            return Err(RandomizerErrors.CantGenerateRandom.report(classifier))
+//                        }
+//                    }
+//                }
                 // randomizers can be used for check,
-
-                return random(paramData)
+                val rt = random(paramData)
+                return Ok(rt)
             }
             /**
              * This is for generic-type parameters
@@ -79,13 +113,13 @@ class Randomizer(
             is KTypeParameter -> {
                 val parameterData = parentClassData.getDataFor(classifier)
                 if (parameterData != null) {
-                    return random(parameterData)
+                    return Ok(random(parameterData))
                 } else {
-                    throw IllegalArgumentException("type does not exist")
+                    return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, parentClassData))
                 }
             }
 
-            else -> throw Error("Type of the classifier $classifier is not supported")
+            else -> return Err(RandomizerErrors.ClassifierNotSupported.report(classifier))
         }
     }
 
@@ -117,11 +151,15 @@ class Randomizer(
     }
 
 
+    /**
+     * Default function to generate random primitive
+     */
     @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun makePrimitiveOrNull(classData: RDClassData): Any? {
+    private fun defaultPrimitiveRandomOrNull(classData: RDClassData): Any? {
         val classRef: KClass<*> = classData.kClass
         val rt = when (classRef) {
-            Any::class -> any
+            Short::class -> random.nextInt().toShort()
+            Boolean::class -> random.nextBoolean()
             Int::class -> random.nextInt()
             Long::class -> random.nextLong()
             Double::class -> random.nextDouble()
@@ -130,6 +168,7 @@ class Randomizer(
             String::class -> makeRandomString(random)
             List::class, Collection::class -> makeRandomList(classData)
             Map::class -> makeRandomMap(classData)
+            Set::class -> makeRandomList(classData).toSet()
             else -> null
         }
         return rt

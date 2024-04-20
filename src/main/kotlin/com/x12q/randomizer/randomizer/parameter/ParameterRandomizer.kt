@@ -1,9 +1,9 @@
-package com.siliconwich.randomizer.parameter
+package com.x12q.randomizer.randomizer.parameter
 
-import com.siliconwich.randomizer.RDClassData
-import com.siliconwich.randomizer.err.RandomizerError
 import kotlin.reflect.KParameter
 import com.github.michaelbull.result.Result
+import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.err.ErrorReport
 
 /**
  * For randomizing parameter.
@@ -25,7 +25,7 @@ interface ParameterRandomizer<out T> {
     /**
      * Generate a random value
      */
-    fun randomRs(parameterClassData: RDClassData, parameter: KParameter): Result<T, RandomizerError>
-    fun random(parameterClassData: RDClassData, parameter: KParameter): T
+    fun randomRs(parameterClassData: RDClassData, parameter: KParameter): Result<T, ErrorReport>
+    fun random(parameterClassData: RDClassData, parameter: KParameter): T?
 }
 
