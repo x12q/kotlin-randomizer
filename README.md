@@ -20,8 +20,9 @@
     - Rule for primitive types (string, int, etc) must be very easy to set         
     
 ## Roadmap:
-- create structure to manage custom class and parameter randomizer
-  - Design the way user provide parameter randomizer
-    - Increase param randomizer lookup speed
-- create base/primitive class randomizer + test
-- create parameter randomizer
+- create structure to manage custom class and parameter randomizer: partially done
+  - allow user to provide class randomizer + param randomizer: done
+    - TODO: Increase param randomizer lookup speed (otherwise it is n^2)
+- TODO double check or create base/primitive class randomizers (for int, float, double, etc...)
+- TODO Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic
+- TODO Add easier to use builder for param randomizer + class randomizer.
