@@ -1,33 +1,18 @@
-package com.x12q.randomizer
+package com.x12q.randomizer.randomizer
 
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import kotlin.reflect.*
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeParameter
+import kotlin.reflect.typeOf
 
 
 /**
- * Class data available in runtime
+ * Class data available at runtime
  */
 data class RDClassData(
     val kClass: KClass<*>,
     val kType: KType
 ) {
-
-//    /**
-//     * Find a constructor depend on some rule
-//     */
-//    fun findConstructorRs(constructorRule: ConstructorRule = ConstructorRule.PrimaryConstructorOrFirst): Result<KFunction<Any>, ErrorReport> {
-//        // TODO implement filter base on rule
-//        val classRef = kClass
-//        val allConstructors = classRef.constructors
-//        val constructor = classRef.primaryConstructor ?: allConstructors.firstOrNull()
-//        val rt = constructor?.let {
-//            Ok(it)
-//        } ?: Err(RandomizerErrors.NoConstructorFound.report())
-//        return rt
-//    }
 
     /**
      * Query [RDClassData] for a particular [kTypeParameter]
@@ -50,7 +35,8 @@ data class RDClassData(
     companion object {
         inline fun <reified T> from(): RDClassData {
             return RDClassData(
-                T::class, typeOf<T>()
+                kClass = T::class,
+                kType = typeOf<T>(),
             )
         }
     }

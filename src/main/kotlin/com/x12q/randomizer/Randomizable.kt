@@ -18,5 +18,6 @@ package com.x12q.randomizer
  *          - each class rule contains:
  *              - a class name
  *              - a factory function
+ *     - Rule for primitive types (string, int, etc) must be very easy to set
  */
 annotation class Randomizable

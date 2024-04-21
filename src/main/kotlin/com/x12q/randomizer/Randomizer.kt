@@ -1,26 +1,21 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-
-import com.x12q.randomizer.config.RandomizerCollection
-import com.x12q.randomizer.di.RDSingleton
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
-import com.x12q.randomizer.randomizer.di.DefaultRandom
+import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.RandomizerCollection
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
 
-@RDSingleton
-class Randomizer @Inject constructor(
-    @DefaultRandom
+data class Randomizer @Inject constructor(
     private val random: Random,
-    private val randomizerCollection: RandomizerCollection,
+    val randomizerCollection: RandomizerCollection,
 ) {
 
     val possibleCollectionSizes: IntRange = 1..5
     val possibleStringSizes: IntRange = 1..10
-    val any: Any = "Anything"
 
     fun random(classData: RDClassData): Any? {
         val classRef: KClass<*> = classData.kClass
@@ -29,27 +24,31 @@ class Randomizer @Inject constructor(
             return primitive
         }
 
-        val constructors = classRef.constructors.shuffled(random)
+        val customClassRdm = randomizerCollection.getRandomizer(classData)
+        if(customClassRdm!=null){
+            return customClassRdm.random()
+        }else{
+            val constructors = classRef.constructors.shuffled(random)
 
-        for (constructor in constructors) {
-            try {
-                val arguments = constructor.parameters.map { kParam ->
-                    randomConstructorParameter(
-                        kParam = kParam,
-                        parentClassData = classData,
-                    )
-                }.toTypedArray()
-                return constructor.call(*arguments)
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                // no-op. We catch any possible error here that might occur during class creation
+            for (constructor in constructors) {
+                try {
+                    val arguments = constructor.parameters.map { kParam ->
+                        randomConstructorParameter(
+                            kParam = kParam,
+                            parentClassData = classData,
+                        )
+                    }.toTypedArray()
+                    return constructor.call(*arguments)
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                    // no-op. We catch any possible error here that might occur during class creation
+                }
             }
         }
-
         throw IllegalArgumentException()
     }
 
-    private fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData): Any? {
+    fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData): Any? {
         val rs = randomConstructorParameterRs(kParam, parentClassData)
         when (rs) {
             is Ok -> {
@@ -66,7 +65,7 @@ class Randomizer @Inject constructor(
         }
     }
 
-    private fun randomConstructorParameterRs(
+    fun randomConstructorParameterRs(
         kParam: KParameter,
         parentClassData: RDClassData
     ): Result<Any?, ErrorReport> {
@@ -85,24 +84,16 @@ class Randomizer @Inject constructor(
                  * This is for normal parameter
                  */
                 val paramData = RDClassData(classifier, paramKType)
+                val paramRandomizer = randomizerCollection.getParamRandomizer(paramData)
+                if(!paramRandomizer.isNullOrEmpty()){
+                    for(rd in paramRandomizer){
+                        if(rd.isApplicableTo(paramData,kParam,parentClassData)){
+                            val rs = rd.randomRs(paramData,kParam,parentClassData)
+                            return rs
+                        }
+                    }
+                }
 
-//                val randomizers = this.randomizerCollection.getCustomRandomizer(paramData)
-//                randomizers?.also { rl ->
-//                    for (randomizer in rl) {
-//                        /**
-//                         * The problem is the randomizers itself, it must house the entire randomizing logic within itself in order to do the generation.
-//                         * If I connect the randomizer back to these random function, it will become a circle loop.
-//                         * Therefore, the randomizer must be terminal operations (like a factory function)
-//                         */
-//                        val randomInstance = randomizer.random(paramData, kParam)
-//                        if (randomInstance != null) {
-//                            return Ok(randomInstance)
-//                        } else {
-//                            return Err(RandomizerErrors.CantGenerateRandom.report(classifier))
-//                        }
-//                    }
-//                }
-                // randomizers can be used for check,
                 val rt = random(paramData)
                 return Ok(rt)
             }

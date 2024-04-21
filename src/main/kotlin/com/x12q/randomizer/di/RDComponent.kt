@@ -2,21 +2,28 @@ package com.x12q.randomizer.di
 
 import com.squareup.anvil.annotations.MergeComponent
 import com.x12q.randomizer.Randomizer
-import com.x12q.randomizer.randomizer.di.DefaultRandom
 import com.x12q.randomizer.randomizer.di.RandomizerModule
+import dagger.BindsInstance
+import dagger.Component
+import javax.inject.Singleton
 import kotlin.random.Random
 
-@RDSingleton
+@Singleton
 @MergeComponent(
     modules = [
-        RDModule::class,
+        CommonModule::class,
         RandomizerModule::class,
     ],
-    scope = RandomizableAnvilScope::class
+    scope = RandomizableAnvilScope::class,
 )
 interface RDComponent {
-    @DefaultRandom
     fun random():Random
-
     fun randomizer(): Randomizer
+
+    @Component.Builder
+    interface Builder{
+        @BindsInstance
+        fun setRandom(i:Random):Builder
+        fun build():RDComponent
+    }
 }
