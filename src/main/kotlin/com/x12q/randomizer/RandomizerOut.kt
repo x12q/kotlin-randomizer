@@ -4,6 +4,7 @@ import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
 /**
@@ -47,7 +48,7 @@ inline fun <reified T : Any> makeRandomInstance(
     return randomizer2.random(q) as T
 }
 
-
+@Serializable
 data class ABC(val lst: List<Float>, val tm12: Int)
 data class ABC2(val a: ABC, val t: String)
 data class Q<T>(val t: T)

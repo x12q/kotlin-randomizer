@@ -2,6 +2,7 @@ plugins {
     val kotlinVersion = libs.versions.kotlin.get()
     kotlin("jvm") version kotlinVersion
     kotlin("kapt") version kotlinVersion
+    kotlin("plugin.serialization") version kotlinVersion
     alias(libs.plugins.anvil)
 }
 val javaVersion = libs.versions.jvmVersion.get().toInt()
@@ -21,6 +22,8 @@ dependencies {
     kapt(libs.dagger.compiler)
     kaptTest(libs.dagger.compiler)
     testImplementation(libs.mockk)
+    implementation(libs.mockk)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
 
 tasks.test {

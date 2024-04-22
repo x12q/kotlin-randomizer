@@ -1,5 +1,11 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.*
+import kotlin.reflect.KClass
+
 /**
  * Requirement:
  * - recursive function to traverse the constructor tree, and init object.
@@ -20,4 +26,9 @@ package com.x12q.randomizer
  *              - a factory function
  *     - Rule for primitive types (string, int, etc) must be very easy to set
  */
-annotation class Randomizable
+@Target(CLASS,VALUE_PARAMETER,TYPE_PARAMETER,CONSTRUCTOR)
+@Retention(RUNTIME)
+annotation class Randomizable(
+//    val classRandomizer: Array<KClass<out ClassRandomizer<*>>> = arrayOf(ClassRandomizer::class),
+//    val paramRandomizer: Array<KClass<out ParameterRandomizer<*>>> = arrayOf(ParameterRandomizer::class),
+)
