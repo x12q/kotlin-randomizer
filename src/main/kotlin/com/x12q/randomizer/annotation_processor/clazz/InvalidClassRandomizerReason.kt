@@ -17,12 +17,12 @@ sealed class InvalidClassRandomizerReason {
     ) : InvalidClassRandomizerReason()
 
     /**
-     * When the checked class is a [ClassRandomizer] but cannot generate random instance of [expectedType]
+     * When the checked class is a [ClassRandomizer] but cannot generate random instance of [targetClass]
      */
-    data class WrongTargetType(
+    data class UnableToGenerateTargetType(
         override val rmdClass: KClass<out ClassRandomizer<*>>,
-        val actualTypes: KClass<*>?,
-        val expectedType: KClass<*>,
+        val actualClass: KClass<*>?,
+        val targetClass: KClass<*>,
     ) : InvalidClassRandomizerReason()
 
     /**

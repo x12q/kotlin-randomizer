@@ -1,5 +1,7 @@
 package com.x12q.randomizer.annotation_processor
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.x12q.randomizer.annotation_processor.clazz.InvalidClassRandomizerReason
 import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReason
@@ -8,8 +10,6 @@ import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import com.x12q.randomizer.test.TestAnnotation
-import com.x12q.randomizer.util.ReflectionUtils.isAssignableToGenericOf
-import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -29,6 +29,317 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     fun bt() {
         processor = RdAnnotationProcessor()
     }
+
+    @Test
+    fun getValidClassRandomizer() {
+        val processor = RdAnnotationProcessor()
+
+        val testMap = mapOf(
+            M1::class to Err(
+                InvalidClassRandomizerReason.UnableToGenerateTargetType(
+                    rmdClass = M1::class,
+                    actualClass = Int::class,
+                    targetClass = String::class,
+                )
+            ),
+            M2::class to Err(
+                InvalidClassRandomizerReason.UnableToGenerateTargetType(
+                    rmdClass = M2::class,
+                    actualClass = Float::class,
+                    targetClass = String::class,
+                )
+            ),
+            M3::class to Ok(M3::class),
+            M4::class to Err(InvalidClassRandomizerReason.IsAbstract(M4::class)),
+        )
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidClassRandomizer(
+                    RDClassData.from<String>(), subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+    @Test
+    fun getValidClassRandomizer_childrenClass() {
+
+        val processor = RdAnnotationProcessor()
+
+        val testMap = mapOf(
+            MA1::class to Ok(MA1::class),
+            MA2::class to Ok(MA2::class),
+            M1::class to Err(
+                InvalidClassRandomizerReason.UnableToGenerateTargetType(
+                    rmdClass = M1::class,
+                    actualClass = Int::class,
+                    targetClass = A1::class,
+                )
+            ),
+        )
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidClassRandomizer(
+                    targetClassData = RDClassData.from<A1>(),
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+
+    /**
+     * This test check if the processor can recognize randomizers that can generate child types of a parent type.
+     */
+    @Test
+    fun getValidParamRandomizer_child_type() {
+
+        class Target2<T>(
+            val i: Number,
+            val t: T,
+        )
+
+        val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
+
+        val processor = RdAnnotationProcessor()
+        val parentClassData = RDClassData.from<Target2<Int>>()
+
+        val testMap = mapOf(
+            M1Pr::class to Ok(M1Pr::class),
+            M2Pr::class to Ok(M2Pr::class),
+            M3Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = M3Pr::class,
+                    targetParam = target,
+                    parentClass = Target2::class,
+                    actualClass = String::class,
+                    targetClass = Number::class,
+                )
+            )
+        )
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidParamRandomizer(
+                    parentClassData = parentClassData,
+                    targetKParam = target,
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+
+    /**
+     * This test verify if the processor can recognize randomizers that can generate certain concrete type
+     */
+    @Test
+    fun getValidParamRandomizer_concreteType() {
+
+        class Target<T>(
+            val i: String,
+            val t: T,
+        )
+
+        val iParamType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
+
+        val processor = RdAnnotationProcessor()
+        val parentDt = RDClassData.from<Target<Int>>()
+
+        val testMap = mapOf(
+            M32Pr::class to Ok(M32Pr::class),
+            M1Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = M1Pr::class,
+                    targetParam = iParamType,
+                    parentClass = parentDt.kClass,
+                    actualClass = Int::class,
+                    targetClass = iParamType.type.classifier as KClass<*>,
+                )
+            ),
+            M2Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = M2Pr::class,
+                    targetParam = iParamType,
+                    parentClass = parentDt.kClass,
+                    actualClass = Float::class,
+                    targetClass = iParamType.type.classifier as KClass<*>,
+                )
+            ),
+            M3Pr::class to Ok(M3Pr::class),
+            M4Pr::class to Err(
+                InvalidParamRandomizerReason.IsAbstract(
+                    randomizerClass = M4Pr::class,
+                    targetParam = iParamType,
+                    parentClass = parentDt.kClass
+                )
+            )
+        )
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidParamRandomizer(
+                    parentClassData = parentDt,
+                    targetKParam = iParamType,
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+    /**
+     * Test if the annotation processor can recognize the correct randomizer for generic type
+     */
+    @Test
+    fun getValidParamRandomizer_genericType() {
+
+        class Target<T>(
+            val i: String,
+            val t: T
+        )
+
+        val target = Target::class.primaryConstructor!!.parameters.first { it.name == "t" }
+
+        val processor = RdAnnotationProcessor()
+        val parentDt = RDClassData.from<Target<Int>>()
+
+        val testMap = mapOf(
+            M1Pr::class to Ok(M1Pr::class),
+            M2Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = M2Pr::class,
+                    targetParam = target,
+                    parentClass = parentDt.kClass,
+                    actualClass = Float::class,
+                    targetClass = Int::class,
+                )
+            ),
+            M3Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = M3Pr::class,
+                    targetParam = target,
+                    parentClass = parentDt.kClass,
+                    actualClass = String::class,
+                    targetClass = Int::class,
+                )
+            ),
+            M4Pr::class to Err(
+                InvalidParamRandomizerReason.IsAbstract(
+                    randomizerClass = M4Pr::class,
+                    targetParam = target,
+                    parentClass = parentDt.kClass
+                )
+            )
+        )
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidParamRandomizer(
+                    parentClassData = parentDt,
+                    targetKParam = target,
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+
+    class M1Pr : ParameterRandomizer<Int> {
+        override val paramClassData: RDClassData
+            get() = TODO("Not yet implemented")
+
+        override fun isApplicableTo(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Boolean {
+            TODO("Not yet implemented")
+        }
+
+        override fun randomRs(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Result<Int, ErrorReport> {
+            TODO("Not yet implemented")
+        }
+
+        override fun random(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Int? {
+            TODO("Not yet implemented")
+        }
+    }
+
+    class M2Pr : ParameterRandomizer<Float> {
+        override val paramClassData: RDClassData
+            get() = TODO("Not yet implemented")
+
+        override fun isApplicableTo(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Boolean {
+            TODO("Not yet implemented")
+        }
+
+        override fun randomRs(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Result<Float, ErrorReport> {
+            TODO("Not yet implemented")
+        }
+
+        override fun random(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Float? {
+            TODO("Not yet implemented")
+        }
+
+    }
+
+    open class M3Pr : ParameterRandomizer<String> {
+        override val paramClassData: RDClassData
+            get() = TODO("Not yet implemented")
+
+        override fun isApplicableTo(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Boolean {
+            TODO("Not yet implemented")
+        }
+
+        override fun randomRs(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Result<String, ErrorReport> {
+            TODO("Not yet implemented")
+        }
+
+        override fun random(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): String? {
+            TODO("Not yet implemented")
+        }
+
+
+    }
+
+    class M32Pr : M3Pr()
+
+    abstract class M4Pr : ParameterRandomizer<String>
+
 
     class M1 : ClassRandomizer<Int> {
         override val paramClassData: RDClassData
@@ -102,475 +413,5 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
     }
 
-
-    @Test
-    fun getValidClassRandomizer() {
-        val processor = RdAnnotationProcessor()
-
-        val result = processor.getValidClassRandomizer(
-            targetClassData = RDClassData.from<String>(),
-            candidates = arrayOf(
-                M1::class,
-                M2::class,
-                M3::class,
-                M4::class,
-            )
-        )
-        println(result)
-
-        result.validRandomizers.shouldContainOnly(
-            M3::class
-        )
-        result.invalidRandomizers.shouldContainOnly(
-            InvalidClassRandomizerReason.IsAbstract(M4::class),
-            InvalidClassRandomizerReason.WrongTargetType(
-                rmdClass = M1::class,
-                actualTypes = Int::class,
-                expectedType = String::class,
-            ),
-            InvalidClassRandomizerReason.WrongTargetType(
-                rmdClass = M2::class,
-                actualTypes = Float::class,
-                expectedType = String::class,
-            ),
-        )
-    }
-
-    @Test
-    fun getValidClassRandomizer_childrenClass() {
-
-        val processor = RdAnnotationProcessor()
-
-        val result = processor.getValidClassRandomizer(
-            targetClassData = RDClassData.from<A1>(),
-            candidates = arrayOf(
-                MA1::class,
-                MA2::class,
-                M1::class
-            )
-        )
-
-        result.validRandomizers.shouldContainOnly(
-            MA1::class,
-            MA2::class,
-        )
-
-        result.invalidRandomizers.shouldContainOnly(
-            InvalidClassRandomizerReason.WrongTargetType(
-                rmdClass = M1::class,
-                actualTypes = Int::class,
-                expectedType = A1::class,
-            ),
-        )
-    }
-
-    @Test
-    fun getValidParamRandomizer_child_type_in_generic() {
-
-        class M1 : ParameterRandomizer<Int> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Int, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Int? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        class M2 : ParameterRandomizer<Float> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Float, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Float? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        open class M3 : ParameterRandomizer<String> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<String, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): String? {
-                TODO("Not yet implemented")
-            }
-
-
-        }
-
-        class M32 : M3()
-
-        abstract class M4 : ParameterRandomizer<String>
-
-
-        class Target<T>(
-            val i: Number,
-            val t: T,
-        )
-
-        val iParamType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
-
-        val processor = RdAnnotationProcessor()
-        val parentDt = RDClassData.from<Target<Int>>()
-
-        val result = processor.getValidParamRandomizer(
-            parentClassData = parentDt,
-            targetKParam = iParamType,
-            candidates = arrayOf(
-//                M32::class,
-                M1::class,
-                M2::class,
-//                M3::class,
-//                M4::class
-            )
-        )
-        result.validRandomizers.shouldContainOnly(M1::class, M2::class)
-    }
-
-
-    @Test
-    fun getValidParamRandomizer_concreteType() {
-
-        class M1 : ParameterRandomizer<Int> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Int, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Int? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        class M2 : ParameterRandomizer<Float> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Float, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Float? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        open class M3 : ParameterRandomizer<String> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<String, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): String? {
-                TODO("Not yet implemented")
-            }
-
-
-        }
-
-        class M32 : M3()
-
-        abstract class M4 : ParameterRandomizer<String>
-
-
-        class Target<T>(
-            val i: String,
-            val t: T,
-        )
-
-        val iParamType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
-
-        val processor = RdAnnotationProcessor()
-        val parentDt = RDClassData.from<Target<Int>>()
-
-        val result = processor.getValidParamRandomizer(
-            parentClassData = parentDt,
-            targetKParam = iParamType,
-            candidates = arrayOf(
-                M32::class,
-                M1::class,
-                M2::class,
-                M3::class,
-                M4::class
-            )
-        )
-        result.validRandomizers.shouldContainOnly(M3::class, M32::class)
-        result.invalidRandomizers.shouldContainOnly(
-            InvalidParamRandomizerReason.IsAbstract(
-                randomizerKClass = M4::class,
-                targetKParam = iParamType,
-                parentClass = parentDt.kClass
-            ),
-            InvalidParamRandomizerReason.WrongTargetType(
-                randomizerKClass = M1::class,
-                targetKParam = iParamType,
-                parentClass = parentDt.kClass,
-                actualTypes = Int::class,
-                expectedType = iParamType.type.classifier as KClass<*>,
-            ),
-            InvalidParamRandomizerReason.WrongTargetType(
-                randomizerKClass = M2::class,
-                targetKParam = iParamType,
-                parentClass = parentDt.kClass,
-                actualTypes = Float::class,
-                expectedType = iParamType.type.classifier as KClass<*>,
-            )
-        )
-    }
-
-    @Test
-    fun getValidParamRandomizer_genericType() {
-
-        class M1 : ParameterRandomizer<Int> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Int, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Int? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        class M2 : ParameterRandomizer<Float> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<Float, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Float? {
-                TODO("Not yet implemented")
-            }
-
-        }
-
-        class M3 : ParameterRandomizer<String> {
-            override val paramClassData: RDClassData
-                get() = TODO("Not yet implemented")
-
-            override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
-            override fun randomRs(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): Result<String, ErrorReport> {
-                TODO("Not yet implemented")
-            }
-
-            override fun random(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                parentClassData: RDClassData
-            ): String? {
-                TODO("Not yet implemented")
-            }
-
-
-        }
-
-        abstract class M4 : ParameterRandomizer<String>
-
-
-        class Target<T>(
-            val i: String,
-            val t: T
-        )
-
-        val tParamType = Target::class.primaryConstructor!!.parameters.first { it.name == "t" }
-
-        val processor = RdAnnotationProcessor()
-        val parentDt = RDClassData.from<Target<Int>>()
-
-        val result = processor.getValidParamRandomizer(
-            parentClassData = parentDt,
-            targetKParam = tParamType,
-            candidates = arrayOf(
-                M1::class,
-                M2::class,
-                M3::class,
-                M4::class
-            )
-        )
-        result.validRandomizers.shouldContainOnly(M1::class)
-        result.invalidRandomizers.shouldContainOnly(
-            InvalidParamRandomizerReason.IsAbstract(
-                randomizerKClass = M4::class,
-                targetKParam = tParamType,
-                parentClass = parentDt.kClass
-            ),
-            InvalidParamRandomizerReason.WrongTargetType(
-                randomizerKClass = M3::class,
-                targetKParam = tParamType,
-                parentClass = parentDt.kClass,
-                actualTypes = String::class,
-                expectedType = Int::class,
-            ),
-            InvalidParamRandomizerReason.WrongTargetType(
-                randomizerKClass = M2::class,
-                targetKParam = tParamType,
-                parentClass = parentDt.kClass,
-                actualTypes = Float::class,
-                expectedType = Int::class,
-            )
-        )
-    }
 
 }
