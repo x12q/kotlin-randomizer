@@ -2,16 +2,23 @@ package com.x12q.randomizer.util
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.starProjectedType
 
 object ReflectionUtils {
 
     /**
-     * Check if a [KType] contains any generic type that match [genericKClass]
+     * Check if a [KType] contains any generic type that match [targetClass] or is children of [targetClass]
      */
-    fun KType.containGeneric(genericKClass: KClass<*>):Boolean{
-        return this.arguments.map { it.type?.classifier}.any{
-            it == genericKClass
+    fun KType.containGeneric(targetClass: KClass<*>):Boolean{
+        return this.arguments.map {
+            // take variance into consideration
+            // it.variance
+            it.type?.classifier
+        }.any{classifier->
+            (classifier as? KClass<*>)?.let{
+                it.isSubclassOf(targetClass) // or the other way
+            } ?: false
         }
     }
 
@@ -53,4 +60,18 @@ object ReflectionUtils {
         return parentTypes.contains(kType)
     }
 
+}
+
+
+class A<T>{
+    fun add(i:T){
+
+    }
+}
+
+
+fun qwe(){
+    val a = A<Number>()
+    val i:Int = 1
+    a.add(i)
 }

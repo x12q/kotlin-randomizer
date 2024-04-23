@@ -8,13 +8,12 @@ import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import com.x12q.randomizer.util.ReflectionUtils.containGeneric
-import com.x12q.randomizer.util.ReflectionUtils.isAssignableToGenericOf
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
-import kotlin.reflect.full.starProjectedType
+import kotlin.reflect.full.allSupertypes
 
 
 @Singleton
@@ -54,26 +53,41 @@ class RdAnnotationProcessor @Inject constructor() {
                     InvalidClassRandomizerReason.IsAbstract(randomizerClass)
                 )
             } else {
-                if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
-                    validRdms.add(randomizerClass)
-//                    for (superKType in randomizerClass.supertypes) {
-//                        if (superKType.classifier == ClassRandomizer::class) {
-//                            if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
-//                                validRdms.add(randomizerClass)
-//                                break
-//                            } else {
-//                                invalidRdms.add(
-//                                    InvalidClassRandomizerReason.WrongTargetType(
-//                                        rmdClass = randomizerClass,
-//                                        actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-//                                        expectedType = randomTargetKClass,
-//                                    )
-//                                )
-//                                break
-//                            }
-//                        }
-//                    }
+                val superKType = randomizerClass.allSupertypes
+                    .firstOrNull { it.classifier == ClassRandomizer::class }
+                if(superKType!=null){
+                    if(superKType.containGeneric(randomTargetKClass)){
+                        validRdms.add(randomizerClass)
+                    }else{
+                        invalidRdms.add(
+                            InvalidClassRandomizerReason.WrongTargetType(
+                                rmdClass = randomizerClass,
+                                actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
+                                expectedType = randomTargetKClass,
+                            )
+                        )
+                    }
                 }
+//                if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
+//                    validRdms.add(randomizerClass)
+////                    for (superKType in randomizerClass.supertypes) {
+////                        if (superKType.classifier == ClassRandomizer::class) {
+////                            if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
+////                                validRdms.add(randomizerClass)
+////                                break
+////                            } else {
+////                                invalidRdms.add(
+////                                    InvalidClassRandomizerReason.WrongTargetType(
+////                                        rmdClass = randomizerClass,
+////                                        actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
+////                                        expectedType = randomTargetKClass,
+////                                    )
+////                                )
+////                                break
+////                            }
+////                        }
+////                    }
+//                }
             }
         }
 
@@ -200,23 +214,21 @@ class RdAnnotationProcessor @Inject constructor() {
                     )
                 )
             } else {
-                for (superKType in paramRdm.supertypes) {
-                    if (superKType.classifier == ParameterRandomizer::class) {
-                        if (superKType.containGeneric(targetKClass)) {
-                            validRdms.add(paramRdm)
-                            break
-                        } else {
-                            invalidRdms.add(
-                                InvalidParamRandomizerReason.WrongTargetType(
-                                    randomizerKClass = paramRdm,
-                                    targetKParam = targetKParam,
-                                    parentClass = parentKClass,
-                                    actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                                    expectedType = targetKClass,
-                                )
+                val randomizerKType = paramRdm.allSupertypes
+                    .firstOrNull { it.classifier == ParameterRandomizer::class }
+                if(randomizerKType!=null){
+                    if(randomizerKType.containGeneric(targetKClass)){
+                        validRdms.add(paramRdm)
+                    }else{
+                        invalidRdms.add(
+                            InvalidParamRandomizerReason.WrongTargetType(
+                                randomizerKClass = paramRdm,
+                                targetKParam = targetKParam,
+                                parentClass = parentKClass,
+                                actualTypes = randomizerKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
+                                expectedType = targetKClass,
                             )
-                            break
-                        }
+                        )
                     }
                 }
             }
@@ -227,6 +239,19 @@ class RdAnnotationProcessor @Inject constructor() {
         )
 
         return rt
+    }
+
+}
+
+open class A<T>
+open class A2 : A<Int>()
+class A3 : A2()
+
+fun main() {
+    A3::class.allSupertypes.first{
+        it.containGeneric(Int::class)
+    }.apply{
+        println(this)
     }
 
 }

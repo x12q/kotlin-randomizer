@@ -1,7 +1,10 @@
 package com.x12q.randomizer.util
 
+
+import com.x12q.randomizer.util.ReflectionUtils.containGeneric
 import com.x12q.randomizer.util.ReflectionUtils.isAssignableTo
 import com.x12q.randomizer.util.ReflectionUtils.isAssignableToGenericOf
+import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import kotlin.reflect.typeOf
@@ -11,6 +14,12 @@ class ReflectionUtilsTest{
     interface B
     class A1:B,A()
     class B1:B
+
+
+    @Test
+    fun containGeneric(){
+        typeOf<List<A>>().containGeneric(A1::class).shouldBeTrue()
+    }
 
     @Test
     fun checkAssignable(){
