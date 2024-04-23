@@ -32,7 +32,7 @@ sealed class InvalidParamRandomizerReason {
     /**
      * When the checked class is not of type [ClassRandomizer]
      */
-    data class IllegalClass(
+    data class IllegalRandomizerClass(
         override val randomizerClass: KClass<out ParameterRandomizer<*>>,
         override val targetParam: KParameter,
         override val parentClass: KClass<*>,

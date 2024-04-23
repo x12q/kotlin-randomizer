@@ -21,17 +21,17 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
     lateinit var processor: RdAnnotationProcessor
 
-    open class A1
-
-    class A2 : A1()
 
     @BeforeTest
     fun bt() {
         processor = RdAnnotationProcessor()
     }
 
+    /**
+     * Test if [RdAnnotationProcessor] can identify the correct randomizer for a concrete class target
+     */
     @Test
-    fun getValidClassRandomizer() {
+    fun getValidClassRandomizer_concrete_target() {
         val processor = RdAnnotationProcessor()
 
         val testMap = mapOf(
@@ -54,22 +54,27 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         )
 
         test {
-            for ((subject, expectation) in testMap) {
+            for ((randomizer, expectation) in testMap) {
                 processor.getValidClassRandomizer(
-                    RDClassData.from<String>(), subject
+                    targetClassData = RDClassData.from<String>(),
+                    randomizerClass = randomizer
                 ) shouldBe expectation
             }
         }
     }
 
+    /**
+     * Test if [RdAnnotationProcessor] can identify randomizer that can generate instance of children classes of a parent class
+     */
     @Test
-    fun getValidClassRandomizer_childrenClass() {
+    fun getValidClassRandomizer_childrenClass_of_parent_class() {
 
         val processor = RdAnnotationProcessor()
 
         val testMap = mapOf(
             MA1::class to Ok(MA1::class),
             MA2::class to Ok(MA2::class),
+            MA3::class to Ok(MA3::class),
             M1::class to Err(
                 InvalidClassRandomizerReason.UnableToGenerateTargetType(
                     rmdClass = M1::class,
@@ -79,10 +84,48 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             ),
         )
 
+        val parentClass = RDClassData.from<A1>()
+
         test {
             for ((subject, expectation) in testMap) {
                 processor.getValidClassRandomizer(
-                    targetClassData = RDClassData.from<A1>(),
+                    targetClassData = parentClass,
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
+
+    @Test
+    fun getValidClassRandomizer_childrenClass_of_parent_interface() {
+
+        val processor = RdAnnotationProcessor()
+
+        val testMap = mapOf(
+            MA1::class to Err(
+                InvalidClassRandomizerReason.UnableToGenerateTargetType(
+                    rmdClass = MA1::class,
+                    actualClass = A1::class,
+                    targetClass = IA::class,
+                )
+            ),
+            MA2::class to Ok(MA2::class),
+            MA3::class to Ok(MA3::class),
+            M1::class to Err(
+                InvalidClassRandomizerReason.UnableToGenerateTargetType(
+                    rmdClass = M1::class,
+                    actualClass = Int::class,
+                    targetClass = IA::class,
+                )
+            ),
+        )
+
+        val parentClass = RDClassData.from<IA>()
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidClassRandomizer(
+                    targetClassData = parentClass,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -91,10 +134,10 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
 
     /**
-     * This test check if the processor can recognize randomizers that can generate child types of a parent type.
+     * This test check if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent type.
      */
     @Test
-    fun getValidParamRandomizer_child_type() {
+    fun getValidParamRandomizer_child_type_of_parent_class() {
 
         class Target2<T>(
             val i: Number,
@@ -131,6 +174,44 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         }
     }
 
+    @Test
+    fun getValidParamRandomizer_child_type_of_parent_interface() {
+
+        class Target2<T>(
+            val i: IA,
+            val t: T,
+        )
+
+        val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
+
+        val processor = RdAnnotationProcessor()
+        val parentClassData = RDClassData.from<Target2<Int>>()
+
+        val testMap = mapOf(
+            MA1Pr::class to Err(
+                InvalidParamRandomizerReason.UnableToGenerateTarget(
+                    randomizerClass = MA1Pr::class,
+                    targetParam = target,
+                    parentClass = Target2::class,
+                    actualClass = A1::class,
+                    targetClass = IA::class,
+                )
+            ),
+            MA2Pr::class to Ok(MA2Pr::class),
+            MA3Pr::class to Ok(MA3Pr::class),
+        )
+
+
+        test {
+            for ((subject, expectation) in testMap) {
+                processor.getValidParamRandomizer(
+                    parentClassData = parentClassData,
+                    targetKParam = target,
+                    randomizerClass = subject
+                ) shouldBe expectation
+            }
+        }
+    }
 
     /**
      * This test verify if the processor can recognize randomizers that can generate certain concrete type
@@ -245,103 +326,12 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         }
     }
 
+    interface IA
+    open class A1
+    open class A2 : IA, A1()
+    open class A3 : IA, A2()
 
-    class M1Pr : ParameterRandomizer<Int> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
-
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Boolean {
-            TODO("Not yet implemented")
-        }
-
-        override fun randomRs(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Result<Int, ErrorReport> {
-            TODO("Not yet implemented")
-        }
-
-        override fun random(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Int? {
-            TODO("Not yet implemented")
-        }
-    }
-
-    class M2Pr : ParameterRandomizer<Float> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
-
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Boolean {
-            TODO("Not yet implemented")
-        }
-
-        override fun randomRs(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Result<Float, ErrorReport> {
-            TODO("Not yet implemented")
-        }
-
-        override fun random(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Float? {
-            TODO("Not yet implemented")
-        }
-
-    }
-
-    open class M3Pr : ParameterRandomizer<String> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
-
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Boolean {
-            TODO("Not yet implemented")
-        }
-
-        override fun randomRs(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Result<String, ErrorReport> {
-            TODO("Not yet implemented")
-        }
-
-        override fun random(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): String? {
-            TODO("Not yet implemented")
-        }
-
-
-    }
-
-    class M32Pr : M3Pr()
-
-    abstract class M4Pr : ParameterRandomizer<String>
-
-
-    class M1 : ClassRandomizer<Int> {
+    open class BaseClassRandomizer<T> : ClassRandomizer<T>{
         override val paramClassData: RDClassData
             get() = TODO("Not yet implemented")
 
@@ -349,69 +339,58 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             TODO("Not yet implemented")
         }
 
-        override fun random(): Int {
+        override fun random(): T {
             TODO("Not yet implemented")
         }
-
     }
 
-    class M2 : ClassRandomizer<Float> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
+    class M1 : BaseClassRandomizer<Int>()
 
-        override fun isApplicable(classData: RDClassData): Boolean {
-            TODO("Not yet implemented")
-        }
+    class M2 : BaseClassRandomizer<Float> ()
 
-        override fun random(): Float {
-            TODO("Not yet implemented")
-        }
-
-    }
-
-    class M3 : ClassRandomizer<String> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
-
-        override fun isApplicable(classData: RDClassData): Boolean {
-            TODO("Not yet implemented")
-        }
-
-        override fun random(): String {
-            TODO("Not yet implemented")
-        }
-
-    }
-
+    class M3 : BaseClassRandomizer<String> ()
     abstract class M4 : ClassRandomizer<String>
 
-    class MA1 : ClassRandomizer<A1> {
+    class MA1 : BaseClassRandomizer<A1> ()
+    class MA2 : BaseClassRandomizer<A2> ()
+    class MA3 : BaseClassRandomizer<A3> ()
+
+    open class BaseParamRandomizer<T> : ParameterRandomizer<T> {
         override val paramClassData: RDClassData
             get() = TODO("Not yet implemented")
 
-        override fun isApplicable(classData: RDClassData): Boolean {
+        override fun isApplicableTo(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Boolean {
             TODO("Not yet implemented")
         }
 
-        override fun random(): A2 {
+        override fun randomRs(
+            parameterClassData: RDClassData,
+            parameter: KParameter,
+            parentClassData: RDClassData
+        ): Result<T, ErrorReport> {
             TODO("Not yet implemented")
         }
 
+        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T? {
+            TODO("Not yet implemented")
+        }
     }
 
-    class MA2 : ClassRandomizer<A2> {
-        override val paramClassData: RDClassData
-            get() = TODO("Not yet implemented")
+    class M1Pr : BaseParamRandomizer<Int> ()
 
-        override fun isApplicable(classData: RDClassData): Boolean {
-            TODO("Not yet implemented")
-        }
+    class M2Pr : BaseParamRandomizer<Float> ()
 
-        override fun random(): A2 {
-            TODO("Not yet implemented")
-        }
+    open class M3Pr : BaseParamRandomizer<String>()
+    class M32Pr : M3Pr()
 
-    }
+    abstract class M4Pr : BaseParamRandomizer<String>()
 
+    class MA1Pr : BaseParamRandomizer<A1>()
+    class MA2Pr : BaseParamRandomizer<A2>()
+    class MA3Pr : BaseParamRandomizer<A3>()
 
 }

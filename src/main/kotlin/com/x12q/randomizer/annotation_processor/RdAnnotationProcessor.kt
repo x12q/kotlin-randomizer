@@ -38,7 +38,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 .firstOrNull { it.classifier == ClassRandomizer::class }
 
             if (classRandomizerType != null) {
-                if (canProduceAssignableGeneric(classRandomizerType, targetClassData.kClass)) {
+                if (canProduceAssignable(classRandomizerType, targetClassData.kClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(
@@ -58,7 +58,7 @@ class RdAnnotationProcessor @Inject constructor() {
     /**
      * Can produce instances assignable to [targetClass]
      */
-    fun canProduceAssignableGeneric(randomizerType: KType, targetClass: KClass<*>): Boolean {
+    fun canProduceAssignable(randomizerType: KType, targetClass: KClass<*>): Boolean {
         val typesProducedByRandomizer = randomizerType.arguments.map {
             val variance = it.variance
             when (variance) {
@@ -135,38 +135,34 @@ class RdAnnotationProcessor @Inject constructor() {
                     )
                 )
             } else {
-                for (superType in randomizerClass.supertypes) {
-                    if (superType.classifier == ParameterRandomizer::class) {
-                        if (canProduceAssignableGeneric(superType, targetClass)) {
-                            return Ok(randomizerClass)
-                        } else {
-                            return Err(
-                                InvalidParamRandomizerReason.UnableToGenerateTarget(
-                                    randomizerClass = randomizerClass,
-                                    targetParam = targetParam,
-                                    parentClass = parentClassData.kClass,
-                                    actualClass = superType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                                    targetClass = targetClass,
-                                )
-                            )
-                        }
+
+                val randomizerSuperType = randomizerClass.allSupertypes.firstOrNull {
+                    it.classifier == ParameterRandomizer::class
+                }
+
+                if(randomizerSuperType!=null){
+                    if (canProduceAssignable(randomizerSuperType, targetClass)) {
+                        return Ok(randomizerClass)
                     } else {
                         return Err(
-                            InvalidParamRandomizerReason.IllegalClass(
+                            InvalidParamRandomizerReason.UnableToGenerateTarget(
                                 randomizerClass = randomizerClass,
                                 targetParam = targetParam,
-                                parentClass = parentClassData.kClass
+                                parentClass = parentClassData.kClass,
+                                actualClass = randomizerSuperType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
+                                targetClass = targetClass,
                             )
                         )
                     }
-                }
-                return Err(
-                    InvalidParamRandomizerReason.IllegalClass(
-                        randomizerClass = randomizerClass,
-                        targetParam = targetParam,
-                        parentClass = parentClassData.kClass
+                }else{
+                    return Err(
+                        InvalidParamRandomizerReason.IllegalRandomizerClass(
+                            randomizerClass = randomizerClass,
+                            targetParam = targetParam,
+                            parentClass = parentClassData.kClass
+                        )
                     )
-                )
+                }
             }
         } else {
             throw IllegalArgumentException("$targetParam does not belong to $parentClassData")
@@ -189,14 +185,18 @@ class RdAnnotationProcessor @Inject constructor() {
         if (randomizerClass.isAbstract) {
             return Err(
                 InvalidParamRandomizerReason.IsAbstract(
-                    randomizerClass = randomizerClass, targetParam = targetKParam, parentClass = parentKClass
+                    randomizerClass = randomizerClass,
+                    targetParam = targetKParam,
+                    parentClass = parentKClass
                 )
             )
         } else {
-            val randomizerKType = randomizerClass.allSupertypes
+            val randomizerKType = randomizerClass
+                .allSupertypes
                 .firstOrNull { it.classifier == ParameterRandomizer::class }
+
             if (randomizerKType != null) {
-                if (canProduceAssignableGeneric(randomizerKType, targetKClass)) {
+                if (canProduceAssignable(randomizerKType, targetKClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(
@@ -211,7 +211,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 }
             } else {
                 return Err(
-                    InvalidParamRandomizerReason.IllegalClass(
+                    InvalidParamRandomizerReason.IllegalRandomizerClass(
                         randomizerClass = randomizerClass,
                         targetParam = targetKParam,
                         parentClass = parentKClass
