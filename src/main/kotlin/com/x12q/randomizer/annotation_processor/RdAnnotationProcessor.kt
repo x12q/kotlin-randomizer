@@ -8,7 +8,6 @@ import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReas
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
-import com.x12q.randomizer.util.ReflectionUtils.canProduceGeneric
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.*
@@ -20,10 +19,7 @@ import kotlin.reflect.full.isSubclassOf
 class RdAnnotationProcessor @Inject constructor() {
 
     /**
-     * TODO remember to raise warning if rt is empty, telling user that default randomizer will be used because none of the provided randomizer can be used.
-     * Extract valid class randomizers class from [randomizerClass] list.
-     * A valid randomizer is one that can generate random instances of [targetClassData] type
-     * TODO this function does not take into account child classes
+     * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClassData]
      */
     fun getValidClassRandomizer(
         targetClassData: RDClassData,
@@ -56,16 +52,15 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * Can produce instances assignable to [targetClass]
+     * check if randomizer of [randomizerType] can produce an instance of [targetClass]
      */
-    fun canProduceAssignable(randomizerType: KType, targetClass: KClass<*>): Boolean {
+    private fun canProduceAssignable(randomizerType: KType, targetClass: KClass<*>): Boolean {
         val typesProducedByRandomizer = randomizerType.arguments.map {
             val variance = it.variance
             when (variance) {
                 KVariance.INVARIANT, KVariance.OUT -> {
                     it.type?.classifier
                 }
-
                 else -> null
             }
         }
@@ -78,8 +73,7 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * Extract valid parameter randomizer classes from [randomizerClass] list.
-     * A valid parameter randomizer is one that can generate a random parameter described by [targetKParam] and belongs to a parent class (represented by [parentClassData])
+     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetKParam] of parent class [parentClassData].
      */
     fun getValidParamRandomizer(
         parentClassData: RDClassData,
@@ -114,9 +108,7 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * Extract valid parameter randomizer classes from [randomizerClass] list.
-     * This function is for when the parameter is of generic type.
-     * TODO this function not completed. Because if the randomizer can generate a children type of the target class, then such randomizer is legal too
+     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetTypeParam] of parent class [parentClassData].
      */
     private fun getValidParamRandomizer(
         parentClassData: RDClassData,
@@ -170,14 +162,12 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * Extract valid parameter randomizer classes from [randomizerClass] list.
-     * This function is for when the parameter is of a concrete type.
-     * TODO this function not completed. Because if the randomizer can generate a children type of the target class, then such randomizer is legal too
+     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetClass] of parent class [parentClassData].
      */
     private fun getValidParamRandomizer(
         parentKClass: KClass<*>,
-        targetKParam: KParameter,
-        targetKClass: KClass<*>,
+        targetParam: KParameter,
+        targetClass: KClass<*>,
         randomizerClass: KClass<out ParameterRandomizer<*>>
     ): Result<KClass<out ParameterRandomizer<*>>, InvalidParamRandomizerReason> {
 
@@ -186,7 +176,7 @@ class RdAnnotationProcessor @Inject constructor() {
             return Err(
                 InvalidParamRandomizerReason.IsAbstract(
                     randomizerClass = randomizerClass,
-                    targetParam = targetKParam,
+                    targetParam = targetParam,
                     parentClass = parentKClass
                 )
             )
@@ -196,16 +186,16 @@ class RdAnnotationProcessor @Inject constructor() {
                 .firstOrNull { it.classifier == ParameterRandomizer::class }
 
             if (randomizerKType != null) {
-                if (canProduceAssignable(randomizerKType, targetKClass)) {
+                if (canProduceAssignable(randomizerKType, targetClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(
                         InvalidParamRandomizerReason.UnableToGenerateTarget(
                             randomizerClass = randomizerClass,
-                            targetParam = targetKParam,
+                            targetParam = targetParam,
                             parentClass = parentKClass,
                             actualClass = randomizerKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                            targetClass = targetKClass,
+                            targetClass = targetClass,
                         )
                     )
                 }
@@ -213,25 +203,11 @@ class RdAnnotationProcessor @Inject constructor() {
                 return Err(
                     InvalidParamRandomizerReason.IllegalRandomizerClass(
                         randomizerClass = randomizerClass,
-                        targetParam = targetKParam,
+                        targetParam = targetParam,
                         parentClass = parentKClass
                     )
                 )
             }
         }
     }
-
-}
-
-open class A<T>
-open class A2 : A<Int>()
-class A3 : A2()
-
-fun main() {
-    A3::class.allSupertypes.first {
-        it.canProduceGeneric(Int::class)
-    }.apply {
-        println(this)
-    }
-
 }

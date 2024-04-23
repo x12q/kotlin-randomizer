@@ -134,7 +134,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
 
     /**
-     * This test check if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent type.
+     * Test if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent class.
      */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_class() {
@@ -174,6 +174,9 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         }
     }
 
+    /**
+     * Test if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent interface.
+     */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_interface() {
 
@@ -201,7 +204,6 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             MA3Pr::class to Ok(MA3Pr::class),
         )
 
-
         test {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
@@ -214,7 +216,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * This test verify if the processor can recognize randomizers that can generate certain concrete type
+     * Check if [RdAnnotationProcessor] can generate instance of certain concrete type
      */
     @Test
     fun getValidParamRandomizer_concreteType() {
@@ -224,7 +226,8 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             val t: T,
         )
 
-        val iParamType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
+        // of i parameter in Target
+        val targetType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
         val processor = RdAnnotationProcessor()
         val parentDt = RDClassData.from<Target<Int>>()
@@ -234,26 +237,26 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             M1Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M1Pr::class,
-                    targetParam = iParamType,
+                    targetParam = targetType,
                     parentClass = parentDt.kClass,
                     actualClass = Int::class,
-                    targetClass = iParamType.type.classifier as KClass<*>,
+                    targetClass = targetType.type.classifier as KClass<*>,
                 )
             ),
             M2Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M2Pr::class,
-                    targetParam = iParamType,
+                    targetParam = targetType,
                     parentClass = parentDt.kClass,
                     actualClass = Float::class,
-                    targetClass = iParamType.type.classifier as KClass<*>,
+                    targetClass = targetType.type.classifier as KClass<*>,
                 )
             ),
             M3Pr::class to Ok(M3Pr::class),
             M4Pr::class to Err(
                 InvalidParamRandomizerReason.IsAbstract(
                     randomizerClass = M4Pr::class,
-                    targetParam = iParamType,
+                    targetParam = targetType,
                     parentClass = parentDt.kClass
                 )
             )
@@ -263,7 +266,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
                     parentClassData = parentDt,
-                    targetKParam = iParamType,
+                    targetKParam = targetType,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -271,7 +274,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if the annotation processor can recognize the correct randomizer for generic type
+     * Test if [RdAnnotationProcessor] can generate instance for a generic parameter (that is specified as a concrete type)
      */
     @Test
     fun getValidParamRandomizer_genericType() {
@@ -281,6 +284,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             val t: T
         )
 
+        // param t in Target, later is resolved to Int
         val target = Target::class.primaryConstructor!!.parameters.first { it.name == "t" }
 
         val processor = RdAnnotationProcessor()
@@ -345,12 +349,9 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     class M1 : BaseClassRandomizer<Int>()
-
     class M2 : BaseClassRandomizer<Float> ()
-
     class M3 : BaseClassRandomizer<String> ()
     abstract class M4 : ClassRandomizer<String>
-
     class MA1 : BaseClassRandomizer<A1> ()
     class MA2 : BaseClassRandomizer<A2> ()
     class MA3 : BaseClassRandomizer<A3> ()
@@ -381,14 +382,10 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     class M1Pr : BaseParamRandomizer<Int> ()
-
     class M2Pr : BaseParamRandomizer<Float> ()
-
     open class M3Pr : BaseParamRandomizer<String>()
     class M32Pr : M3Pr()
-
     abstract class M4Pr : BaseParamRandomizer<String>()
-
     class MA1Pr : BaseParamRandomizer<A1>()
     class MA2Pr : BaseParamRandomizer<A2>()
     class MA3Pr : BaseParamRandomizer<A3>()
