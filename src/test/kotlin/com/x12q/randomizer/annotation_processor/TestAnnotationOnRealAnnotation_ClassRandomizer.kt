@@ -5,12 +5,8 @@ import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.class_randomizer.randomizer
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
@@ -18,8 +14,7 @@ import kotlin.test.Test
 
 
 
-
-class TestAnnotationOnRealAnnotation {
+class TestAnnotationOnRealAnnotation_ClassRandomizer {
 
     @Test
     fun testOnRealAnnotation_right() {
@@ -55,8 +50,6 @@ class TestAnnotationOnRealAnnotation {
         val annotation = Target_2::class.findAnnotations(Randomizable::class).firstOrNull()!!
         annotation.classRandomizer shouldBe Randomizable.Companion.__DefaultRandomizerClass::class
     }
-
-
 
 
     @Randomizable(
