@@ -1,7 +1,6 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
 import kotlin.reflect.KClass
@@ -26,9 +25,17 @@ import kotlin.reflect.KClass
  *              - a factory function
  *     - Rule for primitive types (string, int, etc) must be very easy to set
  */
-@Target(CLASS,VALUE_PARAMETER,TYPE_PARAMETER,CONSTRUCTOR)
+
+
+
+@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, CONSTRUCTOR)
 @Retention(RUNTIME)
 annotation class Randomizable(
-//    val classRandomizer: Array<KClass<out ClassRandomizer<*>>> = arrayOf(ClassRandomizer::class),
-//    val paramRandomizer: Array<KClass<out ParameterRandomizer<*>>> = arrayOf(ParameterRandomizer::class),
-)
+    val classRandomizer: KClass<out ClassRandomizer<*>> = __DefaultRandomizerClass::class,
+){
+    companion object{
+        abstract class __DefaultRandomizerClass private constructor(): ClassRandomizer<Any>
+    }
+}
+
+//    val paramRandomizer: KClass<out ParameterRandomizer<*>> = ParameterRandomizer::class,

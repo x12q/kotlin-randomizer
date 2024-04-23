@@ -6,7 +6,7 @@ import com.x12q.randomizer.randomizer.RDClassData
  * Can generate a random instance of some type [T].
  */
 interface ClassRandomizer<T>  {
-    val paramClassData: RDClassData
+    val targetClassData: RDClassData
     fun isApplicable(classData: RDClassData): Boolean
     fun random(): T
 }

@@ -13,7 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class RandomizerTest: TestAnnotation() {
+class Randomizer1Test: TestAnnotation() {
 
     lateinit var rdm0: Randomizer
     lateinit var rdm: Randomizer

@@ -19,10 +19,10 @@ import kotlin.reflect.full.isSubclassOf
 class RdAnnotationProcessor @Inject constructor() {
 
     /**
-     * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClassData]
+     * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClass]
      */
     fun getValidClassRandomizer(
-        targetClassData: RDClassData,
+        targetClass: KClass<*>,
         randomizerClass: KClass<out ClassRandomizer<*>>
     ): Result<KClass<out ClassRandomizer<*>>, InvalidClassRandomizerReason> {
 
@@ -34,14 +34,14 @@ class RdAnnotationProcessor @Inject constructor() {
                 .firstOrNull { it.classifier == ClassRandomizer::class }
 
             if (classRandomizerType != null) {
-                if (canProduceAssignable(classRandomizerType, targetClassData.kClass)) {
+                if (canProduceAssignable(classRandomizerType, targetClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(
                         InvalidClassRandomizerReason.UnableToGenerateTargetType(
                             rmdClass = randomizerClass,
                             actualClass = classRandomizerType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                            targetClass = targetClassData.kClass,
+                            targetClass = targetClass,
                         )
                     )
                 }
@@ -49,6 +49,17 @@ class RdAnnotationProcessor @Inject constructor() {
                 return Err(InvalidClassRandomizerReason.IllegalClass(randomizerClass))
             }
         }
+    }
+
+
+    /**
+     * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClassData]
+     */
+    fun getValidClassRandomizer(
+        targetClassData: RDClassData,
+        randomizerClass: KClass<out ClassRandomizer<*>>
+    ): Result<KClass<out ClassRandomizer<*>>, InvalidClassRandomizerReason> {
+        return getValidClassRandomizer(targetClassData.kClass,randomizerClass)
     }
 
     /**

@@ -6,7 +6,7 @@ import com.x12q.randomizer.test.TestSamples
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
-class ClassRandomizerUtilsTest: TestAnnotation(){
+class ClassRandomizer1UtilsTest: TestAnnotation(){
     @Test
     fun randomizer(){
 

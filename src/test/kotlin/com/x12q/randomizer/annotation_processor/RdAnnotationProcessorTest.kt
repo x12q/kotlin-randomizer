@@ -3,6 +3,7 @@ package com.x12q.randomizer.annotation_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.annotation_processor.clazz.InvalidClassRandomizerReason
 import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReason
 import com.x12q.randomizer.err.ErrorReport
@@ -57,6 +58,13 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((randomizer, expectation) in testMap) {
                 processor.getValidClassRandomizer(
                     targetClassData = RDClassData.from<String>(),
+                    randomizerClass = randomizer
+                ) shouldBe expectation
+            }
+
+            for ((randomizer, expectation) in testMap) {
+                processor.getValidClassRandomizer(
+                    targetClass = String::class,
                     randomizerClass = randomizer
                 ) shouldBe expectation
             }
@@ -336,7 +344,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     open class A3 : IA, A2()
 
     open class BaseClassRandomizer<T> : ClassRandomizer<T>{
-        override val paramClassData: RDClassData
+        override val targetClassData: RDClassData
             get() = TODO("Not yet implemented")
 
         override fun isApplicable(classData: RDClassData): Boolean {

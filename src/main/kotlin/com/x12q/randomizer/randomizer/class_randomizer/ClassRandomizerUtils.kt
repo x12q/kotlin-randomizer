@@ -15,7 +15,7 @@ inline fun <reified T> randomizer(
     crossinline makeRandomIfApplicable: () -> T,
 ): ClassRandomizer<T> {
     val rt = object : ClassRandomizer<T> {
-        override val paramClassData: RDClassData = RDClassData.from<T>()
+        override val targetClassData: RDClassData = RDClassData.from<T>()
         override fun isApplicable(classData: RDClassData): Boolean {
             return condition(classData)
         }
