@@ -2,6 +2,7 @@ package com.x12q.randomizer.util
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
+import kotlin.reflect.KVariance
 import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.starProjectedType
 
@@ -10,14 +11,20 @@ object ReflectionUtils {
     /**
      * Check if a [KType] contains any generic type that match [targetClass] or is children of [targetClass]
      */
-    fun KType.containGeneric(targetClass: KClass<*>):Boolean{
+    fun KType.canProduceGeneric(targetClass: KClass<*>):Boolean{
         return this.arguments.map {
             // take variance into consideration
             // it.variance
-            it.type?.classifier
+            val variance = it.variance
+            when(variance){
+                KVariance.INVARIANT,KVariance.OUT ->{
+                    it.type?.classifier
+                }
+                else -> null
+            }
         }.any{classifier->
             (classifier as? KClass<*>)?.let{
-                it.isSubclassOf(targetClass) // or the other way
+                targetClass == it || targetClass.isSubclassOf(it)
             } ?: false
         }
     }

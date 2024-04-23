@@ -1,4 +1,5 @@
 package com.x12q.randomizer.annotation_processor
+
 import com.github.michaelbull.result.Result
 import com.x12q.randomizer.annotation_processor.clazz.InvalidClassRandomizerReason
 import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReason
@@ -73,7 +74,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
     abstract class M4 : ClassRandomizer<String>
 
-    class MA1:ClassRandomizer<A1>{
+    class MA1 : ClassRandomizer<A1> {
         override val paramClassData: RDClassData
             get() = TODO("Not yet implemented")
 
@@ -86,7 +87,8 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         }
 
     }
-    class MA2:ClassRandomizer<A2>{
+
+    class MA2 : ClassRandomizer<A2> {
         override val paramClassData: RDClassData
             get() = TODO("Not yet implemented")
 
@@ -106,7 +108,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         val processor = RdAnnotationProcessor()
 
         val result = processor.getValidClassRandomizer(
-            randomTarget = RDClassData.from<String>(),
+            targetClassData = RDClassData.from<String>(),
             candidates = arrayOf(
                 M1::class,
                 M2::class,
@@ -136,32 +138,30 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
     @Test
     fun getValidClassRandomizer_childrenClass() {
+
         val processor = RdAnnotationProcessor()
 
-        A1::class.isAssignableToGenericOf(MA1::class) shouldBe true
-
         val result = processor.getValidClassRandomizer(
-            randomTarget = RDClassData.from<A1>(),
+            targetClassData = RDClassData.from<A1>(),
             candidates = arrayOf(
-//                M1::class,
                 MA1::class,
-                MA2::class
+                MA2::class,
+                M1::class
             )
         )
-        println(result)
 
         result.validRandomizers.shouldContainOnly(
             MA1::class,
-            MA2::class
+            MA2::class,
         )
+
         result.invalidRandomizers.shouldContainOnly(
             InvalidClassRandomizerReason.WrongTargetType(
                 rmdClass = M1::class,
                 actualTypes = Int::class,
                 expectedType = A1::class,
             ),
-
-            )
+        )
     }
 
     @Test
@@ -258,7 +258,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
         }
 
-        class M32:M3()
+        class M32 : M3()
 
         abstract class M4 : ParameterRandomizer<String>
 
@@ -284,7 +284,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 //                M4::class
             )
         )
-        result.validRandomizers.shouldContainOnly(M1::class,M2::class)
+        result.validRandomizers.shouldContainOnly(M1::class, M2::class)
     }
 
 
@@ -382,7 +382,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
         }
 
-        class M32:M3()
+        class M32 : M3()
 
         abstract class M4 : ParameterRandomizer<String>
 
@@ -408,7 +408,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
                 M4::class
             )
         )
-        result.validRandomizers.shouldContainOnly(M3::class,M32::class)
+        result.validRandomizers.shouldContainOnly(M3::class, M32::class)
         result.invalidRandomizers.shouldContainOnly(
             InvalidParamRandomizerReason.IsAbstract(
                 randomizerKClass = M4::class,

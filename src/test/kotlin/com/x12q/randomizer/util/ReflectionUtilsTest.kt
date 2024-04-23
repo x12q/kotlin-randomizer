@@ -1,9 +1,10 @@
 package com.x12q.randomizer.util
 
 
-import com.x12q.randomizer.util.ReflectionUtils.containGeneric
+import com.x12q.randomizer.util.ReflectionUtils.canProduceGeneric
 import com.x12q.randomizer.util.ReflectionUtils.isAssignableTo
 import com.x12q.randomizer.util.ReflectionUtils.isAssignableToGenericOf
+import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -12,13 +13,24 @@ import kotlin.reflect.typeOf
 class ReflectionUtilsTest{
     open class A
     interface B
-    class A1:B,A()
+    open class A1:B,A()
+    class A2:A1()
     class B1:B
 
 
     @Test
     fun containGeneric(){
-        typeOf<List<A>>().containGeneric(A1::class).shouldBeTrue()
+        typeOf<List<A>>().canProduceGeneric(A1::class).shouldBeTrue()
+        typeOf<List<A>>().canProduceGeneric(A2::class).shouldBeTrue()
+
+        typeOf<List<B>>().canProduceGeneric(A1::class).shouldBeTrue()
+        typeOf<List<B>>().canProduceGeneric(A2::class).shouldBeTrue()
+
+        typeOf<List<A1>>().canProduceGeneric(A2::class).shouldBeTrue()
+
+        typeOf<List<A>>().canProduceGeneric(B::class).shouldBeFalse()
+
+
     }
 
     @Test

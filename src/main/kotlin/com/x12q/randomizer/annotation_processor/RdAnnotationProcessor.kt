@@ -7,13 +7,12 @@ import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReas
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
-import com.x12q.randomizer.util.ReflectionUtils.containGeneric
+import com.x12q.randomizer.util.ReflectionUtils.canProduceGeneric
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.KTypeParameter
+import kotlin.reflect.*
 import kotlin.reflect.full.allSupertypes
+import kotlin.reflect.full.isSubclassOf
 
 
 @Singleton
@@ -22,25 +21,11 @@ class RdAnnotationProcessor @Inject constructor() {
     /**
      * TODO remember to raise warning if rt is empty, telling user that default randomizer will be used because none of the provided randomizer can be used.
      * Extract valid class randomizers class from [candidates] list.
-     * A valid randomizer is one that can generate random instances of [RDClassData] type
-     */
-    fun getValidClassRandomizer(
-        randomTarget: RDClassData,
-        candidates: Array<KClass<out ClassRandomizer<*>>>
-    ): AnnotationProcessingClassRandomizerResult {
-        val randomTargetKClass = randomTarget.kClass
-        return getValidClassRandomizer(
-            randomTargetKClass, candidates
-        )
-    }
-    /**
-     * TODO remember to raise warning if rt is empty, telling user that default randomizer will be used because none of the provided randomizer can be used.
-     * Extract valid class randomizers class from [candidates] list.
-     * A valid randomizer is one that can generate random instances of [randomTargetKClass] type
+     * A valid randomizer is one that can generate random instances of [targetClassData] type
      * TODO this function does not take into account child classes
      */
     fun getValidClassRandomizer(
-        randomTargetKClass: KClass<*>,
+        targetClassData: RDClassData,
         candidates: Array<KClass<out ClassRandomizer<*>>>
     ): AnnotationProcessingClassRandomizerResult {
 
@@ -53,41 +38,23 @@ class RdAnnotationProcessor @Inject constructor() {
                     InvalidClassRandomizerReason.IsAbstract(randomizerClass)
                 )
             } else {
-                val superKType = randomizerClass.allSupertypes
+                val classRandomizerType = randomizerClass
+                    .allSupertypes
                     .firstOrNull { it.classifier == ClassRandomizer::class }
-                if(superKType!=null){
-                    if(superKType.containGeneric(randomTargetKClass)){
+
+                if(classRandomizerType!=null){
+                    if(canProduceAssignableGeneric(classRandomizerType,targetClassData.kClass)){
                         validRdms.add(randomizerClass)
                     }else{
                         invalidRdms.add(
                             InvalidClassRandomizerReason.WrongTargetType(
                                 rmdClass = randomizerClass,
-                                actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                                expectedType = randomTargetKClass,
+                                actualTypes = classRandomizerType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
+                                expectedType = targetClassData.kClass,
                             )
                         )
                     }
                 }
-//                if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
-//                    validRdms.add(randomizerClass)
-////                    for (superKType in randomizerClass.supertypes) {
-////                        if (superKType.classifier == ClassRandomizer::class) {
-////                            if(randomTargetKClass.isAssignableToGenericOf(randomizerClass.starProjectedType)){
-////                                validRdms.add(randomizerClass)
-////                                break
-////                            } else {
-////                                invalidRdms.add(
-////                                    InvalidClassRandomizerReason.WrongTargetType(
-////                                        rmdClass = randomizerClass,
-////                                        actualTypes = superKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-////                                        expectedType = randomTargetKClass,
-////                                    )
-////                                )
-////                                break
-////                            }
-////                        }
-////                    }
-//                }
             }
         }
 
@@ -97,6 +64,27 @@ class RdAnnotationProcessor @Inject constructor() {
         )
 
         return rt
+    }
+
+    /**
+     * Can produce instances assignable to [targetClass]
+     */
+    fun canProduceAssignableGeneric(classRandomizerKType:KType, targetClass: KClass<*>):Boolean{
+        val typesProducedByRandomizer =  classRandomizerKType.arguments.map {
+            val variance = it.variance
+            when(variance){
+                KVariance.INVARIANT, KVariance.OUT ->{
+                    it.type?.classifier
+                }
+                else -> null
+            }
+        }
+
+        return typesProducedByRandomizer.any{classifier->
+            (classifier as? KClass<*>)?.let{
+                it == targetClass || it.isSubclassOf(targetClass)
+            } ?: false
+        }
     }
 
     /**
@@ -161,7 +149,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 } else {
                     for (superKType in paramRdm.supertypes) {
                         if (superKType.classifier == ParameterRandomizer::class) {
-                            if (superKType.containGeneric(targetClass)) {
+                            if (canProduceAssignableGeneric(superKType,targetClass)) {
                                 validRdms.add(paramRdm)
                             } else {
                                 invalidRdms.add(
@@ -217,7 +205,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 val randomizerKType = paramRdm.allSupertypes
                     .firstOrNull { it.classifier == ParameterRandomizer::class }
                 if(randomizerKType!=null){
-                    if(randomizerKType.containGeneric(targetKClass)){
+                    if(canProduceAssignableGeneric(randomizerKType,targetKClass)){
                         validRdms.add(paramRdm)
                     }else{
                         invalidRdms.add(
@@ -249,7 +237,7 @@ class A3 : A2()
 
 fun main() {
     A3::class.allSupertypes.first{
-        it.containGeneric(Int::class)
+        it.canProduceGeneric(Int::class)
     }.apply{
         println(this)
     }
