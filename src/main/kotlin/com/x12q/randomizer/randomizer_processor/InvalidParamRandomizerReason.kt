@@ -1,4 +1,4 @@
-package com.x12q.randomizer.annotation_processor.param
+package com.x12q.randomizer.randomizer_processor
 
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import kotlin.reflect.KClass
@@ -42,5 +42,5 @@ sealed class InvalidParamRandomizerReason {
         override val randomizerClass: KClass<out ParameterRandomizer<*>>,
         override val parentClass: KClass<*>,
         override val targetParam: KParameter
-    ):InvalidParamRandomizerReason()
+    ): InvalidParamRandomizerReason()
 }

@@ -1,8 +1,5 @@
 package com.x12q.randomizer.randomizer.parameter
 
-import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.RDClassData
 import kotlin.reflect.KParameter
 

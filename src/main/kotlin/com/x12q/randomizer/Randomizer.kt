@@ -1,7 +1,7 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-import com.x12q.randomizer.annotation_processor.RandomizerProcessor
+import com.x12q.randomizer.randomizer_processor.RandomizerProcessor
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.RDClassData
@@ -30,7 +30,7 @@ data class Randomizer @Inject constructor(
         }
         val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
         if (lv1Randomizer != null) {
-            // lv1 = randomizer provided explicitly by the users in the top-level random function
+            // lv1 = randomizer is provided explicitly by the users in the top-level random function
             return lv1Randomizer.random()
         } else {
             if (lv2Randomizer != null) {
@@ -93,6 +93,7 @@ data class Randomizer @Inject constructor(
         param: KParameter,
         parentClassData: RDClassData
     ): Result<Any?, ErrorReport> {
+
         /**
          * There are 2 types of parameter:
          * - clear-type parameter
@@ -106,11 +107,13 @@ data class Randomizer @Inject constructor(
         val lv2ParamRandomizerClass = param
             .findAnnotations(Randomizable::class).firstOrNull()
             ?.paramRandomizer
+
         val lv2ActualParamRandomizerClass = if(lv2ParamRandomizerClass != Randomizable.Companion.__DefaultParamRandomizer::class) {
             lv2ParamRandomizerClass
         } else {
             null
         }
+
         val lv2ParamRandomizer = lv2ActualParamRandomizerClass?.createInstance()
 
         when (val classifier = paramType.classifier) {
@@ -185,6 +188,7 @@ data class Randomizer @Inject constructor(
         }
     }
 
+    // TODO consider randomizer lv1,2,3,4 here
     private fun randomChildren(paramKType: KType, parentClassData: RDClassData): Any? {
         // this level does not contain param type, and it must not, because it is also used to generate non-parameter
         when (val classifier = paramKType.classifier) {

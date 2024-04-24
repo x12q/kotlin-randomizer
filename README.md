@@ -29,5 +29,6 @@
   - Test more, this is very important
     - test generic
     - test appropriate overriding
+    - take a look at randomChildren
 - TODO Add easier to use builder for param randomizer + class randomizer.
 

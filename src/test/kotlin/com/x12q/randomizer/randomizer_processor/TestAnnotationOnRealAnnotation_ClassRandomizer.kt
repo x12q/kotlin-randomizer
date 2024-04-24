@@ -1,4 +1,4 @@
-package com.x12q.randomizer.annotation_processor
+package com.x12q.randomizer.randomizer_processor
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok

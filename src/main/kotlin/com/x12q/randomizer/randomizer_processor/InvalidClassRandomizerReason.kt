@@ -1,4 +1,4 @@
-package com.x12q.randomizer.annotation_processor.clazz
+package com.x12q.randomizer.randomizer_processor
 
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import kotlin.reflect.KClass

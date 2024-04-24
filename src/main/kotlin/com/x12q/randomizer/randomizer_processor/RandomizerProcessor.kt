@@ -1,10 +1,8 @@
-package com.x12q.randomizer.annotation_processor
+package com.x12q.randomizer.randomizer_processor
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.x12q.randomizer.annotation_processor.clazz.InvalidClassRandomizerReason
-import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReason
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
