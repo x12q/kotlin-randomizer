@@ -84,24 +84,24 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetKParam] of parent class [parentClassData].
+     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] of parent class [parentClassData].
      */
     fun getValidParamRandomizer(
         parentClassData: RDClassData,
-        targetKParam: KParameter,
+        targetParam: KParameter,
         randomizerClass: KClass<out ParameterRandomizer<*>>
     ): Result<KClass<out ParameterRandomizer<*>>, InvalidParamRandomizerReason> {
 
-        when (val randomTargetKClassifier = targetKParam.type.classifier) {
+        when (val randomTargetKClassifier = targetParam.type.classifier) {
             is KClass<*> -> {
                 return getValidParamRandomizer(
-                    parentClassData.kClass, targetKParam, randomTargetKClassifier, randomizerClass
+                    parentClassData.kClass, targetParam, randomTargetKClassifier, randomizerClass
                 )
             }
 
             is KTypeParameter -> {
                 return getValidParamRandomizer(
-                    parentClassData, targetKParam, randomTargetKClassifier, randomizerClass
+                    parentClassData, targetParam, randomTargetKClassifier, randomizerClass
                 )
             }
 
@@ -111,7 +111,7 @@ class RdAnnotationProcessor @Inject constructor() {
                     InvalidParamRandomizerReason.InvalidTarget(
                         randomizerClass = randomizerClass,
                         parentClass = parentClassData.kClass,
-                        targetParam = targetKParam
+                        targetParam = targetParam
                     )
                 )
             }

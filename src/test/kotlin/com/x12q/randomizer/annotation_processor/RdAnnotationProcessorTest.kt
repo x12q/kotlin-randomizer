@@ -2,11 +2,8 @@ package com.x12q.randomizer.annotation_processor
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.Result
-import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.annotation_processor.clazz.InvalidClassRandomizerReason
 import com.x12q.randomizer.annotation_processor.param.InvalidParamRandomizerReason
-import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
@@ -55,13 +52,6 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         )
 
         test {
-            for ((randomizer, expectation) in testMap) {
-                processor.getValidClassRandomizer(
-                    targetClassData = RDClassData.from<String>(),
-                    randomizerClass = randomizer
-                ) shouldBe expectation
-            }
-
             for ((randomizer, expectation) in testMap) {
                 processor.getValidClassRandomizer(
                     targetClass = String::class,
@@ -175,7 +165,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
                     parentClassData = parentClassData,
-                    targetKParam = target,
+                    targetParam = target,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -216,7 +206,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
                     parentClassData = parentClassData,
-                    targetKParam = target,
+                    targetParam = target,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -274,7 +264,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
                     parentClassData = parentDt,
-                    targetKParam = targetType,
+                    targetParam = targetType,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -331,7 +321,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             for ((subject, expectation) in testMap) {
                 processor.getValidParamRandomizer(
                     parentClassData = parentDt,
-                    targetKParam = target,
+                    targetParam = target,
                     randomizerClass = subject
                 ) shouldBe expectation
             }
@@ -376,15 +366,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
             TODO("Not yet implemented")
         }
 
-        override fun randomRs(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Result<T, ErrorReport> {
-            TODO("Not yet implemented")
-        }
-
-        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T? {
+        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T {
             TODO("Not yet implemented")
         }
     }

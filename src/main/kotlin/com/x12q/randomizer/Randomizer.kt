@@ -88,8 +88,8 @@ data class Randomizer @Inject constructor(
                 if(!paramRandomizer.isNullOrEmpty()){
                     for(rd in paramRandomizer){
                         if(rd.isApplicableTo(paramData,kParam,parentClassData)){
-                            val rs = rd.randomRs(paramData,kParam,parentClassData)
-                            return rs
+                            val rs = rd.random(paramData,kParam,parentClassData)
+                            return Ok(rs)
                         }
                     }
                 }

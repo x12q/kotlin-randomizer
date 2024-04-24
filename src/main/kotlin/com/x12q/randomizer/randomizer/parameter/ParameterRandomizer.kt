@@ -25,19 +25,10 @@ interface ParameterRandomizer<out T> {
         parentClassData: RDClassData,
     ): Boolean
 
-    /**
-     * Generate a random parameter
-     */
-    fun randomRs(
-        parameterClassData: RDClassData,
-        parameter: KParameter,
-        parentClassData: RDClassData,
-    ): Result<T, ErrorReport>
-
     fun random(
         parameterClassData: RDClassData,
         parameter: KParameter,
         parentClassData: RDClassData,
-    ): T?
+    ): T
 }
 

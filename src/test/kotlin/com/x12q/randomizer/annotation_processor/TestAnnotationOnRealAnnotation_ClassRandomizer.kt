@@ -48,7 +48,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizer {
     @Test
     fun testOnRealAnnotation_default() {
         val annotation = Target_2::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        annotation.classRandomizer shouldBe Randomizable.Companion.__DefaultRandomizerClass::class
+        annotation.classRandomizer shouldBe Randomizable.Companion.__DefaultClassRandomizer::class
     }
 
 

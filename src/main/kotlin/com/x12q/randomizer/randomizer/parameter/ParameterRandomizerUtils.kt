@@ -31,22 +31,13 @@ inline fun <reified T> paramRandomizer(
             return condition(paramInfo)
         }
 
-        override fun randomRs(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            parentClassData: RDClassData
-        ): Result<T, ErrorReport> {
+        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T {
             val paramInfo = ParamInfo(
                 paramClass = paramClassData,
                 kParam = parameter,
                 parentClass = parentClassData
             )
-            return Ok(makeRandomIfApplicable(paramInfo))
-        }
-
-        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T? {
-            val rs = randomRs(parameterClassData, parameter, parentClassData)
-            return rs.component1()
+            return makeRandomIfApplicable(paramInfo)
         }
     }
 }

@@ -56,12 +56,5 @@ data class RDClassData(
                 kType = typeOf<T>(),
             )
         }
-
-        fun from(i:KClass<*>):RDClassData{
-            return RDClassData(
-                kClass = i,
-                kType = i.starProjectedType
-            )
-        }
     }
 }

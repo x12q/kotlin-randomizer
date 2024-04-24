@@ -25,4 +25,6 @@
     - TODO: Increase param randomizer lookup speed (otherwise it is n^2)
 - TODO double check or create base/primitive class randomizers (for int, float, double, etc...)
 - TODO Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic
+  - Priority order: randomizer from top-level function -> parameter randomize -> class randomizer
 - TODO Add easier to use builder for param randomizer + class randomizer.
+
