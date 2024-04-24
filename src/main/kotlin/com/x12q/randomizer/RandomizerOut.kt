@@ -38,7 +38,7 @@ inline fun <reified T : Any> makeRandomInstance(
     val randomizer = comp.randomizer()
 
     val randomizer2 = randomizer.copy(
-        randomizerCollection = randomizer.randomizerCollection
+        lv1RandomizerCollection = randomizer.lv1RandomizerCollection
             .addParamRandomizer(*paramRandomizers.toTypedArray())
             .addRandomizers(*randomizers.toTypedArray())
     )

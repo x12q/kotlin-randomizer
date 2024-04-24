@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 /**
  *
  */
-@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, CONSTRUCTOR)
+@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, CONSTRUCTOR, PROPERTY)
 @Retention(RUNTIME)
 annotation class Randomizable(
     val classRandomizer: KClass<out ClassRandomizer<*>> = __DefaultClassRandomizer::class,

@@ -5,6 +5,7 @@ import com.x12q.randomizer.Randomizer
 import com.x12q.randomizer.di.CommonModule
 import com.x12q.randomizer.di.RandomizableAnvilScope
 import com.x12q.randomizer.randomizer.di.RandomizerModule
+import javax.inject.Singleton
 
 @MergeComponent(
     scope = RandomizableAnvilScope::class,
@@ -14,6 +15,7 @@ import com.x12q.randomizer.randomizer.di.RandomizerModule
         TestModule::class,
     ]
 )
+@Singleton
 interface TestComp {
     fun randomizer(): Randomizer
 }

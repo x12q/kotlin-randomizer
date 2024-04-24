@@ -1,47 +1,70 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
+import com.x12q.randomizer.annotation_processor.RandomizerProcessor
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
+import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
+import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.findAnnotations
 
 data class Randomizer @Inject constructor(
     private val random: Random,
-    val randomizerCollection: RandomizerCollection,
+    val lv1RandomizerCollection: RandomizerCollection,
+    val randomizerProcessor: RandomizerProcessor
 ) {
 
     val possibleCollectionSizes: IntRange = 1..5
     val possibleStringSizes: IntRange = 1..10
 
-    fun random(classData: RDClassData): Any? {
+    fun random(classData: RDClassData, lv2Randomizer: ClassRandomizer<*>? = null): Any? {
         val classRef: KClass<*> = classData.kClass
         val primitive = defaultPrimitiveRandomOrNull(classData)
         if (primitive != null) {
             return primitive
         }
-
-        val customClassRdm = randomizerCollection.getRandomizer(classData)
-        if(customClassRdm!=null){
-            return customClassRdm.random()
-        }else{
-            val constructors = classRef.constructors.shuffled(random)
-
-            for (constructor in constructors) {
-                try {
-                    val arguments = constructor.parameters.map { kParam ->
-                        randomConstructorParameter(
-                            kParam = kParam,
-                            parentClassData = classData,
-                        )
-                    }.toTypedArray()
-                    return constructor.call(*arguments)
-                } catch (e: Throwable) {
-                    e.printStackTrace()
-                    // no-op. We catch any possible error here that might occur during class creation
+        val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
+        if (lv1Randomizer != null) {
+            // lv1 = randomizer provided explicitly by the users in the top-level random function
+            return lv1Randomizer.random()
+        } else {
+            if (lv2Randomizer != null) {
+                // lv2 = randomizer passed to this function, this is actually param randomizer
+                return lv2Randomizer.random()
+            } else {
+                // lv 3 = randomizer in @Randomizer annotation
+                val level3RandomizerClass =
+                    classData.kClass.findAnnotations(Randomizable::class).firstOrNull()?.classRandomizer
+                if (level3RandomizerClass != null) {
+                    val lv3Randomizer = level3RandomizerClass.createInstance()
+                    return lv3Randomizer.random()
+                } else {
+                    // lv 4 - default recursive randomizer
+                    if (classRef.isAbstract) {
+                        // TODO add a better error handling + more meaningful msg
+                        throw IllegalArgumentException("can't randomized abstract class")
+                    } else {
+                        val constructors = classRef.constructors.shuffled(random)
+                        for (constructor in constructors) {
+                            try {
+                                val arguments = constructor.parameters.map { kParam ->
+                                    randomConstructorParameter(
+                                        kParam = kParam,
+                                        parentClassData = classData,
+                                    )
+                                }.toTypedArray()
+                                return constructor.call(*arguments)
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                                // no-op. We catch any possible error here that might occur during class creation
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -54,6 +77,7 @@ data class Randomizer @Inject constructor(
             is Ok -> {
                 return rs.value
             }
+
             is Err -> {
                 val er = rs.error
                 if (er.isType(RandomizerErrors.ClassifierNotSupported.header)) {
@@ -66,7 +90,7 @@ data class Randomizer @Inject constructor(
     }
 
     fun randomConstructorParameterRs(
-        kParam: KParameter,
+        param: KParameter,
         parentClassData: RDClassData
     ): Result<Any?, ErrorReport> {
         /**
@@ -77,24 +101,53 @@ data class Randomizer @Inject constructor(
          * both can be turned into clear-type, that means, both can be checked by clear-type checker
          */
 
-        val paramKType: KType = kParam.type
-        when (val classifier = paramKType.classifier) {
+        val paramType: KType = param.type
+
+        val lv2ParamRandomizerClass = param
+            .findAnnotations(Randomizable::class).firstOrNull()
+            ?.paramRandomizer
+        val lv2ActualParamRandomizerClass = if(lv2ParamRandomizerClass != Randomizable.Companion.__DefaultParamRandomizer::class) {
+            lv2ParamRandomizerClass
+        } else {
+            null
+        }
+        val lv2ParamRandomizer = lv2ActualParamRandomizerClass?.createInstance()
+
+        when (val classifier = paramType.classifier) {
             is KClass<*> -> {
                 /**
                  * This is for normal parameter
                  */
-                val paramData = RDClassData(classifier, paramKType)
-                val paramRandomizer = randomizerCollection.getParamRandomizer(paramData)
-                if(!paramRandomizer.isNullOrEmpty()){
-                    for(rd in paramRandomizer){
-                        if(rd.isApplicableTo(paramData,kParam,parentClassData)){
-                            val rs = rd.random(paramData,kParam,parentClassData)
+                val paramData = RDClassData(classifier, paramType)
+                val paramRandomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
+                if (!paramRandomizer.isNullOrEmpty()) {
+                    for (rd in paramRandomizer) {
+                        if (rd.isApplicableTo(paramData, param, parentClassData)) {
+                            val rs = rd.random(paramData, param, parentClassData)
                             return Ok(rs)
                         }
                     }
                 }
 
-                val rt = random(paramData)
+                val lv2ClassRandomizer = lv2ParamRandomizer?.let {
+                    object : ClassRandomizer<Any?> {
+                        override val targetClassData: RDClassData = paramData
+
+                        override fun isApplicable(classData: RDClassData): Boolean {
+                            return classData == targetClassData
+                        }
+
+                        override fun random(): Any? {
+                            return lv2ParamRandomizer.random(
+                                parameterClassData = paramData,
+                                parameter = param,
+                                parentClassData = parentClassData,
+                            )
+                        }
+                    }
+                }
+
+                val rt = random(paramData, lv2ClassRandomizer)
                 return Ok(rt)
             }
             /**
@@ -104,7 +157,25 @@ data class Randomizer @Inject constructor(
             is KTypeParameter -> {
                 val parameterData = parentClassData.getDataFor(classifier)
                 if (parameterData != null) {
-                    return Ok(random(parameterData))
+
+                    val lv2ClassRandomizer = lv2ParamRandomizer?.let {
+                        object : ClassRandomizer<Any?> {
+                            override val targetClassData: RDClassData = parameterData
+
+                            override fun isApplicable(classData: RDClassData): Boolean {
+                                return classData == targetClassData
+                            }
+
+                            override fun random(): Any? {
+                                return lv2ParamRandomizer.random(
+                                    parameterClassData = parameterData,
+                                    parameter = param,
+                                    parentClassData = parentClassData,
+                                )
+                            }
+                        }
+                    }
+                    return Ok(random(parameterData,lv2ClassRandomizer))
                 } else {
                     return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, parentClassData))
                 }

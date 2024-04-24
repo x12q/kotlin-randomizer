@@ -19,7 +19,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizer {
     @Test
     fun testOnRealAnnotation_right() {
         val annotation = Target_1::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         processor.getValidClassRandomizer(
             targetClass = Target_1::class,
@@ -34,7 +34,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizer {
     @Test
     fun testOnRealAnnotation_wrong() {
         val annotation = Target_3_WronglyAnnotated::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         processor.getValidClassRandomizer(
             targetClass = Target_3_WronglyAnnotated::class,

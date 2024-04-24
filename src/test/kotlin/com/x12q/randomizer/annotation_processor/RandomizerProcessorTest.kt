@@ -15,22 +15,22 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RdAnnotationProcessorTest : TestAnnotation() {
+class RandomizerProcessorTest : TestAnnotation() {
 
-    lateinit var processor: RdAnnotationProcessor
+    lateinit var processor: RandomizerProcessor
 
 
     @BeforeTest
     fun bt() {
-        processor = RdAnnotationProcessor()
+        processor = RandomizerProcessor()
     }
 
     /**
-     * Test if [RdAnnotationProcessor] can identify the correct randomizer for a concrete class target
+     * Test if [RandomizerProcessor] can identify the correct randomizer for a concrete class target
      */
     @Test
     fun getValidClassRandomizer_concrete_target() {
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         val testMap = mapOf(
             M1::class to Err(
@@ -62,12 +62,12 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RdAnnotationProcessor] can identify randomizer that can generate instance of children classes of a parent class
+     * Test if [RandomizerProcessor] can identify randomizer that can generate instance of children classes of a parent class
      */
     @Test
     fun getValidClassRandomizer_childrenClass_of_parent_class() {
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         val testMap = mapOf(
             MA1::class to Ok(MA1::class),
@@ -97,7 +97,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     @Test
     fun getValidClassRandomizer_childrenClass_of_parent_interface() {
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         val testMap = mapOf(
             MA1::class to Err(
@@ -132,7 +132,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
 
     /**
-     * Test if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent class.
+     * Test if [RandomizerProcessor] can recognize randomizers that can generate parameter child types of a parent class.
      */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_class() {
@@ -144,7 +144,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
         val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
         val parentClassData = RDClassData.from<Target2<Int>>()
 
         val testMap = mapOf(
@@ -173,7 +173,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RdAnnotationProcessor] can recognize randomizers that can generate parameter child types of a parent interface.
+     * Test if [RandomizerProcessor] can recognize randomizers that can generate parameter child types of a parent interface.
      */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_interface() {
@@ -185,7 +185,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
 
         val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
         val parentClassData = RDClassData.from<Target2<Int>>()
 
         val testMap = mapOf(
@@ -214,7 +214,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Check if [RdAnnotationProcessor] can generate instance of certain concrete type
+     * Check if [RandomizerProcessor] can generate instance of certain concrete type
      */
     @Test
     fun getValidParamRandomizer_concreteType() {
@@ -227,7 +227,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         // of i parameter in Target
         val targetType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
         val parentDt = RDClassData.from<Target<Int>>()
 
         val testMap = mapOf(
@@ -272,7 +272,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RdAnnotationProcessor] can generate instance for a generic parameter (that is specified as a concrete type)
+     * Test if [RandomizerProcessor] can generate instance for a generic parameter (that is specified as a concrete type)
      */
     @Test
     fun getValidParamRandomizer_genericType() {
@@ -285,7 +285,7 @@ class RdAnnotationProcessorTest : TestAnnotation() {
         // param t in Target, later is resolved to Int
         val target = Target::class.primaryConstructor!!.parameters.first { it.name == "t" }
 
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
         val parentDt = RDClassData.from<Target<Int>>()
 
         val testMap = mapOf(

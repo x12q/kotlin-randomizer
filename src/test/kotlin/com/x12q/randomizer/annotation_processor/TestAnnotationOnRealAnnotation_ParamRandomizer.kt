@@ -4,13 +4,11 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import com.x12q.randomizer.test.TestAnnotation
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
@@ -25,7 +23,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizer :TestAnnotation(){
     fun testOnRealAnnotation_right() {
         val param = Class_1::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         test("randomizer class is extracted correctly"){
             processor.getValidParamRandomizer(
@@ -56,7 +54,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizer :TestAnnotation(){
     fun testOnRealAnnotation_wrong() {
         val param = Class_3::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        val processor = RdAnnotationProcessor()
+        val processor = RandomizerProcessor()
 
         test("randomizer class is extracted correctly"){
             processor.getValidParamRandomizer(

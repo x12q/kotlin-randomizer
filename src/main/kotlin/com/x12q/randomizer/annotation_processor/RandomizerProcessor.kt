@@ -14,9 +14,11 @@ import kotlin.reflect.*
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.isSubclassOf
 
-
+/**
+ * Contains function to sort out randomizer for some given target class
+ */
 @Singleton
-class RdAnnotationProcessor @Inject constructor() {
+class RandomizerProcessor @Inject constructor() {
 
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClass]
@@ -34,7 +36,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 .firstOrNull { it.classifier == ClassRandomizer::class }
 
             if (classRandomizerType != null) {
-                if (canProduceAssignable(classRandomizerType, targetClass)) {
+                if (canProduce(classRandomizerType, targetClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(
@@ -63,9 +65,9 @@ class RdAnnotationProcessor @Inject constructor() {
     }
 
     /**
-     * check if randomizer of [randomizerType] can produce an instance of [targetClass]
+     * check if randomizer of [randomizerType] can produce an instance that can be assigned to [targetClass]
      */
-    private fun canProduceAssignable(randomizerType: KType, targetClass: KClass<*>): Boolean {
+    private fun canProduce(randomizerType: KType, targetClass: KClass<*>): Boolean {
         val typesProducedByRandomizer = randomizerType.arguments.map {
             val variance = it.variance
             when (variance) {
@@ -144,7 +146,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 }
 
                 if(randomizerSuperType!=null){
-                    if (canProduceAssignable(randomizerSuperType, targetClass)) {
+                    if (canProduce(randomizerSuperType, targetClass)) {
                         return Ok(randomizerClass)
                     } else {
                         return Err(
@@ -197,7 +199,7 @@ class RdAnnotationProcessor @Inject constructor() {
                 .firstOrNull { it.classifier == ParameterRandomizer::class }
 
             if (randomizerKType != null) {
-                if (canProduceAssignable(randomizerKType, targetClass)) {
+                if (canProduce(randomizerKType, targetClass)) {
                     return Ok(randomizerClass)
                 } else {
                     return Err(

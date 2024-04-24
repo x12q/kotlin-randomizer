@@ -18,7 +18,7 @@ class ClassRandomizer1UtilsTest: TestAnnotation(){
             return 123
         }
 
-        val rdm = randomizer<Int>(
+        val rdm = classRandomizer<Int>(
             condition = ::condition,
             makeRandomIfApplicable = ::makeRandomIfApplicable
         )

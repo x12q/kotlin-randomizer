@@ -9,7 +9,7 @@ import javax.inject.Inject
  */
 data class RandomizerCollection(
     val parameterRandomizers: Map<RDClassData, List<ParameterRandomizer<*>>>,
-    val randomizers: Map<RDClassData, ClassRandomizer<*>>
+    val classRandomizers: Map<RDClassData, ClassRandomizer<*>>
 ) {
 
     @Inject
@@ -29,12 +29,12 @@ data class RandomizerCollection(
 
     fun addRandomizers(vararg newRandomizers: ClassRandomizer<*>): RandomizerCollection {
         return this.copy(
-            randomizers = randomizers + newRandomizers.associateBy { it.targetClassData }
+            classRandomizers = classRandomizers + newRandomizers.associateBy { it.targetClassData }
         )
     }
 
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {
-        return randomizers[key]
+        return classRandomizers[key]
     }
 
 }
