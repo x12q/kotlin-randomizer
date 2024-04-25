@@ -13,7 +13,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RandomizerProcessorTest : TestAnnotation() {
+class RandomizerEndProcessorTest : TestAnnotation() {
 
     lateinit var processor: RandomizerProcessor
 

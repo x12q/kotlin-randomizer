@@ -12,16 +12,15 @@ import com.x12q.randomizer.test.TestSamples.Class2
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.spyk
-import kotlinx.serialization.json.JsonNames
 import kotlin.reflect.KParameter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer1Test: TestAnnotation() {
+class Randomizer_End_Default: TestAnnotation() {
 
-    lateinit var rdm0: Randomizer
-    lateinit var rdm: Randomizer
+    lateinit var rdm0: RandomizerEnd
+    lateinit var rdm: RandomizerEnd
 
     val spyParamRdm = spyk(Class1.tm12FixedRandomizer)
     val classRdm = Class2.classFixedRandomizer
@@ -82,8 +81,6 @@ class Randomizer1Test: TestAnnotation() {
     }
 
 
-
-
     @Test
     fun `lv1 overriding all other randomizer`(){
         test("lv1 randomizer should override the randomizer in the class annotation") {
@@ -119,11 +116,40 @@ class Randomizer1Test: TestAnnotation() {
         rdm.random(RDClassData.from<A1>()) shouldBe A1.Randomizer1().random()
     }
 
+
+    data class B1(
+        @Randomizable(classRandomizer = A1.Randomizer2::class)
+        val a:A
+    ){
+        companion object{
+
+//            val fixed1 = B1(A1("a1"))
+//            val fixed2 = B1(A2(A1("a2"),2))
+//
+//            abstract class BRandomizer0(val rt:B1): ClassRandomizer<B1>{
+//                override val targetClassData: RDClassData = RDClassData.from<B1>()
+//
+//                override fun isApplicable(classData: RDClassData): Boolean {
+//                    return classData == this.targetClassData
+//                }
+//
+//                override fun random(): B1 {
+//                    return rt
+//                }
+//            }
+//
+//            class BRandomizer1():BRandomizer0(fixed1)
+//            class BRandomizer2():BRandomizer0(fixed2)
+        }
+    }
+
+    abstract class A
+
     data class A2(
         @Randomizable(paramRandomizer = A1.ParamRandomizer2::class)
         val a1:A1,
         val i:Int
-    ){
+    ):A(){
         companion object{
             val fixed1 = A2(A1.fixed1,1)
             val fixed2 = A2(A1.fixed2,2)
@@ -148,7 +174,8 @@ class Randomizer1Test: TestAnnotation() {
     }
 
 
-    data class A1(val s:String){
+    @Randomizable(classRandomizer = A1.Randomizer3::class)
+    data class A1(val s:String):A(){
 
         companion object{
             val fixed1 = A1("1")

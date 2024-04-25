@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 
 
-class TestAnnotationOnRealAnnotation_ClassRandomizer {
+class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
 
     @Test
     fun testOnRealAnnotation_right() {

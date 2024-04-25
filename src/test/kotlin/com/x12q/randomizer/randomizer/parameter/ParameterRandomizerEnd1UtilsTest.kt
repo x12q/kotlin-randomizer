@@ -8,7 +8,7 @@ import kotlin.reflect.full.primaryConstructor
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
-class ParameterRandomizer1UtilsTest : TestAnnotation() {
+class ParameterRandomizerEnd1UtilsTest : TestAnnotation() {
 
 
     @Test

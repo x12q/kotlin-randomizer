@@ -3,6 +3,7 @@ package com.x12q.randomizer.randomizer
 import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
 import javax.inject.Inject
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * A collection of [ClassRandomizer] and [ParameterRandomizer]
@@ -13,7 +14,7 @@ data class RandomizerCollection(
 ) {
 
     @Inject
-    constructor():this(emptyMap(), emptyMap())
+    constructor() : this(emptyMap(), emptyMap())
 
     fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
         val newMap = newRandomizers.groupBy { it.paramClassData }
@@ -34,7 +35,10 @@ data class RandomizerCollection(
     }
 
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {
-        return classRandomizers[key]
+        val k = classRandomizers.keys.firstOrNull { k ->
+            k.kClass.isSubclassOf(key.kClass)
+        }
+        return classRandomizers[k]
     }
 
 }

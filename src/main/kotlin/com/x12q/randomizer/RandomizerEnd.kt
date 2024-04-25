@@ -13,7 +13,7 @@ import kotlin.reflect.*
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
 
-data class Randomizer @Inject constructor(
+data class RandomizerEnd @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
     val randomizerProcessor: RandomizerProcessor
@@ -23,7 +23,7 @@ data class Randomizer @Inject constructor(
     val possibleStringSizes: IntRange = 1..10
 
     fun random(classData: RDClassData, lv2Randomizer: ClassRandomizer<*>? = null): Any? {
-        val classRef: KClass<*> = classData.kClass
+        val clazz: KClass<*> = classData.kClass
         val primitive = defaultPrimitiveRandomOrNull(classData)
         if (primitive != null) {
             return primitive
@@ -39,17 +39,17 @@ data class Randomizer @Inject constructor(
             } else {
                 // lv 3 = randomizer in @Randomizer annotation
                 val level3RandomizerClass =
-                    classData.kClass.findAnnotations(Randomizable::class).firstOrNull()?.classRandomizer
+                    clazz.findAnnotations(Randomizable::class).firstOrNull()?.classRandomizer
                 if (level3RandomizerClass != null) {
                     val lv3Randomizer = level3RandomizerClass.createInstance()
                     return lv3Randomizer.random()
                 } else {
                     // lv 4 - default recursive randomizer
-                    if (classRef.isAbstract) {
+                    if (clazz.isAbstract) {
                         // TODO add a better error handling + more meaningful msg
                         throw IllegalArgumentException("can't randomized abstract class")
                     } else {
-                        val constructors = classRef.constructors.shuffled(random)
+                        val constructors = clazz.constructors.shuffled(random)
                         for (constructor in constructors) {
                             try {
                                 val arguments = constructor.parameters.map { kParam ->
