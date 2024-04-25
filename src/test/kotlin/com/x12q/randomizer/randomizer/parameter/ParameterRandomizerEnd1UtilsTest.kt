@@ -1,5 +1,6 @@
 package com.x12q.randomizer.randomizer.parameter
 
+import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.test.TestAnnotation
 import com.x12q.randomizer.test.TestSamples
@@ -24,7 +25,7 @@ class ParameterRandomizerEnd1UtilsTest : TestAnnotation() {
             return "${paramInfo.kParam.name}: random value 123"
         }
 
-        val rdm = paramRandomizer<String>(
+        val rdm = com.x12q.randomizer.randomizer.paramRandomizer<String>(
             condition = ::condition,
             makeRandomIfApplicable = ::ifApplicable
         )

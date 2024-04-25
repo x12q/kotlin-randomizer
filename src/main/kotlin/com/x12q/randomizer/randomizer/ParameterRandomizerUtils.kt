@@ -1,6 +1,5 @@
-package com.x12q.randomizer.randomizer.parameter
+package com.x12q.randomizer.randomizer
 
-import com.x12q.randomizer.randomizer.RDClassData
 import kotlin.reflect.KParameter
 
 /**
@@ -11,7 +10,7 @@ inline fun <reified T> paramRandomizer(
     crossinline makeRandomIfApplicable: (ParamInfo) -> T,
 ): ParameterRandomizer<T> {
 
-    return object : ParameterRandomizer<T>{
+    return object : ParameterRandomizer<T> {
 
         override val paramClassData: RDClassData = RDClassData.from<T>()
 

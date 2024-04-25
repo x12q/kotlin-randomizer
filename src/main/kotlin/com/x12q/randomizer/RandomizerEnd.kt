@@ -1,12 +1,12 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-import com.x12q.randomizer.randomizer_processor.RandomizerProcessor
+import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOnly
+import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRandomizer
+import com.x12q.randomizer.randomizer_processor.RandomizerChecker
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
-import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.*
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
@@ -16,14 +16,14 @@ import kotlin.reflect.full.findAnnotations
 data class RandomizerEnd @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
-    val randomizerProcessor: RandomizerProcessor
+    val randomizerChecker: RandomizerChecker
 ) {
 
     val possibleCollectionSizes: IntRange = 1..5
     val possibleStringSizes: IntRange = 1..10
 
     fun random(classData: RDClassData, lv2Randomizer: ClassRandomizer<*>? = null): Any? {
-        val clazz: KClass<*> = classData.kClass
+        val targetClass: KClass<*> = classData.kClass
         val primitive = defaultPrimitiveRandomOrNull(classData)
         if (primitive != null) {
             return primitive
@@ -31,25 +31,49 @@ data class RandomizerEnd @Inject constructor(
         val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
         if (lv1Randomizer != null) {
             // lv1 = randomizer is provided explicitly by the users in the top-level random function
+            // No need to check for return type because the lv1RandomizerCollection already covers that.
             return lv1Randomizer.random()
         } else {
+
             if (lv2Randomizer != null) {
-                // lv2 = randomizer passed to this function, this is actually param randomizer
-                return lv2Randomizer.random()
+                // lv2 = randomizer passed to this function, this is randomizer at constructor param
+                return randomizerChecker.checkValidRandomizerClass(lv2Randomizer::class, targetClass)
+                    .map {
+                        lv2Randomizer.random()
+                    }
+                    .getOrElse { err ->
+                        throw err.toException()
+                    }
             } else {
                 // lv 3 = randomizer in @Randomizer annotation
-                val level3RandomizerClass =
-                    clazz.findAnnotations(Randomizable::class).firstOrNull()?.classRandomizer
-                if (level3RandomizerClass != null) {
-                    val lv3Randomizer = level3RandomizerClass.createInstance()
-                    return lv3Randomizer.random()
+                val lv3ClassRandomizerClassRs = targetClass.findAnnotations(Randomizable::class)
+                    .firstOrNull()
+                    ?.getClassRandomizerOnly(targetClass)
+
+                val lv3ClassRandomizerClass = lv3ClassRandomizerClassRs
+                    ?.getOrElse { err ->
+                        throw err.toException()
+                    }
+
+                if (lv3ClassRandomizerClass != null) {
+
+                    val rt = randomizerChecker.checkValidRandomizerClass(lv3ClassRandomizerClass, targetClass)
+                        .map {
+                            lv3ClassRandomizerClass
+                                .createInstance()
+                                .random()
+                        }.getOrElse {
+                            throw it.toException()
+                        }
+                    return rt
+
                 } else {
                     // lv 4 - default recursive randomizer
-                    if (clazz.isAbstract) {
+                    if (targetClass.isAbstract) {
                         // TODO add a better error handling + more meaningful msg
-                        throw IllegalArgumentException("can't randomized abstract class")
+                        throw IllegalArgumentException("can't randomized abstract class, either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
                     } else {
-                        val constructors = clazz.constructors.shuffled(random)
+                        val constructors = targetClass.constructors.shuffled(random)
                         for (constructor in constructors) {
                             try {
                                 val arguments = constructor.parameters.map { kParam ->
@@ -104,17 +128,15 @@ data class RandomizerEnd @Inject constructor(
 
         val paramType: KType = param.type
 
-        val lv2ParamRandomizerClass = param
+        val paramClassOrParamRandomizer = param
             .findAnnotations(Randomizable::class).firstOrNull()
-            ?.paramRandomizer
+            ?.getClassRandomizerOrParamRandomizer()
+            ?.getOrElse {
+                throw it.toException()
+            }
 
-        val lv2ActualParamRandomizerClass = if(lv2ParamRandomizerClass != Randomizable.Companion.__DefaultParamRandomizer::class) {
-            lv2ParamRandomizerClass
-        } else {
-            null
-        }
-
-        val lv2ParamRandomizer = lv2ActualParamRandomizerClass?.createInstance()
+        val lv2ClassRandomizer0 = paramClassOrParamRandomizer?.first?.createInstance()
+        val lv2ParamRandomizer0 = paramClassOrParamRandomizer?.second?.createInstance()
 
         when (val classifier = paramType.classifier) {
             is KClass<*> -> {
@@ -132,7 +154,7 @@ data class RandomizerEnd @Inject constructor(
                     }
                 }
 
-                val lv2ClassRandomizer = lv2ParamRandomizer?.let {
+                val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
                     object : ClassRandomizer<Any?> {
                         override val targetClassData: RDClassData = paramData
 
@@ -141,7 +163,7 @@ data class RandomizerEnd @Inject constructor(
                         }
 
                         override fun random(): Any? {
-                            return lv2ParamRandomizer.random(
+                            return lv2ParamRandomizer0.random(
                                 parameterClassData = paramData,
                                 parameter = param,
                                 parentClassData = parentClassData,
@@ -150,6 +172,7 @@ data class RandomizerEnd @Inject constructor(
                     }
                 }
 
+                val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
                 val rt = random(paramData, lv2ClassRandomizer)
                 return Ok(rt)
             }
@@ -161,7 +184,7 @@ data class RandomizerEnd @Inject constructor(
                 val parameterData = parentClassData.getDataFor(classifier)
                 if (parameterData != null) {
 
-                    val lv2ClassRandomizer = lv2ParamRandomizer?.let {
+                    val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
                         object : ClassRandomizer<Any?> {
                             override val targetClassData: RDClassData = parameterData
 
@@ -170,7 +193,7 @@ data class RandomizerEnd @Inject constructor(
                             }
 
                             override fun random(): Any? {
-                                return lv2ParamRandomizer.random(
+                                return lv2ParamRandomizer0.random(
                                     parameterClassData = parameterData,
                                     parameter = param,
                                     parentClassData = parentClassData,
@@ -178,7 +201,11 @@ data class RandomizerEnd @Inject constructor(
                             }
                         }
                     }
-                    return Ok(random(parameterData,lv2ClassRandomizer))
+
+                    val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
+
+
+                    return Ok(random(parameterData, lv2ClassRandomizer))
                 } else {
                     return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, parentClassData))
                 }

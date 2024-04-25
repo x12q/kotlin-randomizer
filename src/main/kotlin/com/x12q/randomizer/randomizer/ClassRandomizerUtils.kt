@@ -1,6 +1,4 @@
-package com.x12q.randomizer.randomizer.class_randomizer
-
-import com.x12q.randomizer.randomizer.RDClassData
+package com.x12q.randomizer.randomizer
 
 
 inline fun <reified Q, reified T>diffType():Boolean{

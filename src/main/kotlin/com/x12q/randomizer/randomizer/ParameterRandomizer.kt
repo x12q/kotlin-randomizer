@@ -1,6 +1,5 @@
-package com.x12q.randomizer.randomizer.parameter
+package com.x12q.randomizer.randomizer
 
-import com.x12q.randomizer.randomizer.RDClassData
 import kotlin.reflect.KParameter
 
 /**
@@ -11,7 +10,7 @@ import kotlin.reflect.KParameter
  * - Generate string representing human name
  * - Generate string/number representing phone number
  */
-interface ParameterRandomizer<out T>:Randomizer<T> {
+interface ParameterRandomizer<out T> : Randomizer<T> {
     val paramClassData: RDClassData
 
     /**

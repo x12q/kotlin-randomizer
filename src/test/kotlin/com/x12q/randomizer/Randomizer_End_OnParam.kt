@@ -2,8 +2,8 @@ package com.x12q.randomizer
 
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.test.TestAnnotation
 import com.x12q.randomizer.test.TestSamples
 import com.x12q.randomizer.test.TestSamples.Class1
@@ -72,7 +72,7 @@ class Randomizer_End_OnParam : TestAnnotation() {
 
 
     data class B1(
-        @Randomizable(paramRandomizer = A1.ParamRandomizer2::class)
+        @Randomizable(randomizer = A1.ParamRandomizer2::class)
         val a: A
     ) {
         companion object {
@@ -100,7 +100,7 @@ class Randomizer_End_OnParam : TestAnnotation() {
     abstract class A
 
     data class A2(
-        @Randomizable(paramRandomizer = A1.ParamRandomizer2::class)
+        @Randomizable(randomizer = A1.ParamRandomizer2::class)
         val a1: A1,
         val i: Int
     ) : A() {
@@ -129,7 +129,7 @@ class Randomizer_End_OnParam : TestAnnotation() {
     }
 
 
-    @Randomizable(classRandomizer = A1.Randomizer3::class)
+    @Randomizable(randomizer = A1.Randomizer3::class)
     data class A1(val s: String) : A() {
 
         companion object {

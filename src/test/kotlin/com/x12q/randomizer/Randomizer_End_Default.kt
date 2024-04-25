@@ -3,8 +3,8 @@ package com.x12q.randomizer
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.test.TestAnnotation
 import com.x12q.randomizer.test.TestSamples
 import com.x12q.randomizer.test.TestSamples.Class1
@@ -118,7 +118,7 @@ class Randomizer_End_Default: TestAnnotation() {
 
 
     data class B1(
-        @Randomizable(classRandomizer = A1.Randomizer2::class)
+        @Randomizable(randomizer = A1.Randomizer2::class)
         val a:A
     ){
         companion object{
@@ -146,7 +146,7 @@ class Randomizer_End_Default: TestAnnotation() {
     abstract class A
 
     data class A2(
-        @Randomizable(paramRandomizer = A1.ParamRandomizer2::class)
+        @Randomizable(randomizer = A1.ParamRandomizer2::class)
         val a1:A1,
         val i:Int
     ):A(){
@@ -156,7 +156,7 @@ class Randomizer_End_Default: TestAnnotation() {
             val fixed3 = A2(A1.fixed3,3)
         }
 
-        abstract class A1Randomizer0(val rt:A2): ClassRandomizer<A2>{
+        abstract class A1Randomizer0(val rt:A2): ClassRandomizer<A2> {
             override val targetClassData: RDClassData = RDClassData.from<A2>()
 
             override fun isApplicable(classData: RDClassData): Boolean {
@@ -174,7 +174,7 @@ class Randomizer_End_Default: TestAnnotation() {
     }
 
 
-    @Randomizable(classRandomizer = A1.Randomizer3::class)
+    @Randomizable(randomizer = A1.Randomizer3::class)
     data class A1(val s:String):A(){
 
         companion object{
@@ -183,7 +183,7 @@ class Randomizer_End_Default: TestAnnotation() {
             val fixed3 = A1("3")
         }
 
-        abstract class A1Randomizer0(val rt:A1): ClassRandomizer<A1>{
+        abstract class A1Randomizer0(val rt:A1): ClassRandomizer<A1> {
             override val targetClassData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicable(classData: RDClassData): Boolean {
@@ -201,7 +201,7 @@ class Randomizer_End_Default: TestAnnotation() {
         class Randomizer2: A1Randomizer0(fixed2)
         class Randomizer3: A1Randomizer0(fixed3)
 
-        abstract class A1ParamRandomizer0 (val rt:A1):ParameterRandomizer<A1>{
+        abstract class A1ParamRandomizer0 (val rt:A1): ParameterRandomizer<A1> {
             override val paramClassData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicableTo(

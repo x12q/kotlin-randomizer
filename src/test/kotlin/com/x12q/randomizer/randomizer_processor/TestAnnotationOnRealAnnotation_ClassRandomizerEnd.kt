@@ -4,10 +4,12 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.Randomizer
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldNotBeInstanceOf
+import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
 import kotlin.test.Test
@@ -19,14 +21,15 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
     @Test
     fun testOnRealAnnotation_right() {
         val annotation = Target_1::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
 
-        processor.getValidClassRandomizer(
+        val clazz = annotation.randomizer as KClass<out ClassRandomizer<*>>
+        processor.checkValidClassRandomizer(
             targetClass = Target_1::class,
-            randomizerClass = annotation.classRandomizer
-        ) shouldBe Ok(annotation.classRandomizer)
+            randomizerClass = clazz
+        ) shouldBe Ok(annotation.randomizer)
 
-        val randomizer = annotation.classRandomizer.createInstance()
+        val randomizer = clazz.createInstance()
         (randomizer.random() as Target_1) shouldBe Target_1.targetRs
 
     }
@@ -34,26 +37,26 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
     @Test
     fun testOnRealAnnotation_wrong() {
         val annotation = Target_3_WronglyAnnotated::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        val processor = RandomizerProcessor()
-
-        processor.getValidClassRandomizer(
+        val processor = RandomizerChecker()
+        val clazz = annotation.randomizer as KClass<out ClassRandomizer<*>>
+        processor.checkValidClassRandomizer(
             targetClass = Target_3_WronglyAnnotated::class,
-            randomizerClass = annotation.classRandomizer
+            randomizerClass = clazz
         ).shouldBeInstanceOf<Err<*>>()
 
-       val randomizer = annotation.classRandomizer.createInstance()
+       val randomizer = clazz.createInstance()
         randomizer.random().shouldNotBeInstanceOf<Target_3_WronglyAnnotated>()
     }
 
     @Test
     fun testOnRealAnnotation_default() {
         val annotation = Target_2::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        annotation.classRandomizer shouldBe Randomizable.Companion.__DefaultClassRandomizer::class
+        annotation.randomizer shouldBe Randomizer.__DefaultRandomizer::class
     }
 
 
     @Randomizable(
-        classRandomizer = Randomizer_1::class
+        randomizer = Randomizer_1::class
     )
     data class Target_1(
         val str: String,
@@ -75,7 +78,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
         }
     }
     @Randomizable(
-        classRandomizer = Randomizer_2::class
+        randomizer = Randomizer_2::class
     )
     data class Target_3_WronglyAnnotated(
         val str:String

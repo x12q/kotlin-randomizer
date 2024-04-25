@@ -2,8 +2,8 @@ package com.x12q.randomizer
 
 import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 

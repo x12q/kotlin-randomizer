@@ -3,8 +3,8 @@ package com.x12q.randomizer.randomizer_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.test.TestAnnotation
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
@@ -15,20 +15,20 @@ import kotlin.test.Test
 
 class RandomizerEndProcessorTest : TestAnnotation() {
 
-    lateinit var processor: RandomizerProcessor
+    lateinit var processor: RandomizerChecker
 
 
     @BeforeTest
     fun bt() {
-        processor = RandomizerProcessor()
+        processor = RandomizerChecker()
     }
 
     /**
-     * Test if [RandomizerProcessor] can identify the correct randomizer for a concrete class target
+     * Test if [RandomizerChecker] can identify the correct randomizer for a concrete class target
      */
     @Test
     fun getValidClassRandomizer_concrete_target() {
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
 
         val testMap = mapOf(
             M1::class to Err(
@@ -51,7 +51,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((randomizer, expectation) in testMap) {
-                processor.getValidClassRandomizer(
+                processor.checkValidClassRandomizer(
                     targetClass = String::class,
                     randomizerClass = randomizer
                 ) shouldBe expectation
@@ -60,12 +60,12 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RandomizerProcessor] can identify randomizer that can generate instance of children classes of a parent class
+     * Test if [RandomizerChecker] can identify randomizer that can generate instance of children classes of a parent class
      */
     @Test
     fun getValidClassRandomizer_childrenClass_of_parent_class() {
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
 
         val testMap = mapOf(
             MA1::class to Ok(MA1::class),
@@ -84,7 +84,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidClassRandomizer(
+                processor.checkValidClassRandomizer(
                     targetClassData = parentClass,
                     randomizerClass = subject
                 ) shouldBe expectation
@@ -95,7 +95,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     @Test
     fun getValidClassRandomizer_childrenClass_of_parent_interface() {
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
 
         val testMap = mapOf(
             MA1::class to Err(
@@ -120,7 +120,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidClassRandomizer(
+                processor.checkValidClassRandomizer(
                     targetClassData = parentClass,
                     randomizerClass = subject
                 ) shouldBe expectation
@@ -130,7 +130,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
 
     /**
-     * Test if [RandomizerProcessor] can recognize randomizers that can generate parameter child types of a parent class.
+     * Test if [RandomizerChecker] can recognize randomizers that can generate parameter child types of a parent class.
      */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_class() {
@@ -142,7 +142,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
         val parentClassData = RDClassData.from<Target2<Int>>()
 
         val testMap = mapOf(
@@ -161,7 +161,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidParamRandomizer(
+                processor.checkValidParamRandomizer(
                     parentClassData = parentClassData,
                     targetParam = target,
                     randomizerClass = subject
@@ -171,7 +171,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RandomizerProcessor] can recognize randomizers that can generate parameter child types of a parent interface.
+     * Test if [RandomizerChecker] can recognize randomizers that can generate parameter child types of a parent interface.
      */
     @Test
     fun getValidParamRandomizer_child_type_of_parent_interface() {
@@ -183,7 +183,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         val target = Target2::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
         val parentClassData = RDClassData.from<Target2<Int>>()
 
         val testMap = mapOf(
@@ -202,7 +202,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidParamRandomizer(
+                processor.checkValidParamRandomizer(
                     parentClassData = parentClassData,
                     targetParam = target,
                     randomizerClass = subject
@@ -212,7 +212,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Check if [RandomizerProcessor] can generate instance of certain concrete type
+     * Check if [RandomizerChecker] can generate instance of certain concrete type
      */
     @Test
     fun getValidParamRandomizer_concreteType() {
@@ -225,7 +225,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
         // of i parameter in Target
         val targetType = Target::class.primaryConstructor!!.parameters.first { it.name == "i" }
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
         val parentDt = RDClassData.from<Target<Int>>()
 
         val testMap = mapOf(
@@ -260,7 +260,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidParamRandomizer(
+                processor.checkValidParamRandomizer(
                     parentClassData = parentDt,
                     targetParam = targetType,
                     randomizerClass = subject
@@ -270,7 +270,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     }
 
     /**
-     * Test if [RandomizerProcessor] can generate instance for a generic parameter (that is specified as a concrete type)
+     * Test if [RandomizerChecker] can generate instance for a generic parameter (that is specified as a concrete type)
      */
     @Test
     fun getValidParamRandomizer_genericType() {
@@ -283,7 +283,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
         // param t in Target, later is resolved to Int
         val target = Target::class.primaryConstructor!!.parameters.first { it.name == "t" }
 
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
         val parentDt = RDClassData.from<Target<Int>>()
 
         val testMap = mapOf(
@@ -317,7 +317,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         test {
             for ((subject, expectation) in testMap) {
-                processor.getValidParamRandomizer(
+                processor.checkValidParamRandomizer(
                     parentClassData = parentDt,
                     targetParam = target,
                     randomizerClass = subject
@@ -331,7 +331,7 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     open class A2 : IA, A1()
     open class A3 : IA, A2()
 
-    open class BaseClassRandomizer<T> : ClassRandomizer<T>{
+    open class BaseClassRandomizer<T> : ClassRandomizer<T> {
         override val targetClassData: RDClassData
             get() = TODO("Not yet implemented")
 

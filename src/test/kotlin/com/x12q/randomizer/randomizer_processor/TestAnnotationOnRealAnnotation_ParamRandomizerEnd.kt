@@ -4,11 +4,13 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.Randomizer
 import com.x12q.randomizer.test.TestAnnotation
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
@@ -23,19 +25,20 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
     fun testOnRealAnnotation_right() {
         val param = Class_1::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        val processor = RandomizerProcessor()
+        val processor = RandomizerChecker()
+        val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
 
         test("randomizer class is extracted correctly"){
-            processor.getValidParamRandomizer(
+            processor.checkValidParamRandomizer(
                 parentClassData = RDClassData.from<Class_1>(),
                 targetParam = param,
-                randomizerClass = annotation.paramRandomizer
-            ) shouldBe Ok(annotation.paramRandomizer)
+                randomizerClass = randomizerClass
+            ) shouldBe Ok(randomizerClass)
         }
 
 
         test("randomizer class can actually work"){
-            val randomizer = annotation.paramRandomizer.createInstance()
+            val randomizer = randomizerClass.createInstance()
             randomizer.isApplicableTo(
                 parameterClassData = RDClassData.from<Param1>(),
                 parameter = param,
@@ -54,13 +57,13 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
     fun testOnRealAnnotation_wrong() {
         val param = Class_3::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        val processor = RandomizerProcessor()
-
+        val processor = RandomizerChecker()
+        val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
         test("randomizer class is extracted correctly"){
-            processor.getValidParamRandomizer(
+            processor.checkValidParamRandomizer(
                 parentClassData = RDClassData.from<Class_3>(),
                 targetParam = param,
-                randomizerClass = annotation.paramRandomizer
+                randomizerClass = randomizerClass
             ).shouldBeInstanceOf<Err<*>>()
         }
     }
@@ -69,12 +72,12 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
     fun testOnRealAnnotation_default() {
         val param = Class_2::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        annotation.paramRandomizer shouldBe Randomizable.Companion.__DefaultParamRandomizer::class
+        annotation.randomizer shouldBe Randomizer.__DefaultRandomizer::class
     }
 
     class Class_1(
         @Randomizable(
-            paramRandomizer = Randomizer_1::class
+            randomizer = Randomizer_1::class
         )
         val target1:Param1
     )
@@ -86,7 +89,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
 
     class Class_3(
         @Randomizable(
-            paramRandomizer = Randomizer_1::class
+            randomizer = Randomizer_1::class
         )
         val wronglyAnnotated:Param3
     )

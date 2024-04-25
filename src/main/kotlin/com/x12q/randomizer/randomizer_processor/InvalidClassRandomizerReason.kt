@@ -1,6 +1,6 @@
 package com.x12q.randomizer.randomizer_processor
 
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import kotlin.reflect.KClass
 
 /**

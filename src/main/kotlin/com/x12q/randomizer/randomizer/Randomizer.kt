@@ -1,8 +1,8 @@
-package com.x12q.randomizer.randomizer.parameter
-
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
+package com.x12q.randomizer.randomizer
 
 /**
  * A signal interface, serve no other purpose other than allowing both [ParameterRandomizer] and [ClassRandomizer] to be assignable to a common type
  */
-interface Randomizer<out T>
+sealed interface Randomizer<out T>{
+    abstract class __DefaultRandomizer private constructor() : Randomizer<Any>
+}

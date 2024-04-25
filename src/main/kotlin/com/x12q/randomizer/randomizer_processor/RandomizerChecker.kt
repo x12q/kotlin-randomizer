@@ -3,25 +3,99 @@ package com.x12q.randomizer.randomizer_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.x12q.randomizer.err.ErrorHeader
+import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.Randomizer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.*
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.isSubclassOf
 
+object InvalidRandomizerReason {
+
+    val _prefix = "INV_RD"
+    private fun errCode(code:Int):String{
+        return "${_prefix}${code}"
+    }
+
+    object InvalidRandomizerClass{
+        private val header = ErrorHeader(errorCode = errCode(3), "Invalid randomizer class")
+        fun report(randomizer: KClass<*>): ErrorReport {
+            val header =
+                header.setDescription("Invalid randomizer class${randomizer.qualifiedName}")
+            val rt = header.toErrorReport()
+            return rt
+        }
+    }
+
+    object IsAbstract{
+        private val header = ErrorHeader(errorCode = errCode(2), "Abstract randomizer")
+        fun report(randomizer: KClass<*>): ErrorReport {
+            val header =
+                header.setDescription("Randomizer is abstract: ${randomizer.qualifiedName}")
+            val rt = header.toErrorReport()
+            return rt
+        }
+    }
+    /**
+     * When the checked class is a [ClassRandomizer] but cannot generate random instance of [targetClass]
+     */
+    object UnableToGenerateTargetType{
+        private val header = ErrorHeader(errorCode = errCode(1), "Wrong type Randomizer")
+        fun report(randomizer: KClass<*>, targetClass: KClass<*>): ErrorReport {
+            val header =
+                header.setDescription("Randomzer ${randomizer} can't generate instances of ${targetClass}")
+            val rt = header.toErrorReport()
+            return rt
+        }
+    }
+}
+
+
+
 /**
  * Contains function to sort out randomizer for some given target class
  */
 @Singleton
-class RandomizerProcessor @Inject constructor() {
+class RandomizerChecker @Inject constructor() {
+
+    /**
+     * Check if a [randomizerClass] can produce instances of [targetClass]
+     */
+    fun checkValidRandomizerClass(
+        randomizerClass: KClass<out Randomizer<*>>,
+        targetClass: KClass<*>,
+    ): Result<KClass<out Randomizer<*>>, ErrorReport> {
+
+        if (randomizerClass.isAbstract) {
+            return Err(InvalidRandomizerReason.IsAbstract.report(randomizerClass))
+        } else {
+            val classRandomizerType = randomizerClass
+                .allSupertypes
+                .firstOrNull { it.classifier == Randomizer::class }
+
+            if (classRandomizerType != null) {
+                if (canProduce(classRandomizerType, targetClass)) {
+                    return Ok(randomizerClass)
+                } else {
+                    return Err(
+                        InvalidRandomizerReason.UnableToGenerateTargetType.report(randomizerClass,targetClass)
+                    )
+                }
+            } else {
+                return Err(InvalidRandomizerReason.InvalidRandomizerClass.report(randomizerClass))
+            }
+        }
+    }
 
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClass]
      */
-    fun getValidClassRandomizer(
+    fun checkValidClassRandomizer(
         targetClass: KClass<*>,
         randomizerClass: KClass<out ClassRandomizer<*>>
     ): Result<KClass<out ClassRandomizer<*>>, InvalidClassRandomizerReason> {
@@ -55,11 +129,11 @@ class RandomizerProcessor @Inject constructor() {
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of class described by [targetClassData]
      */
-    fun getValidClassRandomizer(
+    fun checkValidClassRandomizer(
         targetClassData: RDClassData,
         randomizerClass: KClass<out ClassRandomizer<*>>
     ): Result<KClass<out ClassRandomizer<*>>, InvalidClassRandomizerReason> {
-        return getValidClassRandomizer(targetClassData.kClass,randomizerClass)
+        return checkValidClassRandomizer(targetClassData.kClass,randomizerClass)
     }
 
     /**
@@ -86,7 +160,7 @@ class RandomizerProcessor @Inject constructor() {
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] of parent class [parentClassData].
      */
-    fun getValidParamRandomizer(
+    fun checkValidParamRandomizer(
         parentClassData: RDClassData,
         targetParam: KParameter,
         randomizerClass: KClass<out ParameterRandomizer<*>>
@@ -94,13 +168,13 @@ class RandomizerProcessor @Inject constructor() {
 
         when (val randomTargetKClassifier = targetParam.type.classifier) {
             is KClass<*> -> {
-                return getValidParamRandomizer(
+                return checkValidParamRandomizer(
                     parentClassData.kClass, targetParam, randomTargetKClassifier, randomizerClass
                 )
             }
 
             is KTypeParameter -> {
-                return getValidParamRandomizer(
+                return checkValidParamRandomizer(
                     parentClassData, targetParam, randomTargetKClassifier, randomizerClass
                 )
             }
@@ -121,7 +195,7 @@ class RandomizerProcessor @Inject constructor() {
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetTypeParam] of parent class [parentClassData].
      */
-    private fun getValidParamRandomizer(
+    private fun checkValidParamRandomizer(
         parentClassData: RDClassData,
         targetParam: KParameter,
         targetTypeParam: KTypeParameter,
@@ -175,7 +249,7 @@ class RandomizerProcessor @Inject constructor() {
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetClass] of parent class [parentClassData].
      */
-    private fun getValidParamRandomizer(
+    private fun checkValidParamRandomizer(
         parentKClass: KClass<*>,
         targetParam: KParameter,
         targetClass: KClass<*>,
