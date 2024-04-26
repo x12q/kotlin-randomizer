@@ -32,3 +32,11 @@
     - take a look at randomChildren
 - TODO Add easier to use builder for param randomizer + class randomizer.
 
+
+Feature:
+- Constructor rule (low priority)
+  - If no rule is provided -> default to primary constructor
+  - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
+  - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
+
+NEXT: continue testing RandomizerEnd_OnParam_generic_abstract

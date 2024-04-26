@@ -7,6 +7,7 @@ inline fun <reified Q, reified T>diffType():Boolean{
 
 /**
  * Create a [ClassRandomizer] that perform checking using [condition] and generate random instances using [makeRandomIfApplicable]
+ * TODO this function can be simplified, so that a default [condition] is provided for users.
  */
 inline fun <reified T> classRandomizer(
     crossinline condition: (RDClassData) -> Boolean,

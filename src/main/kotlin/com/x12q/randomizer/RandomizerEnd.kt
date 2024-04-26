@@ -12,6 +12,7 @@ import kotlin.random.Random
 import kotlin.reflect.*
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.findAnnotations
+import kotlin.reflect.full.primaryConstructor
 
 data class RandomizerEnd @Inject constructor(
     private val random: Random,
@@ -72,8 +73,26 @@ data class RandomizerEnd @Inject constructor(
                         // TODO add a better error handling + more meaningful msg
                         throw IllegalArgumentException("can't randomized abstract class, either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
                     } else {
-                        val constructors = targetClass.constructors.shuffled(random)
-                        for (constructor in constructors) {
+                        // TODO: allow selecting different constructor strategy:
+                        // - only primary
+                        // - random
+                        // - but for now, restrict it to primary constructor
+                        // - throw exception in all other cases
+//                        val constructors = targetClass.constructors.shuffled(random)
+                        val constructor = targetClass.primaryConstructor
+                        if(constructor!=null){
+
+                            val visibility = constructor.visibility
+
+                            val visibilityIsValid =
+                                    visibility != null
+                                    && visibility!=KVisibility.PRIVATE
+                                    && visibility!=KVisibility.INTERNAL
+
+                            if(visibilityIsValid){
+                                println("WARNING: constructor is not public or protected")
+                            }
+
                             try {
                                 val arguments = constructor.parameters.map { kParam ->
                                     randomConstructorParameter(
@@ -86,6 +105,8 @@ data class RandomizerEnd @Inject constructor(
                                 e.printStackTrace()
                                 // no-op. We catch any possible error here that might occur during class creation
                             }
+                        }else{
+                            throw IllegalArgumentException("No primary constructor")
                         }
                     }
                 }

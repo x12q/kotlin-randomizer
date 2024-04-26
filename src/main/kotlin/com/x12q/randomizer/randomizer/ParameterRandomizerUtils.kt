@@ -4,6 +4,7 @@ import kotlin.reflect.KParameter
 
 /**
  * Create a [ParameterRandomizer] that check parameter with [condition], and generate random instances with [makeRandomIfApplicable]
+ * TODO this function need to be more consciese and easier to use. It is rather cryptic now.
  */
 inline fun <reified T> paramRandomizer(
     crossinline condition: (ParamInfo) -> Boolean,
