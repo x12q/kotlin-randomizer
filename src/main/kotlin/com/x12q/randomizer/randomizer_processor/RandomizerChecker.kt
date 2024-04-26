@@ -203,7 +203,7 @@ class RandomizerChecker @Inject constructor() {
     /**
      * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetTypeParam] of parent class [parentClassData].
      */
-    private fun checkValidParamRandomizer(
+    fun checkValidParamRandomizer(
         parentClassData: RDClassData,
         targetParam: KParameter,
         targetTypeParam: KTypeParameter,

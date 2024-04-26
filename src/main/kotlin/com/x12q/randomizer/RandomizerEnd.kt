@@ -135,8 +135,8 @@ data class RandomizerEnd @Inject constructor(
                 throw it.toException()
             }
 
-
-        when (val classifier = paramType.classifier) {
+        val classifier = paramType.classifier
+        when (classifier) {
             is KClass<*> -> {
                 /**
                  * This is for normal parameter
@@ -197,12 +197,20 @@ data class RandomizerEnd @Inject constructor(
                 if (parameterData != null) {
 
                     val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let{lv2Rd->
-                        randomizerChecker.checkValidRandomizerClassRs(lv2Rd,parameterData.kClass)
+                        randomizerChecker.checkValidRandomizerClassRs(
+                            randomizerClass = lv2Rd,
+                            targetClass = parameterData.kClass
+                        )
                         lv2Rd.createInstance()
                     }
 
                     val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd->
-                        randomizerChecker.checkValidParamRandomizer(parameterData,param,lv2Rd)
+                        randomizerChecker.checkValidParamRandomizer(
+                            parentClassData = parentClassData,
+                            targetParam = param,
+                            targetTypeParam = classifier,
+                            randomizerClass=lv2Rd
+                        )
                         lv2Rd.createInstance()
                     }
 
