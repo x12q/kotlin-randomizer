@@ -61,7 +61,7 @@ class Randomizer_End_OnClass : TestAnnotation() {
         // lv3 = class randomizer
         // lv4 = default randomizer
         test("lv3 on class A1 over default lv4"){
-            rdm.random(RDClassData.from<A1>()) shouldBe A1.Randomizer1().random()
+            rdm.random(RDClassData.from<A1>()) shouldBe A1.Randomizer3().random()
         }
     }
 

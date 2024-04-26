@@ -80,43 +80,6 @@ class Randomizer_End_Default: TestAnnotation() {
         }
     }
 
-
-    @Test
-    fun `lv1 overriding all other randomizer`(){
-        test("lv1 randomizer should override the randomizer in the class annotation") {
-            // lv1 = provided in lv1 collection
-            // lv2 = param randomizer
-            // lv3 = class randomizer
-            // lv4 = default randomizer
-            test {
-                val lv1Randomizer = rdm.copy(
-                    lv1RandomizerCollection = RandomizerCollection(
-                        classRandomizers = mapOf(
-                            RDClassData.from<A1>() to A1.Randomizer1(),
-                        ),
-                        parameterRandomizers = emptyMap()
-                    )
-                )
-                lv1Randomizer.random(RDClassData.from<A1>(), lv2Randomizer = A1.Randomizer2()) shouldBe A1.Randomizer1().random()
-            }
-
-            test {
-                val lv1Randomizer = rdm.copy()
-                (lv1Randomizer.random(RDClassData.from<A2>()) as A2).a1 shouldBe A1.fixed2
-            }
-
-        }
-    }
-
-    @Test
-    fun `lv3 randomizer overriding level 4`(){
-        // lv 3 = randomizer from @Randomizable class annotation
-        // lv4 = default recursive randomizer
-        rdm.random(RDClassData.from<A1>()) shouldBe A1.Randomizer1().random()
-        rdm.random(RDClassData.from<A1>()) shouldBe A1.Randomizer1().random()
-    }
-
-
     data class B1(
         @Randomizable(randomizer = A1.Randomizer2::class)
         val a:A

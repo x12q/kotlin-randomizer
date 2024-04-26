@@ -3,6 +3,7 @@ package com.x12q.randomizer.randomizer_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.orElse
 import com.x12q.randomizer.err.ErrorHeader
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.RDClassData
@@ -63,10 +64,17 @@ object InvalidRandomizerReason {
 @Singleton
 class RandomizerChecker @Inject constructor() {
 
+    @Throws(Exception::class)
+    fun checkValidRandomizerClassOrThrow(
+        randomizerClass: KClass<out Randomizer<*>>,
+        targetClass: KClass<*>,
+    ){
+        checkValidRandomizerClassRs(randomizerClass, targetClass).orElse { err->throw err.toException() }
+    }
     /**
      * Check if a [randomizerClass] can produce instances of [targetClass]
      */
-    fun checkValidRandomizerClass(
+    fun checkValidRandomizerClassRs(
         randomizerClass: KClass<out Randomizer<*>>,
         targetClass: KClass<*>,
     ): Result<KClass<out Randomizer<*>>, ErrorReport> {

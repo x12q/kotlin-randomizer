@@ -22,6 +22,10 @@ data class RandomizerEnd @Inject constructor(
     val possibleCollectionSizes: IntRange = 1..5
     val possibleStringSizes: IntRange = 1..10
 
+    /**
+     * There will not be any out type check on [lv2Randomizer] because at this point its out type was already erased.
+     * So, I need to make sure that [lv2Randomizer] can produce the expected type before passing it here.
+     */
     fun random(classData: RDClassData, lv2Randomizer: ClassRandomizer<*>? = null): Any? {
         val targetClass: KClass<*> = classData.kClass
         val primitive = defaultPrimitiveRandomOrNull(classData)
@@ -36,14 +40,9 @@ data class RandomizerEnd @Inject constructor(
         } else {
 
             if (lv2Randomizer != null) {
-                // lv2 = randomizer passed to this function, this is randomizer at constructor param
-                return randomizerChecker.checkValidRandomizerClass(lv2Randomizer::class, targetClass)
-                    .map {
-                        lv2Randomizer.random()
-                    }
-                    .getOrElse { err ->
-                        throw err.toException()
-                    }
+                // lv2 = this is randomizer annotated at param in constructor
+                // There's not any out type checking here, so this randomizer must be pre-check
+                return lv2Randomizer.random()
             } else {
                 // lv 3 = randomizer in @Randomizer annotation
                 val lv3ClassRandomizerClassRs = targetClass.findAnnotations(Randomizable::class)
@@ -57,7 +56,7 @@ data class RandomizerEnd @Inject constructor(
 
                 if (lv3ClassRandomizerClass != null) {
 
-                    val rt = randomizerChecker.checkValidRandomizerClass(lv3ClassRandomizerClass, targetClass)
+                    val rt = randomizerChecker.checkValidRandomizerClassRs(lv3ClassRandomizerClass, targetClass)
                         .map {
                             lv3ClassRandomizerClass
                                 .createInstance()
@@ -128,15 +127,14 @@ data class RandomizerEnd @Inject constructor(
 
         val paramType: KType = param.type
 
-        val paramClassOrParamRandomizer = param
+        // TODO move lv2 to after lv1
+        val lv2paramClassOrParamRandomizer = param
             .findAnnotations(Randomizable::class).firstOrNull()
             ?.getClassRandomizerOrParamRandomizer()
             ?.getOrElse {
                 throw it.toException()
             }
 
-        val lv2ClassRandomizer0 = paramClassOrParamRandomizer?.first?.createInstance()
-        val lv2ParamRandomizer0 = paramClassOrParamRandomizer?.second?.createInstance()
 
         when (val classifier = paramType.classifier) {
             is KClass<*> -> {
@@ -144,14 +142,25 @@ data class RandomizerEnd @Inject constructor(
                  * This is for normal parameter
                  */
                 val paramData = RDClassData(classifier, paramType)
-                val paramRandomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
-                if (!paramRandomizer.isNullOrEmpty()) {
-                    for (rd in paramRandomizer) {
+                val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
+                if (!lv1Randomizer.isNullOrEmpty()) {
+                    for (rd in lv1Randomizer) {
                         if (rd.isApplicableTo(paramData, param, parentClassData)) {
                             val rs = rd.random(paramData, param, parentClassData)
                             return Ok(rs)
                         }
                     }
+                }
+
+                // At this point, not lv1 randomizer can be used, so move on to check lv2 randomizers
+                val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let{lv2Rd->
+                    randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd,classifier)
+                    lv2Rd.createInstance()
+                }
+
+                val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd->
+                    randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd,classifier)
+                    lv2Rd.createInstance()
                 }
 
                 val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
@@ -173,7 +182,10 @@ data class RandomizerEnd @Inject constructor(
                 }
 
                 val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
-                val rt = random(paramData, lv2ClassRandomizer)
+                val rt = random(
+                    classData = paramData,
+                    lv2Randomizer = lv2ClassRandomizer,
+                )
                 return Ok(rt)
             }
             /**
@@ -183,6 +195,16 @@ data class RandomizerEnd @Inject constructor(
             is KTypeParameter -> {
                 val parameterData = parentClassData.getDataFor(classifier)
                 if (parameterData != null) {
+
+                    val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let{lv2Rd->
+                        randomizerChecker.checkValidRandomizerClassRs(lv2Rd,parameterData.kClass)
+                        lv2Rd.createInstance()
+                    }
+
+                    val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd->
+                        randomizerChecker.checkValidParamRandomizer(parameterData,param,lv2Rd)
+                        lv2Rd.createInstance()
+                    }
 
                     val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
                         object : ClassRandomizer<Any?> {
@@ -205,7 +227,10 @@ data class RandomizerEnd @Inject constructor(
                     val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
 
 
-                    return Ok(random(parameterData, lv2ClassRandomizer))
+                    return Ok(random(
+                        classData = parameterData,
+                        lv2Randomizer = lv2ClassRandomizer,
+                    ))
                 } else {
                     return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, parentClassData))
                 }

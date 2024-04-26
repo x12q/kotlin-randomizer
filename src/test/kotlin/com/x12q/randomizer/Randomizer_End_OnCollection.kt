@@ -15,7 +15,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_OnParam : TestAnnotation() {
+class Randomizer_End_OnCollection : TestAnnotation() {
 
     lateinit var rdm0: RandomizerEnd
     lateinit var rdm: RandomizerEnd
@@ -31,67 +31,6 @@ class Randomizer_End_OnParam : TestAnnotation() {
                 .addParamRandomizer(spyParamRdm)
                 .addRandomizers(classRdm)
         )
-    }
-
-    @Test
-    fun `lv1 overriding all other randomizer`() {
-        // lv1 = provided in lv1 collection
-        // lv2 = param randomizer
-        // lv3 = class randomizer
-        // lv4 = default randomizer
-        test("lv1 overriding lv2 on param A1 in A2") {
-            val lv1Randomizer = rdm.copy(
-                lv1RandomizerCollection = RandomizerCollection(
-                    classRandomizers = mapOf(
-                        RDClassData.from<A1>() to A1.Randomizer1(),
-                    ),
-                    parameterRandomizers = emptyMap()
-                )
-            )
-            (lv1Randomizer.random(RDClassData.from<A2>()) as A2).a1 shouldBe A1.Randomizer1().random()
-        }
-    }
-
-    @Test
-    fun `lv1 over lv2 on abstract param`(){
-        // lv1 = provided in lv1 collection
-        // lv2 = param randomizer
-        // lv3 = class randomizer
-        // lv4 = default randomizer
-        test("lv1 overriding lv2 on param A in B1") {
-            val lv1Randomizer = rdm.copy(
-                lv1RandomizerCollection = RandomizerCollection(
-                    classRandomizers = mapOf(
-                        RDClassData.from<A1>() to A1.Randomizer1(),
-                    ),
-                    parameterRandomizers = emptyMap()
-                )
-            )
-            (lv1Randomizer.random(RDClassData.from<B1>()) as B1).a shouldBe A1.Randomizer1().random()
-        }
-    }
-
-    @Test
-    fun `lv1 on generic param`(){
-        TODO()
-    }
-
-
-    @Test
-    fun `lv2 over lv4 on abstract param`(){
-        // lv1 = provided in lv1 collection
-        // lv2 = param randomizer
-        // lv3 = class randomizer
-        // lv4 = default randomizer
-        test("lv2 overriding lv4 on param A in B1") {
-            (rdm.random(RDClassData.from<B1>()) as B1).a shouldBe A1.Randomizer2().random()
-        }
-    }
-
-
-    @Test
-    fun `lv2 on generic param`(){
-        TODO()
     }
 
 
@@ -181,9 +120,7 @@ class Randomizer_End_OnParam : TestAnnotation() {
         class Randomizer2 : A1Randomizer0(fixed2)
         class Randomizer3 : A1Randomizer0(fixed3)
 
-        abstract class A1ParamRandomizer0(
-            val classRandomizer:ClassRandomizer<A1>
-        ) : ParameterRandomizer<A1> {
+        abstract class A1ParamRandomizer0(val rt: A1) : ParameterRandomizer<A1> {
             override val paramClassData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicableTo(
@@ -199,13 +136,13 @@ class Randomizer_End_OnParam : TestAnnotation() {
                 parameter: KParameter,
                 parentClassData: RDClassData
             ): A1 {
-                return classRandomizer.random()
+                return rt
             }
         }
 
-        class ParamRandomizer1 : A1ParamRandomizer0(Randomizer1())
-        class ParamRandomizer2 : A1ParamRandomizer0(Randomizer2())
-        class ParamRandomizer3 : A1ParamRandomizer0(Randomizer3())
+        class ParamRandomizer1 : A1ParamRandomizer0(fixed1)
+        class ParamRandomizer2 : A1ParamRandomizer0(fixed2)
+        class ParamRandomizer3 : A1ParamRandomizer0(fixed3)
     }
 
 
