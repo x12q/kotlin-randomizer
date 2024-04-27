@@ -4,10 +4,9 @@ import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.test.TestAnnotation
-import com.x12q.randomizer.test.TestSamples
-import com.x12q.randomizer.test.TestSamples.Class1
-import com.x12q.randomizer.test.TestSamples.Class2
+import com.x12q.randomizer.test_util.TestSamples
+import com.x12q.randomizer.test_util.TestSamples.Class1
+import com.x12q.randomizer.test_util.TestSamples.Class2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.spyk
@@ -16,7 +15,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class RandomizerEnd_OnParam_abstract : TestAnnotation() {
+class RandomizerEnd_OnParam_abstract {
 
     lateinit var rdm0: RandomizerEnd
     lateinit var rdm: RandomizerEnd

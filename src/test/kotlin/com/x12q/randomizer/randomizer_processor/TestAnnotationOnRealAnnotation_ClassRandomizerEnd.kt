@@ -15,7 +15,6 @@ import kotlin.reflect.full.findAnnotations
 import kotlin.test.Test
 
 
-
 class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
 
     @Test
@@ -44,7 +43,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
             randomizerClass = clazz
         ).shouldBeInstanceOf<Err<*>>()
 
-       val randomizer = clazz.createInstance()
+        val randomizer = clazz.createInstance()
         randomizer.random().shouldNotBeInstanceOf<Target_3_WronglyAnnotated>()
     }
 
@@ -69,21 +68,23 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
             )
         }
     }
+
     @Randomizable
     data class Target_2(
-        val num:Float
-    ){
-        companion object{
+        val num: Float
+    ) {
+        companion object {
             val fixed = Target_2(123f)
         }
     }
+
     @Randomizable(
         randomizer = Randomizer_2::class
     )
     data class Target_3_WronglyAnnotated(
-        val str:String
-    ){
-        companion object{
+        val str: String
+    ) {
+        companion object {
             val fixed = Target_3_WronglyAnnotated("fsfdigjfg")
         }
     }
@@ -107,7 +108,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
             return classData == targetClassData
         }
 
-        override fun random(): Target_2{
+        override fun random(): Target_2 {
             return Target_2.fixed
         }
     }

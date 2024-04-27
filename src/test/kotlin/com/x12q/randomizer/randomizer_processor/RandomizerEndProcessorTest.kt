@@ -5,7 +5,6 @@ import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.test.TestAnnotation
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -13,7 +12,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RandomizerEndProcessorTest : TestAnnotation() {
+class RandomizerEndProcessorTest {
 
     lateinit var processor: RandomizerChecker
 
@@ -49,14 +48,14 @@ class RandomizerEndProcessorTest : TestAnnotation() {
             M4::class to Err(InvalidClassRandomizerReason.IsAbstract(M4::class)),
         )
 
-        test {
-            for ((randomizer, expectation) in testMap) {
-                processor.checkValidClassRandomizer(
-                    targetClass = String::class,
-                    randomizerClass = randomizer
-                ) shouldBe expectation
-            }
+
+        for ((randomizer, expectation) in testMap) {
+            processor.checkValidClassRandomizer(
+                targetClass = String::class,
+                randomizerClass = randomizer
+            ) shouldBe expectation
         }
+
     }
 
     /**
@@ -82,14 +81,14 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         val parentClass = RDClassData.from<A1>()
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidClassRandomizer(
-                    targetClassData = parentClass,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidClassRandomizer(
+                targetClassData = parentClass,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
     @Test
@@ -118,14 +117,14 @@ class RandomizerEndProcessorTest : TestAnnotation() {
 
         val parentClass = RDClassData.from<IA>()
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidClassRandomizer(
-                    targetClassData = parentClass,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidClassRandomizer(
+                targetClassData = parentClass,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
 
@@ -159,15 +158,15 @@ class RandomizerEndProcessorTest : TestAnnotation() {
             )
         )
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidParamRandomizer(
-                    parentClassData = parentClassData,
-                    targetParam = target,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidParamRandomizer(
+                parentClassData = parentClassData,
+                targetParam = target,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
     /**
@@ -200,15 +199,15 @@ class RandomizerEndProcessorTest : TestAnnotation() {
             MA3Pr::class to Ok(MA3Pr::class),
         )
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidParamRandomizer(
-                    parentClassData = parentClassData,
-                    targetParam = target,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidParamRandomizer(
+                parentClassData = parentClassData,
+                targetParam = target,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
     /**
@@ -258,15 +257,15 @@ class RandomizerEndProcessorTest : TestAnnotation() {
             )
         )
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidParamRandomizer(
-                    parentClassData = parentDt,
-                    targetParam = targetType,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidParamRandomizer(
+                parentClassData = parentDt,
+                targetParam = targetType,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
     /**
@@ -315,15 +314,15 @@ class RandomizerEndProcessorTest : TestAnnotation() {
             )
         )
 
-        test {
-            for ((subject, expectation) in testMap) {
-                processor.checkValidParamRandomizer(
-                    parentClassData = parentDt,
-                    targetParam = target,
-                    randomizerClass = subject
-                ) shouldBe expectation
-            }
+
+        for ((subject, expectation) in testMap) {
+            processor.checkValidParamRandomizer(
+                parentClassData = parentDt,
+                targetParam = target,
+                randomizerClass = subject
+            ) shouldBe expectation
         }
+
     }
 
     interface IA
@@ -345,12 +344,12 @@ class RandomizerEndProcessorTest : TestAnnotation() {
     }
 
     class M1 : BaseClassRandomizer<Int>()
-    class M2 : BaseClassRandomizer<Float> ()
-    class M3 : BaseClassRandomizer<String> ()
+    class M2 : BaseClassRandomizer<Float>()
+    class M3 : BaseClassRandomizer<String>()
     abstract class M4 : ClassRandomizer<String>
-    class MA1 : BaseClassRandomizer<A1> ()
-    class MA2 : BaseClassRandomizer<A2> ()
-    class MA3 : BaseClassRandomizer<A3> ()
+    class MA1 : BaseClassRandomizer<A1>()
+    class MA2 : BaseClassRandomizer<A2>()
+    class MA3 : BaseClassRandomizer<A3>()
 
     open class BaseParamRandomizer<T> : ParameterRandomizer<T> {
         override val paramClassData: RDClassData
@@ -369,8 +368,8 @@ class RandomizerEndProcessorTest : TestAnnotation() {
         }
     }
 
-    class M1Pr : BaseParamRandomizer<Int> ()
-    class M2Pr : BaseParamRandomizer<Float> ()
+    class M1Pr : BaseParamRandomizer<Int>()
+    class M2Pr : BaseParamRandomizer<Float>()
     open class M3Pr : BaseParamRandomizer<String>()
     class M32Pr : M3Pr()
     abstract class M4Pr : BaseParamRandomizer<String>()

@@ -10,16 +10,16 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import kotlin.reflect.typeOf
 
-class ReflectionUtilsTest{
+class ReflectionUtilsTest {
     open class A
     interface B
-    open class A1:B,A()
-    class A2:A1()
-    class B1:B
+    open class A1 : B, A()
+    class A2 : A1()
+    class B1 : B
 
 
     @Test
-    fun containGeneric(){
+    fun containGeneric() {
         typeOf<List<A>>().canProduceGeneric(A1::class).shouldBeTrue()
         typeOf<List<A>>().canProduceGeneric(A2::class).shouldBeTrue()
 
@@ -34,7 +34,7 @@ class ReflectionUtilsTest{
     }
 
     @Test
-    fun checkAssignable(){
+    fun checkAssignable() {
         A::class.isAssignableTo(typeOf<A>()) shouldBe true
         A1::class.isAssignableTo(typeOf<A>()) shouldBe true
 
@@ -53,7 +53,7 @@ class ReflectionUtilsTest{
     }
 
     @Test
-    fun checkGenericAssignable(){
+    fun checkGenericAssignable() {
 
         A::class.isAssignableToGenericOf(typeOf<List<A>>()) shouldBe true
         B::class.isAssignableToGenericOf(typeOf<List<B>>()) shouldBe true

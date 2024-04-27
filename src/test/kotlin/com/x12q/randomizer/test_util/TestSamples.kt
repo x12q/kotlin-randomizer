@@ -1,4 +1,4 @@
-package com.x12q.randomizer.test
+package com.x12q.randomizer.test_util
 
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.classRandomizer

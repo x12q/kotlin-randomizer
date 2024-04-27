@@ -6,7 +6,6 @@ import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.Randomizer
-import com.x12q.randomizer.test.TestAnnotation
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -18,55 +17,61 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.Test
 
 
+class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
 
-class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
 
     @Test
-    fun testOnRealAnnotation_right() {
+    fun `check valid param randomizer 1`() {
+        val param = Class_1::class.primaryConstructor!!.parameters.get(0)
+        val annotation = param.findAnnotations<Randomizable>().first()
+        val processor = RandomizerChecker()
+        val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
+        processor.checkValidParamRandomizer(
+            parentClassData = RDClassData.from<Class_1>(),
+            targetParam = param,
+            randomizerClass = randomizerClass
+        ) shouldBe Ok(randomizerClass)
+    }
+
+    @Test
+    fun `check valid param randomizer 2`() {
+        val param = Class_3::class.primaryConstructor!!.parameters.get(0)
+        val annotation = param.findAnnotations<Randomizable>().first()
+        val processor = RandomizerChecker()
+        val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
+
+        processor.checkValidParamRandomizer(
+            parentClassData = RDClassData.from<Class_3>(),
+            targetParam = param,
+            randomizerClass = randomizerClass
+        ).shouldBeInstanceOf<Err<*>>()
+
+    }
+
+    @Test
+    fun `randomizer class extracted from annotation can actually work`() {
+
         val param = Class_1::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
         val processor = RandomizerChecker()
         val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
 
-        test("randomizer class is extracted correctly"){
-            processor.checkValidParamRandomizer(
-                parentClassData = RDClassData.from<Class_1>(),
-                targetParam = param,
-                randomizerClass = randomizerClass
-            ) shouldBe Ok(randomizerClass)
-        }
+        val randomizer = randomizerClass.createInstance()
 
+        randomizer.isApplicableTo(
+            parameterClassData = RDClassData.from<Param1>(),
+            parameter = param,
+            parentClassData = RDClassData.from<Class_1>(),
+        ).shouldBeTrue()
 
-        test("randomizer class can actually work"){
-            val randomizer = randomizerClass.createInstance()
-            randomizer.isApplicableTo(
-                parameterClassData = RDClassData.from<Param1>(),
-                parameter = param,
-                parentClassData = RDClassData.from<Class_1>(),
-            ).shouldBeTrue()
+        (randomizer.random(
+            parameterClassData = RDClassData.from<Param1>(),
+            parameter = param,
+            parentClassData = RDClassData.from<Class_1>(),
+        ) as Param1) shouldBe Param1.targetRs
 
-            (randomizer.random(
-                parameterClassData = RDClassData.from<Param1>(),
-                parameter = param,
-                parentClassData = RDClassData.from<Class_1>(),
-            ) as Param1) shouldBe Param1.targetRs
-        }
     }
 
-    @Test
-    fun testOnRealAnnotation_wrong() {
-        val param = Class_3::class.primaryConstructor!!.parameters.get(0)
-        val annotation = param.findAnnotations<Randomizable>().first()
-        val processor = RandomizerChecker()
-        val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
-        test("randomizer class is extracted correctly"){
-            processor.checkValidParamRandomizer(
-                parentClassData = RDClassData.from<Class_3>(),
-                targetParam = param,
-                randomizerClass = randomizerClass
-            ).shouldBeInstanceOf<Err<*>>()
-        }
-    }
 
     @Test
     fun testOnRealAnnotation_default() {
@@ -79,19 +84,19 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
         @Randomizable(
             randomizer = Randomizer_1::class
         )
-        val target1:Param1
+        val target1: Param1
     )
 
     class Class_2(
         @Randomizable
-        val param2:Param2
+        val param2: Param2
     )
 
     class Class_3(
         @Randomizable(
             randomizer = Randomizer_1::class
         )
-        val wronglyAnnotated:Param3
+        val wronglyAnnotated: Param3
     )
 
     data class Param1(
@@ -107,17 +112,17 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd :TestAnnotation(){
     }
 
     data class Param2(
-        val num:Float
-    ){
-        companion object{
+        val num: Float
+    ) {
+        companion object {
             val fixed = Param2(123f)
         }
     }
 
     data class Param3(
-        val str:String
-    ){
-        companion object{
+        val str: String
+    ) {
+        companion object {
             val fixed = Param3("fsfdigjfg")
         }
     }

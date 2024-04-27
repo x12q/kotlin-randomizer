@@ -1,4 +1,4 @@
-package com.x12q.randomizer.test
+package com.x12q.randomizer.test_util
 
 import com.squareup.anvil.annotations.MergeComponent
 import com.x12q.randomizer.RandomizerEnd

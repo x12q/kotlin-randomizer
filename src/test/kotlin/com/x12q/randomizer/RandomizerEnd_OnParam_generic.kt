@@ -1,16 +1,13 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.RandomizerEnd_OnParam_concrete.A1
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.test.TestAnnotation
-import com.x12q.randomizer.test.TestSamples
-import com.x12q.randomizer.test.TestSamples.Class1
-import com.x12q.randomizer.test.TestSamples.Class2
+import com.x12q.randomizer.test_util.TestSamples
+import com.x12q.randomizer.test_util.TestSamples.Class1
+import com.x12q.randomizer.test_util.TestSamples.Class2
 import io.kotest.assertions.throwables.shouldNotThrow
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.spyk
@@ -19,7 +16,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class RandomizerEnd_OnParam_generic : TestAnnotation() {
+class RandomizerEnd_OnParam_generic {
 
     lateinit var rdm0: RandomizerEnd
     lateinit var rdm: RandomizerEnd
@@ -38,7 +35,7 @@ class RandomizerEnd_OnParam_generic : TestAnnotation() {
     }
 
     @Test
-    fun lv4(){
+    fun lv4() {
         (rdm.random(RDClassData.from<C1<D1>>()) as C1<D1>).t.shouldBeInstanceOf<D1>()
     }
 
@@ -57,7 +54,7 @@ class RandomizerEnd_OnParam_generic : TestAnnotation() {
     }
 
     @Test
-    fun `lv1 over lv2`(){
+    fun `lv1 over lv2`() {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
@@ -73,21 +70,21 @@ class RandomizerEnd_OnParam_generic : TestAnnotation() {
     }
 
     @Test
-    fun `lv1 over lv3`(){
+    fun `lv1 over lv3`() {
         (rdm.random(RDClassData.from<C3<A1>>()) as C3<A1>).also {
             it.a1 shouldBe A1.Randomizer3().random()
         }
     }
 
     @Test
-    fun `lv1 over lv4`(){
+    fun `lv1 over lv4`() {
         shouldNotThrow<Exception> {
             rdm.random(RDClassData.from<C3<D1>>())
         }
     }
 
     @Test
-    fun `lv1 over lv2, lv3, lv4`(){
+    fun `lv1 over lv2, lv3, lv4`() {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
@@ -101,32 +98,32 @@ class RandomizerEnd_OnParam_generic : TestAnnotation() {
     }
 
     @Test
-    fun `lv2 over lv3`(){
+    fun `lv2 over lv3`() {
         (rdm.random(RDClassData.from<C2<A1>>()) as C2<A1>).a1 shouldBe A1.Randomizer2().random()
     }
 
     @Test
-    fun `lv2 over lv4`(){
+    fun `lv2 over lv4`() {
         (rdm.random(RDClassData.from<C4<E2>>()) as C4<E2>).a1 shouldBe E2.E2Randomizer2().random()
     }
 
     @Test
-    fun `lv3 over lv4`(){
+    fun `lv3 over lv4`() {
         (rdm.random(RDClassData.from<C3<A1>>()) as C3<A1>).a1 shouldBe A1.Randomizer3().random()
     }
 
     class C4<T>(
         @Randomizable(randomizer = E2.E2Randomizer2::class)
-        val a1:T,
+        val a1: T,
     )
 
     class C3<T>(
-        val a1:T,
+        val a1: T,
     )
 
     class C2<T>(
         @Randomizable(randomizer = A1.ParamRandomizer2::class)
-        val a1:T,
+        val a1: T,
     )
 
     class C1<T>(val t: T)
@@ -214,7 +211,6 @@ class RandomizerEnd_OnParam_generic : TestAnnotation() {
 
         }
     }
-
 
 
     data class B1(

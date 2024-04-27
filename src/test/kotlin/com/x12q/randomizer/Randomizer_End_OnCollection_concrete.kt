@@ -1,14 +1,12 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.Randomizer_End_OnCollection_abstract.E1
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.test.TestAnnotation
-import com.x12q.randomizer.test.TestSamples
-import com.x12q.randomizer.test.TestSamples.Class1
-import com.x12q.randomizer.test.TestSamples.Class2
+import com.x12q.randomizer.test_util.TestSamples
+import com.x12q.randomizer.test_util.TestSamples.Class1
+import com.x12q.randomizer.test_util.TestSamples.Class2
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import io.mockk.spyk
@@ -17,7 +15,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_OnCollection_concrete : TestAnnotation() {
+class Randomizer_End_OnCollection_concrete {
 
     lateinit var rdm0: RandomizerEnd
     lateinit var rdm: RandomizerEnd
@@ -72,7 +70,7 @@ class Randomizer_End_OnCollection_concrete : TestAnnotation() {
     }
 
     @Test
-    fun `lv3 over lv4`(){
+    fun `lv3 over lv4`() {
         (rdm.random(RDClassData.from<List<A1>>()) as List<A1>).also {
             it.shouldNotBeEmpty()
             it.first() shouldBe A1.Randomizer3().random()
