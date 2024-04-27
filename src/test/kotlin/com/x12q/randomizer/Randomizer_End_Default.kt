@@ -83,28 +83,7 @@ class Randomizer_End_Default: TestAnnotation() {
     data class B1(
         @Randomizable(randomizer = A1.Randomizer2::class)
         val a:A
-    ){
-        companion object{
-
-//            val fixed1 = B1(A1("a1"))
-//            val fixed2 = B1(A2(A1("a2"),2))
-//
-//            abstract class BRandomizer0(val rt:B1): ClassRandomizer<B1>{
-//                override val targetClassData: RDClassData = RDClassData.from<B1>()
-//
-//                override fun isApplicable(classData: RDClassData): Boolean {
-//                    return classData == this.targetClassData
-//                }
-//
-//                override fun random(): B1 {
-//                    return rt
-//                }
-//            }
-//
-//            class BRandomizer1():BRandomizer0(fixed1)
-//            class BRandomizer2():BRandomizer0(fixed2)
-        }
-    }
+    )
 
     abstract class A
 
