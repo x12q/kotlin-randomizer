@@ -1,6 +1,5 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.RandomizerEnd_OnParam_concrete.A1
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.ClassRandomizer
@@ -9,16 +8,16 @@ import com.x12q.randomizer.test.TestAnnotation
 import com.x12q.randomizer.test.TestSamples
 import com.x12q.randomizer.test.TestSamples.Class1
 import com.x12q.randomizer.test.TestSamples.Class2
-import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.spyk
 import kotlin.reflect.KParameter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-
+/**
+ * Test on generic parameter that is abstract (abstract class or interface)
+ */
 class RandomizerEnd_OnParam_generic_abstract : TestAnnotation() {
 
     lateinit var rdm0: RandomizerEnd
@@ -54,79 +53,112 @@ class RandomizerEnd_OnParam_generic_abstract : TestAnnotation() {
                 parameterRandomizers = emptyMap()
             )
         )
-        (lv1Rdm.random(RDClassData.from<C3<E>>()) as C3<E>).a1 shouldBe E1.E1Randomizer1().random()
+        (lv1Rdm.random(RDClassData.from<C3<E>>()) as C3<E>).m shouldBe E1.E1Randomizer1().random()
 
     }
 
     @Test
     fun `lv1 over lv2`(){
-//        val lv1Randomizer = rdm.copy(
-//            lv1RandomizerCollection = RandomizerCollection(
-//                classRandomizers = mapOf(
-//                    RDClassData.from<A1>() to A1.Randomizer1()
-//                ),
-//                parameterRandomizers = emptyMap()
-//            )
-//        )
-//
-//        (lv1Randomizer.random(RDClassData.from<C2<A1>>()) as C2<A1>).also {
-//            it.a1 shouldBe A1.Randomizer1().random()
-//        }
+        val lv1Randomizer = rdm.copy(
+            lv1RandomizerCollection = RandomizerCollection(
+                classRandomizers = mapOf(
+                    RDClassData.from<A1>() to A1.Randomizer1()
+                ),
+                parameterRandomizers = emptyMap()
+            )
+        )
+
+        (lv1Randomizer.random(RDClassData.from<C2<A>>()) as C2<A1>).also {
+            it.m shouldBe A1.Randomizer1().random()
+        }
     }
 
     @Test
     fun `lv1 over lv3`(){
-//        (rdm.random(RDClassData.from<C3<A1>>()) as C3<A1>).also {
-//            it.a1 shouldBe A1.Randomizer3().random()
-//        }
+        val lv1Randomizer = rdm.copy(
+            lv1RandomizerCollection = RandomizerCollection(
+                classRandomizers = mapOf(
+                    RDClassData.from<E1>() to E1.E1Randomizer1()
+                ),
+                parameterRandomizers = emptyMap()
+            )
+        )
+
+        (lv1Randomizer.random(
+            RDClassData.from<C3<E>>()
+        ) as C3<E>).m shouldBe E1.E1Randomizer1().random()
     }
 
     @Test
     fun `lv1 over lv4`(){
-//        shouldNotThrow<Exception> {
-//            rdm.random(RDClassData.from<C3<D1>>())
-//        }
+
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<C3<A>>())
+        }
+
+        val lv1Randomizer = rdm.copy(
+            lv1RandomizerCollection = RandomizerCollection(
+                classRandomizers = mapOf(
+                    RDClassData.from<A1>() to A1.Randomizer1()
+                ),
+                parameterRandomizers = emptyMap()
+            )
+        )
+
+        (lv1Randomizer.random(
+            RDClassData.from<C3<A>>()
+        ) as C3<A>).m shouldBe A1.Randomizer1().random()
     }
 
     @Test
     fun `lv1 over lv2, lv3, lv4`(){
-//        val lv1Randomizer = rdm.copy(
-//            lv1RandomizerCollection = RandomizerCollection(
-//                classRandomizers = mapOf(
-//                    RDClassData.from<A1>() to A1.Randomizer1()
-//                ),
-//                parameterRandomizers = emptyMap()
-//            )
-//        )
-//
-//        (lv1Randomizer.random(RDClassData.from<C2<A1>>()) as C2<A1>).a1 shouldBe A1.Randomizer1().random()
+        val lv1Randomizer = rdm.copy(
+            lv1RandomizerCollection = RandomizerCollection(
+                classRandomizers = mapOf(
+                    RDClassData.from<E1>() to E1.E1Randomizer1()
+                ),
+                parameterRandomizers = emptyMap()
+            )
+        )
+
+        (lv1Randomizer.random(RDClassData.from<B<E>>()) as B<E>).m shouldBe E1.E1Randomizer1().random()
+
+    }
+
+    @Test
+    fun `lv2 over lv3`() {
+        (rdm.random(RDClassData.from<B<E>>()) as B<E>).m shouldBe E2.E2Randomizer2().random()
+    }
+
+    @Test
+    fun `lv2 over lv4`(){
+        (rdm.random(RDClassData.from<C2<A>>()) as C2<A>).m shouldBe A1.Randomizer2().random()
+    }
+
+    @Test
+    fun `lv2 over lv3, lv4`(){
+        (rdm.random(RDClassData.from<B<E>>()) as B<E>).m shouldBe E2.E2Randomizer2().random()
     }
 
 
-
-
-    @Test fun `lv1 to make random generic+abstract param`() {
-//        val lv1Rdm = rdm.copy(
-//            lv1RandomizerCollection = RandomizerCollection(
-//                classRandomizers = mapOf(
-//                    RDClassData.from<A1>() to A1.Randomizer1(),
-//                ),
-//                parameterRandomizers = emptyMap()
-//            )
-//        )
-//
-//        (lv1Rdm.random(RDClassData.from<C1<A>>()) as C1<A>).t shouldBe A1.Randomizer1().random()
+    @Test
+    fun `lv3 over lv4`(){
+        (rdm.random(RDClassData.from<C3<E>>())  as C3<E>).m shouldBe E3.E3Randomizer3().random()
     }
 
+    class B<T>(
+        @Randomizable(randomizer = E2.E2Randomizer2::class)
+        val m:T
+    )
     interface F
 
     class C3<T>(
-        val a1:T,
+        val m:T,
     )
 
     class C2<T>(
-        @Randomizable(randomizer = A1.ParamRandomizer1::class)
-        val a1:T,
+        @Randomizable(randomizer = A1.ParamRandomizer2::class)
+        val m:T,
     )
 
     class C1<T>(val t: T)
