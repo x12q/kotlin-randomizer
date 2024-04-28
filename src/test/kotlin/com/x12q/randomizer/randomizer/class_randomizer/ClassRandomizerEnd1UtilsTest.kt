@@ -20,7 +20,7 @@ class ClassRandomizerEnd1UtilsTest {
 
         val rdm = classRandomizer<Int>(
             condition = ::condition,
-            makeRandomIfApplicable = ::makeRandomIfApplicable
+            random = ::makeRandomIfApplicable
         )
 
 

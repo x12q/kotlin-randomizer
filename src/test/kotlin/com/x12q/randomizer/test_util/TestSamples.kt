@@ -24,7 +24,7 @@ object TestSamples {
                     val parentClass: RDClassData = paramInfo.parentClass
                     parentClass.kClass == Class1::class && kParam.name == "tm12"
                 },
-                makeRandomIfApplicable = { paramInfo ->
+                random = { paramInfo ->
                     "${paramInfo.kParam.name}: random value 123}"
                 },
             )
@@ -42,7 +42,7 @@ object TestSamples {
                 condition = {
                     it.kClass == Class2::class
                 },
-                makeRandomIfApplicable = {
+                random = {
                     Class2(
                         a = Class1(listOf(1.1f, 2.2f), tm12 = ""),
                         t = ""

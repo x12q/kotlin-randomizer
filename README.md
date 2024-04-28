@@ -22,21 +22,27 @@
 ## Roadmap:
 - create structure to manage custom class and parameter randomizer: partially done
   - allow user to provide class randomizer + param randomizer: done
-    - TODO: Increase param randomizer lookup speed (otherwise it is n^2)
-- TODO double check or create base/primitive class randomizers (for int, float, double, etc...)
-- TODO Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic
+- TODO double check primitive class randomizers (for int, float, double, etc...)
+- TODO remove repetition in RandomizerEnd
+
+- Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic: done
   - Priority order: randomizer from top-level function (lv1) -> parameter randomize (lv2) -> class randomizer (lv3) -> no randomizer (lv4): done
-  - Test more, this is very important
+  - TODO Test more, this is very important
     - test generic
     - test appropriate overriding
     - take a look at randomChildren
-- TODO Add easier to use builder for param randomizer + class randomizer.
-
-
-Feature:
+- TODO Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
+- TODO Err accumulation:
+  - TODO Randomizers at multiple level can be faulty at once. If all fail (including lv4), a comprehensive error report on all lv must be created so that users can debug their code easier.
+- TODO Add some aspect-wise configuration:
+  - TODO The len of randomized collection
+  - TODO The range of primitive number
+  - TODO way to generate string:
+    - random str
+    - UUID
+Tentative feature:
 - Constructor rule (low priority)
   - If no rule is provided -> default to primary constructor
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-
-NEXT: continue testing RandomizerEnd_OnParam_generic_abstract
+    

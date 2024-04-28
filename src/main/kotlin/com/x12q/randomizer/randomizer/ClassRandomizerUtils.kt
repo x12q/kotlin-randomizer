@@ -1,28 +1,37 @@
 package com.x12q.randomizer.randomizer
 
+import com.x12q.randomizer.randomizer.clazz.ConditionalClassRandomizer
+import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 
-inline fun <reified Q, reified T>diffType():Boolean{
-    return RDClassData.from<Q>() != RDClassData.from<T>()
+/**
+ * Create a [SameClassRandomizer]
+ */
+inline fun <reified T> classRandomizer(
+    crossinline random:()->T
+):ClassRandomizer<T>{
+    return SameClassRandomizer(
+        returnedInstanceData = RDClassData.from<T>(),
+        makeRandom = {
+            random()
+        },
+    )
 }
 
 /**
- * Create a [ClassRandomizer] that perform checking using [condition] and generate random instances using [makeRandomIfApplicable]
- * TODO this function can be simplified, so that a default [condition] is provided for users.
+ * create a [ConditionalClassRandomizer]
  */
 inline fun <reified T> classRandomizer(
-    crossinline condition: (RDClassData) -> Boolean,
-    crossinline makeRandomIfApplicable: () -> T,
+    crossinline condition: (targetClass:RDClassData,returnedInstanceClass:RDClassData) -> Boolean,
+    crossinline random: () -> T,
 ): ClassRandomizer<T> {
-    val rt = object : ClassRandomizer<T> {
-        override val targetClassData: RDClassData = RDClassData.from<T>()
-        override fun isApplicable(classData: RDClassData): Boolean {
-            return condition(classData)
+    return ConditionalClassRandomizer(
+        returnedInstanceData = RDClassData.from<T>(),
+        condition = {targetClass,returnedInstanceClass->
+            condition(targetClass,returnedInstanceClass)
+        },
+        makeRandomIfApplicable={
+            random()
         }
-
-        override fun random(): T {
-            return makeRandomIfApplicable()
-        }
-    }
-    return rt
+    )
 }
 

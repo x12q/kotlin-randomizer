@@ -331,7 +331,7 @@ class RandomizerEndProcessorTest {
     open class A3 : IA, A2()
 
     open class BaseClassRandomizer<T> : ClassRandomizer<T> {
-        override val targetClassData: RDClassData
+        override val returnedInstanceData: RDClassData
             get() = TODO("Not yet implemented")
 
         override fun isApplicable(classData: RDClassData): Boolean {

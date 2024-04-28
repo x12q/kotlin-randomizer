@@ -85,10 +85,10 @@ class Randomizer_End_OnCollection_concrete {
     ) : A() {
 
         class Rdm1 : ClassRandomizer<A3> {
-            override val targetClassData: RDClassData = RDClassData.from<A3>()
+            override val returnedInstanceData: RDClassData = RDClassData.from<A3>()
 
             override fun isApplicable(classData: RDClassData): Boolean {
-                return classData == targetClassData
+                return classData == returnedInstanceData
             }
 
             override fun random(): A3 {
@@ -110,10 +110,10 @@ class Randomizer_End_OnCollection_concrete {
         }
 
         abstract class A1Randomizer0(val rt: A2) : ClassRandomizer<A2> {
-            override val targetClassData: RDClassData = RDClassData.from<A2>()
+            override val returnedInstanceData: RDClassData = RDClassData.from<A2>()
 
             override fun isApplicable(classData: RDClassData): Boolean {
-                return classData == this.targetClassData
+                return classData == this.returnedInstanceData
             }
 
             override fun random(): A2 {
@@ -138,10 +138,10 @@ class Randomizer_End_OnCollection_concrete {
         }
 
         abstract class A1Randomizer0(val rt: A1) : ClassRandomizer<A1> {
-            override val targetClassData: RDClassData = RDClassData.from<A1>()
+            override val returnedInstanceData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicable(classData: RDClassData): Boolean {
-                return classData == this.targetClassData
+                return classData == this.returnedInstanceData
             }
 
             override fun random(): A1 {

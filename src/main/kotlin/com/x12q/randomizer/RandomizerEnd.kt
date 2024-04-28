@@ -70,43 +70,36 @@ data class RandomizerEnd @Inject constructor(
                 } else {
                     // lv 4 - default recursive randomizer
                     if (targetClass.isAbstract) {
-                        // TODO add a better error handling + more meaningful msg
-                        throw IllegalArgumentException("can't randomized abstract class, either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
+                        throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}, either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
                     } else {
-                        // TODO: allow selecting different constructor strategy:
-                        // - only primary
-                        // - random
-                        // - but for now, restrict it to primary constructor
-                        // - throw exception in all other cases
-//                        val constructors = targetClass.constructors.shuffled(random)
-                        val constructor = targetClass.primaryConstructor
-                        if(constructor!=null){
+                        val primaryConstructor = targetClass.primaryConstructor
+                        if(primaryConstructor!=null){
 
-                            val visibility = constructor.visibility
+                            val visibility = primaryConstructor.visibility
 
                             val visibilityIsValid =
                                     visibility != null
                                     && visibility!=KVisibility.PRIVATE
                                     && visibility!=KVisibility.INTERNAL
 
-                            if(visibilityIsValid){
-                                println("WARNING: constructor is not public or protected")
+                            if(!visibilityIsValid){
+                                println("WARNING: primary constructor of ${targetClass.qualifiedName}$ should be public or protected")
                             }
 
                             try {
-                                val arguments = constructor.parameters.map { kParam ->
+                                val arguments = primaryConstructor.parameters.map { kParam ->
                                     randomConstructorParameter(
                                         kParam = kParam,
                                         parentClassData = classData,
                                     )
                                 }.toTypedArray()
-                                return constructor.call(*arguments)
+                                return primaryConstructor.call(*arguments)
                             } catch (e: Throwable) {
                                 e.printStackTrace()
                                 // no-op. We catch any possible error here that might occur during class creation
                             }
                         }else{
-                            throw IllegalArgumentException("No primary constructor")
+                            throw IllegalArgumentException("A primary constructor is need to make a random instance of ${targetClass.qualifiedName}$.")
                         }
                     }
                 }
@@ -186,10 +179,10 @@ data class RandomizerEnd @Inject constructor(
 
                 val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
                     object : ClassRandomizer<Any?> {
-                        override val targetClassData: RDClassData = paramData
+                        override val returnedInstanceData: RDClassData = paramData
 
                         override fun isApplicable(classData: RDClassData): Boolean {
-                            return classData == targetClassData
+                            return classData == returnedInstanceData
                         }
 
                         override fun random(): Any? {
@@ -237,10 +230,10 @@ data class RandomizerEnd @Inject constructor(
 
                     val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
                         object : ClassRandomizer<Any?> {
-                            override val targetClassData: RDClassData = parameterData
+                            override val returnedInstanceData: RDClassData = parameterData
 
                             override fun isApplicable(classData: RDClassData): Boolean {
-                                return classData == targetClassData
+                                return classData == returnedInstanceData
                             }
 
                             override fun random(): Any? {
@@ -269,7 +262,6 @@ data class RandomizerEnd @Inject constructor(
         }
     }
 
-    // TODO consider randomizer lv1,2,3,4 here
     private fun randomChildren(paramKType: KType, parentClassData: RDClassData): Any? {
         // this level does not contain param type, and it must not, because it is also used to generate non-parameter
         when (val classifier = paramKType.classifier) {
@@ -307,11 +299,11 @@ data class RandomizerEnd @Inject constructor(
         val rt = when (classRef) {
             Short::class -> random.nextInt().toShort()
             Boolean::class -> random.nextBoolean()
-            Int::class -> random.nextInt()
+            Int::class -> randomInt()
             Long::class -> random.nextLong()
             Double::class -> random.nextDouble()
             Float::class -> random.nextFloat()
-            Char::class -> makeRandomChar(random)
+            Char::class -> makeRandomChar()
             String::class -> makeRandomString(random)
             List::class, Collection::class -> makeRandomList(classData)
             Map::class -> makeRandomMap(classData)
@@ -338,14 +330,20 @@ data class RandomizerEnd @Inject constructor(
         return keys.zip(values).toMap()
     }
 
-    private fun makeRandomChar(random: Random): Char {
-        return ('A'..'z').random(random)
+    private val charRange = ('A'..'z')
+
+    private fun makeRandomChar(): Char {
+        return charRange.random(random)
     }
 
     private fun makeRandomString(random: Random): String {
         return (1..random.nextInt(
             possibleStringSizes.start,
             possibleStringSizes.endInclusive + 1
-        )).map { makeRandomChar(random) }.joinToString(separator = "") { "$it" }
+        )).map { makeRandomChar() }.joinToString(separator = "") { "$it" }
+    }
+
+    private fun randomInt():Int{
+        return random.nextInt()
     }
 }
