@@ -61,13 +61,13 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         randomizer.isApplicableTo(
             parameterClassData = RDClassData.from<Param1>(),
             parameter = param,
-            parentClassData = RDClassData.from<Class_1>(),
+            enclosingClassData = RDClassData.from<Class_1>(),
         ).shouldBeTrue()
 
         (randomizer.random(
             parameterClassData = RDClassData.from<Param1>(),
             parameter = param,
-            parentClassData = RDClassData.from<Class_1>(),
+            enclosingClassData = RDClassData.from<Class_1>(),
         ) as Param1) shouldBe Param1.targetRs
 
     }
@@ -134,7 +134,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun isApplicableTo(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Boolean {
             return parameterClassData == paramClassData
         }
@@ -142,7 +142,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun random(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Param1 {
             return Param1.targetRs
         }
@@ -154,7 +154,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun isApplicableTo(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Boolean {
             return parameterClassData == paramClassData
         }
@@ -162,7 +162,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun random(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Param2 {
             return Param2.fixed
         }
@@ -174,7 +174,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun isApplicableTo(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Boolean {
             return parameterClassData == paramClassData
         }
@@ -182,7 +182,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override fun random(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Param3 {
             return Param3.fixed
         }

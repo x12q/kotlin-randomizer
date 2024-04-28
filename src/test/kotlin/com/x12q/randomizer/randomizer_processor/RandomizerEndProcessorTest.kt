@@ -334,7 +334,7 @@ class RandomizerEndProcessorTest {
         override val returnedInstanceData: RDClassData
             get() = TODO("Not yet implemented")
 
-        override fun isApplicable(classData: RDClassData): Boolean {
+        override fun isApplicableTo(classData: RDClassData): Boolean {
             TODO("Not yet implemented")
         }
 
@@ -358,12 +358,12 @@ class RandomizerEndProcessorTest {
         override fun isApplicableTo(
             parameterClassData: RDClassData,
             parameter: KParameter,
-            parentClassData: RDClassData
+            enclosingClassData: RDClassData
         ): Boolean {
             TODO("Not yet implemented")
         }
 
-        override fun random(parameterClassData: RDClassData, parameter: KParameter, parentClassData: RDClassData): T {
+        override fun random(parameterClassData: RDClassData, parameter: KParameter, enclosingClassData: RDClassData): T {
             TODO("Not yet implemented")
         }
     }

@@ -87,7 +87,7 @@ class Randomizer_End_OnCollection_concrete {
         class Rdm1 : ClassRandomizer<A3> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A3>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -112,7 +112,7 @@ class Randomizer_End_OnCollection_concrete {
         abstract class A1Randomizer0(val rt: A2) : ClassRandomizer<A2> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A2>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -140,7 +140,7 @@ class Randomizer_End_OnCollection_concrete {
         abstract class A1Randomizer0(val rt: A1) : ClassRandomizer<A1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -160,7 +160,7 @@ class Randomizer_End_OnCollection_concrete {
             override fun isApplicableTo(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): Boolean {
                 return parameterClassData == this.paramClassData
             }
@@ -168,7 +168,7 @@ class Randomizer_End_OnCollection_concrete {
             override fun random(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): A1 {
                 return rt
             }

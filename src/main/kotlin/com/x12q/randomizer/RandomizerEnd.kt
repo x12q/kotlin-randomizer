@@ -7,6 +7,7 @@ import com.x12q.randomizer.randomizer_processor.RandomizerChecker
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.*
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
@@ -128,7 +129,7 @@ data class RandomizerEnd @Inject constructor(
 
     fun randomConstructorParameterRs(
         param: KParameter,
-        parentClassData: RDClassData
+        enclosingClassData: RDClassData
     ): Result<Any?, ErrorReport> {
 
         /**
@@ -159,9 +160,13 @@ data class RandomizerEnd @Inject constructor(
                 val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
                 if (!lv1Randomizer.isNullOrEmpty()) {
                     for (rd in lv1Randomizer) {
-                        if (rd.isApplicableTo(paramData, param, parentClassData)) {
-                            val rs = rd.random(paramData, param, parentClassData)
-                            return Ok(rs)
+                        val i = rd.random(
+                            parameterClassData = paramData,
+                            parameter = param,
+                            enclosingClassData = enclosingClassData
+                        )
+                        if(i!=null){
+                            return Ok(i)
                         }
                     }
                 }
@@ -181,7 +186,7 @@ data class RandomizerEnd @Inject constructor(
                     object : ClassRandomizer<Any?> {
                         override val returnedInstanceData: RDClassData = paramData
 
-                        override fun isApplicable(classData: RDClassData): Boolean {
+                        override fun isApplicableTo(classData: RDClassData): Boolean {
                             return classData == returnedInstanceData
                         }
 
@@ -189,7 +194,7 @@ data class RandomizerEnd @Inject constructor(
                             return lv2ParamRandomizer0.random(
                                 parameterClassData = paramData,
                                 parameter = param,
-                                parentClassData = parentClassData,
+                                enclosingClassData = enclosingClassData,
                             )
                         }
                     }
@@ -207,7 +212,7 @@ data class RandomizerEnd @Inject constructor(
              * such as: class Q<T>(val s:T)
              */
             is KTypeParameter -> {
-                val parameterData = parentClassData.getDataFor(classifier)
+                val parameterData = enclosingClassData.getDataFor(classifier)
                 if (parameterData != null) {
 
                     val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let{lv2Rd->
@@ -220,7 +225,7 @@ data class RandomizerEnd @Inject constructor(
 
                     val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd->
                         randomizerChecker.checkValidParamRandomizer(
-                            parentClassData = parentClassData,
+                            parentClassData = enclosingClassData,
                             targetParam = param,
                             targetTypeParam = classifier,
                             randomizerClass=lv2Rd
@@ -232,7 +237,7 @@ data class RandomizerEnd @Inject constructor(
                         object : ClassRandomizer<Any?> {
                             override val returnedInstanceData: RDClassData = parameterData
 
-                            override fun isApplicable(classData: RDClassData): Boolean {
+                            override fun isApplicableTo(classData: RDClassData): Boolean {
                                 return classData == returnedInstanceData
                             }
 
@@ -240,7 +245,7 @@ data class RandomizerEnd @Inject constructor(
                                 return lv2ParamRandomizer0.random(
                                     parameterClassData = parameterData,
                                     parameter = param,
-                                    parentClassData = parentClassData,
+                                    enclosingClassData = enclosingClassData,
                                 )
                             }
                         }
@@ -254,7 +259,7 @@ data class RandomizerEnd @Inject constructor(
                         lv2Randomizer = lv2ClassRandomizer,
                     ))
                 } else {
-                    return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, parentClassData))
+                    return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, enclosingClassData))
                 }
             }
 

@@ -159,7 +159,7 @@ class RandomizerEnd_OnParam_concrete {
         class D1Randomizer3 : ClassRandomizer<D1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<D1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -178,7 +178,7 @@ class RandomizerEnd_OnParam_concrete {
         class E3Randomizer3 : ClassRandomizer<E3> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E3>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -197,7 +197,7 @@ class RandomizerEnd_OnParam_concrete {
         class E2Randomizer2 : ClassRandomizer<E2> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E2>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -217,7 +217,7 @@ class RandomizerEnd_OnParam_concrete {
         class E1Randomizer1 : ClassRandomizer<E1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -230,7 +230,7 @@ class RandomizerEnd_OnParam_concrete {
         class E1Randomizer2 : ClassRandomizer<E1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -281,7 +281,7 @@ class RandomizerEnd_OnParam_concrete {
         abstract class A1Randomizer0(val rt: A2) : ClassRandomizer<A2> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A2>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -309,7 +309,7 @@ class RandomizerEnd_OnParam_concrete {
         abstract class A1Randomizer0(val rt: A1) : ClassRandomizer<A1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -331,7 +331,7 @@ class RandomizerEnd_OnParam_concrete {
             override fun isApplicableTo(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): Boolean {
                 return parameterClassData == this.paramClassData
             }
@@ -339,7 +339,7 @@ class RandomizerEnd_OnParam_concrete {
             override fun random(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): A1 {
                 return classRandomizer.random()
             }

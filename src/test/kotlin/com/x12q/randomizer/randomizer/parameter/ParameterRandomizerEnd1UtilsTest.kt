@@ -2,6 +2,7 @@ package com.x12q.randomizer.randomizer.parameter
 
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
@@ -12,9 +13,8 @@ class ParameterRandomizerEnd1UtilsTest {
 
 
     @Test
-    fun paramRandomizer() {
+    fun paramRandomizerTest() {
         fun condition(paramInfo: ParamInfo): Boolean {
-            val clazzData = paramInfo.paramClass
             val kParam: KParameter = paramInfo.kParam
             val parentClass: RDClassData = paramInfo.parentClass
             return parentClass.kClass == TestSamples.Class1::class && kParam.name == "tm12"
@@ -24,7 +24,7 @@ class ParameterRandomizerEnd1UtilsTest {
             return "${paramInfo.kParam.name}: random value 123"
         }
 
-        val rdm = com.x12q.randomizer.randomizer.paramRandomizer<String>(
+        val rdm = paramRandomizer<String>(
             condition = ::condition,
             random = ::ifApplicable
         )
@@ -36,7 +36,7 @@ class ParameterRandomizerEnd1UtilsTest {
         rdm.isApplicableTo(
             parameterClassData = RDClassData.from<Int>(),
             parameter = kParam,
-            parentClassData = RDClassData.from<TestSamples.Class1>()
+            enclosingClassData = RDClassData.from<TestSamples.Class1>()
         ) shouldBe condition(
             ParamInfo(
                 paramClass = RDClassData.from<Int>(),
@@ -49,7 +49,7 @@ class ParameterRandomizerEnd1UtilsTest {
         rdm.random(
             parameterClassData = RDClassData.from<Int>(),
             parameter = kParam,
-            parentClassData = RDClassData.from<TestSamples.Class1>()
+            enclosingClassData = RDClassData.from<TestSamples.Class1>()
         ) shouldBe ifApplicable(
             ParamInfo(
                 paramClass = RDClassData.from<Int>(),

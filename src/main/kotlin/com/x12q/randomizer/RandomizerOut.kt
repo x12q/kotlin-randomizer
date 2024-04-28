@@ -2,6 +2,8 @@ package com.x12q.randomizer
 
 import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.*
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
@@ -60,9 +62,6 @@ fun main() {
     println(makeRandomInstance<Q<Int>>(
         randomizers = listOf(
             classRandomizer<Int>(
-                condition ={
-                    it == RDClassData.from<Int>()
-                },
                 random = {
                     12
                 }

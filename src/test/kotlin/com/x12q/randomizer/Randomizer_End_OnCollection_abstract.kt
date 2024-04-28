@@ -89,7 +89,7 @@ class Randomizer_End_OnCollection_abstract {
         class D1Randomizer3 : ClassRandomizer<D1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<D1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -108,7 +108,7 @@ class Randomizer_End_OnCollection_abstract {
         class E3Randomizer3 : ClassRandomizer<E3> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E3>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -127,7 +127,7 @@ class Randomizer_End_OnCollection_abstract {
         class E2Randomizer2 : ClassRandomizer<E2> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E2>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -147,7 +147,7 @@ class Randomizer_End_OnCollection_abstract {
         class E1Randomizer1 : ClassRandomizer<E1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -160,7 +160,7 @@ class Randomizer_End_OnCollection_abstract {
         class E1Randomizer2 : ClassRandomizer<E1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<E1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == returnedInstanceData
             }
 
@@ -211,7 +211,7 @@ class Randomizer_End_OnCollection_abstract {
         abstract class A1Randomizer0(val rt: A2) : ClassRandomizer<A2> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A2>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -239,7 +239,7 @@ class Randomizer_End_OnCollection_abstract {
         abstract class A1Randomizer0(val rt: A1) : ClassRandomizer<A1> {
             override val returnedInstanceData: RDClassData = RDClassData.from<A1>()
 
-            override fun isApplicable(classData: RDClassData): Boolean {
+            override fun isApplicableTo(classData: RDClassData): Boolean {
                 return classData == this.returnedInstanceData
             }
 
@@ -261,7 +261,7 @@ class Randomizer_End_OnCollection_abstract {
             override fun isApplicableTo(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): Boolean {
                 return parameterClassData == this.paramClassData
             }
@@ -269,7 +269,7 @@ class Randomizer_End_OnCollection_abstract {
             override fun random(
                 parameterClassData: RDClassData,
                 parameter: KParameter,
-                parentClassData: RDClassData
+                enclosingClassData: RDClassData
             ): A1 {
                 return classRandomizer.random()
             }

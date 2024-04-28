@@ -1,9 +1,9 @@
 package com.x12q.randomizer.test_util
 
 import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.classRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.paramRandomizer
+import com.x12q.randomizer.randomizer.param.paramRandomizer
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
 
@@ -19,7 +19,6 @@ object TestSamples {
 
             val tm12FixedRandomizer: ParameterRandomizer<String> = paramRandomizer<String>(
                 condition = { paramInfo ->
-                    val clazzData = paramInfo.paramClass
                     val kParam: KParameter = paramInfo.kParam
                     val parentClass: RDClassData = paramInfo.parentClass
                     parentClass.kClass == Class1::class && kParam.name == "tm12"
@@ -39,9 +38,6 @@ object TestSamples {
         companion object {
             val dt = RDClassData.from<Class2>()
             val classFixedRandomizer = classRandomizer(
-                condition = {
-                    it.kClass == Class2::class
-                },
                 random = {
                     Class2(
                         a = Class1(listOf(1.1f, 2.2f), tm12 = ""),
@@ -51,6 +47,4 @@ object TestSamples {
             )
         }
     }
-
-    data class ClassWithGeneric<T>(val t: T)
 }

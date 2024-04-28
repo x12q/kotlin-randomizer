@@ -1,14 +1,14 @@
-package com.x12q.randomizer.randomizer
+package com.x12q.randomizer.randomizer.clazz
 
-import com.x12q.randomizer.randomizer.clazz.ConditionalClassRandomizer
-import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 
 /**
  * Create a [SameClassRandomizer]
  */
 inline fun <reified T> classRandomizer(
     crossinline random:()->T
-):ClassRandomizer<T>{
+): ClassRandomizer<T> {
     return SameClassRandomizer(
         returnedInstanceData = RDClassData.from<T>(),
         makeRandom = {
@@ -21,7 +21,7 @@ inline fun <reified T> classRandomizer(
  * create a [ConditionalClassRandomizer]
  */
 inline fun <reified T> classRandomizer(
-    crossinline condition: (targetClass:RDClassData,returnedInstanceClass:RDClassData) -> Boolean,
+    crossinline condition: (targetClass: RDClassData, returnedInstanceClass: RDClassData) -> Boolean,
     crossinline random: () -> T,
 ): ClassRandomizer<T> {
     return ConditionalClassRandomizer(

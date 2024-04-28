@@ -12,7 +12,7 @@ interface ClassRandomizer<out T> : Randomizer<T> {
     /**
      * Check if this randomizer is applicable a certain class
      */
-    fun isApplicable(classData: RDClassData): Boolean
+    fun isApplicableTo(classData: RDClassData): Boolean
 
     /**
      * Create a random instance

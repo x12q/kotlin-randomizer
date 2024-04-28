@@ -10,9 +10,10 @@ class ConditionalClassRandomizer<T>(
     override val returnedInstanceData: RDClassData,
     val condition: (targetClass: RDClassData, returnedInstanceClass: RDClassData) -> Boolean,
     val makeRandomIfApplicable: () -> T,
-): ClassRandomizer<T> {
-    override fun isApplicable(classData: RDClassData): Boolean {
-        return condition(classData,returnedInstanceData)
+) : ClassRandomizer<T> {
+
+    override fun isApplicableTo(classData: RDClassData): Boolean {
+        return condition(classData, returnedInstanceData)
     }
 
     override fun random(): T {

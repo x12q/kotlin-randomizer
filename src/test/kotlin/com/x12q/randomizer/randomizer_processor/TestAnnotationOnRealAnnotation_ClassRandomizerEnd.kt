@@ -92,7 +92,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
     class Randomizer_1 : ClassRandomizer<Target_1> {
         override val returnedInstanceData: RDClassData = RDClassData.from<Target_1>()
 
-        override fun isApplicable(classData: RDClassData): Boolean {
+        override fun isApplicableTo(classData: RDClassData): Boolean {
             return classData == returnedInstanceData
         }
 
@@ -104,7 +104,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
     class Randomizer_2 : ClassRandomizer<Target_2> {
         override val returnedInstanceData: RDClassData = RDClassData.from<Target_2>()
 
-        override fun isApplicable(classData: RDClassData): Boolean {
+        override fun isApplicableTo(classData: RDClassData): Boolean {
             return classData == returnedInstanceData
         }
 
@@ -116,7 +116,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
     class Randomizer_3 : ClassRandomizer<Target_3_WronglyAnnotated> {
         override val returnedInstanceData: RDClassData = RDClassData.from<Target_1>()
 
-        override fun isApplicable(classData: RDClassData): Boolean {
+        override fun isApplicableTo(classData: RDClassData): Boolean {
             return classData == returnedInstanceData
         }
 
