@@ -20,9 +20,7 @@ interface ParameterRandomizer<out T> : Randomizer<T> {
      * Check if this randomizer is applicable to a certain [parameter] or not.
      */
     fun isApplicableTo(
-        parameterClassData: RDClassData,
-        parameter: KParameter,
-        enclosingClassData: RDClassData,
+        paramInfo:ParamInfo
     ): Boolean
 
     /**

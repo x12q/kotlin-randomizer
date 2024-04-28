@@ -12,7 +12,7 @@ inline fun <reified T> paramRandomizer(
     crossinline condition: (target: ParamInfo) -> Boolean,
     crossinline random: (ParamInfo) -> T,
 ): ParameterRandomizer<T> {
-    return ConditionalParamRandomizer<T>(
+    return ConditionalParamRandomizer(
         paramClassData = RDClassData.from<T>(),
         condition = { target ->
             condition(target)
@@ -23,21 +23,14 @@ inline fun <reified T> paramRandomizer(
     )
 }
 
-class SameClassParamRandomizer<T> private constructor(
-    private val conditionalParamRandomizer: ConditionalParamRandomizer<T>
-) : ParameterRandomizer<T> by conditionalParamRandomizer {
 
-    constructor(
-        paramClassData: RDClassData,
-        random: (ParamInfo) -> T,
-    ) : this(
-        ConditionalParamRandomizer<T>(
-            paramClassData = paramClassData,
-            condition = { target: ParamInfo ->
-                target.paramClass == paramClassData
-            },
-            makeRandom = random
-        )
+inline fun <reified T> paramRandomizer(
+    crossinline random: (ParamInfo) -> T,
+): ParameterRandomizer<T> {
+    return SameClassParamRandomizer(
+        paramClassData = RDClassData.from<T>(),
+        random = { paramInfo ->
+            random(paramInfo)
+        }
     )
 }
-

@@ -4,6 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
@@ -356,9 +357,7 @@ class RandomizerEndProcessorTest {
             get() = TODO("Not yet implemented")
 
         override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
+            paramInfo: ParamInfo
         ): Boolean {
             TODO("Not yet implemented")
         }

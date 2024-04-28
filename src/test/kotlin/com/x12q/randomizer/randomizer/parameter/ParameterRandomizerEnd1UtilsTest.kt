@@ -34,9 +34,11 @@ class ParameterRandomizerEnd1UtilsTest {
 
 
         rdm.isApplicableTo(
-            parameterClassData = RDClassData.from<Int>(),
-            parameter = kParam,
-            enclosingClassData = RDClassData.from<TestSamples.Class1>()
+            ParamInfo(
+                paramClass = RDClassData.from<Int>(),
+                kParam = kParam,
+                parentClass = RDClassData.from<TestSamples.Class1>()
+            )
         ) shouldBe condition(
             ParamInfo(
                 paramClass = RDClassData.from<Int>(),

@@ -3,6 +3,7 @@ package com.x12q.randomizer
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import com.x12q.randomizer.test_util.TestSamples.Class1
@@ -146,11 +147,9 @@ class Randomizer_End_Default {
             override val paramClassData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                enclosingClassData: RDClassData
+                paramInfo: ParamInfo
             ): Boolean {
-                return parameterClassData == this.paramClassData
+                return paramInfo.paramClass == this.paramClassData
             }
 
             override fun random(

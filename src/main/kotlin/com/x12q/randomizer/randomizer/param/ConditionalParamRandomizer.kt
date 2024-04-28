@@ -24,17 +24,7 @@ class ConditionalParamRandomizer<T>(
     val makeRandom: (ParamInfo) -> T,
 ) : ParameterRandomizer<T> {
 
-
-    override fun isApplicableTo(
-        parameterClassData: RDClassData,
-        parameter: KParameter,
-        enclosingClassData: RDClassData
-    ): Boolean {
-        val paramInfo = ParamInfo(
-            paramClass = paramClassData,
-            kParam = parameter,
-            parentClass = enclosingClassData
-        )
+    override fun isApplicableTo(paramInfo: ParamInfo): Boolean {
         return condition(paramInfo)
     }
 
@@ -43,12 +33,12 @@ class ConditionalParamRandomizer<T>(
         parameter: KParameter,
         enclosingClassData: RDClassData
     ): T? {
-        if (this.isApplicableTo(parameterClassData, parameter, enclosingClassData)) {
-            val paramInfo = ParamInfo(
-                paramClass = paramClassData,
-                kParam = parameter,
-                parentClass = enclosingClassData
-            )
+        val paramInfo = ParamInfo(
+            paramClass = paramClassData,
+            kParam = parameter,
+            parentClass = enclosingClassData
+        )
+        if (this.isApplicableTo(paramInfo)) {
             return makeRandom(paramInfo)
         } else {
             return null

@@ -3,6 +3,7 @@ package com.x12q.randomizer.randomizer_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
+import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.Randomizer
@@ -59,9 +60,11 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         val randomizer = randomizerClass.createInstance()
 
         randomizer.isApplicableTo(
-            parameterClassData = RDClassData.from<Param1>(),
-            parameter = param,
-            enclosingClassData = RDClassData.from<Class_1>(),
+            ParamInfo(
+                paramClass = RDClassData.from<Param1>(),
+                kParam = param,
+                parentClass = RDClassData.from<Class_1>(),
+            )
         ).shouldBeTrue()
 
         (randomizer.random(
@@ -127,16 +130,14 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         }
     }
 
+
+
     class Randomizer_1 : ParameterRandomizer<Param1> {
 
         override val paramClassData: RDClassData = RDClassData.from<Param1>()
 
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
-        ): Boolean {
-            return parameterClassData == paramClassData
+        override fun isApplicableTo(paramInfo: ParamInfo): Boolean {
+            return paramInfo.paramClass == paramClassData
         }
 
         override fun random(
@@ -145,46 +146,6 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
             enclosingClassData: RDClassData
         ): Param1 {
             return Param1.targetRs
-        }
-    }
-
-    class Randomizer_2 : ParameterRandomizer<Param2> {
-        override val paramClassData: RDClassData = RDClassData.from<Param2>()
-
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
-        ): Boolean {
-            return parameterClassData == paramClassData
-        }
-
-        override fun random(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
-        ): Param2 {
-            return Param2.fixed
-        }
-    }
-
-    class Randomizer_3 : ParameterRandomizer<Param3> {
-        override val paramClassData: RDClassData = RDClassData.from<Param3>()
-
-        override fun isApplicableTo(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
-        ): Boolean {
-            return parameterClassData == paramClassData
-        }
-
-        override fun random(
-            parameterClassData: RDClassData,
-            parameter: KParameter,
-            enclosingClassData: RDClassData
-        ): Param3 {
-            return Param3.fixed
         }
     }
 }

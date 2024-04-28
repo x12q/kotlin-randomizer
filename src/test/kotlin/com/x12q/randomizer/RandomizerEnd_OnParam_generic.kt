@@ -1,9 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import com.x12q.randomizer.test_util.TestSamples.Class1
 import com.x12q.randomizer.test_util.TestSamples.Class2
@@ -314,11 +311,9 @@ class RandomizerEnd_OnParam_generic {
             override val paramClassData: RDClassData = RDClassData.from<A1>()
 
             override fun isApplicableTo(
-                parameterClassData: RDClassData,
-                parameter: KParameter,
-                enclosingClassData: RDClassData
+                paramInfo: ParamInfo
             ): Boolean {
-                return parameterClassData == this.paramClassData
+                return paramInfo.paramClass == this.paramClassData
             }
 
             override fun random(
