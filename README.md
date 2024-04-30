@@ -46,3 +46,7 @@ Tentative feature:
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
     
+
+
+DONE:
+- improve performance of randomizer by avoiding creating randomizer obj before it is needed

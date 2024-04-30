@@ -6,7 +6,6 @@ import com.x12q.randomizer.randomizer.RDClassData
 
 /**
  * Create a [ParameterRandomizer] that check parameter with [condition], and generate random instances with [random]
- * TODO this function need to be more consciese and easier to use. It is rather cryptic now.
  */
 inline fun <reified T> paramRandomizer(
     crossinline condition: (target: ParamInfo) -> Boolean,
@@ -23,7 +22,9 @@ inline fun <reified T> paramRandomizer(
     )
 }
 
-
+/**
+ * Create a [ParameterRandomizer] that only check for type match
+ */
 inline fun <reified T> paramRandomizer(
     crossinline random: (ParamInfo) -> T,
 ): ParameterRandomizer<T> {

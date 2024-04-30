@@ -45,7 +45,7 @@ class Randomizer_End_OnClass {
             )
         )
 
-        lv1Randomizer.random(RDClassData.from<A1>(), lv2Randomizer = A1.Randomizer2()) shouldBe A1.Randomizer1()
+        lv1Randomizer.random(RDClassData.from<A1>(), lv2RandomizerClassLz = lazy{A1.Randomizer2()}) shouldBe A1.Randomizer1()
             .random()
     }
 
