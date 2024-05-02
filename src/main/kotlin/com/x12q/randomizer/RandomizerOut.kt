@@ -1,9 +1,11 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.di.DaggerRDComponent
-import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.class_randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.parameter.ParameterRandomizer
+import com.x12q.randomizer.randomizer.*
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.randomizer.primitive.non_base.type_int.RangeIntRandomizer
+import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
 /**
@@ -37,7 +39,7 @@ inline fun <reified T : Any> makeRandomInstance(
     val randomizer = comp.randomizer()
 
     val randomizer2 = randomizer.copy(
-        randomizerCollection = randomizer.randomizerCollection
+        lv1RandomizerCollection = randomizer.lv1RandomizerCollection
             .addParamRandomizer(*paramRandomizers.toTypedArray())
             .addRandomizers(*randomizers.toTypedArray())
     )
@@ -47,12 +49,52 @@ inline fun <reified T : Any> makeRandomInstance(
     return randomizer2.random(q) as T
 }
 
-
+@Serializable
 data class ABC(val lst: List<Float>, val tm12: Int)
-data class ABC2(val a: ABC, val t: String)
+data class ABC2(val a: ABC, val t: String, val b:ABC, val t2:String)
 data class Q<T>(val t: T)
 
 fun main() {
+
+//    println(makeRandomInstance<Pair<List<Int>,String>>())
+//    println(makeRandomInstance<Map<String,Int>>())
+
+
+    println(makeRandomInstance<Q<List<Int>>>(
+        randomizers = listOf(
+            RangeIntRandomizer(1 .. 10)
+        ),
+        paramRandomizers = listOf()
+    ))
+
+
+//    println(makeRandomInstance<ABC2>(
+//        randomizers = listOf(
+//            classRandomizer(
+//                condition = {rd->
+//                    rd == RDClassData.from<ABC>()
+//                },
+//                makeRandomIfApplicable = {
+//                    ABC(
+//                        lst = listOf(1f,2f),
+//                        tm12 = 22,
+//                    )
+//                }
+//            )
+//        ),
+//        paramRandomizers = listOf(
+//            paramRandomizer(
+//                condition = {pr->
+//                    pr.kParam.type.classifier == String::class && pr.parentClass.kClass == ABC2::class
+//                },
+//                random = { pr->
+//                    "${pr.kParam.name} : ${UUID.randomUUID()}"
+//                }
+//            )
+//        )
+//    ))
+
+
 //    val comp = DaggerRDComponent.builder().build()
 //    println(comp.random().nextInt())
 ////    val abc = makeRandomInstance<ABC>()

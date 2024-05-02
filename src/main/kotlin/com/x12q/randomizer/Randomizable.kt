@@ -1,23 +1,67 @@
 package com.x12q.randomizer
 
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.x12q.randomizer.err.ErrorReport
+import com.x12q.randomizer.err.RandomizerErrors
+import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.Randomizer
+import kotlin.annotation.AnnotationRetention.RUNTIME
+import kotlin.annotation.AnnotationTarget.*
+import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
+
 /**
- * Requirement:
- * - recursive function to traverse the constructor tree, and init object.
- * - for abstract parameter, add @Randomizable(ConcreteClass1::class, ConcreteClass2::class, AnotherRandomizableAbstractClass::class)
- * - For abstract class, add the same @Randomizable, the one in parameter override the one in the class.
- * - For concrete class, add @Randomizable(factoryFunction=...) or @Randomizable(randomizer = CustomRandomizer::class)
  *
- * The top level random function:
- * - should it accept some kind of master rule that override everything?
- *      - if so, what should those rule looks like?
- *          - each param rule contains:
- *              - a param name
- *              - type/ class of the param
- *              - a Parent class
- *              - a factory function
- *          - each class rule contains:
- *              - a class name
- *              - a factory function
- *     - Rule for primitive types (string, int, etc) must be very easy to set
  */
-annotation class Randomizable
+@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, PROPERTY)
+@Retention(RUNTIME)
+annotation class Randomizable(
+    val randomizer: KClass<out Randomizer<*>> = Randomizer.__DefaultRandomizer::class
+) {
+    companion object {
+
+        /**
+         * try to cast [randomizer] as [ClassRandomizer].
+         * Return an error only when [randomizer] is a [ParameterRandomizer], otherwise return the cast obj, or a null if there's any other error.
+         */
+        fun Randomizable.getClassRandomizerOnly(targetClass: KClass<*>): Result<KClass<out ClassRandomizer<*>>?, ErrorReport> {
+            val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
+            val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
+                Ok(null)
+            } else {
+                if (randomizerClass.isSubclassOf(ClassRandomizer::class)) {
+                    Ok(randomizerClass as KClass<out ClassRandomizer<*>>)
+                } else if (randomizerClass.isSubclassOf(ParameterRandomizer::class)) {
+                    Err(
+                        RandomizerErrors.CantApplyParamRandomizerToClass.report(
+                            randomizerClass as ParameterRandomizer<*>,
+                            targetClass
+                        )
+                    )
+                } else {
+                    Ok(null)
+                }
+            }
+            return rt
+        }
+
+        fun Randomizable.getClassRandomizerOrParamRandomizer(): Result<Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>,ErrorReport> {
+            val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
+            val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
+                Ok(Pair(null, null))
+            } else {
+                if (randomizerClass.isSubclassOf(ClassRandomizer::class)) {
+                    Ok(Pair(randomizerClass as KClass<out ClassRandomizer<*>>, null))
+                } else if (randomizerClass.isSubclassOf(ParameterRandomizer::class)) {
+                    Ok(Pair(null, randomizerClass as KClass<out ParameterRandomizer<*>>))
+                } else {
+                    Err(RandomizerErrors.IllegalRandomizer.report(randomizerClass))
+                }
+            }
+            return rt
+        }
+    }
+}
