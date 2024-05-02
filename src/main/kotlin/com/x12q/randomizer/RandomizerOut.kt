@@ -4,9 +4,11 @@ import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
-import com.x12q.randomizer.randomizer.primitive.non_base.type_int.RangeIntRandomizer
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
+import kotlin.reflect.KClass
+import kotlin.reflect.cast
+import kotlin.reflect.full.isSubclassOf
 
 /**
  * Make a random instance of [T]
@@ -54,18 +56,34 @@ data class ABC(val lst: List<Float>, val tm12: Int)
 data class ABC2(val a: ABC, val t: String, val b:ABC, val t2:String)
 data class Q<T>(val t: T)
 
+enum class EN{
+    t1, t2, t3, t4, t5, t6
+}
+
 fun main() {
 
-//    println(makeRandomInstance<Pair<List<Int>,String>>())
-//    println(makeRandomInstance<Map<String,Int>>())
+    repeat(10){
+        println(makeRandomInstance<Q<EN>>(
+            randomizers = listOf(
+//            classRandomizer {
+//                EN.t1
+//            }
+            ),
+            paramRandomizers = listOf()
+
+        ))
+
+    }
 
 
-    println(makeRandomInstance<Q<List<Int>>>(
-        randomizers = listOf(
-            RangeIntRandomizer(1 .. 10)
-        ),
-        paramRandomizers = listOf()
-    ))
+//    println(tc.isSubclassOf(Enum::class))
+//    println(tc.sealedSubclasses)
+
+
+//    println(makeRandomInstance<Q<EN>>(
+//        randomizers = listOf(),
+//        paramRandomizers = listOf()
+//    ))
 
 
 //    println(makeRandomInstance<ABC2>(

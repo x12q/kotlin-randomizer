@@ -11,6 +11,7 @@ object ReflectionUtils {
     /**
      * Check if a [KType] contains any generic type that match [targetClass] or is children of [targetClass]
      */
+    @Deprecated("dont use")
     fun KType.canProduceGeneric(targetClass: KClass<*>):Boolean{
         return this.arguments.map {
             // take variance into consideration
@@ -34,6 +35,7 @@ object ReflectionUtils {
      * Eg:
      * check if A is assignable the generic of List<A>
      */
+    @Deprecated("dont use")
     fun KClass<*>.isAssignableToGenericOf(kType: KType):Boolean{
         val parentTypes = this.supertypes + this.starProjectedType
         return kType.arguments.any {arg->
@@ -49,6 +51,7 @@ object ReflectionUtils {
      *     only need to check assignable to a specific interface, a better way is to check it directly against that interface.
      *     -> no need to lookup for parent class or anything.
      */
+    @Deprecated("dont use")
     fun KClass<*>.isAssignableToGenericOf(kClass:KClass<*>):Boolean{
         val allTypes = this.supertypes + this.starProjectedType
         val allArg = (kClass.supertypes.flatMap { it.arguments } + kClass.starProjectedType.arguments).map { it.type }
@@ -62,23 +65,10 @@ object ReflectionUtils {
      * Eg:
      * if class A is assignable to class B
      */
+    @Deprecated("dont use")
     fun KClass<*>.isAssignableTo(kType: KType):Boolean{
         val parentTypes = supertypes + starProjectedType
         return parentTypes.contains(kType)
     }
 
-}
-
-
-class A<T>{
-    fun add(i:T){
-
-    }
-}
-
-
-fun qwe(){
-    val a = A<Number>()
-    val i:Int = 1
-    a.add(i)
 }
