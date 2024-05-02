@@ -4,6 +4,7 @@ import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.randomizer.primitive.non_base.type_int.RangeIntRandomizer
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
@@ -59,15 +60,11 @@ fun main() {
 //    println(makeRandomInstance<Map<String,Int>>())
 
 
-    println(makeRandomInstance<Q<Int>>(
+    println(makeRandomInstance<Q<List<Int>>>(
         randomizers = listOf(
-            classRandomizer<Int>(
-                random = {
-                    12
-                }
-            )
+            RangeIntRandomizer(1 .. 10)
         ),
-        paramRandomizers = emptyList()
+        paramRandomizers = listOf()
     ))
 
 
