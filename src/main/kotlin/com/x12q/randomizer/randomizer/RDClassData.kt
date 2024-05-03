@@ -3,9 +3,6 @@ package com.x12q.randomizer.randomizer
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.defaultType
-import kotlin.reflect.full.starProjectedType
 import kotlin.reflect.typeOf
 
 
@@ -14,7 +11,7 @@ import kotlin.reflect.typeOf
  */
 data class RDClassData(
     val kClass: KClass<*>,
-    val kType: KType
+    val kType: KType?
 ) {
 
     /**
@@ -24,7 +21,7 @@ data class RDClassData(
         val typeParameterName = kTypeParameter.name
         val typeParameterIndex = kClass.typeParameters.indexOfFirst { it.name == typeParameterName }
         if (typeParameterIndex >= 0) {
-            val parameterKType = kType.arguments[typeParameterIndex].type
+            val parameterKType = kType?.arguments?.get(typeParameterIndex)?.type
             val rt = parameterKType?.let {
                 val kclass = parameterKType.classifier as KClass<*>
                 RDClassData(kclass, parameterKType)
@@ -39,7 +36,7 @@ data class RDClassData(
         val typeParameterName = kTypeParameter.name
         val typeParameterIndex = kClass.typeParameters.indexOfFirst { it.name == typeParameterName }
         if (typeParameterIndex >= 0) {
-            val parameterKType = kType.arguments[typeParameterIndex].type
+            val parameterKType = kType?.arguments?.get(typeParameterIndex)?.type
             val rt = parameterKType?.let {
                 parameterKType.classifier as KClass<*>
             }

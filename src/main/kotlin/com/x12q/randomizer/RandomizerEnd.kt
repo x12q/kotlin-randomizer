@@ -12,9 +12,7 @@ import com.x12q.randomizer.util.getEnumValue
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.findAnnotations
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.*
 
 data class RandomizerEnd @Inject constructor(
     private val random: Random,
@@ -26,12 +24,12 @@ data class RandomizerEnd @Inject constructor(
      * This function create a random instance of some class represented by [classData].
      * To do that, this function goes through multiple randomizer options, from lv1 to lv4.
      * - lv1 randomizers are those provided directly by users via [lv1RandomizerCollection]
-     * - lv2 randomizers are those provided by the annotation [Randomizable] at constructor parameters
+     * - lv2 randomizers are those provided by the annotation [Randomizable] at parameters in constructor
      * - lv3 randomizers are those provided by the annotation [Randomizable] at class
      * - lv4 is the default recursive randomizer baked into the logic of the function of this class.
      * Note:
-     * There will not be any out type check on [lv2Randomizer] because at this point its out type was already erased.
-     * So, I need to make sure that [lv2Randomizer] can produce the expected type before passing it here.
+     * There will not be any out type check on [lv2RandomizerLz] because at this point its out type was already erased.
+     * So, [lv2RandomizerLz] must be sure that it can produce the expected type before being passed here.
      */
     private fun randomByLv(
         classData: RDClassData,
@@ -39,7 +37,6 @@ data class RandomizerEnd @Inject constructor(
         lv2RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null
     ): Any? {
-        // todo, remove this primitive randomizer, replace it with my randomizer
 
         if (lv1Randomizer != null) {
             return lv1Randomizer.random()
@@ -55,7 +52,7 @@ data class RandomizerEnd @Inject constructor(
             return lv3RandomizerClass.random()
         }
 
-        val lv4RandomInstance = lv4Random(classData)
+        val lv4RandomInstance = randomEnumAndPrimitives(classData)
         if (lv4RandomInstance != null) {
             return lv4RandomInstance
         }
@@ -64,8 +61,22 @@ data class RandomizerEnd @Inject constructor(
 
         // TODO simplify the block below
         if (targetClass.isAbstract) {
+
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
-        } else {
+
+        } else if (targetClass.isSealed){
+
+            val a = targetClass.sealedSubclasses
+            val randomSubClass = a.random()
+            return random(RDClassData(
+                kClass = randomSubClass,
+                /**
+                 *
+                 */
+                kType = null
+            ))
+
+        } else{
             val primaryConstructor = targetClass.primaryConstructor
             if (primaryConstructor != null) {
 
@@ -100,14 +111,18 @@ data class RandomizerEnd @Inject constructor(
     }
 
     fun random(classData: RDClassData): Any? {
-        return random(classData, lv2RandomizerClassLz = null)
+        val objectInstance = classData.kClass.objectInstance
+        if(objectInstance!=null){
+            return objectInstance
+        }else{
+            return random(classData, lv2RandomizerClassLz = null)
+        }
     }
 
     fun random(
         classData: RDClassData,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
     ): Any? {
-
         val targetClass: KClass<*> = classData.kClass
 
         // lv1 = randomizer is provided explicitly by the users in the top-level random function
@@ -342,10 +357,10 @@ data class RandomizerEnd @Inject constructor(
     }
 
     /**
-     * lv4 is default randomizer, only used to generate random instances of primitive data types.
+     * lv4 is the default randomizer, only used to generate random instances of primitive data types.
      */
 
-    private fun lv4Random(classData: RDClassData): Any? {
+    private fun randomEnumAndPrimitives(classData: RDClassData): Any? {
         return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData)
     }
 
@@ -378,20 +393,28 @@ data class RandomizerEnd @Inject constructor(
     private val rdStringSize: IntRange = 1..10
 
     private fun makeRandomList(classData: RDClassData): List<Any?> {
-        val type: KType = classData.kType
-        val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
-        val elemType = type.arguments[0].type!!
-        return (1..numOfElements).map { randomChildren(elemType, classData) }
+        val type: KType? = classData.kType
+        if(type!=null){
+            val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
+            val elemType = type.arguments[0].type!!
+            return (1..numOfElements).map { randomChildren(elemType, classData) }
+        }else{
+            TODO("throw exception")
+        }
     }
 
     private fun makeRandomMap(classData: RDClassData): Map<Any?, Any?> {
-        val type: KType = classData.kType
-        val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
-        val keyType = type.arguments[0].type!!
-        val valType = type.arguments[1].type!!
-        val keys = (1..numOfElements).map { randomChildren(keyType, classData) }
-        val values = (1..numOfElements).map { randomChildren(valType, classData) }
-        return keys.zip(values).toMap()
+        val type: KType? = classData.kType
+        if(type!=null){
+            val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
+            val keyType = type.arguments[0].type!!
+            val valType = type.arguments[1].type!!
+            val keys = (1..numOfElements).map { randomChildren(keyType, classData) }
+            val values = (1..numOfElements).map { randomChildren(valType, classData) }
+            return keys.zip(values).toMap()
+        }else{
+            TODO("throw exception")
+        }
     }
 
     private val charRange = ('A'..'z')
