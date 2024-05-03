@@ -12,9 +12,7 @@ import com.x12q.randomizer.util.getEnumValue
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.*
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.findAnnotations
-import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.full.*
 
 data class RandomizerEnd @Inject constructor(
     private val random: Random,
@@ -39,7 +37,6 @@ data class RandomizerEnd @Inject constructor(
         lv2RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null
     ): Any? {
-        // todo, remove this primitive randomizer, replace it with my randomizer
 
         if (lv1Randomizer != null) {
             return lv1Randomizer.random()
@@ -65,7 +62,14 @@ data class RandomizerEnd @Inject constructor(
         // TODO simplify the block below
         if (targetClass.isAbstract) {
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
-        } else {
+        } else if (targetClass.isSealed){
+            val a = targetClass.sealedSubclasses
+            val randomSubClass = a.random()
+            return random(RDClassData(
+                randomSubClass,randomSubClass.starProjectedType
+            ))
+
+        } else{
             val primaryConstructor = targetClass.primaryConstructor
             if (primaryConstructor != null) {
 
@@ -100,14 +104,18 @@ data class RandomizerEnd @Inject constructor(
     }
 
     fun random(classData: RDClassData): Any? {
-        return random(classData, lv2RandomizerClassLz = null)
+        val objectInstance = classData.kClass.objectInstance
+        if(objectInstance!=null){
+            return objectInstance
+        }else{
+            return random(classData, lv2RandomizerClassLz = null)
+        }
     }
 
     fun random(
         classData: RDClassData,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
     ): Any? {
-
         val targetClass: KClass<*> = classData.kClass
 
         // lv1 = randomizer is provided explicitly by the users in the top-level random function

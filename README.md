@@ -20,6 +20,12 @@
     - Rule for primitive types (string, int, etc) must be very easy to set         
     
 ## Roadmap:
+- x: random enum
+- x: random object
+- TODO: random sealed class
+  - object
+  - class with param
+  - class with generic param
 - x: create structure to manage custom class and parameter randomizer
   - x: allow user to provide class randomizer + param randomizer
 - x: double check primitive class randomizers (for int, float, double, etc...)
