@@ -82,7 +82,7 @@ class Randomizer_End_Sealed_Class {
     }
 
     @Test
-    fun `random on annotated children sealed class`(){
+    fun `random on annotated children sealed class `(){
         shouldNotThrow<Throwable> {
             rdm.random(RDClassData.from<S3>()) shouldBe S3.Companion.ChildrenRandomizer().random()
         }
