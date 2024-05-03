@@ -60,14 +60,17 @@ enum class EN{
     t1, t2, t3, t4, t5, t6
 }
 
+sealed class SC{
+    object C1:SC()
+    object C2:SC()
+    class C3():SC()
+}
+
 fun main() {
 
     repeat(10){
-        println(makeRandomInstance<Q<EN>>(
+        println(makeRandomInstance<Q<SC>>(
             randomizers = listOf(
-//            classRandomizer {
-//                EN.t1
-//            }
             ),
             paramRandomizers = listOf()
 
