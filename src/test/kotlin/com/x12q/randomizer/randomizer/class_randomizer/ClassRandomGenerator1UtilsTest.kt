@@ -10,7 +10,7 @@ class ClassRandomGenerator1UtilsTest {
     @Test
     fun randomizer() {
 
-        fun condition(dt: RDClassData,returnedInstance:RDClassData): Boolean {
+        fun condition(dt: RDClassData, returnedInstance:RDClassData): Boolean {
             return dt.kClass == Int::class
         }
 

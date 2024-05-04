@@ -1,8 +1,8 @@
 package com.x12q.randomizer.test_util
 
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
-import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
