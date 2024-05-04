@@ -3,6 +3,7 @@ package com.x12q.randomizer.randomizer.primitive
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 
+
 /**
  * Convenient function to create a [ClassRandomizer] that can produce random integers
  */

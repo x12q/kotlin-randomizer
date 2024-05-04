@@ -125,7 +125,7 @@ class Randomizer_End_OnClass {
             override fun isApplicableTo(
                 paramInfo: ParamInfo
             ): Boolean {
-                return paramInfo.paramClass == this.paramClassData
+                return paramInfo.paramClassData == this.paramClassData
             }
 
             override fun random(

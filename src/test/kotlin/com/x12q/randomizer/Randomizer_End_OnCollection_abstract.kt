@@ -258,7 +258,7 @@ class Randomizer_End_OnCollection_abstract {
             override fun isApplicableTo(
                 paramInfo: ParamInfo
             ): Boolean {
-                return paramInfo.paramClass == this.paramClassData
+                return paramInfo.paramClassData == this.paramClassData
             }
 
             override fun random(

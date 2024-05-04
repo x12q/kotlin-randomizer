@@ -61,9 +61,9 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
 
         randomizer.isApplicableTo(
             ParamInfo(
-                paramClass = RDClassData.from<Param1>(),
+                paramClassData = RDClassData.from<Param1>(),
                 kParam = param,
-                parentClass = RDClassData.from<Class_1>(),
+                parentClassData = RDClassData.from<Class_1>(),
             )
         ).shouldBeTrue()
 
@@ -137,7 +137,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
         override val paramClassData: RDClassData = RDClassData.from<Param1>()
 
         override fun isApplicableTo(paramInfo: ParamInfo): Boolean {
-            return paramInfo.paramClass == paramClassData
+            return paramInfo.paramClassData == paramClassData
         }
 
         override fun random(

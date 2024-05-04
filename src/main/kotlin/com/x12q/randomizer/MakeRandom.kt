@@ -7,16 +7,12 @@ import com.x12q.randomizer.randomizer.RDClassData
 import kotlin.random.Random
 
 
-/**
- * This file contains functions that are intended for end-users to use.
- */
-
 
 /**
  * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
  * can override default random logic for particular classes or constructor parameters
  */
-inline fun <reified T : Any> makeRandomInstance(
+inline fun <reified T : Any> random(
     random: Random = Random,
     randomizers: Collection<ClassRandomizer<*>> = emptyList(),
     paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
@@ -40,7 +36,7 @@ inline fun <reified T : Any> makeRandomInstance(
 /**
  * Make a random instance of an inner class [T] within [enclosingObject].
  */
-inline fun <reified T : Any> makeRandomInstanceForInnerClass(
+inline fun <reified T : Any> randomInnerClass(
     enclosingObject:Any,
     random: Random = Random,
 ): T {

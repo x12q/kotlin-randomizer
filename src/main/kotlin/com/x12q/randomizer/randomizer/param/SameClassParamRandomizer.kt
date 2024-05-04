@@ -15,7 +15,7 @@ class SameClassParamRandomizer<T> private constructor(
         ConditionalParamRandomizer<T>(
             paramClassData = paramClassData,
             condition = { target: ParamInfo ->
-                target.paramClass == paramClassData
+                target.paramClassData == paramClassData
             },
             makeRandom = random
         )

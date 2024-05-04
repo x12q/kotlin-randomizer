@@ -20,7 +20,7 @@ object TestSamples {
             val tm12FixedRandomizer: ParameterRandomizer<String> = paramRandomizer<String>(
                 condition = { paramInfo ->
                     val kParam: KParameter = paramInfo.kParam
-                    val parentClass: RDClassData = paramInfo.parentClass
+                    val parentClass: RDClassData = paramInfo.parentClassData
                     parentClass.kClass == Class1::class && kParam.name == "tm12"
                 },
                 random = { paramInfo ->
