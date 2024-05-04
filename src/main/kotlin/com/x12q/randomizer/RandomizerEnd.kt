@@ -1,13 +1,14 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOnly
-import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRandomizer
-import com.x12q.randomizer.randomizer_processor.RandomizerChecker
+import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOnlyRs
+import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRandomizerRs
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
+import com.x12q.randomizer.err.toErrorReport
 import com.x12q.randomizer.randomizer.*
-import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer_processor.RandomizerChecker
+import com.x12q.randomizer.util.ReflectionUtils
 import com.x12q.randomizer.util.getEnumValue
 import javax.inject.Inject
 import kotlin.random.Random
@@ -38,6 +39,8 @@ data class RandomizerEnd @Inject constructor(
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null
     ): Any? {
 
+        val targetClass: KClass<*> = classData.kClass
+
         if (lv1Randomizer != null) {
             return lv1Randomizer.random()
         }
@@ -52,35 +55,38 @@ data class RandomizerEnd @Inject constructor(
             return lv3RandomizerClass.random()
         }
 
-        val lv4RandomInstance = randomEnumAndPrimitives(classData)
-        if (lv4RandomInstance != null) {
-            return lv4RandomInstance
+        val rdEnumAndPrim = randomEnumAndPrimitives(classData)
+        if (rdEnumAndPrim != null) {
+            return rdEnumAndPrim
         }
 
-        val targetClass: KClass<*> = classData.kClass
 
         // TODO simplify the block below
         if (targetClass.isAbstract) {
 
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
 
-        } else if (targetClass.isSealed){
+        } else if (targetClass.isSealed) {
 
             val a = targetClass.sealedSubclasses
             val randomSubClass = a.random()
-            return random(RDClassData(
-                kClass = randomSubClass,
-                /**
-                 *
-                 */
-                kType = null
-            ))
+            return random(
+                RDClassData(
+                    kClass = randomSubClass,
+                    /**
+                     * seal class children does not need KType
+                     */
+                    kType = null
+                )
+            )
 
-        } else{
-            val primaryConstructor = targetClass.primaryConstructor
-            if (primaryConstructor != null) {
+        } else {
 
-                val visibility = primaryConstructor.visibility
+            val constructor = pickAnnotatedConstructorButIgnoreAnnotationContent(targetClass)
+
+            if (constructor != null) {
+
+                val visibility = constructor.visibility
 
                 val visibilityIsValid =
                     visibility != null
@@ -88,34 +94,233 @@ data class RandomizerEnd @Inject constructor(
                             && visibility != KVisibility.INTERNAL
 
                 if (!visibilityIsValid) {
-                    println("WARNING: primary constructor of ${targetClass.qualifiedName}$ should be public or protected")
+                    println("WARNING: target constructor of ${targetClass.qualifiedName}$ should be public or protected")
                 }
 
                 try {
-                    val arguments = primaryConstructor.parameters.map { kParam ->
+                    val arguments = constructor.parameters.map { kParam ->
                         randomConstructorParameter(
                             kParam = kParam,
                             parentClassData = classData,
                         )
                     }.toTypedArray()
-                    return primaryConstructor.call(*arguments)
+
+                    return constructor.call(*arguments)
+
                 } catch (e: Throwable) {
-                    e.printStackTrace()
+                    throw e.toErrorReport().toException()
                 }
             } else {
                 throw IllegalArgumentException("A primary constructor is need to make a random instance of ${targetClass.qualifiedName}$.")
             }
         }
+    }
 
-        throw IllegalArgumentException()
+
+//    /**
+//     * Pick a constructor from a [targetClass]:
+//     * - choose a random constructor from those annotated with [Randomizable]
+//     * - if there's no annotated constructor, use primary constructor
+//     */
+//    internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
+//
+//        val annotatedConstructors = targetClass.constructors.filter {
+//            it.findAnnotations<Randomizable>().isNotEmpty()
+//        }
+//
+//        if (annotatedConstructors.isNotEmpty()) {
+//
+//            /**
+//             * If there are multiple annotated constructor, pick a random one, prioritize one that has valid randomizer, throw exception if any contain invalid randomizer
+//             */
+//            val annotatedConstructor = run {
+//                annotatedConstructors.random(random)
+//            }
+//
+//            /**
+//             * If there's multiple @Randomizable, prioritize one that has randomizer
+//             */
+//            val annotations = annotatedConstructor.findAnnotations<Randomizable>()
+//
+//            val annotation = run {
+//                val annotationsWithValidRandomizer = annotations.filter {
+//                    val classRandomizerClass = it.getClassRandomizerOnlyRs(targetClass)
+//                    classRandomizerClass.get() != null
+//                }.randomOrNull(random)
+//                if (annotationsWithValidRandomizer != null) {
+//                    annotationsWithValidRandomizer
+//                } else {
+//                    val theRest = annotations - annotationsWithValidRandomizer
+//                    theRest.randomOrNull(random)
+//                }
+//            }
+//
+//            return PickConstructorResult(
+//                constructor = annotatedConstructor,
+//                randomizable = annotation,
+//            )
+//        } else {
+//            return targetClass.primaryConstructor?.let {
+//                PickConstructorResult(
+//                    constructor = it,
+//                    randomizable = null,
+//                )
+//            }
+//        }
+//    }
+
+    data class PickConstructorResult2(
+        val constructor: KFunction<Any>,
+        val randomizer: KClass<out ClassRandomizer<*>>?
+    )
+
+    internal fun pickConstructor2(targetClass: KClass<*>): PickConstructorResult2? {
+
+        val constructors: Collection<KFunction<Any>> = targetClass.constructors
+
+        /**
+         * A rich annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
+         */
+        val withRichRandomizer: MutableList<PickConstructorResult2> = mutableListOf()
+        /**
+         * A poor annotated constructor is one that annotated with [Randomizable] and without any randomizer
+         */
+        val withPoorRandomizer: MutableList<KFunction<Any>> = mutableListOf()
+
+        var stillConsiderPoorAnnotatedConstructor = true
+
+        for (con in constructors) {
+
+            val annotationList = con.findAnnotations<Randomizable>()
+
+            if (annotationList.isNotEmpty()) {
+                for (annotation in annotationList) {
+
+                    val rdmClass = annotation
+                        .getClassRandomizerOnlyRs(targetClass)
+                        .getOrElse { typeErr -> throw typeErr.toException() }
+
+                    if (rdmClass != null) {
+                        randomizerChecker.checkValidRandomizerClassOrThrow(rdmClass,targetClass)
+                        stillConsiderPoorAnnotatedConstructor = false
+                        withRichRandomizer.add(PickConstructorResult2(con, rdmClass))
+                    }
+                }
+                if (stillConsiderPoorAnnotatedConstructor) {
+                    withPoorRandomizer.add(con)
+                }
+            }
+        }
+
+        if (withRichRandomizer.isNotEmpty()) {
+            /**
+             * Pick a random from the richly annotated constructor
+             */
+            return withRichRandomizer.random()
+        }
+
+        if (withPoorRandomizer.isNotEmpty()) {
+            /**
+             * Pick a random from the blank annotated constructors
+             */
+            return PickConstructorResult2(
+                withPoorRandomizer.random(), null
+            )
+        }
+
+        /**
+         * Use primary constructor if there are not any annotated constructor
+         */
+        return targetClass.primaryConstructor?.let {
+            PickConstructorResult2(it, null)
+        }
+    }
+
+    /**
+     * Pick a random constructor among constructors annotated with [Randomizable] in [targetClass].
+     * If none is found, return the primary constructor.
+     */
+    internal fun pickAnnotatedConstructorButIgnoreAnnotationContent(targetClass: KClass<*>): KFunction<Any>? {
+        val annotatedConstructors = targetClass.constructors.filter {
+            it.findAnnotations<Randomizable>().firstOrNull() != null
+        }
+        if (annotatedConstructors.isNotEmpty()) {
+            /**
+             * If there are multiple annotated constructor, pick a random one
+             */
+            val annotatedConstructor = annotatedConstructors.random(random)
+
+            return annotatedConstructor
+        } else {
+            return targetClass.primaryConstructor
+        }
     }
 
     fun random(classData: RDClassData): Any? {
         val objectInstance = classData.kClass.objectInstance
-        if(objectInstance!=null){
+        if (objectInstance != null) {
             return objectInstance
-        }else{
+        } else {
             return random(classData, lv2RandomizerClassLz = null)
+        }
+    }
+
+    /**
+     * Get lv3 randomizer from a class
+     */
+    internal fun getLv3Randomizer(targetClass: KClass<*>): ClassRandomizer<*>? {
+        /**
+         * First, extract the randomizer class in the [Randomizable] on the class
+         */
+        val classRdmRs = targetClass.findAnnotations(Randomizable::class)
+            .firstOrNull()
+            ?.getClassRandomizerOnlyRs(targetClass)
+
+        val lv3ClassRandomizerClass = classRdmRs?.get()
+        if (lv3ClassRandomizerClass != null) {
+            val lv3Rdm = randomizerChecker.checkValidRandomizerClassRs(lv3ClassRandomizerClass, targetClass)
+                .map {
+                    ReflectionUtils.createClassRandomizer(lv3ClassRandomizerClass)
+                }.getOrElse { typeCheckErr ->
+                    throw typeCheckErr.toException()
+                }
+            return lv3Rdm
+        } else {
+
+            val constructorRs2 = pickConstructor2(targetClass)
+            val lv3 = constructorRs2?.randomizer
+            if(lv3!=null){
+                return ReflectionUtils.createClassRandomizer(lv3)
+            }
+            return null
+            /**
+             * Second, extract the randomizer class in the @[Randomizable] on secondary constructors if need
+             */
+//            val constructorRs = pickConstructor(targetClass)
+//            val lv3RdmOnConstructorRs = constructorRs?.randomizable?.getClassRandomizerOnlyRs(targetClass)
+//            when (lv3RdmOnConstructorRs) {
+//                is Ok -> {
+//                    return lv3RdmOnConstructorRs.value?.let { rdm ->
+//                        randomizerChecker.checkValidRandomizerClassOrThrow(rdm, targetClass)
+//                        ReflectionUtils.createClassRandomizer(rdm)
+//                    }
+//                }
+//
+//                is Err -> {
+//                    val err2 = lv3RdmOnConstructorRs.error
+//                    val err1 = classRdmRs?.getError()
+//                    val groupedErr = if (err1 != null) {
+//                        err2.mergeWith(err1)
+//                    } else {
+//                        err2
+//                    }
+//                    throw groupedErr.toException()
+//                }
+//
+//                null -> {
+//                    return null
+//                }
+//            }
         }
     }
 
@@ -129,23 +334,7 @@ data class RandomizerEnd @Inject constructor(
         // No need to check for return type because the lv1RandomizerCollection already covers that.
         val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
 
-        val lv3RandomizerLz = lazy {
-            val lv3ClassRandomizerClass = targetClass.findAnnotations(Randomizable::class)
-                .firstOrNull()
-                ?.getClassRandomizerOnly(targetClass)
-                ?.getOrElse { err -> throw err.toException() }
-            val lv3Rdm = if (lv3ClassRandomizerClass != null) {
-                randomizerChecker.checkValidRandomizerClassRs(lv3ClassRandomizerClass, targetClass)
-                    .map {
-                        lv3ClassRandomizerClass.createInstance()
-                    }.getOrElse { err ->
-                        throw err.toException()
-                    }
-            } else {
-                null
-            }
-            lv3Rdm
-        }
+        val lv3RandomizerLz = lazy { getLv3Randomizer(targetClass) }
 
         return randomByLv(
             classData = classData,
@@ -196,7 +385,9 @@ data class RandomizerEnd @Inject constructor(
                  * This is for normal parameter
                  */
                 val paramData = RDClassData(classifier, paramType)
+
                 val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
+
                 if (!lv1Randomizer.isNullOrEmpty()) {
                     for (rd in lv1Randomizer) {
                         val i = rd.random(
@@ -213,7 +404,7 @@ data class RandomizerEnd @Inject constructor(
                 val lv2Lz = lazy {
                     val lv2paramClassOrParamRandomizer = param
                         .findAnnotations(Randomizable::class).firstOrNull()
-                        ?.getClassRandomizerOrParamRandomizer()
+                        ?.getClassRandomizerOrParamRandomizerRs()
                         ?.getOrElse { err ->
                             throw err.toException()
                         }
@@ -221,12 +412,12 @@ data class RandomizerEnd @Inject constructor(
                     // At this point, lv1 randomizer cannot be used, so move on to check lv2 and below randomizers
                     val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
                         randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, classifier)
-                        lv2Rd.createInstance()
+                        ReflectionUtils.createClassRandomizer(lv2Rd)
                     }
 
                     val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
                         randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, classifier)
-                        lv2Rd.createInstance()
+                        ReflectionUtils.createParamRandomizer(lv2Rd)
                     }
 
                     val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
@@ -269,7 +460,7 @@ data class RandomizerEnd @Inject constructor(
                     val lv2Lz = lazy {
                         val lv2paramClassOrParamRandomizer = param
                             .findAnnotations(Randomizable::class).firstOrNull()
-                            ?.getClassRandomizerOrParamRandomizer()
+                            ?.getClassRandomizerOrParamRandomizerRs()
                             ?.getOrElse { err ->
                                 throw err.toException()
                             }
@@ -279,7 +470,7 @@ data class RandomizerEnd @Inject constructor(
                                 randomizerClass = lv2Rd,
                                 targetClass = parameterData.kClass
                             )
-                            lv2Rd.createInstance()
+                            ReflectionUtils.createClassRandomizer(lv2Rd)
                         }
 
                         val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
@@ -289,7 +480,7 @@ data class RandomizerEnd @Inject constructor(
                                 targetTypeParam = classifier,
                                 randomizerClass = lv2Rd
                             )
-                            lv2Rd.createInstance()
+                            ReflectionUtils.createParamRandomizer(lv2Rd)
                         }
 
                         val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
@@ -394,25 +585,25 @@ data class RandomizerEnd @Inject constructor(
 
     private fun makeRandomList(classData: RDClassData): List<Any?> {
         val type: KType? = classData.kType
-        if(type!=null){
+        if (type != null) {
             val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
             val elemType = type.arguments[0].type!!
             return (1..numOfElements).map { randomChildren(elemType, classData) }
-        }else{
+        } else {
             TODO("throw exception")
         }
     }
 
     private fun makeRandomMap(classData: RDClassData): Map<Any?, Any?> {
         val type: KType? = classData.kType
-        if(type!=null){
+        if (type != null) {
             val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
             val keyType = type.arguments[0].type!!
             val valType = type.arguments[1].type!!
             val keys = (1..numOfElements).map { randomChildren(keyType, classData) }
             val values = (1..numOfElements).map { randomChildren(valType, classData) }
             return keys.zip(values).toMap()
-        }else{
+        } else {
             TODO("throw exception")
         }
     }

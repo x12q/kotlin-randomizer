@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.err.SingleErrorReport
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import com.x12q.randomizer.test_util.TestSamples.Class1
@@ -34,7 +35,7 @@ class RandomizerEnd_OnParam_generic_abstract {
 
     @Test
     fun lv4() {
-        shouldThrow<Exception> {
+        shouldThrow<SingleErrorReport> {
             rdm.random(RDClassData.from<C1<F>>())
         }
     }
@@ -87,7 +88,7 @@ class RandomizerEnd_OnParam_generic_abstract {
     @Test
     fun `lv1 over lv4`() {
 
-        shouldThrow<Exception> {
+        shouldThrow<SingleErrorReport> {
             rdm.random(RDClassData.from<C3<A>>())
         }
 

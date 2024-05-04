@@ -16,7 +16,7 @@ import kotlin.reflect.full.isSubclassOf
 /**
  *
  */
-@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, PROPERTY)
+@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)
 annotation class Randomizable(
     val randomizer: KClass<out Randomizer<*>> = Randomizer.__DefaultRandomizer::class
@@ -27,7 +27,7 @@ annotation class Randomizable(
          * try to cast [randomizer] as [ClassRandomizer].
          * Return an error only when [randomizer] is a [ParameterRandomizer], otherwise return the cast obj, or a null if there's any other error.
          */
-        fun Randomizable.getClassRandomizerOnly(targetClass: KClass<*>): Result<KClass<out ClassRandomizer<*>>?, ErrorReport> {
+        fun Randomizable.getClassRandomizerOnlyRs(targetClass: KClass<*>): Result<KClass<out ClassRandomizer<*>>?, ErrorReport> {
             val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
             val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
                 Ok(null)
@@ -48,7 +48,7 @@ annotation class Randomizable(
             return rt
         }
 
-        fun Randomizable.getClassRandomizerOrParamRandomizer(): Result<Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>,ErrorReport> {
+        fun Randomizable.getClassRandomizerOrParamRandomizerRs(): Result<Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>,ErrorReport> {
             val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
             val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
                 Ok(Pair(null, null))

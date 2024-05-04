@@ -1,3 +1,14 @@
+# Usage
+lv1: randomizer specified by user in the top lv function
+lv2: paramter randomizer specified at constructor paramter
+lv3: constructor randomizer specified at either class or constructor:
+    - if there are multiple valid lv3 randomizers -> pick a random one
+lv4: defaut recursive randomizer baked into the random generator.
+
+# Crash case:
+lv2 with incompatible target class
+lv3 with incompatible target class
+target class is abstract without valid lv3 or lv2
 
 
 # Requirement:
@@ -22,7 +33,7 @@
 ## Roadmap:
 - x: random enum
 - x: random object
-- TODO: random sealed class
+- x: random sealed class
   - object
   - class with param
   - class with generic param
@@ -39,9 +50,10 @@
     - test appropriate overriding
     - take a look at randomChildren
 - x: Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
-- TODO Err accumulation:
-  - TODO Randomizers at multiple level can be faulty at once. If all fail (including lv4), a comprehensive error report on all lv must be created so that users can debug their code easier.
-  - 
+- x: add ability to pick constructor
+  - TODO handle init block { x = true; x is an external var, such as a static} // this will render primary constructor useless, see crash case below
+
+    
 - TODO Add some aspect-wise configuration / chain randomizer:
   - TODO The len of randomized collection
   - TODO The range of primitive number
@@ -53,6 +65,47 @@ Tentative feature:
   - If no rule is provided -> default to primary constructor
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-    
-  
+- TODO support inner class
+  - this one must require user to provide an outer instance.
 
+
+Not support (yet) and known crash:
+
+Issue 1
+
+```kotlin
+
+fun main() {
+
+
+    var q = false
+    var __x = false
+    var k = false
+    var j = false
+
+    data class C(val i: Int, val str: String, val b: Boolean) {
+        init {
+            q = true
+            __x = true
+            k = true
+            j = false
+        }
+    }
+    C::class.constructors
+
+    println(
+        C::class.primaryConstructor!!.call(1, "", true)
+    ) // this throw exception IllegalArgumentException: Callable expects 7 arguments, but 3 were provided
+
+    println(C::class.primaryConstructor!!.call(BooleanRef(), BooleanRef(), BooleanRef(), BooleanRef(),1, "", true)) // this works
+}
+```
+Issue 2
+
+```kotlin
+// inner class
+class QX{
+    inner class C(val i: Int, val str: String, val b: Boolean) 
+}
+
+```

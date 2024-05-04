@@ -5,6 +5,7 @@ import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldNotThrow
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -120,6 +121,7 @@ class Randomizer_End_Sealed_Class {
             rdm.random(RDClassData.from<S4>()) shouldBe S4.Companion.ParentRandomizer().random()
         }
     }
+
     @Randomizable(randomizer = S5.Companion.ParentRandomizer::class)
     sealed class S5 {
         @Randomizable(S5.Companion.ChildrenRandomizer::class)
@@ -150,6 +152,63 @@ class Randomizer_End_Sealed_Class {
     @Test
     fun `random on annotated generic children sealed class + annotated parent`(){
         rdm.random(RDClassData.from<S5>()) shouldBe S5.Companion.ParentRandomizer().random()
+    }
+
+    @Randomizable(randomizer = S6.Companion.ParentRandomizer::class)
+    sealed class S6 {
+        @Randomizable(S6.Companion.ChildrenRandomizer::class)
+        abstract class C2: S6()
+        data class C3<T>(val i: T) : C2()
+
+        companion object {
+            class ParentRandomizer(
+                val r: SameClassRandomizer<S6.C3<Int>> = SameClassRandomizer<S6.C3<Int>>(
+                    returnedInstanceData = RDClassData.from<S6.C3<Int>>(),
+                    makeRandom = {
+                        C3(-999)
+                    }
+                )
+            ) : ClassRandomizer<S6.C3<Int>> by r
+
+
+            class ChildrenRandomizer(
+                val r: SameClassRandomizer<S6.C3<Int>> = SameClassRandomizer<S6.C3<Int>>(
+                    returnedInstanceData = RDClassData.from<S6.C3<Int>>(),
+                    makeRandom = {
+                        C3(321)
+                    }
+                )
+            ) : ClassRandomizer<S6.C3<Int>> by r
+        }
+    }
+
+    @Test
+    fun `random on correctly annotated abstract children`(){
+        rdm.random(RDClassData.from<S6>()) shouldBe S6.Companion.ParentRandomizer().random()
+    }
+
+    sealed class S7 {
+        abstract class C2: S7()
+    }
+
+    @Test
+    fun `random on non-annotated abstract children`(){
+        shouldThrow<Throwable> {
+            rdm.random(RDClassData.from<S7>())
+        }
+    }
+
+    sealed class S8 {
+        @Randomizable(S6.Companion.ChildrenRandomizer::class)
+        abstract class C2: S8()
+        data class C3<T>(val i: T) : C2()
+    }
+
+    @Test
+    fun `random on wrongly annotated abstract children`(){
+        shouldThrow<Throwable> {
+            rdm.random(RDClassData.from<S8>())
+        }
     }
 
 }
