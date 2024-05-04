@@ -35,7 +35,7 @@ class RandomizerEnd_OnParam_generic_abstract {
 
     @Test
     fun lv4() {
-        shouldThrow<SingleErrorReport> {
+        shouldThrow<IllegalArgumentException> {
             rdm.random(RDClassData.from<C1<F>>())
         }
     }
@@ -88,7 +88,7 @@ class RandomizerEnd_OnParam_generic_abstract {
     @Test
     fun `lv1 over lv4`() {
 
-        shouldThrow<SingleErrorReport> {
+        shouldThrow<IllegalArgumentException> {
             rdm.random(RDClassData.from<C3<A>>())
         }
 

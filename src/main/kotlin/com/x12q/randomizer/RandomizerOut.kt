@@ -3,17 +3,8 @@ package com.x12q.randomizer
 import com.x12q.randomizer.di.DaggerRDComponent
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import kotlinx.serialization.Serializable
-import kotlin.jvm.internal.Ref.BooleanRef
 import kotlin.random.Random
-import kotlin.reflect.KCallable
-import kotlin.reflect.KClass
-import kotlin.reflect.cast
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.primaryConstructor
-import kotlin.reflect.jvm.javaConstructor
 
 /**
  * Make a random instance of [T]
@@ -56,6 +47,20 @@ inline fun <reified T : Any> makeRandomInstance(
     return randomizer2.random(q) as T
 }
 
+inline fun <reified T : Any> makeRandomInstanceForInnerClass(
+    outerObj:Any,
+    random: Random = Random,
+): T {
+    val comp = DaggerRDComponent.builder()
+        .setRandom(random)
+        .build()
+    val randomizer = comp.randomizer()
+    // generate random
+    val q = RDClassData.from<T>()
+    return randomizer.randomInnerClass(q,outerObj) as T
+}
+
+
 @Serializable
 data class ABC(val lst: List<Float>, val tm12: Int)
 data class ABC2(val a: ABC, val t: String, val b:ABC, val t2:String)
@@ -71,15 +76,12 @@ sealed class SC{
     class C3():SC()
 }
 
-class Q2{
-    inner class I1()
-}
 
 
 fun main() {
-    val q2 = Q2()
 
-    println(makeRandomInstance<Q2.I1>())
+
+//    println(makeRandomInstanceForInnerClass<Q2.I1>(Q2()).i)
 
 //    repeat(10){
 //        println(makeRandomInstance<Q<SC>>(
