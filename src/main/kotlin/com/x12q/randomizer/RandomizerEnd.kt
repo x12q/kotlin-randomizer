@@ -117,58 +117,6 @@ data class RandomizerEnd @Inject constructor(
     }
 
 
-//    /**
-//     * Pick a constructor from a [targetClass]:
-//     * - choose a random constructor from those annotated with [Randomizable]
-//     * - if there's no annotated constructor, use primary constructor
-//     */
-//    internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
-//
-//        val annotatedConstructors = targetClass.constructors.filter {
-//            it.findAnnotations<Randomizable>().isNotEmpty()
-//        }
-//
-//        if (annotatedConstructors.isNotEmpty()) {
-//
-//            /**
-//             * If there are multiple annotated constructor, pick a random one, prioritize one that has valid randomizer, throw exception if any contain invalid randomizer
-//             */
-//            val annotatedConstructor = run {
-//                annotatedConstructors.random(random)
-//            }
-//
-//            /**
-//             * If there's multiple @Randomizable, prioritize one that has randomizer
-//             */
-//            val annotations = annotatedConstructor.findAnnotations<Randomizable>()
-//
-//            val annotation = run {
-//                val annotationsWithValidRandomizer = annotations.filter {
-//                    val classRandomizerClass = it.getClassRandomizerOnlyRs(targetClass)
-//                    classRandomizerClass.get() != null
-//                }.randomOrNull(random)
-//                if (annotationsWithValidRandomizer != null) {
-//                    annotationsWithValidRandomizer
-//                } else {
-//                    val theRest = annotations - annotationsWithValidRandomizer
-//                    theRest.randomOrNull(random)
-//                }
-//            }
-//
-//            return PickConstructorResult(
-//                constructor = annotatedConstructor,
-//                randomizable = annotation,
-//            )
-//        } else {
-//            return targetClass.primaryConstructor?.let {
-//                PickConstructorResult(
-//                    constructor = it,
-//                    randomizable = null,
-//                )
-//            }
-//        }
-//    }
-
     data class PickConstructorResult2(
         val constructor: KFunction<Any>,
         val randomizer: KClass<out ClassRandomizer<*>>?
