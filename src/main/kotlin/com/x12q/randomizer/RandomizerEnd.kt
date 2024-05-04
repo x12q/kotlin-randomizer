@@ -5,7 +5,6 @@ import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOnlyRs
 import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRandomizerRs
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
-import com.x12q.randomizer.err.toErrorReport
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.randomizer_processor.RandomizerChecker
 import com.x12q.randomizer.util.ReflectionUtils
@@ -68,8 +67,9 @@ data class RandomizerEnd @Inject constructor(
 
         } else if (targetClass.isSealed) {
 
-            val a = targetClass.sealedSubclasses
-            val randomSubClass = a.random()
+            val sealedSubClassList = targetClass.sealedSubclasses
+            val randomSubClass = sealedSubClassList.random()
+
             return random(
                 RDClassData(
                     kClass = randomSubClass,
@@ -108,7 +108,7 @@ data class RandomizerEnd @Inject constructor(
                     return constructor.call(*arguments)
 
                 } catch (e: Throwable) {
-                    throw e.toErrorReport().toException()
+                    throw e
                 }
             } else {
                 throw IllegalArgumentException("A primary constructor is need to make a random instance of ${targetClass.qualifiedName}$.")
@@ -122,7 +122,7 @@ data class RandomizerEnd @Inject constructor(
         val randomizer: KClass<out ClassRandomizer<*>>?
     )
 
-    internal fun pickConstructor2(targetClass: KClass<*>): PickConstructorResult2? {
+    internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult2? {
 
         val constructors: Collection<KFunction<Any>> = targetClass.constructors
 
@@ -235,40 +235,12 @@ data class RandomizerEnd @Inject constructor(
             return lv3Rdm
         } else {
 
-            val constructorRs2 = pickConstructor2(targetClass)
+            val constructorRs2 = pickConstructor(targetClass)
             val lv3 = constructorRs2?.randomizer
             if(lv3!=null){
                 return ReflectionUtils.createClassRandomizer(lv3)
             }
             return null
-            /**
-             * Second, extract the randomizer class in the @[Randomizable] on secondary constructors if need
-             */
-//            val constructorRs = pickConstructor(targetClass)
-//            val lv3RdmOnConstructorRs = constructorRs?.randomizable?.getClassRandomizerOnlyRs(targetClass)
-//            when (lv3RdmOnConstructorRs) {
-//                is Ok -> {
-//                    return lv3RdmOnConstructorRs.value?.let { rdm ->
-//                        randomizerChecker.checkValidRandomizerClassOrThrow(rdm, targetClass)
-//                        ReflectionUtils.createClassRandomizer(rdm)
-//                    }
-//                }
-//
-//                is Err -> {
-//                    val err2 = lv3RdmOnConstructorRs.error
-//                    val err1 = classRdmRs?.getError()
-//                    val groupedErr = if (err1 != null) {
-//                        err2.mergeWith(err1)
-//                    } else {
-//                        err2
-//                    }
-//                    throw groupedErr.toException()
-//                }
-//
-//                null -> {
-//                    return null
-//                }
-//            }
         }
     }
 
@@ -325,8 +297,8 @@ data class RandomizerEnd @Inject constructor(
 
         val paramType: KType = param.type
 
-
         val classifier = paramType.classifier
+
         when (classifier) {
             is KClass<*> -> {
                 /**

@@ -71,18 +71,24 @@ sealed class SC{
     class C3():SC()
 }
 
+class Q2{
+    inner class I1()
+}
 
 
 fun main() {
+    val q2 = Q2()
 
-    repeat(10){
-        println(makeRandomInstance<Q<SC>>(
-            randomizers = listOf(
-            ),
-            paramRandomizers = listOf()
+    println(makeRandomInstance<Q2.I1>())
 
-        ))
-    }
+//    repeat(10){
+//        println(makeRandomInstance<Q<SC>>(
+//            randomizers = listOf(
+//            ),
+//            paramRandomizers = listOf()
+//
+//        ))
+//    }
 
 
 //    println(tc.isSubclassOf(Enum::class))
