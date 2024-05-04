@@ -1,6 +1,5 @@
 package com.x12q.randomizer.randomizer.primitive
 
-import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 
