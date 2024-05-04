@@ -25,17 +25,42 @@ data class RandomGenerator @Inject constructor(
     val lv1RandomizerCollection: RandomizerCollection,
     val randomizerChecker: RandomizerChecker
 ) {
-    fun randomInnerClass(classData: RDClassData, outerObj: Any?): Any? {
-        return randomInnerClass(
-            innerClassData = classData,
-            enclosingObject = outerObj,
-            lv2RandomizerClassLz = null,
-        )
-    }
 
     fun random(classData: RDClassData): Any? {
         return random(
             classData = classData,
+            lv2RandomizerClassLz = null,
+        )
+    }
+
+    internal fun random(
+        classData: RDClassData,
+        lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
+    ): Any? {
+        val targetClass: KClass<*> = classData.kClass
+        val objectInstance = targetClass.objectInstance
+        if (objectInstance != null) {
+            return objectInstance
+        } else {
+            // lv1 = randomizer is provided explicitly by the users in the top-level random function
+            // No need to check for return type because the lv1RandomizerCollection already covers that.
+            val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
+
+            val lv3RandomizerLz = lazy { getLv3Randomizer(targetClass) }
+
+            return randomByLv(
+                classData = classData,
+                lv1Randomizer = lv1Randomizer,
+                lv2RandomizerLz = lv2RandomizerClassLz,
+                lv3RandomizerLz = lv3RandomizerLz,
+            )
+        }
+    }
+
+    fun randomInnerClass(classData: RDClassData, outerObj: Any?): Any? {
+        return randomInnerClass(
+            innerClassData = classData,
+            enclosingObject = outerObj,
             lv2RandomizerClassLz = null,
         )
     }
@@ -66,31 +91,6 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
-
-    internal fun random(
-        classData: RDClassData,
-        lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
-    ): Any? {
-        val targetClass: KClass<*> = classData.kClass
-        val objectInstance = targetClass.objectInstance
-        if (objectInstance != null) {
-            return objectInstance
-        } else {
-            // lv1 = randomizer is provided explicitly by the users in the top-level random function
-            // No need to check for return type because the lv1RandomizerCollection already covers that.
-            val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
-
-            val lv3RandomizerLz = lazy { getLv3Randomizer(targetClass) }
-
-            return randomByLv(
-                classData = classData,
-                lv1Randomizer = lv1Randomizer,
-                lv2RandomizerLz = lv2RandomizerClassLz,
-                lv3RandomizerLz = lv3RandomizerLz,
-            )
-        }
-
-    }
 
     /**
      * This function create a random instance of some class represented by [classData].
@@ -336,6 +336,9 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    /**
+     * TODO this function is too large, break it apart and test each part
+     */
     fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData
@@ -494,8 +497,8 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
-    private fun randomChildren(paramKType: KType, parentClassData: RDClassData): Any? {
-        // this level does not contain param type, and it must not, because it is also used to generate non-parameter
+    private fun randomElement(paramKType: KType, parentClassData: RDClassData): Any? {
+
         when (val classifier = paramKType.classifier) {
             is KClass<*> -> {
                 /**
@@ -562,7 +565,7 @@ data class RandomGenerator @Inject constructor(
         if (type != null) {
             val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
             val elemType = type.arguments[0].type!!
-            return (1..numOfElements).map { randomChildren(elemType, classData) }
+            return (1..numOfElements).map { randomElement(elemType, classData) }
         } else {
             TODO("throw exception")
         }
@@ -574,8 +577,8 @@ data class RandomGenerator @Inject constructor(
             val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
             val keyType = type.arguments[0].type!!
             val valType = type.arguments[1].type!!
-            val keys = (1..numOfElements).map { randomChildren(keyType, classData) }
-            val values = (1..numOfElements).map { randomChildren(valType, classData) }
+            val keys = (1..numOfElements).map { randomElement(keyType, classData) }
+            val values = (1..numOfElements).map { randomElement(valType, classData) }
             return keys.zip(values).toMap()
         } else {
             TODO("throw exception")
