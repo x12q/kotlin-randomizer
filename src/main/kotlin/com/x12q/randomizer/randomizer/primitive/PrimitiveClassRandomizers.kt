@@ -86,3 +86,20 @@ fun charRandomizer(
     return classRandomizer(random)
 }
 
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce a random list
+ */
+fun <T> listRandomizer(
+    random:()->List<T>
+):ClassRandomizer<List<T>>{
+    return classRandomizer(random)
+}
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce a random map
+ */
+fun <K,V> mapRandomizer(
+    random: ()->Map<K,V>
+):ClassRandomizer<Map<K,V>>{
+    return classRandomizer(random)
+}

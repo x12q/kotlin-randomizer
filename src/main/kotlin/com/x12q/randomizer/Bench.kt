@@ -21,13 +21,16 @@ fun main() {
     println(random<ABC2>(
         randomizers = listOf(
             intRandomizer {
-                (1..10).random()
+                99
             },
             floatRandomizer {
                 1.0f
             },
             stringRandomizer {
                 "abc123"
+            },
+            listRandomizer {
+                listOf(1f,2f)
             }
         ),
         paramRandomizers = listOf(
@@ -45,13 +48,16 @@ fun main() {
     println(random<ABC2>(
         randomizers = randomizers {
             int {
-                (1..10).random()
+                99
             }
             float {
                 1f
             }
             string {
                 "abc123"
+            }
+            list{
+                listOf(1f,2f)
             }
         },
         paramRandomizers = paramRandomizers {
