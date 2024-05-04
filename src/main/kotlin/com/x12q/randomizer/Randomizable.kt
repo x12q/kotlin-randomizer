@@ -16,7 +16,7 @@ import kotlin.reflect.full.isSubclassOf
 /**
  *
  */
-@Target(CLASS, VALUE_PARAMETER, TYPE_PARAMETER, PROPERTY, CONSTRUCTOR)
+@Target(CLASS, VALUE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)
 annotation class Randomizable(
     val randomizer: KClass<out Randomizer<*>> = Randomizer.__DefaultRandomizer::class

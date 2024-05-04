@@ -8,7 +8,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
 
 object RandomizerErrors {
-    val _prefix = "RDERR-"
+    private val _prefix = "RDERR-"
     private fun errCode(code:Int):String{
         return "${_prefix}${code}"
     }

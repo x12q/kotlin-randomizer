@@ -4,58 +4,16 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.orElse
-import com.x12q.randomizer.err.ErrorHeader
 import com.x12q.randomizer.err.ErrorReport
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.Randomizer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.*
 import kotlin.reflect.full.allSupertypes
 import kotlin.reflect.full.isSubclassOf
-
-object InvalidRandomizerReason {
-
-    val _prefix = "INV_RD"
-    private fun errCode(code:Int):String{
-        return "${_prefix}${code}"
-    }
-
-    object InvalidRandomizerClass{
-        private val header = ErrorHeader(errorCode = errCode(3), "Invalid randomizer class")
-        fun report(randomizer: KClass<*>): ErrorReport {
-            val header =
-                header.setDescription("Invalid randomizer class${randomizer.qualifiedName}")
-            val rt = header.toErrorReport()
-            return rt
-        }
-    }
-
-    object IsAbstract{
-        private val header = ErrorHeader(errorCode = errCode(2), "Abstract randomizer")
-        fun report(randomizer: KClass<*>): ErrorReport {
-            val header =
-                header.setDescription("Randomizer is abstract: ${randomizer.qualifiedName}")
-            val rt = header.toErrorReport()
-            return rt
-        }
-    }
-    /**
-     * When the checked class is a [ClassRandomizer] but cannot generate random instance of [targetClass]
-     */
-    object UnableToGenerateTargetType{
-        private val header = ErrorHeader(errorCode = errCode(1), "Wrong type Randomizer")
-        fun report(randomizer: KClass<*>, targetClass: KClass<*>): ErrorReport {
-            val header =
-                header.setDescription("Randomzer ${randomizer} can't generate instances of ${targetClass}")
-            val rt = header.toErrorReport()
-            return rt
-        }
-    }
-}
-
 
 
 /**
