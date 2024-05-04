@@ -17,7 +17,10 @@ import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotations
 import kotlin.reflect.full.primaryConstructor
 
-data class RandomizerEnd @Inject constructor(
+/**
+ * This class contains all the random generation logic.
+ */
+data class RandomGenerator @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
     val randomizerChecker: RandomizerChecker

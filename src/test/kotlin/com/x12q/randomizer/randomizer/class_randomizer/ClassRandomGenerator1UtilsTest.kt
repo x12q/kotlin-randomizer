@@ -4,9 +4,9 @@ import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.matchers.shouldBe
-import kotlin.test.*
+import kotlin.test.Test
 
-class ClassRandomizerEnd1UtilsTest {
+class ClassRandomGenerator1UtilsTest {
     @Test
     fun randomizer() {
 

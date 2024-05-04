@@ -3,8 +3,8 @@ package com.x12q.randomizer.randomizer_processor
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.Randomizer
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -15,7 +15,7 @@ import kotlin.reflect.full.findAnnotations
 import kotlin.test.Test
 
 
-class TestAnnotationOnRealAnnotation_ClassRandomizerEnd {
+class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
 
     @Test
     fun testOnRealAnnotation_right() {

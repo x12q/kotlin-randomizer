@@ -1,10 +1,10 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.test_util.TestSamples
 import com.x12q.randomizer.test_util.TestSamples.Class1
 import com.x12q.randomizer.test_util.TestSamples.Class2
@@ -18,8 +18,8 @@ import kotlin.test.Test
 
 class Randomizer_End_Default {
 
-    lateinit var rdm0: RandomizerEnd
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm0: RandomGenerator
+    lateinit var rdm: RandomGenerator
 
     val spyParamRdm = spyk(Class1.tm12FixedRandomizer)
     val classRdm = Class2.classFixedRandomizer

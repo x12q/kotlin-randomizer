@@ -11,7 +11,7 @@ import kotlin.test.Test
 class Randomizer_End_Enum {
 
 
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm: RandomGenerator
 
     enum class EN {
         t1, t2, t3, t4, t5, t6;

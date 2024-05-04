@@ -4,12 +4,12 @@ import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.test_util.TestSamples
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
-import io.kotest.matchers.shouldBe
-import kotlin.test.*
+import kotlin.test.Test
 
-class ParameterRandomizerEnd1UtilsTest {
+class ParameterRandomGenerator1UtilsTest {
 
 
     @Test

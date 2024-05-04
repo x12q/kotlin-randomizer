@@ -1,7 +1,7 @@
 package com.x12q.randomizer.di
 
 import com.squareup.anvil.annotations.MergeComponent
-import com.x12q.randomizer.RandomizerEnd
+import com.x12q.randomizer.RandomGenerator
 import com.x12q.randomizer.randomizer.di.RandomizerModule
 import dagger.BindsInstance
 import dagger.Component
@@ -18,7 +18,7 @@ import kotlin.random.Random
 )
 interface RDComponent {
     fun random():Random
-    fun randomizer(): RandomizerEnd
+    fun randomizer(): RandomGenerator
 
     @Component.Builder
     interface Builder{

@@ -2,10 +2,10 @@ package com.x12q.randomizer.randomizer_processor
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
@@ -13,7 +13,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RandomizerEndProcessorTest {
+class RandomGeneratorProcessorTest {
 
     lateinit var processor: RandomizerChecker
 
