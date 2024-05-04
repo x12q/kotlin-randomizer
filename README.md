@@ -1,3 +1,14 @@
+# Usage
+lv1: randomizer specified by user in the top lv function
+lv2: paramter randomizer specified at constructor paramter
+lv3: constructor randomizer specified at either class or constructor:
+    - if there are multiple valid lv3 randomizers -> pick a random one
+lv4: defaut recursive randomizer baked into the random generator.
+
+# Crash case:
+lv2 with incompatible target class
+lv3 with incompatible target class
+target class is abstract without valid lv3 or lv2
 
 
 # Requirement:
