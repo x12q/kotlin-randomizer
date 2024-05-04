@@ -36,7 +36,7 @@ class RandomizerEnd_OnParam_abstract {
         // lv2 = param randomizer
         // lv3 = class randomizer
         // lv4 = default randomizer
-        shouldThrow<Exception> {
+        shouldThrow<Throwable> {
             rdm.random(RDClassData.from<B2>())
         }
     }

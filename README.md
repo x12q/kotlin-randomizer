@@ -41,7 +41,10 @@
 - x: Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
 - TODO Err accumulation:
   - TODO Randomizers at multiple level can be faulty at once. If all fail (including lv4), a comprehensive error report on all lv must be created so that users can debug their code easier.
-  - 
+- TODO add ability to pick constructor
+  - TODO handle init block { x = true; x is an external var, such as a static} // this will render primary constructor useless
+- TODO support inner class
+- TODO solve the first issue below
 - TODO Add some aspect-wise configuration / chain randomizer:
   - TODO The len of randomized collection
   - TODO The range of primitive number
@@ -53,6 +56,46 @@ Tentative feature:
   - If no rule is provided -> default to primary constructor
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-    
-  
 
+
+
+Not support (yet) and known crash:
+
+Issue 1
+
+```kotlin
+
+fun main() {
+
+
+    var q = false
+    var __x = false
+    var k = false
+    var j = false
+
+    data class C(val i: Int, val str: String, val b: Boolean) {
+        init {
+            q = true
+            __x = true
+            k = true
+            j = false
+        }
+    }
+    C::class.constructors
+
+    println(
+        C::class.primaryConstructor!!.call(1, "", true)
+    ) // this throw exception IllegalArgumentException: Callable expects 7 arguments, but 3 were provided
+
+    println(C::class.primaryConstructor!!.call(BooleanRef(), BooleanRef(), BooleanRef(), BooleanRef(),1, "", true)) // this works
+}
+```
+Issue 2
+
+```kotlin
+// inner class
+class QX{
+    inner class C(val i: Int, val str: String, val b: Boolean) 
+}
+
+```

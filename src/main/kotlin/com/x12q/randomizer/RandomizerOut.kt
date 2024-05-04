@@ -5,10 +5,15 @@ import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import kotlinx.serialization.Serializable
+import kotlin.jvm.internal.Ref.BooleanRef
 import kotlin.random.Random
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
+import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.primaryConstructor
+import kotlin.reflect.jvm.javaConstructor
 
 /**
  * Make a random instance of [T]
@@ -66,6 +71,8 @@ sealed class SC{
     class C3():SC()
 }
 
+
+
 fun main() {
 
     repeat(10){
@@ -75,7 +82,6 @@ fun main() {
             paramRandomizers = listOf()
 
         ))
-
     }
 
 
