@@ -33,7 +33,7 @@ target class is abstract without valid lv3 or lv2
 ## Roadmap:
 - x: random enum
 - x: random object
-- TODO: random sealed class
+- x: random sealed class
   - object
   - class with param
   - class with generic param
@@ -50,12 +50,10 @@ target class is abstract without valid lv3 or lv2
     - test appropriate overriding
     - take a look at randomChildren
 - x: Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
-- TODO Err accumulation:
-  - TODO Randomizers at multiple level can be faulty at once. If all fail (including lv4), a comprehensive error report on all lv must be created so that users can debug their code easier.
-- TODO add ability to pick constructor
-  - TODO handle init block { x = true; x is an external var, such as a static} // this will render primary constructor useless
-- TODO support inner class
-- TODO solve the first issue below
+- x: add ability to pick constructor
+  - TODO handle init block { x = true; x is an external var, such as a static} // this will render primary constructor useless, see crash case below
+
+    
 - TODO Add some aspect-wise configuration / chain randomizer:
   - TODO The len of randomized collection
   - TODO The range of primitive number
@@ -67,7 +65,8 @@ Tentative feature:
   - If no rule is provided -> default to primary constructor
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-
+- TODO support inner class
+  - this one must require user to provide an outer instance.
 
 
 Not support (yet) and known crash:
