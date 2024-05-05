@@ -2,6 +2,7 @@ package com.x12q.randomizer.randomizer.builder
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
+import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ClassRandomizer]
@@ -55,12 +56,62 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add an [Int] randomizer that generate random int within [range] to this builder.
+     */
+    fun int(
+        range: IntRange
+    ): RandomizerListBuilder {
+        lst.add(intRandomizer(range))
+        return this
+    }
+
+    /**
+     * Add an [Int] randomizer that generate random integers up to certain value to this builder.
+     */
+    fun int(until:Int): RandomizerListBuilder {
+        lst.add(intRandomizer(until))
+        return this
+    }
+
+    fun int(): RandomizerListBuilder {
+        lst.add(intRandomizer())
+        return this
+    }
+
+    /**
      * Add a [Float] randomizer to this builder.
      */
     fun float(random: () -> Float): RandomizerListBuilder {
         lst.add(floatRandomizer(random))
         return this
     }
+
+    /**
+     * Add a [Float] randomizer that generate random float with a range to this builder.
+     */
+    fun float(
+        from: Float, to: Float
+    ): RandomizerListBuilder {
+        lst.add(floatRandomizer(from, to))
+        return this
+    }
+
+    /**
+     * Add a [Float] randomizer that generate random integers up to certain value to this builder.
+     */
+    fun float(until: Float): RandomizerListBuilder {
+        lst.add(floatRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add a [Float] randomizer to this builder.
+     */
+    fun float(): RandomizerListBuilder {
+        lst.add(floatRandomizer())
+        return this
+    }
+
 
     /**
      * Add a [String] randomizer to this builder.
@@ -71,10 +122,46 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add an uuid [String] randomizer to this builder.
+     */
+    fun uuidString():RandomizerListBuilder{
+        lst.add(uuidStringRandomizer())
+        return this
+    }
+
+
+    /**
      * Add a [Double] randomizer to this builder.
      */
     fun double(random: () -> Double): RandomizerListBuilder {
         lst.add(doubleRandomizer(random))
+        return this
+    }
+
+
+    /**
+     * Convenient function to create a [ClassRandomizer] that can produce random doubles within a range
+     */
+    fun double(
+        from:Double, to:Double
+    ): RandomizerListBuilder {
+        lst.add(doubleRandomizer(from,to))
+        return this
+    }
+
+    /**
+     * Convenient function to create a [ClassRandomizer] that can produce random doubles up to a limit
+     */
+    fun double(until:Double): RandomizerListBuilder {
+        lst.add(doubleRandomizer(until))
+        return this
+    }
+
+    /**
+     * Convenient function to create a [ClassRandomizer] that can produce doubles floats
+     */
+    fun double(): RandomizerListBuilder {
+        lst.add(doubleRandomizer())
         return this
     }
 
@@ -103,10 +190,44 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [Boolean] randomizer to this builder.
+     */
+    fun boolean(): RandomizerListBuilder {
+        lst.add(booleanRandomizer())
+        return this
+    }
+
+    /**
      * Add a [Long] randomizer to this builder.
      */
     fun long(random: () -> Long): RandomizerListBuilder {
         lst.add(longRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add an [Long] randomizer that generate random int within [range] to this builder.
+     */
+    fun long(
+        range: LongRange
+    ): RandomizerListBuilder {
+        lst.add(longRandomizer(range))
+        return this
+    }
+
+    /**
+     * Add an [Long] randomizer that generate random integers up to certain value to this builder.
+     */
+    fun long(until:Long): RandomizerListBuilder {
+        lst.add(longRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add a [Long] randomizer to this builder.
+     */
+    fun long(): RandomizerListBuilder {
+        lst.add(longRandomizer())
         return this
     }
 
