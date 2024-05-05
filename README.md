@@ -115,13 +115,13 @@ val instance:SomeClass = random<SomeClass>(
             condition = {paramInfo ->
                 paramInfo.paramName == "someParamName"
             },
-            random= {
+            random = {
                 OtherClass(456)
             }
         ))
         string { paramInfo->
             // override default param randomizer for string
-            "${paramInfo.paramName} -- some str"
+            "${paramInfo.paramName}: some str"
         }
         int(
             // override default param randomizer for int with condition
