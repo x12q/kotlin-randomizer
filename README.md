@@ -5,15 +5,40 @@ A library for generate random instance for any class (kinda). Like this:
 ```kotlin
 val instance:MyClass = random<SomeClass>()
 ```
+or this
 
+```kotlin
+@Randomizable(MyClassRandomizable::class)
+class MyClass
+```
+- [Install](#install)
+- [Usage](#usage)
+  - [Generate randoms of some class](#generate-randoms-of-some-class)
+  - [Add custom randomizers](#add-custom-randomizers)
+    - [Via `random()` function](#via-random-function)
+      - [For classes](#for-classes)
+      - [For parameters](#for-constructor-parameters)
+    - [Via `@Randomizable` annotation](#via-randomizable-annotation)
+      - [Implement `ClassRandomizer`](#implement-classrandomizer)
+      - [Implement `ParameterRandomizer`](#implement-parameterrandomizer)
+- [Limitation](#limitation)
+
+<a id="install"></a>
 # Install
-TODO add maven + gradle 
+TODO add maven + gradle
+
+
+<a id="usage"></a>
 # Usage
+
+
+<a id="generate-random-of-some-class"></a>
 ## Generate randoms of some class
 ```kotlin
 val instance:MyClass = random<SomeClass>()
 ```
 
+<a id="add-custom-randomizers"></a>
 ## Add custom randomizers
 
 Custom randomizers can be added to override the default random behavior. 
@@ -30,8 +55,11 @@ When mulitple randomizers are provided to one class, the order of priority is:
 - This means `lv1` has the highest priority and will be used first even when there exist `lv2`, `lv3` randomizers.
 - If there are multiple matching at the same `lv`, a random one at that `lv` will be chosen.
 
-## Via `random<>()` function
+<a id="via-random-function"></a>
+## Via `random()` function
 
+
+<a id="for-classes"></a>
 ### For classes
 
 Class custom randomizers:
@@ -66,8 +94,9 @@ val instance:SomeClass = random<SomeClass>(
     },
 )
 ```
-### For constructor parameters
 
+<a id="for-constructor-parameters"></a>
+### For parameters
 Custom parameter randomizers:
 - can override the default randomizer.
 - can check and apply its random logic only when certain conditions are met, such as:
@@ -106,6 +135,8 @@ val instance:SomeClass = random<SomeClass>(
 )
 
 ```
+
+<a id="via-randomizable-annotation"></a>
 ## Via `@Randomizable` annotation
 
 This library provide `@Randomizable` annotation that can be used to specified custom randomizers for:
@@ -139,6 +170,8 @@ Randomizer classes passed to `@Randomizable` must:
 - implement/extend either `ClassRandomizer` or `ParameterRandomizer`
 - and have a no-argument constructor 
 
+
+<a id="implement-classRandomizer"></a>
 ### Implement `ClassRandomizer`
 
 - `ClassRandomizer` can be implemented directly. 
@@ -174,7 +207,7 @@ class MyABCRandomizerClass : ClassRandomizer<ABC>{
 }
 ```
 
-
+<a id="implement-paramRandomizer"></a>
 ### Implement `ParameterRandomizer`
 
 - `ParameterRandomizer` can be implemented directly.
@@ -223,13 +256,16 @@ class A3Randomizer: ParameterRandomizer<A3>{
 
 ```
 
+<a id="limitation"></a>
 ## Limitation
 
-There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenario.
+There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenarios.
 
 For example, it is not possible for this library to generate a random instance of `MyClass` below.
 
 This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until then, ...  
+
+Well, there may be others that I am not aware of ...
 
 ```kotlin
 
