@@ -1,7 +1,6 @@
-package com.x12q.randomizer.randomizer.primitive
+package com.x12q.randomizer.randomizer
 
-import com.x12q.randomizer.randomizer.ParamInfo
-import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.primitive.*
 
 class ParamRandomizerListBuilder {
     private var lst = mutableListOf<ParameterRandomizer<*>>()

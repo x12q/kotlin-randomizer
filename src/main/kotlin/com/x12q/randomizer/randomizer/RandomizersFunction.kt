@@ -1,12 +1,10 @@
-package com.x12q.randomizer.randomizer.primitive
-
-import com.x12q.randomizer.randomizer.ClassRandomizer
+package com.x12q.randomizer.randomizer
 
 /**
  * Convenient function that invoke [RandomizerListBuilder] to build a list of [ClassRandomizer]
  */
 fun randomizers(
-    configBuilder:RandomizerListBuilder.()->Unit
+    configBuilder: RandomizerListBuilder.()->Unit
 ):Collection<ClassRandomizer<*>>{
     val builder = RandomizerListBuilder()
     configBuilder(builder)

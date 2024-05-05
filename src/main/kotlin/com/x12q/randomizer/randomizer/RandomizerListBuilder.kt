@@ -1,7 +1,6 @@
-package com.x12q.randomizer.randomizer.primitive
+package com.x12q.randomizer.randomizer
 
-import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.randomizer.primitive.*
 
 /**
  * A builder that can build a list of [ClassRandomizer]
@@ -19,12 +18,12 @@ class RandomizerListBuilder {
         return this
     }
 
-    fun <T>list(random:()->List<T>):RandomizerListBuilder{
+    fun <T>list(random:()->List<T>): RandomizerListBuilder {
         lst.add(listRandomizer (random))
         return this
     }
 
-    fun <K,V> map(random:()->Map<K,V>):RandomizerListBuilder{
+    fun <K,V> map(random:()->Map<K,V>): RandomizerListBuilder {
         lst.add(mapRandomizer(random))
         return this
     }

@@ -1,13 +1,11 @@
-package com.x12q.randomizer.randomizer.primitive
-
-import com.x12q.randomizer.randomizer.ParameterRandomizer
+package com.x12q.randomizer.randomizer
 
 
 /**
  * Convenient function that invoke [ParamRandomizerListBuilder] to build a list of [ParameterRandomizer]
  */
 fun paramRandomizers(
-    configBuilder:ParamRandomizerListBuilder.()->Unit
+    configBuilder: ParamRandomizerListBuilder.()->Unit
 ):Collection<ParameterRandomizer<*>>{
     val builder = ParamRandomizerListBuilder()
     configBuilder(builder)
