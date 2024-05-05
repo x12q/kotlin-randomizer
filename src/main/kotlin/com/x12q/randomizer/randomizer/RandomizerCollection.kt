@@ -1,6 +1,7 @@
 package com.x12q.randomizer.randomizer
 
 import javax.inject.Inject
+import kotlin.random.Random
 import kotlin.reflect.full.isSubclassOf
 
 /**
@@ -8,11 +9,14 @@ import kotlin.reflect.full.isSubclassOf
  */
 data class RandomizerCollection(
     val parameterRandomizers: Map<RDClassData, List<ParameterRandomizer<*>>>,
-    val classRandomizers: Map<RDClassData, ClassRandomizer<*>>
+    val classRandomizers: Map<RDClassData, List<ClassRandomizer<*>>>,
+    val random: Random = Random,
 ) {
 
     @Inject
-    constructor() : this(emptyMap(), emptyMap())
+    constructor(
+        random: Random
+    ) : this(emptyMap(), emptyMap(),random)
 
     fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
         val newMap = newRandomizers.groupBy { it.paramClassData }
@@ -26,16 +30,27 @@ data class RandomizerCollection(
     }
 
     fun addRandomizers(vararg newRandomizers: ClassRandomizer<*>): RandomizerCollection {
+        val newMap:MutableMap<RDClassData, List<ClassRandomizer<*>>> = classRandomizers.toMutableMap()
+        val newRandomizersMap = newRandomizers.groupBy { it.returnedInstanceData }
+
+        for(newRdm in newRandomizersMap){
+            val lst = newMap[newRdm.key]
+            val newLst = if(lst!=null){
+                lst + newRdm.value
+            }else{
+                newRdm.value
+            }
+            newMap[newRdm.key] = newLst
+        }
+
         return this.copy(
-            classRandomizers = classRandomizers + newRandomizers.associateBy { it.returnedInstanceData }
+            classRandomizers = newMap.toMap()
         )
     }
 
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {
-        val k = classRandomizers.keys.firstOrNull { k ->
-            k.kClass.isSubclassOf(key.kClass)
-        }
-        return classRandomizers[k]
+        val rt = this.classRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten().randomOrNull()
+        return rt
     }
 
 }

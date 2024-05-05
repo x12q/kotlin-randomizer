@@ -1,6 +1,6 @@
 [versions]
 groupName = "com.x12q"
-version = "0.0.0"
+version = "1.0.0-Alpha1"
 
 jvmVersion = "8"
 
@@ -27,7 +27,6 @@ composeTestVersion = "1.1.1"
 anvilVersion = "2.4.9"
 composeVersion = "1.4.0"
 kotlin="1.9.20"
-#kotlin="2.0.0-RC2"
 [libraries]
 
 protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protocolBufferVersion" }

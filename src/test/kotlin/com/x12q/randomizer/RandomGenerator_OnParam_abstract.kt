@@ -7,6 +7,7 @@ import com.x12q.randomizer.test_util.TestSamples.Class2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.mockk.spyk
+import kotlin.random.Random
 import kotlin.reflect.KParameter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,9 +51,9 @@ class RandomGenerator_OnParam_abstract {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1(),
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1()),
                 ),
-                parameterRandomizers = emptyMap()
+                parameterRandomizers = emptyMap(),
             )
         )
         (lv1Randomizer.random(RDClassData.from<B1>()) as B1).A shouldBe A1.Randomizer1().random()
@@ -67,7 +68,7 @@ class RandomGenerator_OnParam_abstract {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<D1>() to D1.D1Randomizer3(),
+                    RDClassData.from<D1>() to listOf(D1.D1Randomizer3()),
                 ),
                 parameterRandomizers = emptyMap()
             )
@@ -85,7 +86,7 @@ class RandomGenerator_OnParam_abstract {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1(),
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1()),
                 ),
                 parameterRandomizers = emptyMap()
             )
@@ -102,7 +103,7 @@ class RandomGenerator_OnParam_abstract {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<E1>() to E1.E1Randomizer1(),
+                    RDClassData.from<E1>() to listOf(E1.E1Randomizer1()),
                 ),
                 parameterRandomizers = emptyMap()
             )

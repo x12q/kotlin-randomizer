@@ -41,7 +41,7 @@ class RandomGenerator_OnParam_generic {
         val lv1Rdm = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1(),
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1()),
                 ),
                 parameterRandomizers = emptyMap()
             )
@@ -55,7 +55,7 @@ class RandomGenerator_OnParam_generic {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1()
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1())
                 ),
                 parameterRandomizers = emptyMap()
             )
@@ -85,7 +85,7 @@ class RandomGenerator_OnParam_generic {
         val lv1Randomizer = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1()
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1())
                 ),
                 parameterRandomizers = emptyMap()
             )

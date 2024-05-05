@@ -36,7 +36,7 @@ class Randomizer_End_OnCollection_concrete {
         val lv1Rdm = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A1>() to A1.Randomizer1(),
+                    RDClassData.from<A1>() to listOf(A1.Randomizer1()),
                 ),
                 parameterRandomizers = emptyMap()
             )
@@ -54,7 +54,7 @@ class Randomizer_End_OnCollection_concrete {
         val lv1Rdm = rdm.copy(
             lv1RandomizerCollection = RandomizerCollection(
                 classRandomizers = mapOf(
-                    RDClassData.from<A3>() to A3.Rdm1(),
+                    RDClassData.from<A3>() to listOf(A3.Rdm1()),
                 ),
                 parameterRandomizers = emptyMap()
             )

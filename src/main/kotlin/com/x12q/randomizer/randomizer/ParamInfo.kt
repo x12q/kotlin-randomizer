@@ -15,7 +15,7 @@ data class ParamInfo(
     val enclosingKClass = enclosingClassData.kClass
     val enclosingKType = enclosingClassData.kType
 
-    inline fun <reified T> parentIs():Boolean{
+    inline fun <reified T> enclosingClassIs():Boolean{
         return enclosingKClass == T::class
     }
 

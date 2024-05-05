@@ -1,150 +1,197 @@
 # Randomizer
 
-A library for generate random instance for any class (kinda). Like this:
+A library for generate random instance of any class, interface, object, and enum (kinda). 
+
+For testing and prototyping.
+
+Like this:
 
 ```kotlin
-val instance:MyClass = random<SomeClass>()
+val instance: MyClass = random<MyClass>()
 ```
-or this
+
+or this:
 
 ```kotlin
 @Randomizable(MyClassRandomizable::class)
 class MyClass
+
+val instance: MyClass = random<MyClass>()
 ```
+# Content 
 <a id="top"></a>
+
 - [Install](#install)
-- [Usage](#usage)
-  - [Generate randoms of some class](#generate-randoms-of-some-class)
-  - [Add custom randomizers](#add-custom-randomizers)
-    - [Via `random()` function](#via-random-function)
-      - [For classes](#for-classes)
-      - [For parameters](#for-constructor-parameters)
-    - [Via `@Randomizable` annotation](#via-randomizable-annotation)
-      - [Implement `ClassRandomizer`](#implement-class-randomizer)
-      - [Implement `ParameterRandomizer`](#implement-parameter-randomizer)
+  - [Gradle](#gradle)
+  - [Maven](#maven)
+- [How to](#how-to)
+    - [Randomize a class](#how-to-1)
+    - [Randomize a class with custom randomizers](#how-to-2)
+        - [Custom randomizers via `random()` function](#how-to-2-1)
+            - [Create custom randomizers with `randomizers()` builder](#how-to-2-1-1)
+            - [Create custom randomizers with factory function](#how-to-2-1-2)
+        - [Custom randomizers via `@Randomizable` annotation](#how-to-2-2)
+            - [Create custom randomizers by implementing `ClassRandomizer` interface](#how-to-2-2-1)
+    - [Randomize a parameter](#how-to-3)
+    - [Randomize a parameter with custom randomizers](#how-to-4)
+        - [Custom param randomizers via `random()` function](#how-to-4-1)
+            - [Create custom param randomizers with `paramRandomizers()` builder](#how-to-4-1-1)
+            - [Create custom param randomizers with factory functions](#how-to-4-1-1)
+        - [Custom param randomizers via `@Randomizable` annotation](#how-to-4-2)
+            - [Create custom param randomizers by implementing `ParamRandomizer` interface](#how-to-4-2-1)
+    - [Randomize an inner class](#how-to-6)
+    - [Change base random configs](#how-to-7)
+- [Rule](#rule)
+    - [Custom randomizer order of priority (important !!!)](#rule-4)
+    - [Picking constructor](#rule-3)
+    - [How `@Randomizable` works?](#rule-2)
+    - [How are randomization being done?](#rule-1)
+        - [For concrete class](#rule-1-1)
+        - [For sealed class](#rule-1-2)
+        - [For interface & abstract class](#rule-1-3)
+        - [For object](#rule-1-4)
+        - [For enum](#rule-1-5)
+        - [For inner class](#rule-1-6)
 - [Limitation](#limitation)
 
 <a id="install"></a>
+
 # [Install &#9650;](#top)
+
+
+## [Gradle &#9650;](#top) <a id="gradle"></a>
+TODO add maven + gradle
+## [Maven &#9650;](#top) <a id="maven"></a>
 TODO add maven + gradle
 
+# [How to &#9650;](#top) <a id="how-to"></a>
 
-<a id="usage"></a>
-# [Usage &#9650;](#top)
+To generate random instance of any class, always use `random()` function.
 
+The use of this library can be as simple or as complex as it can be, it's all up to the users.
 
-<a id="generate-random-of-some-class"></a>
-## [Generate randoms of some class &#9650;](#top)
+For most use case, these are often more than enough:
+
+- `random()`: to create random instances
+- `randomizers()`: to create custom class randomizers
+- `paramRandomizers()`: to create custom param randomizers
+
+`@Randomizable` annotation is for global configuration.
+
+See below for more detail on how to use these.
+
+## [Randomize a class &#9650;](#top) <a id="how-to-1"></a>
+
 ```kotlin
-val instance:MyClass = random<SomeClass>()
+val randomInstance: MyClass = random<SomeClass>()
 ```
 
-<a id="add-custom-randomizers"></a>
-## [Add custom randomizers &#9650;](#top)
+## [Randomize a class with custom randomizers &#9650;](#top) <a id="how-to-2"></a>
 
-Custom randomizers can be added to override the default random behavior. 
+There are two ways to use custom randomizers to generate random instances of classes:
 
-There are two ways to add custom randomizers:
-- Directly via the `random<>()` function (these are called `lv1` randomizers)
-- Via `@Randomizable` annotation:
-  - These are called `lv2` when `@Randomizable` is used on constructor parameters
-  - These are called `lv3` when `@Randomizable` is used on class or constructor
+- via `random()` functions
+- via `@Randomizable` annotation, which can be used on class, interface, sealed class, enum, constructor, and
+  constructor parameter (parameter for short)
+  <a id=""></a>
 
-#### **Order of priority (Important)**
-When mulitple randomizers are provided to one class, the order of priority is:
-- `lv1` > `lv2` > `lv3` 
-- This means `lv1` has the highest priority and will be used first even when there exist `lv2`, `lv3` randomizers.
-- If there are multiple matching at the same `lv`, a random one at that `lv` will be chosen.
+### [Custom randomizers via `random()` function &#9650;](#top) <a id="how-to-2-1"></a>
 
-<a id="via-random-function"></a>
-## [Via `random()` function &#9650;](#top)
+`random()` function accepts a list of custom randomizers, and can use them to generate random to applicable classes.
+Like this:
 
-
-<a id="for-classes"></a>
-### [For classes  &#9650;](#top)
-
-Class custom randomizers:
-- can override the default randomizing behavior for:
-    - all (kinda) classes, abstract classes, interfaces, sealed classes and sealed interface
-    - generic classes and interfaces
 ```kotlin
-import kotlin.random.Random
-
-val instance:SomeClass = random<SomeClass>(
-    randomizers = randomizers {
-        add(classRandomizer {
-            // override the default randomizer for OtherClass
-            OtherClass(1,2, Random.nextFloat())
-        })
-        int {
-            // override the default Int randomizer
-            99
-        }
-        float {
-            // override the default Float randomizer
-            1f
-        }
-        string {
-            // override the default String randomizer
-            "abc123"
-        }
-        list {
-            // override the default List<Int> randomizer
-            listOf(1f, 2f)
-        }
-    },
+val randomInstance: MyClass = random<SomeClass>(
+    randomizers = listOf<ClassRandomizer<*>>()
 )
 ```
 
-<a id="for-constructor-parameters"></a>
-### [For parameters &#9650;](#top)
-Custom parameter randomizers:
-- can override the default randomizer.
-- can check and apply its random logic only when certain conditions are met, such as:
-    - when parameter name has to be certain name, and/or
-    - the parameter has to be in a certain enclosing class
+There are 3 ways to create custom randomizers that can be passed to `random()`.
+
+- use `randomizers()`builder (preferred)
+- use factory functions
+- implement `ClassRandomizer` interface (detailed in `@Randomizable` section)
+
+#### [Create custom randomizers with `randomizers()` builder &#9650;](#top)  <a id="how-to-2-1-1"></a>
+
+`randomizers()` is a builder function that can be used to create custom randomizers for various primitive types, as
+well, as any class. It is the recommended way to create custom randomizers. It looks like this:
+
 ```kotlin
-val instance:SomeClass = random<SomeClass>(
-    paramRandomizers = paramRandomizers {
-        add(paramRandomizer {
-            // override default param randomizer for OtherClass
-            OtherClass(123)
+val randomInstance: MyClass = random<SomeClass>(
+    randomizers = randomizers {
+        add(classRandomizer {
+            // custom randomizer for some class 
+            SomeClass.random()
         })
-        add(paramRandomizer(
-            // override default param randomizer for OtherClass with condition
-            condition = {paramInfo ->
-                paramInfo.paramName == "someParamName"
-            },
-            random = {
-                OtherClass(456)
-            }
-        ))
-        string { paramInfo->
-            // override default param randomizer for string
-            "${paramInfo.paramName}: some str"
+
+        int {
+            // custom randomizer for Int
+            (1..200).random() * (-1)
         }
-        int(
-            // override default param randomizer for int with condition
-            condition = { paramInfo->
-                paramInfo.paramName="age" && paramInfo.enclosingKClass == Person::class
-            },
-            random= {
-                Random.nextInt(1000)
-            }
-        )
+
+        float {
+            // custom randomizer for Float
+            123f
+        }
+
+        string {
+            // custom randomizer for String
+            "abc123"
+        }
+
+        list {
+            // custom randomizer for List<Float>
+            listOf(1f, 2f)
+        }
+
     }
 )
 ```
 
-<a id="via-randomizable-annotation"></a>
-## [Via `@Randomizable` annotation &#9650;](#top)
+#### [Create custom randomizers with factory functions &#9650;](#top) <a id="how-to-2-1-2"></a>
 
-This library provide `@Randomizable` annotation that can be used to specified custom randomizers for:
-- classes
-- constructor parameters
-- constructors
+Custom randomizers can also be created using factory functions, in fact, this is equivalent to using the builder above
+because the builder is actually backed by these factory functions. It looks like this:
 
-The `@Randomizable` annotation can be used as followed:
+```kotlin
+val randomInstance = random<MyClass>(
+    randomizers = listOf(
+        classRandomizer {
+            // custom randomizer for some class 
+            SomeClass.random()
+        },
+        intRandomizer {
+            // custom randomizer for Int
+            (1..200).random() * (-1)
+        },
+        floatRandomizer {
+            // custom randomizer for Float
+            123f
+        },
+        stringRandomizer {
+            // custom randomizer for String
+            "abc123"
+        },
+        listRandomizer {
+            // custom randomizer for List<Float>
+            listOf(1f, 2f)
+        }
+    )
+)
+```
+
+### [Custom randomizers via `@Randomizable` annotation &#9650;](#top) <a id="how-to-2-2"></a>
+
+`@Randomizable` annotation is provided by this library. It can be used to provide custom randomizers to:
+
+- class, interface, sealed class, abstract class
+- enum
+- constructor (both primary and secondary)
+- constructor parameter (both primary and secondary)
+
+It looks like this:
+
 ```kotlin
 // on class
 @Randomizer(randomizer = MyABCRandomizerClass::class)
@@ -153,64 +200,214 @@ class ABC
 class QWE(
     // on parameter
     @Randomizable(randomizer = MyX1RandomizerClass::class)
-    val x1:X1
+    val x1: X1
 )
 
 class MNO(
-    val x2:X2,
-    val str:String,
-){
+    val x2: X2,
+    val str: String,
+) {
     // on constructor
     @Randomizable(randomizer = MyMNORandomizerClass::class)
-    constructor(x2:X2):this(x2,"someStr")
+    constructor(
+        x2: X2,
+        @Randomizable(randomizer = MyX4Randomizer::class)
+        x4: X4,
+    ) : this(x2, "someStr")
 }
 ```
 
-Randomizer classes passed to `@Randomizable` must:
-- implement/extend either `ClassRandomizer` or `ParameterRandomizer`
-- and have a no-argument constructor 
+`@Randomizable` is also used to marked preferred constructors. For detail on how `@Randomizable` works, click [here](#rule-3)
 
+Custom randomizer class passed to `@Randomizable` must:
 
-### [Implement `ClassRandomizer` &#9650;](#top)
-<a id="implement-class-randomizer"></a>
+- implement `ClassRandomizer` interface (but `AbsSameClassRandomizer` is preferred in most cases)
+- have a no-argument public constructor
 
-`ClassRandomizer` can be implemented directly, but for common use case, extend `AbsSameClassRandomizer` instead for less boilerplate code.
+#### [Create custom randomizers by implementing `ClassRandomizer` interface &#9650;](#top) <a id="how-to-2-2-1"></a>
+
+In most cases where custom randomizers only need trivia type check, it is preferred to extend `AbsSameClassRandomizer`
+abstract class because this one already contains the basic type check logic.
+
+It looks like this:
+
 ```kotlin
-class MyX1RandomizerClass:AbsSameClassRandomizer<X1>(){
-  // This is a must
-  val returnedInstanceData: RDClassData = RDClassData.from<X1>()
-  
-  fun random(): ABC{
-    // do your random business here
-      return X1()
-  }
+class SomeCustomRandomizer : AbsSameClassRandomizer<SomeClass>() {
+    // this is a must
+    override val returnedInstanceData: RDClassData = RDClassData.from<SomeClass>()
+
+    override fun random(): SomeClass {
+        // your random logic
+        return SomeClass.random()
+    }
 }
 ```
 
-```kotlin
+Or, if you prefer implementing the `ClassRandomizer` interface, it looks like this
 
-class MyABCRandomizerClass : ClassRandomizer<ABC>{
-    // This is a must
-    val returnedInstanceData: RDClassData = RDClassData.from<ABC>()
-    
-    fun isApplicableTo(classData: RDClassData): Boolean{
-        // you can provide custom check if you want here
+```kotlin
+class SomeCustomRandomizer : ClassRandomizer<SomeClass> {
+    // this is a must
+    override val returnedInstanceData: RDClassData = RDClassData.from<SomeClass>()
+
+    override fun isApplicableTo(classData: RDClassData): Boolean {
+        // your checking logic
         return classData == returnedInstanceData
     }
-    
-    fun random(): ABC{
-        // do your random business here
-        return ABC()
+
+    override fun random(): SomeClass {
+        // your random logic
+        return SomeClass.random()
     }
 }
 ```
 
+## [Randomize a parameter &#9650;](#top) <a id="how-to-3"></a>
 
-### [Implement `ParameterRandomizer` &#9650;](#top)
-<a id="implement-parameter-randomizer"></a>
+Constructor parameters (parameters for short) is randomized when we randomize a class. But this library can do more than
+just that. It can randomize specific parameters of specific classes in specific ways.
 
-`ParameterRandomizer` can be implemented directly, but for common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
+For example: we may want a `val latitude:Float` to be within a certain valid range, but at the same, we don't want to
+apply that range to other `Float` in other classes. Or maybe, on top of all that, we want to apply some other random
+logic to `val money: Float` parameter in another class.
 
+We can do that by providing custom parameter randomizers.
+
+## [Randomize a parameter with custom randomizers &#9650;](#top) <a id="how-to-4"></a>
+
+### [Custom param randomizers via `random()` function &#9650;](#top) <a id="how-to-4-1"></a>
+
+Similarly to class randomizers, `random()` function accepts a list of custom param randomizers, and can use them to
+generate random parameter to targeted classes. Like this:
+
+```kotlin
+val randomInstance: MyClass = random<SomeClass>(
+    paramRandomizers = listOf<ParamRandomizer<*>>()
+)
+```
+
+Again, similarly to class randomizer, there are 3 ways to create custom param randomizers that can be passed
+to `random()`.
+
+- use `paramRandomizers()`builder (preferred)
+- use factory functions
+- implement `ParamRandomizer` interface (detailed in `@Randomizable` section)
+
+#### [Create custom param randomizers via `paramRandomizers()` builder &#9650;](#top) <a id="how-to-4-1-1"></a>
+
+Unlike the other builder, `paramRandomizers()` builder is a bit more capable. It can create conditional parameter
+randomizers as well as non-conditional randomizers.
+
+Similar to the other builder, `paramRandomizers()` also provides functions to create randomizers for other primitive
+types and all (kinda) custom classes.
+
+Like this:
+
+```kotlin
+val randomInstance = random<MyClass>(
+    paramRandomizers = paramRandomizers {
+        float(
+            condition = { paramInfo ->
+                // this means: only apply this randomizer to latitude parameter in LatLng class 
+                paramInfo.paramName == "latitude" && paramInfo.enclosingClassIs<LatLng>()
+            }
+        ) {
+            456f
+        }
+
+        float {
+            // this applies to all other float parameter
+            123f
+        }
+
+        add(paramRandomizer {
+            ABC.random()
+        })
+
+        add(paramRandomizer(
+            condition = {
+                // some condition
+            }
+        ) {
+            SomeClass.random()
+        })
+    }
+)
+```
+
+#### [Create custom param randomizers with factory functions &#9650;](#top) <a id="how-to-4-1-1"></a>
+
+Similar to class randomier, param randomizers can also be created using factory function. This is equivalent to using
+the builder.
+
+Like this:
+
+```kotlin
+ val randomInstance = random<MyClass>(
+    paramRandomizers = listOf(
+        floatParamRandomizer(
+            condition = { paramInfo ->
+                // this means: only apply this randomizer to latitude parameter in LatLng class
+                paramInfo.paramName == "latitude" && paramInfo.enclosingClassIs<LatLng>()
+            }
+        ) {
+            456f
+        },
+
+        floatParamRandomizer {
+            // this applies to all other float parameter
+            123f
+        },
+
+        paramRandomizer {
+            ABC.random()
+        },
+
+        paramRandomizer(
+            condition = {
+                // some condition
+            }
+        ) {
+            SomeClass.random()
+        }
+    )
+)
+```
+
+### [Custom param randomizers via `@Randomizable` annotation &#9650;](#top) <a id="how-to-4-2"></a>
+
+It looks like this:
+
+```kotlin
+class QWE(
+    @Randomizable(randomizer = MyX1RandomizerClass::class)
+    val x1: X1
+)
+
+class MNO(
+    val x2: X2,
+    val str: String,
+) {
+    constructor(
+        x2: X2,
+        @Randomizable(randomizer = MyX4Randomizer::class)
+        x4: X4,
+    ) : this(x2, "someStr")
+}
+```
+
+Custom randomizer class passed to `@Randomizable` must:
+
+- implement `ParamRandomizer` interface (but `AbsSameClassParamRandomizer` is preferred in most cases)
+- have a no-argument public constructor
+-
+
+#### [Create custom param randomizers by implementing `ParamRandomizer` interface &#9650;](#top) <a id="how-to-4-2-1"></a>
+
+In most cases where custom randomizers only need trivia type check, it is preferred to
+extend `AbsSameClassParamRandomizer` abstract class because this one already contains the basic type check logic.
+
+It looks like this:
 
 ```kotlin
 class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
@@ -218,9 +415,9 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
     override val paramClassData: RDClassData = RDClassData.from<A2>()
 
     override fun random(
-      parameterClassData: RDClassData, 
-      parameter: KParameter, 
-      enclosingClassData: RDClassData
+        parameterClassData: RDClassData,
+        parameter: KParameter,
+        enclosingClassData: RDClassData
     ): A2? {
         // do your random business here
         return A2("from custom randomizer")
@@ -228,39 +425,136 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
 }
 ```
 
+Or, if you prefer implementing the `ParamRandomizer` interface, it looks like this:
+
 ```kotlin
-class A3Randomizer: ParameterRandomizer<A3>{
+class A3Randomizer : ParameterRandomizer<A3> {
     // this is a must
     val paramClassData: RDClassData = RDClassData.from<A3>()
 
     fun isApplicableTo(
-      paramInfo:ParamInfo
-    ): Boolean{
+        paramInfo: ParamInfo
+    ): Boolean {
         // you can provide custom check here
         return paramInfo.paramClassData == this.paramClassData
-        
+
     }
 
     fun random(
-      parameterClassData: RDClassData,
-      parameter: KParameter,
-      enclosingClassData: RDClassData,
-    ):A3?{
+        parameterClassData: RDClassData,
+        parameter: KParameter,
+        enclosingClassData: RDClassData,
+    ): A3? {
         // do you random business here
         return A3("something random")
     }
 }
 ```
 
+## [Randomize an inner class &#9650;](#top) <a id="how-to-6"></a>
+
+Inner class can be randomized like this:
+
+```kotlin
+class Outer {
+    inner class Inner
+}
+
+val outer = Outer()
+val randomInner = randomInnerClass<Outer.Inner>(outer)
+```
+
+All the rules of normal randomizers all apply to inner classes.
+
+## [Change base random configs &#9650;](#top) <a id="how-to-7"></a>
+
+Base random configurations can be changed like this. This consist of configure use by the default randomizers when
+no custom randomizers are specified.
+
+```kotlin
+val randomABC = random<ABC>(
+    defaultRandomConfig = DefaultRandomConfig.default.copy(
+        // change it here
+    )
+)
+```
+
+# [Rule &#9650;](#top) <a id="rule"></a>
+
+These are the randomizing rules used by the library to select custom randomizers, and to generate different type of
+objects.
+
+
+## [Randomizers order of priority (important !!!) &#9650;](#top) <a id="rule-4"></a>
+
+Randomizers are put into 4 level in this library:
+- `lv1`: randomizers provided in `random()` function
+- `lv2`: randomizers provided `@Randomizable` at constructor paramters
+- `lv3`: randomizers provided `@Randomizable` at class and constructor
+- `lv4`: the default, baked-in randomizers
+
+The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest priority)
+
+If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly. 
+
+## [Picking constructors](#top) <a id="rule-3"></a>
+
+In a class:
+- if no constructor is annotated with `@Randomizable`, the primary constructor will be used. All other constructors are ignored.
+- if some constructors are annotated with `@Randomizable`, one will be picked randomly among the annotated constructors.
+
+
+## [How `@Randomizable` works?](#top) <a id="rule-2"></a>
+
+`@Randomizable` can be used to annotate:
+- class, enum, sealed class, interface, abstract class, inner class
+- constructor
+- constructor parameter
+
+`@Randomizable` also play a role in constructor picking, see above.
+
+
+## [How are randomization being done?](#top) <a id="rule-1"></a>
+
+Generally, randomization is done recursively.
+
+### [For concrete class](#top) <a id="rule-1-1"></a>
+
+For a concrete class, the randomization is done by invoking one of its constructor with randomized parameters. 
+
+### [For sealed class](#top) <a id="rule-1-2"></a>
+
+For sealed class, if no custom randomizer is provided, a random implementation will be chosen and generated.
+
+### [For interface & abstract class](#top) <a id="rule-1-3"></a>
+
+For interface and abstract classes, a custom randomizer must be specified, otherwise the library will crash.
+
+### [For object](#top) <a id="rule-1-4"></a>
+
+For object, the object itself is returned. So no random is done here.
+
+### [For enum](#top) <a id="rule-1-5"></a>
+
+For enum, if no custom randomizer is provided, a random value is picked.
+
+### [For inner class](#top) <a id="rule-1-6"></a>
+
+For inner class, randomization is done similarly to a normal class.
+
+<a id="rule"></a>
 
 ## [Limitation &#9650;](#top)
+
 <a id="limitation"></a>
 
-There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenarios.
+There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in
+real scenarios.
 
 For example, it is not possible for this library to generate a random instance of `MyClass` below.
 
-This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until then, ...  
+This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until
+then, ...
 
 Well, there may be others that I am not aware of ...
 
@@ -276,7 +570,7 @@ fun main() {
             outsideStr = "something"
         }
     }
-  
+
     random<MyClass>() // => this crashes
 }
 ```
