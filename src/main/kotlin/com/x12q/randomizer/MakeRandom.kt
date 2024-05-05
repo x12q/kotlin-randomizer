@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.di.DaggerRDComponent
+import com.x12q.randomizer.di.DaggerRandomizerComponent
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.RDClassData
@@ -17,7 +17,7 @@ inline fun <reified T : Any> random(
     randomizers: Collection<ClassRandomizer<*>> = emptyList(),
     paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
 ): T {
-    val comp = DaggerRDComponent.builder()
+    val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)
         .build()
 
@@ -40,7 +40,7 @@ inline fun <reified T : Any> randomInnerClass(
     enclosingObject:Any,
     random: Random = Random,
 ): T {
-    val comp = DaggerRDComponent.builder()
+    val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)
         .build()
 

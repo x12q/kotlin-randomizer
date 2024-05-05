@@ -21,7 +21,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Set] to this builder.
+     * Add a [Set] randomizer to this builder.
      */
     fun <T> set(
         condition: (target: ParamInfo) -> Boolean,
@@ -32,7 +32,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [List] to this builder.
+     * Add a [List] randomizer to this builder.
      */
     fun <T> list(
         condition: (target: ParamInfo) -> Boolean,
@@ -43,7 +43,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Map] to this builder.
+     * Add a [Map] randomizer to this builder.
      */
     fun <K, V> map(
         condition: (target: ParamInfo) -> Boolean,
@@ -54,7 +54,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Int] to this builder.
+     * Add an [Int] randomizer to this builder.
      */
     fun int(
         condition: (target: ParamInfo) -> Boolean,
@@ -65,7 +65,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Float] to this builder.
+     * Add a [Float] randomizer to this builder.
      */
     fun float(
         condition: (target: ParamInfo) -> Boolean,
@@ -76,7 +76,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [String] to this builder.
+     * Add a [String] randomizer to this builder.
      */
     fun string(
         condition: (target: ParamInfo) -> Boolean,
@@ -87,7 +87,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Double] to this builder.
+     * Add a [Double] randomizer to this builder.
      */
     fun double(
         condition: (target: ParamInfo) -> Boolean,
@@ -98,7 +98,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Byte] to this builder.
+     * Add a [Byte] randomizer to this builder.
      */
     fun byte(
         condition: (target: ParamInfo) -> Boolean,
@@ -109,7 +109,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Short] to this builder.
+     * Add a [Short] randomizer to this builder.
      */
     fun short(
         condition: (target: ParamInfo) -> Boolean,
@@ -120,7 +120,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Boolean] to this builder.
+     * Add a [Boolean] randomizer to this builder.
      */
     fun boolean(
         condition: (target: ParamInfo) -> Boolean,
@@ -131,7 +131,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Long] to this builder.
+     * Add a [Long] randomizer to this builder.
      */
     fun long(
         condition: (target: ParamInfo) -> Boolean,
@@ -142,7 +142,7 @@ class ParamRandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Char] to this builder.
+     * Add a [Char] randomizer to this builder.
      */
     fun char(
         condition: (target: ParamInfo) -> Boolean,

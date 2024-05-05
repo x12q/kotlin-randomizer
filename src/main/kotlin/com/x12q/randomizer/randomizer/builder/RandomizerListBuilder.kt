@@ -23,7 +23,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Set] to this builder.
+     * Add a [Set] randomizer to this builder.
      */
     fun <T> set(random: () -> Set<T>):RandomizerListBuilder{
         lst.add(setRandomizer(random))
@@ -31,7 +31,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [List] to this builder.
+     * Add a [List] randomizer to this builder.
      */
     fun <T>list(random:()->List<T>): RandomizerListBuilder {
         lst.add(listRandomizer(random))
@@ -39,7 +39,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Map] to this builder.
+     * Add a [Map] randomizer to this builder.
      */
     fun <K,V> map(random:()->Map<K,V>): RandomizerListBuilder {
         lst.add(mapRandomizer(random))
@@ -47,7 +47,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Int] to this builder.
+     * Add an [Int] randomizer to this builder.
      */
     fun int(random: () -> Int): RandomizerListBuilder {
         lst.add(intRandomizer(random))
@@ -55,7 +55,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Float] to this builder.
+     * Add a [Float] randomizer to this builder.
      */
     fun float(random: () -> Float): RandomizerListBuilder {
         lst.add(floatRandomizer(random))
@@ -63,7 +63,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Float] to this builder.
+     * Add a [String] randomizer to this builder.
      */
     fun string(random: () -> String): RandomizerListBuilder {
         lst.add(stringRandomizer(random))
@@ -71,7 +71,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Double] to this builder.
+     * Add a [Double] randomizer to this builder.
      */
     fun double(random: () -> Double): RandomizerListBuilder {
         lst.add(doubleRandomizer(random))
@@ -79,7 +79,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Byte] to this builder.
+     * Add a [Byte] randomizer to this builder.
      */
     fun byte(random: () -> Byte): RandomizerListBuilder {
         lst.add(byteRandomizer(random))
@@ -87,7 +87,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Short] to this builder.
+     * Add a [Short] randomizer to this builder.
      */
     fun short(random: () -> Short): RandomizerListBuilder {
         lst.add(shortRandomizer(random))
@@ -95,7 +95,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Boolean] to this builder.
+     * Add a [Boolean] randomizer to this builder.
      */
     fun boolean(random: () -> Boolean): RandomizerListBuilder {
         lst.add(booleanRandomizer(random))
@@ -103,7 +103,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Long] to this builder.
+     * Add a [Long] randomizer to this builder.
      */
     fun long(random: () -> Long): RandomizerListBuilder {
         lst.add(longRandomizer(random))
@@ -111,7 +111,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that can generate [Char] to this builder.
+     * Add a [Char] randomizer to this builder.
      */
     fun char(random: () -> Char): RandomizerListBuilder {
         lst.add(charRandomizer(random))
