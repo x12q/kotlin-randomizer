@@ -2,7 +2,7 @@
 
 A library for generate random instance of any class, interface, object, and enum (kinda). 
 
-For testing and prototyping.
+This library is for testing and prototyping.
 
 Like this:
 
