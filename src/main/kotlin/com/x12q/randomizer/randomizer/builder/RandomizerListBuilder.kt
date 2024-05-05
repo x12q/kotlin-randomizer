@@ -25,7 +25,7 @@ class RandomizerListBuilder {
     /**
      * Add a [Set] randomizer to this builder.
      */
-    fun <T> set(random: () -> Set<T>):RandomizerListBuilder{
+    fun <T> set(random: () -> Set<T>): RandomizerListBuilder {
         lst.add(setRandomizer(random))
         return this
     }
@@ -33,7 +33,7 @@ class RandomizerListBuilder {
     /**
      * Add a [List] randomizer to this builder.
      */
-    fun <T>list(random:()->List<T>): RandomizerListBuilder {
+    fun <T> list(random: () -> List<T>): RandomizerListBuilder {
         lst.add(listRandomizer(random))
         return this
     }
@@ -41,7 +41,7 @@ class RandomizerListBuilder {
     /**
      * Add a [Map] randomizer to this builder.
      */
-    fun <K,V> map(random:()->Map<K,V>): RandomizerListBuilder {
+    fun <K, V> map(random: () -> Map<K, V>): RandomizerListBuilder {
         lst.add(mapRandomizer(random))
         return this
     }

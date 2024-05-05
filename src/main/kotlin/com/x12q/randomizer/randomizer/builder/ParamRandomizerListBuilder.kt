@@ -32,6 +32,16 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Set] randomizer to this builder.
+     */
+    fun <T> set(
+        random: (ParamInfo) -> Set<T>
+    ): ParamRandomizerListBuilder {
+        lst.add(setParamRandomizer(random))
+        return this
+    }
+
+    /**
      * Add a [List] randomizer to this builder.
      */
     fun <T> list(
@@ -39,6 +49,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> List<T>
     ): ParamRandomizerListBuilder {
         lst.add(listParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add a [List] randomizer to this builder.
+     */
+    fun <T> list(
+        random: (ParamInfo) -> List<T>
+    ): ParamRandomizerListBuilder {
+        lst.add(listParamRandomizer(random))
         return this
     }
 
@@ -54,6 +74,17 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Map] randomizer to this builder.
+     */
+    fun <K, V> map(
+        random: (ParamInfo) -> Map<K, V>
+    ): ParamRandomizerListBuilder {
+        lst.add(mapParamRandomizer(random))
+        return this
+    }
+
+
+    /**
      * Add an [Int] randomizer to this builder.
      */
     fun int(
@@ -61,6 +92,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Int,
     ): ParamRandomizerListBuilder {
         lst.add(intParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add an [Int] randomizer to this builder.
+     */
+    fun int(
+        random: (ParamInfo) -> Int,
+    ): ParamRandomizerListBuilder {
+        lst.add(intParamRandomizer(random))
         return this
     }
 
@@ -76,6 +117,16 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Float] randomizer to this builder.
+     */
+    fun float(
+        random: (ParamInfo) -> Float
+    ): ParamRandomizerListBuilder {
+        lst.add(floatParamRandomizer(random))
+        return this
+    }
+
+    /**
      * Add a [String] randomizer to this builder.
      */
     fun string(
@@ -83,6 +134,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> String
     ): ParamRandomizerListBuilder {
         lst.add(stringParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add a [String] randomizer to this builder.
+     */
+    fun string(
+        random: (ParamInfo) -> String
+    ): ParamRandomizerListBuilder {
+        lst.add(stringParamRandomizer(random))
         return this
     }
 
@@ -98,6 +159,16 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Double] randomizer to this builder.
+     */
+    fun double(
+        random: (ParamInfo) -> Double
+    ): ParamRandomizerListBuilder {
+        lst.add(doubleParamRandomizer(random))
+        return this
+    }
+
+    /**
      * Add a [Byte] randomizer to this builder.
      */
     fun byte(
@@ -105,6 +176,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Byte
     ): ParamRandomizerListBuilder {
         lst.add(byteParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add a [Byte] randomizer to this builder.
+     */
+    fun byte(
+        random: (ParamInfo) -> Byte
+    ): ParamRandomizerListBuilder {
+        lst.add(byteParamRandomizer(random))
         return this
     }
 
@@ -120,6 +201,16 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Short] randomizer to this builder.
+     */
+    fun short(
+        random: (ParamInfo) -> Short
+    ): ParamRandomizerListBuilder {
+        lst.add(shortParamRandomizer(random))
+        return this
+    }
+
+    /**
      * Add a [Boolean] randomizer to this builder.
      */
     fun boolean(
@@ -127,6 +218,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Boolean
     ): ParamRandomizerListBuilder {
         lst.add(booleanParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add a [Boolean] randomizer to this builder.
+     */
+    fun boolean(
+        random: (ParamInfo) -> Boolean
+    ): ParamRandomizerListBuilder {
+        lst.add(booleanParamRandomizer(random))
         return this
     }
 
@@ -142,6 +243,16 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Long] randomizer to this builder.
+     */
+    fun long(
+        random: (ParamInfo) -> Long
+    ): ParamRandomizerListBuilder {
+        lst.add(longParamRandomizer(random))
+        return this
+    }
+
+    /**
      * Add a [Char] randomizer to this builder.
      */
     fun char(
@@ -149,6 +260,16 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Char
     ): ParamRandomizerListBuilder {
         lst.add(charParamRandomizer(condition, random))
+        return this
+    }
+
+    /**
+     * Add a [Char] randomizer to this builder.
+     */
+    fun char(
+        random: (ParamInfo) -> Char
+    ): ParamRandomizerListBuilder {
+        lst.add(charParamRandomizer(random))
         return this
     }
 }

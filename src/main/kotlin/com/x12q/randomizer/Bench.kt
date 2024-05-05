@@ -1,8 +1,8 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.randomizer.builder.paramRandomizers
-import com.x12q.randomizer.randomizer.primitive.*
 import com.x12q.randomizer.randomizer.builder.randomizers
+import com.x12q.randomizer.randomizer.primitive.*
 import kotlinx.serialization.Serializable
 
 
@@ -37,11 +37,11 @@ fun main() {
         ),
         paramRandomizers = listOf(
             stringParamRandomizer(
-                condition = {
-                    it.paramName == "t2" && it.parentIs<A2>()
-                },
+//                condition = {
+//                    it.paramName == "t2" && it.parentIs<A2>()
+//                },
                 random = {
-                    "__qwe__"
+                    "${it.paramName}:__qwe__"
                 }
             )
         )
@@ -64,11 +64,11 @@ fun main() {
         },
         paramRandomizers = paramRandomizers {
             string(
-                condition = {
-                    it.paramName == "t2" && it.parentIs<A2>()
-                },
+//                condition = {
+//                    it.paramName == "t2" && it.parentIs<A2>()
+//                },
                 random = {
-                    "__qwe__"
+                    "${it.paramName}:__qwe__"
                 }
             )
         }

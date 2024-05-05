@@ -8,6 +8,7 @@ import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
+import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
 import com.x12q.randomizer.randomizer_processor.RandomizerChecker
 import com.x12q.randomizer.util.ReflectionUtils
 import com.x12q.randomizer.util.getEnumValue
@@ -23,7 +24,8 @@ import kotlin.reflect.full.primaryConstructor
 data class RandomGenerator @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
-    val randomizerChecker: RandomizerChecker
+    val randomizerChecker: RandomizerChecker,
+    val defaultRandomConfig: DefaultRandomConfig,
 ) {
 
     fun random(classData: RDClassData): Any? {
@@ -538,17 +540,17 @@ data class RandomGenerator @Inject constructor(
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
     internal fun lv4RandomPrimitive(classData: RDClassData): Any? {
-        val classRef: KClass<*> = classData.kClass
-        val rt = when (classRef) {
-            Byte::class -> random.nextBytes(1)[0]
-            Short::class -> random.nextInt().toShort()
-            Boolean::class -> random.nextBoolean()
+        val clzz: KClass<*> = classData.kClass
+        val rt = when (clzz) {
+            Char::class -> randomChar()
             Int::class -> random.nextInt()
             Long::class -> random.nextLong()
-            Double::class -> random.nextDouble()
             Float::class -> random.nextFloat()
-            Char::class -> randomChar()
+            Double::class -> random.nextDouble()
             String::class -> randomString(random)
+            Boolean::class -> random.nextBoolean()
+            Byte::class -> random.nextBytes(1)[0]
+            Short::class -> random.nextInt().toShort()
             List::class, Collection::class -> makeRandomList(classData)
             Map::class -> makeRandomMap(classData)
             Set::class -> makeRandomList(classData).toSet()
@@ -557,31 +559,31 @@ data class RandomGenerator @Inject constructor(
         return rt
     }
 
-    private val rdCollectionSize: IntRange = 1..5
-    private val rdStringSize: IntRange = 1..10
+    private val collectionSize: IntRange = defaultRandomConfig.collectionSize
+    private val strSize: IntRange = defaultRandomConfig.stringSize
 
     private fun makeRandomList(classData: RDClassData): List<Any?> {
         val type: KType? = classData.kType
         if (type != null) {
-            val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
+            val numOfElements = random.nextInt(collectionSize.start, collectionSize.endInclusive + 1)
             val elemType = type.arguments[0].type!!
             return (1..numOfElements).map { randomElement(elemType, classData) }
         } else {
-            TODO("throw exception")
+            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random List")
         }
     }
 
     private fun makeRandomMap(classData: RDClassData): Map<Any?, Any?> {
         val type: KType? = classData.kType
         if (type != null) {
-            val numOfElements = random.nextInt(rdCollectionSize.start, rdCollectionSize.endInclusive + 1)
+            val numOfElements = random.nextInt(collectionSize.start, collectionSize.endInclusive + 1)
             val keyType = type.arguments[0].type!!
             val valType = type.arguments[1].type!!
             val keys = (1..numOfElements).map { randomElement(keyType, classData) }
             val values = (1..numOfElements).map { randomElement(valType, classData) }
             return keys.zip(values).toMap()
         } else {
-            TODO("throw exception")
+            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random Map")
         }
     }
 
@@ -593,9 +595,8 @@ data class RandomGenerator @Inject constructor(
 
     private fun randomString(random: Random): String {
         return (1..random.nextInt(
-            rdStringSize.start,
-            rdStringSize.endInclusive + 1
+            strSize.start,
+            strSize.endInclusive + 1
         )).map { randomChar() }.joinToString(separator = "") { "$it" }
     }
 }
-

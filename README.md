@@ -53,13 +53,12 @@ target class is abstract without valid lv3 or lv2
 - x: add ability to pick constructor
 - x: support inner class
     
-- TODO Add some aspect-wise configuration / chain randomizer:
-  - TODO The len of randomized collection
-  - TODO The range of primitive number
-  - TODO way to generate string:
-    - random str
-    - UUID
-
+- x: Add some aspect-wise configuration:
+  - x: The len of randomized collection
+  - x: The range of primitive number
+  - x: way to generate string:
+- 
+ 
 Tentative feature:
 - Constructor rule (low priority)
   - If no rule is provided -> default to primary constructor
