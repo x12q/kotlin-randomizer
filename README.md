@@ -134,7 +134,6 @@ val instance:SomeClass = random<SomeClass>(
         )
     }
 )
-
 ```
 
 <a id="via-randomizable-annotation"></a>
@@ -175,9 +174,7 @@ Randomizer classes passed to `@Randomizable` must:
 ### [Implement `ClassRandomizer` &#9650;](#top)
 <a id="implement-class-randomizer"></a>
 
-- `ClassRandomizer` can be implemented directly. 
-
-- For common use case, extend `AbsSameClassRandomizer` instead for less boilerplate code.
+`ClassRandomizer` can be implemented directly, but for common use case, extend `AbsSameClassRandomizer` instead for less boilerplate code.
 ```kotlin
 class MyX1RandomizerClass:AbsSameClassRandomizer<X1>(){
   // This is a must
@@ -212,8 +209,7 @@ class MyABCRandomizerClass : ClassRandomizer<ABC>{
 ### [Implement `ParameterRandomizer` &#9650;](#top)
 <a id="implement-parameter-randomizer"></a>
 
-- `ParameterRandomizer` can be implemented directly.
-- For common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
+`ParameterRandomizer` can be implemented directly, but for common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
 
 
 ```kotlin
@@ -230,7 +226,6 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
         return A2("from custom randomizer")
     }
 }
-
 ```
 
 ```kotlin
@@ -255,7 +250,6 @@ class A3Randomizer: ParameterRandomizer<A3>{
         return A3("something random")
     }
 }
-
 ```
 
 
