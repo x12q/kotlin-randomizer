@@ -21,7 +21,7 @@ fun intRandomizer(
 fun intRandomizer(
     range:IntRange
 ): ClassRandomizer<Int> {
-    return intRandomizer {
+    return classRandomizer {
         Random.nextInt(range.first,range.last)
     }
 }
@@ -30,7 +30,7 @@ fun intRandomizer(
  * Convenient function to create a [ClassRandomizer] that can produce random integers up to certain value
  */
 fun intRandomizer(until:Int): ClassRandomizer<Int> {
-    return intRandomizer {
+    return classRandomizer {
         Random.nextInt(until)
     }
 }
@@ -39,7 +39,7 @@ fun intRandomizer(until:Int): ClassRandomizer<Int> {
  * Convenient function to create a [ClassRandomizer] that can produce random integers
  */
 fun intRandomizer(): ClassRandomizer<Int> {
-    return intRandomizer {
+    return classRandomizer {
         Random.nextInt()
     }
 }
@@ -60,7 +60,7 @@ fun floatRandomizer(
 fun floatRandomizer(
     from:Float, to:Float
 ): ClassRandomizer<Float> {
-    return floatRandomizer {
+    return classRandomizer {
         Random.nextDouble(from.toDouble(),to.toDouble()).toFloat()
     }
 }
@@ -69,7 +69,7 @@ fun floatRandomizer(
  * Convenient function to create a [ClassRandomizer] that can produce random floats up to a limit
  */
 fun floatRandomizer(until:Float): ClassRandomizer<Float> {
-    return floatRandomizer {
+    return classRandomizer {
         Random.nextDouble(until.toDouble()).toFloat()
     }
 }
@@ -78,11 +78,10 @@ fun floatRandomizer(until:Float): ClassRandomizer<Float> {
  * Convenient function to create a [ClassRandomizer] that can produce random floats
  */
 fun floatRandomizer(): ClassRandomizer<Float> {
-    return floatRandomizer {
+    return classRandomizer {
         Random.nextFloat()
     }
 }
-
 
 /**
  * Convenient function to create a [ClassRandomizer] that can produce random strings
@@ -117,7 +116,7 @@ fun doubleRandomizer(
 fun doubleRandomizer(
     from:Double, to:Double
 ): ClassRandomizer<Double> {
-    return doubleRandomizer {
+    return classRandomizer {
         Random.nextDouble(from,to)
     }
 }
@@ -126,7 +125,7 @@ fun doubleRandomizer(
  * Convenient function to create a [ClassRandomizer] that can produce random doubles up to a limit
  */
 fun doubleRandomizer(until:Double): ClassRandomizer<Double> {
-    return doubleRandomizer {
+    return classRandomizer {
         Random.nextDouble(until)
     }
 }
@@ -135,7 +134,7 @@ fun doubleRandomizer(until:Double): ClassRandomizer<Double> {
  * Convenient function to create a [ClassRandomizer] that can produce doubles floats
  */
 fun doubleRandomizer(): ClassRandomizer<Double> {
-    return doubleRandomizer {
+    return classRandomizer {
         Random.nextDouble()
     }
 }
@@ -191,7 +190,7 @@ fun longRandomizer(
 fun longRandomizer(
     range:LongRange
 ): ClassRandomizer<Long> {
-    return longRandomizer {
+    return classRandomizer {
         Random.nextLong(range.first,range.last)
     }
 }
@@ -200,7 +199,7 @@ fun longRandomizer(
  * Convenient function to create a [ClassRandomizer] that can produce random longs up to certain value
  */
 fun longRandomizer(until:Long): ClassRandomizer<Long> {
-    return longRandomizer {
+    return classRandomizer {
         Random.nextLong(until)
     }
 }
@@ -209,7 +208,7 @@ fun longRandomizer(until:Long): ClassRandomizer<Long> {
  * Convenient function to create a [ClassRandomizer] that can produce random longs
  */
 fun longRandomizer(): ClassRandomizer<Long> {
-    return longRandomizer {
+    return classRandomizer {
         Random.nextLong()
     }
 }

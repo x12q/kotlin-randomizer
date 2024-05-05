@@ -1,8 +1,11 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
+import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ParameterRandomizer]
@@ -106,6 +109,32 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add an [Int] randomizer to this builder.
+     */
+    fun int(
+        range: IntRange,
+    ): ParamRandomizerListBuilder {
+        lst.add(intParamRandomizer(range))
+        return this
+    }
+
+    /**
+     * Add an [Int] randomizer to this builder.
+     */
+    fun int(until: Int): ParamRandomizerListBuilder {
+        lst.add(intParamRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add an [Int] randomizer to this builder.
+     */
+    fun int(): ParamRandomizerListBuilder {
+        lst.add(intParamRandomizer())
+        return this
+    }
+
+    /**
      * Add a [Float] randomizer to this builder.
      */
     fun float(
@@ -125,6 +154,33 @@ class ParamRandomizerListBuilder {
         lst.add(floatParamRandomizer(random))
         return this
     }
+
+    /**
+     * Add a [Float] randomizer to this builder.
+     */
+    fun float(
+        from: Float, to: Float
+    ): ParamRandomizerListBuilder {
+        lst.add(floatParamRandomizer(from, to))
+        return this
+    }
+
+    /**
+     * Add a [Float] randomizer to this builder.
+     */
+    fun float(until: Float): ParamRandomizerListBuilder {
+        lst.add(floatParamRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add a [Float] randomizer to this builder.
+     */
+    fun float(): ParamRandomizerListBuilder {
+        lst.add(floatParamRandomizer())
+        return this
+    }
+
 
     /**
      * Add a [String] randomizer to this builder.
@@ -147,6 +203,15 @@ class ParamRandomizerListBuilder {
         return this
     }
 
+
+    /**
+     * Add an uuid [String] randomizer to this builder.
+     */
+    fun uuidString():ParamRandomizerListBuilder{
+        lst.add(uuidStringParamRandomizer())
+        return this
+    }
+
     /**
      * Add a [Double] randomizer to this builder.
      */
@@ -165,6 +230,32 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Double
     ): ParamRandomizerListBuilder {
         lst.add(doubleParamRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Double] randomizer to this builder.
+     */
+    fun double(
+        from: Double, to: Double
+    ): ParamRandomizerListBuilder {
+        lst.add(doubleParamRandomizer(from, to))
+        return this
+    }
+
+    /**
+     * Add a [Double] randomizer to this builder.
+     */
+    fun double(until: Double): ParamRandomizerListBuilder {
+        lst.add(doubleParamRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add a [Double] randomizer to this builder.
+     */
+    fun double(): ParamRandomizerListBuilder {
+        lst.add(doubleParamRandomizer())
         return this
     }
 
@@ -232,6 +323,14 @@ class ParamRandomizerListBuilder {
     }
 
     /**
+     * Add a [Boolean] randomizer to this builder.
+     */
+    fun boolean(): ParamRandomizerListBuilder {
+        lst.add(booleanParamRandomizer())
+        return this
+    }
+
+    /**
      * Add a [Long] randomizer to this builder.
      */
     fun long(
@@ -249,6 +348,32 @@ class ParamRandomizerListBuilder {
         random: (ParamInfo) -> Long
     ): ParamRandomizerListBuilder {
         lst.add(longParamRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Long] randomizer to this builder.
+     */
+    fun long(
+        longRange: LongRange
+    ): ParamRandomizerListBuilder {
+        lst.add(longParamRandomizer(longRange))
+        return this
+    }
+
+    /**
+     * Add a [Long] randomizer to this builder.
+     */
+    fun long(until: Long): ParamRandomizerListBuilder {
+        lst.add(longParamRandomizer(until))
+        return this
+    }
+
+    /**
+     * Add a [Long] randomizer to this builder.
+     */
+    fun long(): ParamRandomizerListBuilder {
+        lst.add(longParamRandomizer())
         return this
     }
 

@@ -1,8 +1,12 @@
 package com.x12q.randomizer.randomizer.primitive
 
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
+import java.util.UUID
+import kotlin.random.Random
+import kotlin.random.nextLong
 
 
 /**
@@ -25,6 +29,36 @@ fun intParamRandomizer(
 }
 
 /**
+ * Convenient function to create a [ParameterRandomizer] that can produce random integers within a range
+ */
+fun intParamRandomizer(
+    range: IntRange,
+): ParameterRandomizer<Int> {
+    return paramRandomizer {
+        Random.nextInt(range.first, range.last)
+    }
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random integers up to a certain value
+ */
+fun intParamRandomizer(until: Int): ParameterRandomizer<Int> {
+    return paramRandomizer {
+        Random.nextInt(until)
+    }
+}
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce random integers
+ */
+fun intParamRandomizer(): ParameterRandomizer<Int> {
+    return paramRandomizer {
+        Random.nextInt()
+    }
+}
+
+
+/**
  * Convenient function to create a [ParameterRandomizer] that can produce random floats
  */
 fun floatParamRandomizer(
@@ -43,6 +77,37 @@ fun floatParamRandomizer(
 ): ParameterRandomizer<Float> {
     return paramRandomizer(random)
 }
+
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random floats within a range
+ */
+fun floatParamRandomizer(
+    from: Float, to: Float
+): ParameterRandomizer<Float> {
+    return paramRandomizer {
+        Random.nextDouble(from.toDouble(), to.toDouble()).toFloat()
+    }
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random floats up to a certain value
+ */
+fun floatParamRandomizer(until: Float): ParameterRandomizer<Float> {
+    return paramRandomizer {
+        Random.nextDouble(until.toDouble()).toFloat()
+    }
+}
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce random floats
+ */
+fun floatParamRandomizer(): ParameterRandomizer<Float> {
+    return paramRandomizer {
+        Random.nextFloat()
+    }
+}
+
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random strings
@@ -65,6 +130,16 @@ fun stringParamRandomizer(
 }
 
 /**
+ * Convenient function to create a [ParameterRandomizer] that can produce random uuid strings
+ */
+fun uuidStringParamRandomizer(
+): ParameterRandomizer<String> {
+    return paramRandomizer {
+        UUID.randomUUID().toString()
+    }
+}
+
+/**
  * Convenient function to create a [ParameterRandomizer] that can produce random doubles
  */
 fun doubleParamRandomizer(
@@ -84,6 +159,35 @@ fun doubleParamRandomizer(
     return paramRandomizer(random)
 }
 
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random doubles within a range
+ */
+fun doubleParamRandomizer(
+    from: Double, to: Double
+): ParameterRandomizer<Double> {
+    return paramRandomizer {
+        Random.nextDouble(from, to)
+    }
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random doubles up to a certain value
+ */
+fun doubleParamRandomizer(until: Double): ParameterRandomizer<Double> {
+    return paramRandomizer {
+        Random.nextDouble(until)
+    }
+}
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce random doubles
+ */
+fun doubleParamRandomizer(): ParameterRandomizer<Double> {
+    return paramRandomizer {
+        Random.nextDouble()
+    }
+}
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random bytes
@@ -145,6 +249,14 @@ fun booleanParamRandomizer(
     return paramRandomizer(random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random booleans
+ */
+fun booleanParamRandomizer(): ParameterRandomizer<Boolean> {
+    return paramRandomizer {
+        Random.nextBoolean()
+    }
+}
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random long
@@ -165,6 +277,35 @@ fun longParamRandomizer(
     return paramRandomizer(random)
 }
 
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random doubles within a range
+ */
+fun longParamRandomizer(
+    longRange: LongRange
+): ParameterRandomizer<Long> {
+    return paramRandomizer {
+        Random.nextLong(longRange)
+    }
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random doubles up to a certain value
+ */
+fun longParamRandomizer(until: Long): ParameterRandomizer<Long> {
+    return paramRandomizer {
+        Random.nextLong(until)
+    }
+}
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce random doubles
+ */
+fun longParamRandomizer(): ParameterRandomizer<Long> {
+    return paramRandomizer {
+        Random.nextLong()
+    }
+}
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random characters
