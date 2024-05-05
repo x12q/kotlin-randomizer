@@ -11,6 +11,7 @@ or this
 @Randomizable(MyClassRandomizable::class)
 class MyClass
 ```
+<a id="top"></a>
 - [Install](#install)
 - [Usage](#usage)
   - [Generate randoms of some class](#generate-randoms-of-some-class)
@@ -24,22 +25,22 @@ class MyClass
 - [Limitation](#limitation)
 
 <a id="install"></a>
-# Install
+# [Install &#9650;](#top)
 TODO add maven + gradle
 
 
 <a id="usage"></a>
-# Usage
+# [Usage &#9650;](#top)
 
 
 <a id="generate-random-of-some-class"></a>
-## Generate randoms of some class
+## [Generate randoms of some class &#9650;](#top)
 ```kotlin
 val instance:MyClass = random<SomeClass>()
 ```
 
 <a id="add-custom-randomizers"></a>
-## Add custom randomizers
+## [Add custom randomizers &#9650;](#top)
 
 Custom randomizers can be added to override the default random behavior. 
 
@@ -56,11 +57,11 @@ When mulitple randomizers are provided to one class, the order of priority is:
 - If there are multiple matching at the same `lv`, a random one at that `lv` will be chosen.
 
 <a id="via-random-function"></a>
-## Via `random()` function
+## [Via `random()` function &#9650;](#top)
 
 
 <a id="for-classes"></a>
-### For classes
+### [For classes  &#9650;](#top)
 
 Class custom randomizers:
 - can override the default randomizing behavior for:
@@ -96,7 +97,7 @@ val instance:SomeClass = random<SomeClass>(
 ```
 
 <a id="for-constructor-parameters"></a>
-### For parameters
+### [For parameters &#9650;](#top)
 Custom parameter randomizers:
 - can override the default randomizer.
 - can check and apply its random logic only when certain conditions are met, such as:
@@ -137,7 +138,7 @@ val instance:SomeClass = random<SomeClass>(
 ```
 
 <a id="via-randomizable-annotation"></a>
-## Via `@Randomizable` annotation
+## [Via `@Randomizable` annotation &#9650;](#top)
 
 This library provide `@Randomizable` annotation that can be used to specified custom randomizers for:
 - classes
@@ -172,7 +173,7 @@ Randomizer classes passed to `@Randomizable` must:
 
 
 <a id="implement-classRandomizer"></a>
-### Implement `ClassRandomizer`
+### [Implement `ClassRandomizer` &#9650;](#top)
 
 - `ClassRandomizer` can be implemented directly. 
 
@@ -208,7 +209,7 @@ class MyABCRandomizerClass : ClassRandomizer<ABC>{
 ```
 
 <a id="implement-paramRandomizer"></a>
-### Implement `ParameterRandomizer`
+### [Implement `ParameterRandomizer` &#9650;](#top)
 
 - `ParameterRandomizer` can be implemented directly.
 - For common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
@@ -257,7 +258,7 @@ class A3Randomizer: ParameterRandomizer<A3>{
 ```
 
 <a id="limitation"></a>
-## Limitation
+## [Limitation &#9650;](#top)
 
 There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenarios.
 
