@@ -51,27 +51,24 @@ target class is abstract without valid lv3 or lv2
     - take a look at randomChildren
 - x: Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
 - x: add ability to pick constructor
-  - TODO handle init block { x = true; x is an external var, such as a static} // this will render primary constructor useless, see crash case below
-
+- x: support inner class
     
-- TODO Add some aspect-wise configuration / chain randomizer:
-  - TODO The len of randomized collection
-  - TODO The range of primitive number
-  - TODO way to generate string:
-    - random str
-    - UUID
+- x: Add some aspect-wise configuration:
+  - x: The len of randomized collection
+  - x: The range of primitive number
+  - x: way to generate string:
+- 
+ 
 Tentative feature:
 - Constructor rule (low priority)
   - If no rule is provided -> default to primary constructor
   - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
   - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-- TODO support inner class
-  - this one must require user to provide an outer instance.
 
 
 Not support (yet) and known crash:
 
-Issue 1
+Issue 1: this is a limitation of kotlin language, there's an open issue: https://l.messenger.com/l.php?u=https%3A%2F%2Fyoutrack.jetbrains.com%2Fissue%2FKT-25573%2F&h=AT1tpVdGxWJYHcu2XCgZbEF4IVMVCHQIrbGqG6cG0awC5uTWpq20a8eSJk_Fu3AfLvyauZJxJh9N1Ww6P8kPeleimIeP2oQvo6sELDpku6hRfrCSzr80utKVkhr0zQ
 
 ```kotlin
 

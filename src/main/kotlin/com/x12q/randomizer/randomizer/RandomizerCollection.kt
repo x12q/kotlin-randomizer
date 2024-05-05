@@ -25,7 +25,6 @@ data class RandomizerCollection(
         return parameterRandomizers[key]
     }
 
-
     fun addRandomizers(vararg newRandomizers: ClassRandomizer<*>): RandomizerCollection {
         return this.copy(
             classRandomizers = classRandomizers + newRandomizers.associateBy { it.returnedInstanceData }

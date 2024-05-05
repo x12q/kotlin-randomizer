@@ -4,19 +4,19 @@ import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.test_util.TestSamples
+import io.kotest.matchers.shouldBe
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.primaryConstructor
-import io.kotest.matchers.shouldBe
-import kotlin.test.*
+import kotlin.test.Test
 
-class ParameterRandomizerEnd1UtilsTest {
+class ParameterRandomGenerator1UtilsTest {
 
 
     @Test
     fun paramRandomizerTest() {
         fun condition(paramInfo: ParamInfo): Boolean {
             val kParam: KParameter = paramInfo.kParam
-            val parentClass: RDClassData = paramInfo.parentClass
+            val parentClass: RDClassData = paramInfo.parentClassData
             return parentClass.kClass == TestSamples.Class1::class && kParam.name == "tm12"
         }
 
@@ -35,15 +35,15 @@ class ParameterRandomizerEnd1UtilsTest {
 
         rdm.isApplicableTo(
             ParamInfo(
-                paramClass = RDClassData.from<Int>(),
+                paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClass = RDClassData.from<TestSamples.Class1>()
+                parentClassData = RDClassData.from<TestSamples.Class1>()
             )
         ) shouldBe condition(
             ParamInfo(
-                paramClass = RDClassData.from<Int>(),
+                paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClass = RDClassData.from<TestSamples.Class1>()
+                parentClassData = RDClassData.from<TestSamples.Class1>()
             )
         )
 
@@ -54,9 +54,9 @@ class ParameterRandomizerEnd1UtilsTest {
             enclosingClassData = RDClassData.from<TestSamples.Class1>()
         ) shouldBe ifApplicable(
             ParamInfo(
-                paramClass = RDClassData.from<Int>(),
+                paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClass = RDClassData.from<TestSamples.Class1>()
+                parentClassData = RDClassData.from<TestSamples.Class1>()
             )
         )
     }

@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 class Randomizer_End_Pick_Constructor {
 
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm: RandomGenerator
 
     @BeforeTest
     fun bt() {

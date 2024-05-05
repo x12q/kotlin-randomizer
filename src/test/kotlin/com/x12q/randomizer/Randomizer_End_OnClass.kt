@@ -13,8 +13,8 @@ import kotlin.test.Test
 
 class Randomizer_End_OnClass {
 
-    lateinit var rdm0: RandomizerEnd
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm0: RandomGenerator
+    lateinit var rdm: RandomGenerator
 
     val spyParamRdm = spyk(Class1.tm12FixedRandomizer)
     val classRdm = Class2.classFixedRandomizer
@@ -125,7 +125,7 @@ class Randomizer_End_OnClass {
             override fun isApplicableTo(
                 paramInfo: ParamInfo
             ): Boolean {
-                return paramInfo.paramClass == this.paramClassData
+                return paramInfo.paramClassData == this.paramClassData
             }
 
             override fun random(

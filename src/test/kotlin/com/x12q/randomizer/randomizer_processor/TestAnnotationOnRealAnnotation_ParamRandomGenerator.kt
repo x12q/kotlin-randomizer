@@ -4,8 +4,8 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.ParamInfo
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.Randomizer
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
@@ -18,7 +18,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.Test
 
 
-class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
+class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
 
 
     @Test
@@ -61,9 +61,9 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
 
         randomizer.isApplicableTo(
             ParamInfo(
-                paramClass = RDClassData.from<Param1>(),
+                paramClassData = RDClassData.from<Param1>(),
                 kParam = param,
-                parentClass = RDClassData.from<Class_1>(),
+                parentClassData = RDClassData.from<Class_1>(),
             )
         ).shouldBeTrue()
 
@@ -137,7 +137,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomizerEnd {
         override val paramClassData: RDClassData = RDClassData.from<Param1>()
 
         override fun isApplicableTo(paramInfo: ParamInfo): Boolean {
-            return paramInfo.paramClass == paramClassData
+            return paramInfo.paramClassData == paramClassData
         }
 
         override fun random(

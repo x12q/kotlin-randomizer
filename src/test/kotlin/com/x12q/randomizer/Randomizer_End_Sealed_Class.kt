@@ -13,7 +13,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class Randomizer_End_Sealed_Class {
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm: RandomGenerator
 
     @BeforeTest
     fun bt() {

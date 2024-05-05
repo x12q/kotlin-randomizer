@@ -1,25 +1,19 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.err.SingleErrorReport
-import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.ParamInfo
-import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.test_util.TestSamples
-import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import kotlin.reflect.KParameter
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
 class Randomizer_End_GetLv3 {
 
-    lateinit var rdm: RandomizerEnd
+    lateinit var rdm: RandomGenerator
 
     @BeforeTest
     fun bt() {
