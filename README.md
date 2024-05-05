@@ -20,8 +20,8 @@ class MyClass
       - [For classes](#for-classes)
       - [For parameters](#for-constructor-parameters)
     - [Via `@Randomizable` annotation](#via-randomizable-annotation)
-      - [Implement `ClassRandomizer`](#implement-classrandomizer)
-      - [Implement `ParameterRandomizer`](#implement-parameterrandomizer)
+      - [Implement `ClassRandomizer`](#implement-class-randomizer)
+      - [Implement `ParameterRandomizer`](#implement-parameter-randomizer)
 - [Limitation](#limitation)
 
 <a id="install"></a>
@@ -172,8 +172,9 @@ Randomizer classes passed to `@Randomizable` must:
 - and have a no-argument constructor 
 
 
-<a id="implement-classRandomizer"></a>
+
 ### [Implement `ClassRandomizer` &#9650;](#top)
+<a id="implement-class-randomizer"></a>
 
 - `ClassRandomizer` can be implemented directly. 
 
@@ -208,8 +209,9 @@ class MyABCRandomizerClass : ClassRandomizer<ABC>{
 }
 ```
 
-<a id="implement-paramRandomizer"></a>
+
 ### [Implement `ParameterRandomizer` &#9650;](#top)
+<a id="implement-parameter-randomizer"></a>
 
 - `ParameterRandomizer` can be implemented directly.
 - For common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
@@ -257,8 +259,9 @@ class A3Randomizer: ParameterRandomizer<A3>{
 
 ```
 
-<a id="limitation"></a>
+
 ## [Limitation &#9650;](#top)
+<a id="limitation"></a>
 
 There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenarios.
 
