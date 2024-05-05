@@ -34,4 +34,3 @@ inline fun <reified T> classRandomizer(
         }
     )
 }
-
