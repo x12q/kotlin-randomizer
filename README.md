@@ -172,7 +172,6 @@ Randomizer classes passed to `@Randomizable` must:
 - and have a no-argument constructor 
 
 
-
 ### [Implement `ClassRandomizer` &#9650;](#top)
 <a id="implement-class-randomizer"></a>
 
