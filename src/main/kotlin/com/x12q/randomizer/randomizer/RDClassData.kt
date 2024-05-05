@@ -7,7 +7,7 @@ import kotlin.reflect.typeOf
 
 
 /**
- * Class data available at runtime
+ * Class meta data available at runtime
  */
 data class RDClassData(
     val kClass: KClass<*>,

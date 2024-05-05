@@ -1,4 +1,6 @@
-package com.x12q.randomizer.randomizer
+package com.x12q.randomizer.randomizer.builder
+
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 
 
 /**

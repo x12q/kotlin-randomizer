@@ -103,3 +103,13 @@ fun <K,V> mapRandomizer(
 ):ClassRandomizer<Map<K,V>>{
     return classRandomizer(random)
 }
+
+/**
+ * Convenient function to create a [ClassRandomizer] that can produce a random set
+ */
+fun <T> setRandomizer(
+    random: ()->Set<T>
+):ClassRandomizer<Set<T>>{
+    return classRandomizer(random)
+}
+

@@ -10,7 +10,7 @@ import kotlin.random.Random
 
 /**
  * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
- * can override default random logic for particular classes or constructor parameters
+ * can override default random logic.
  */
 inline fun <reified T : Any> random(
     random: Random = Random,
