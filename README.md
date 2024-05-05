@@ -1,9 +1,9 @@
 # Randomizer
 
-A library for generate random instance so any class (kinda). Like this:
+A library for generate random instance for any class (kinda). Like this:
 
 ```kotlin
-val instance:MyClass = random<MyClass>()
+val instance:MyClass = random<SomeClass>()
 ```
 
 # Install
