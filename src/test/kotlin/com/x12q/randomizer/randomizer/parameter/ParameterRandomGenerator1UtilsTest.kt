@@ -16,7 +16,7 @@ class ParameterRandomGenerator1UtilsTest {
     fun paramRandomizerTest() {
         fun condition(paramInfo: ParamInfo): Boolean {
             val kParam: KParameter = paramInfo.kParam
-            val parentClass: RDClassData = paramInfo.parentClassData
+            val parentClass: RDClassData = paramInfo.enclosingClassData
             return parentClass.kClass == TestSamples.Class1::class && kParam.name == "tm12"
         }
 
@@ -37,13 +37,13 @@ class ParameterRandomGenerator1UtilsTest {
             ParamInfo(
                 paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClassData = RDClassData.from<TestSamples.Class1>()
+                enclosingClassData = RDClassData.from<TestSamples.Class1>()
             )
         ) shouldBe condition(
             ParamInfo(
                 paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClassData = RDClassData.from<TestSamples.Class1>()
+                enclosingClassData = RDClassData.from<TestSamples.Class1>()
             )
         )
 
@@ -56,7 +56,7 @@ class ParameterRandomGenerator1UtilsTest {
             ParamInfo(
                 paramClassData = RDClassData.from<Int>(),
                 kParam = kParam,
-                parentClassData = RDClassData.from<TestSamples.Class1>()
+                enclosingClassData = RDClassData.from<TestSamples.Class1>()
             )
         )
     }

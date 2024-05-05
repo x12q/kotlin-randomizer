@@ -21,3 +21,4 @@ class SameClassParamRandomizer<T> private constructor(
         )
     )
 }
+

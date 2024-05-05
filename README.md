@@ -1,108 +1,249 @@
+# Randomizer
+
+A library for generate random instance so any class (kinda). Like this:
+
+```kotlin
+val instance:MyClass = random<MyClass>()
+```
+
+# Install
+TODO add maven + gradle 
 # Usage
-lv1: randomizer specified by user in the top lv function
-lv2: paramter randomizer specified at constructor paramter
-lv3: constructor randomizer specified at either class or constructor:
-    - if there are multiple valid lv3 randomizers -> pick a random one
-lv4: defaut recursive randomizer baked into the random generator.
+## Generate randoms of some class
+```kotlin
+val instance:MyClass = random<SomeClass>()
+```
 
-# Crash case:
-lv2 with incompatible target class
-lv3 with incompatible target class
-target class is abstract without valid lv3 or lv2
+## Add custom randomizers
 
+Custom randomizers can be added to override the default random behavior. 
 
-# Requirement:
- - recursive function to traverse the constructor tree, and init object.
- - for abstract parameter, add @Randomizable(ConcreteClass1::class, ConcreteClass2::class, AnotherRandomizableAbstractClass::class)
- - For abstract class, add the same @Randomizable, the one in parameter override the one in the class.
- - For concrete class, add @Randomizable(factoryFunction=...) or @Randomizable(randomizer = CustomRandomizer::class)
+There are two ways to add custom randomizers:
+- Directly via the `random<>()` function (these are called `lv1` randomizers)
+- Via `@Randomizable` annotation:
+  - These are called `lv2` when `@Randomizable` is used on constructor parameters
+  - These are called `lv3` when `@Randomizable` is used on class or constructor
 
-## The top level random function:
-- should it accept some kind of master rule that override everything?
-     - if so, what should those rule looks like?
-         - each param rule contains:
-             - a param name
-             - type/ class of the param
-             - a Parent class
-             - a factory function
-         - each class rule contains:
-             - a class name
-             - a factory function
-    - Rule for primitive types (string, int, etc) must be very easy to set         
+#### **Order of priority (Important)**
+When mulitple randomizers are provided to one class, the order of priority is:
+- `lv1` > `lv2` > `lv3` 
+- This means `lv1` has the highest priority and will be used first even when there exist `lv2`, `lv3` randomizers.
+- If there are multiple matching at the same `lv`, a random one at that `lv` will be chosen.
+
+## Via `random<>()` function
+
+### For classes
+
+Class custom randomizers:
+- can override the default randomizing behavior for:
+    - all (kinda) classes, abstract classes, interfaces, sealed classes and sealed interface
+    - generic classes and interfaces
+```kotlin
+import kotlin.random.Random
+
+val instance:SomeClass = random<SomeClass>(
+    randomizers = randomizers {
+        add(classRandomizer {
+            // override the default randomizer for OtherClass
+            OtherClass(1,2, Random.nextFloat())
+        })
+        int {
+            // override the default Int randomizer
+            99
+        }
+        float {
+            // override the default Float randomizer
+            1f
+        }
+        string {
+            // override the default String randomizer
+            "abc123"
+        }
+        list {
+            // override the default List<Int> randomizer
+            listOf(1f, 2f)
+        }
+    },
+)
+```
+### For constructor parameters
+
+Custom parameter randomizers:
+- can override the default randomizer.
+- can check and apply its random logic only when certain conditions are met, such as:
+    - when parameter name has to be certain name, and/or
+    - the parameter has to be in a certain enclosing class
+```kotlin
+val instance:SomeClass = random<SomeClass>(
+    paramRandomizers = paramRandomizers {
+        add(paramRandomizer {
+            // override default param randomizer for OtherClass
+            OtherClass(123)
+        })
+        add(paramRandomizer(
+            // override default param randomizer for OtherClass with condition
+            condition = {paramInfo ->
+                paramInfo.paramName == "someParamName"
+            },
+            random= {
+                OtherClass(456)
+            }
+        ))
+        string { paramInfo->
+            // override default param randomizer for string
+            "${paramInfo.paramName} -- some str"
+        }
+        int(
+            // override default param randomizer for int with condition
+            condition = { paramInfo->
+                paramInfo.paramName="age" && paramInfo.enclosingKClass == Person::class
+            },
+            random= {
+                Random.nextInt(1000)
+            }
+        )
+    }
+)
+
+```
+## Via `@Randomizable` annotation
+
+This library provide `@Randomizable` annotation that can be used to specified custom randomizers for:
+- classes
+- constructor parameters
+- constructors
+
+The `@Randomizable` annotation can be used as followed:
+```kotlin
+// on class
+@Randomizer(randomizer = MyABCRandomizerClass::class)
+class ABC
+
+class QWE(
+    // on parameter
+    @Randomizable(randomizer = MyX1RandomizerClass::class)
+    val x1:X1
+)
+
+class MNO(
+    val x2:X2,
+    val str:String,
+){
+    // on constructor
+    @Randomizable(randomizer = MyMNORandomizerClass::class)
+    constructor(x2:X2):this(x2,"someStr")
+}
+```
+
+Randomizer classes passed to `@Randomizable` must:
+- implement/extend either `ClassRandomizer` or `ParameterRandomizer`
+- and have a no-argument constructor 
+
+### Implement `ClassRandomizer`
+
+- `ClassRandomizer` can be implemented directly. 
+
+- For common use case, extend `AbsSameClassRandomizer` instead for less boilerplate code.
+```kotlin
+class MyX1RandomizerClass:AbsSameClassRandomizer<X1>(){
+  // This is a must
+  val returnedInstanceData: RDClassData = RDClassData.from<X1>()
+  
+  fun random(): ABC{
+    // do your random business here
+      return X1()
+  }
+}
+```
+
+```kotlin
+
+class MyABCRandomizerClass : ClassRandomizer<ABC>{
+    // This is a must
+    val returnedInstanceData: RDClassData = RDClassData.from<ABC>()
     
-## Roadmap:
-- x: random enum
-- x: random object
-- x: random sealed class
-  - object
-  - class with param
-  - class with generic param
-- x: create structure to manage custom class and parameter randomizer
-  - x: allow user to provide class randomizer + param randomizer
-- x: double check primitive class randomizers (for int, float, double, etc...)
-- x: remove repetition in RandomizerEnd
-- x: improve performance of randomizer by avoiding creating randomizer obj before it is needed
-
-- x: Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic
-  - x: Priority order: randomizer from top-level function (lv1) -> parameter randomize (lv2) -> class randomizer (lv3) -> no randomizer (lv4)
-  - TODO Test more, this is very important
-    - test generic
-    - test appropriate overriding
-    - take a look at randomChildren
-- x: Add easier to use builder for param randomizer + class randomizer (add a simple DSL + simplify ClassRandomizer + ParamRandomizer factory functions)
-- x: add ability to pick constructor
-- x: support inner class
+    fun isApplicableTo(classData: RDClassData): Boolean{
+        // you can provide custom check if you want here
+        return classData == returnedInstanceData
+    }
     
-- x: Add some aspect-wise configuration:
-  - x: The len of randomized collection
-  - x: The range of primitive number
-  - x: way to generate string:
-- 
- 
-Tentative feature:
-- Constructor rule (low priority)
-  - If no rule is provided -> default to primary constructor
-  - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
-  - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
+    fun random(): ABC{
+        // do your random business here
+        return ABC()
+    }
+}
+```
 
 
-Not support (yet) and known crash:
+### Implement `ParameterRandomizer`
 
-Issue 1: this is a limitation of kotlin language, there's an open issue: https://l.messenger.com/l.php?u=https%3A%2F%2Fyoutrack.jetbrains.com%2Fissue%2FKT-25573%2F&h=AT1tpVdGxWJYHcu2XCgZbEF4IVMVCHQIrbGqG6cG0awC5uTWpq20a8eSJk_Fu3AfLvyauZJxJh9N1Ww6P8kPeleimIeP2oQvo6sELDpku6hRfrCSzr80utKVkhr0zQ
+- `ParameterRandomizer` can be implemented directly.
+- For common use case, extend `AbsSameClassParamRandomizer` instead for less boilerplate code.
+
+
+```kotlin
+class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
+    // this is a must
+    override val paramClassData: RDClassData = RDClassData.from<A2>()
+
+    override fun random(
+      parameterClassData: RDClassData, 
+      parameter: KParameter, 
+      enclosingClassData: RDClassData
+    ): A2? {
+        // do your random business here
+        return A2("from custom randomizer")
+    }
+}
+
+```
+
+```kotlin
+class A3Randomizer: ParameterRandomizer<A3>{
+    // this is a must
+    val paramClassData: RDClassData = RDClassData.from<A3>()
+
+    fun isApplicableTo(
+      paramInfo:ParamInfo
+    ): Boolean{
+        // you can provide custom check here
+        return paramInfo.paramClassData == this.paramClassData
+        
+    }
+
+    fun random(
+      parameterClassData: RDClassData,
+      parameter: KParameter,
+      enclosingClassData: RDClassData,
+    ):A3?{
+        // do you random business here
+        return A3("something random")
+    }
+}
+
+```
+
+## Limitation
+
+There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in real scenario.
+
+For example, it is not possible for this library to generate a random instance of `MyClass` below.
+
+This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until then, ...  
 
 ```kotlin
 
 fun main() {
+    var outsideBool = false
+    var outsideStr = ""
 
-
-    var q = false
-    var __x = false
-    var k = false
-    var j = false
-
-    data class C(val i: Int, val str: String, val b: Boolean) {
+    data class MyClass(val i: Int) {
         init {
-            q = true
-            __x = true
-            k = true
-            j = false
+            outsideBool = true
+            outsideStr = "something"
         }
     }
-    C::class.constructors
-
-    println(
-        C::class.primaryConstructor!!.call(1, "", true)
-    ) // this throw exception IllegalArgumentException: Callable expects 7 arguments, but 3 were provided
-
-    println(C::class.primaryConstructor!!.call(BooleanRef(), BooleanRef(), BooleanRef(), BooleanRef(),1, "", true)) // this works
+  
+    random<MyClass>() // => this crashes
 }
-```
-Issue 2
-
-```kotlin
-// inner class
-class QX{
-    inner class C(val i: Int, val str: String, val b: Boolean) 
-}
-
 ```

@@ -63,7 +63,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
             ParamInfo(
                 paramClassData = RDClassData.from<Param1>(),
                 kParam = param,
-                parentClassData = RDClassData.from<Class_1>(),
+                enclosingClassData = RDClassData.from<Class_1>(),
             )
         ).shouldBeTrue()
 
