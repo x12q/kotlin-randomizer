@@ -3,6 +3,7 @@ package com.x12q.randomizer
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.builder.paramRandomizers
 import com.x12q.randomizer.randomizer.builder.randomizers
+import com.x12q.randomizer.randomizer.clazz.AbsSameClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.param.AbsSameClassParamRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
@@ -14,7 +15,19 @@ import kotlin.reflect.KParameter
 
 @Serializable
 data class ABC(val lst: List<Float>, val tm12: Int)
-data class A2(val t2: String)
+
+data class A2(val t2: String){
+    companion object{
+        class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
+            override val paramClassData: RDClassData = RDClassData.from<A2>()
+
+            override fun random(parameterClassData: RDClassData, parameter: KParameter, enclosingClassData: RDClassData): A2? {
+                return A2("from custom randomizer")
+            }
+        }
+    }
+}
+
 data class ABC2(
     val abc: ABC,
     val str: String,
@@ -24,6 +37,21 @@ data class ABC2(
     val a2: A2
 )
 
+data class A3(val  i:Int, val str:String){
+
+    @Randomizable(A3.Companion.A3Randomizer::class)
+    constructor(f:Float):this(f.toInt(),"pppp")
+
+    companion object{
+        class A3Randomizer: AbsSameClassRandomizer<A3>(){
+            override val returnedInstanceData: RDClassData = RDClassData.from<A3>()
+
+            override fun random(): A3 {
+                return A3(1,"-")
+            }
+        }
+    }
+}
 
 class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
     override val paramClassData: RDClassData = RDClassData.from<A2>()
@@ -35,7 +63,10 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
 
 data class Q<T>(val t: T)
 
+
+
 fun main() {
+    println(random<A3>())
     println(random<ABC2>(
         randomizers = listOf(
             intRandomizer {

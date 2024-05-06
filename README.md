@@ -2,7 +2,7 @@
 
 A library for generate random instance of any class, interface, object, and enum (kinda). 
 
-This library is for testing and prototyping.
+This library is for generating data for testing and prototyping.
 
 Like this:
 
@@ -45,7 +45,7 @@ val instance: MyClass = random<MyClass>()
     - [Custom randomizer order of priority (important !!!)](#rule-4)
     - [Picking constructor](#rule-3)
     - [How `@Randomizable` works?](#rule-2)
-    - [How are randomization being done?](#rule-1)
+    - [How is randomization being done?](#rule-1)
         - [For concrete class](#rule-1-1)
         - [For sealed class](#rule-1-2)
         - [For interface & abstract class](#rule-1-3)
@@ -481,23 +481,22 @@ val randomABC = random<ABC>(
 
 # [Rule &#9650;](#top) <a id="rule"></a>
 
-These are the randomizing rules used by the library to select custom randomizers, and to generate different type of
-objects.
+These are the randomizing rules used by the library.
 
 
 ## [Randomizers order of priority (important !!!) &#9650;](#top) <a id="rule-4"></a>
 
-Randomizers are put into 4 level in this library:
+Randomizers are categorized into 4 `lv` in this library:
 - `lv1`: randomizers provided in `random()` function
-- `lv2`: randomizers provided `@Randomizable` at constructor paramters
-- `lv3`: randomizers provided `@Randomizable` at class and constructor
+- `lv2`: randomizers provided in `@Randomizable` at constructor parameters
+- `lv3`: randomizers provided in `@Randomizable` at class and constructor
 - `lv4`: the default, baked-in randomizers
 
 The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest priority)
 
 If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly. 
 
-## [Picking constructors](#top) <a id="rule-3"></a>
+## [How are constructors picked?](#top) <a id="rule-3"></a>
 
 In a class:
 - if no constructor is annotated with `@Randomizable`, the primary constructor will be used. All other constructors are ignored.
@@ -506,37 +505,44 @@ In a class:
 
 ## [How `@Randomizable` works?](#top) <a id="rule-2"></a>
 
-`@Randomizable` can be used to annotate:
-- class, enum, sealed class, interface, abstract class, inner class
-- constructor
-- constructor parameter
+- `@Randomizable` can be used to annotate:
+  - class, enum, sealed class, interface, abstract class, inner class
+  - constructor
+  - constructor parameter
 
-`@Randomizable` also play a role in constructor picking, see above.
+- `@Randomizable` plays a role in constructor picking, see the above rule.
+
+- if a `@Randomizable` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor. 
 
 
-## [How are randomization being done?](#top) <a id="rule-1"></a>
+## [How is randomization being done?](#top) <a id="rule-1"></a>
 
-Generally, randomization is done recursively.
+Randomization is done recursively.
 
 ### [For concrete class](#top) <a id="rule-1-1"></a>
 
-For a concrete class, the randomization is done by invoking one of its constructor with randomized parameters. 
+For a concrete class, randomization is done by invoking one of its constructor with randomized parameters. 
 
 ### [For sealed class](#top) <a id="rule-1-2"></a>
 
-For sealed class, if no custom randomizer is provided, a random implementation will be chosen and generated.
+For sealed class, if no custom randomizer is provided (either via `random()` or `@Randomizable`), a random implementation will be chosen and generated.
 
 ### [For interface & abstract class](#top) <a id="rule-1-3"></a>
 
-For interface and abstract classes, a custom randomizer must be specified, otherwise the library will crash.
+For interface and abstract classes, a custom randomizer must be provided:
+- either via the `random()` function 
+- or `@Randomizable` on such interfaces or abstract classes
+- or `@Randomizable`on parameter of such type 
+
+Otherwise the library will crash.
 
 ### [For object](#top) <a id="rule-1-4"></a>
 
-For object, the object itself is returned. So no random is done here.
+For object, the object itself is returned. So no randomization is done here.
 
 ### [For enum](#top) <a id="rule-1-5"></a>
 
-For enum, if no custom randomizer is provided, a random value is picked.
+For enum, if no custom randomizer is provided, a random enum value is picked.
 
 ### [For inner class](#top) <a id="rule-1-6"></a>
 
@@ -548,15 +554,14 @@ For inner class, randomization is done similarly to a normal class.
 
 <a id="limitation"></a>
 
-There are cases in which this library will crash. Fortunately, these are pretty weird cases that are very uncommon in
+There is a case in which this library will crash. Fortunately, this is a pretty weird case that are very uncommon in
 real scenarios.
 
-For example, it is not possible for this library to generate a random instance of `MyClass` below.
+It is not possible for this library to generate a random instance of `MyClass` below.
 
 This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until
 then, ...
 
-Well, there may be others that I am not aware of ...
 
 ```kotlin
 
@@ -574,3 +579,5 @@ fun main() {
     random<MyClass>() // => this crashes
 }
 ```
+
+Well, maybe there are others that I am not aware of. Please let me know.
