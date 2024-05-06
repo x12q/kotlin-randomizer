@@ -10,9 +10,9 @@ Generating random data for testing sometimes can be tedious, especially with lar
 A random instance of any class can be created as easy as this:
 
 ```kotlin
-val instance: MyClass = random<MyClass>()
+val instance = random<MyClass>()
 ```
-Custom random logic can also be easily injected via `random()` function or `@Randomizable` annotation. Read more below to see how. 
+Custom random logic can also be easily provided via `random()` function or `@Randomizable` annotation. Read more below to see how. 
 # Content 
 <a id="top"></a>
 
@@ -78,7 +78,7 @@ See below for more detail on how to use these.
 ## [Randomize a class &#9650;](#top) <a id="how-to-1"></a>
 
 ```kotlin
-val randomInstance: MyClass = random<SomeClass>()
+val randomInstance = random<SomeClass>()
 ```
 
 ## [Randomize a class with custom randomizers &#9650;](#top) <a id="how-to-2"></a>
@@ -96,7 +96,7 @@ There are two ways to use custom randomizers to generate random instances of cla
 Like this:
 
 ```kotlin
-val randomInstance: MyClass = random<SomeClass>(
+val randomInstance = random<SomeClass>(
     randomizers = listOf<ClassRandomizer<*>>()
 )
 ```
@@ -113,7 +113,7 @@ There are 3 ways to create custom randomizers that can be passed to `random()`.
 well, as any class. It is the recommended way to create custom randomizers. It looks like this:
 
 ```kotlin
-val randomInstance: MyClass = random<SomeClass>(
+val randomInstance = random<SomeClass>(
     randomizers = randomizers {
         add(classRandomizer {
             // custom randomizer for some class 
@@ -276,7 +276,7 @@ Similarly to class randomizers, `random()` function accepts a list of custom par
 generate random parameter to targeted classes. Like this:
 
 ```kotlin
-val randomInstance: MyClass = random<SomeClass>(
+val randomInstance = random<SomeClass>(
     paramRandomizers = listOf<ParamRandomizer<*>>()
 )
 ```
@@ -293,8 +293,8 @@ to `random()`.
 Unlike the other builder, `paramRandomizers()` builder is a bit more capable. It can create conditional parameter
 randomizers as well as non-conditional randomizers.
 
-Similar to the other builder, `paramRandomizers()` also provides functions to create randomizers for other primitive
-types and all (kinda) custom classes.
+Similar to the other builder, `paramRandomizers()` also provides functions to create randomizers for primitive
+types and custom classes.
 
 Like this:
 
