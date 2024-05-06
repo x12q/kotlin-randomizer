@@ -8,7 +8,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_object {
+class RandomizeGenerator_object {
 
     lateinit var rdm: RandomGenerator
 
@@ -17,7 +17,7 @@ class Randomizer_End_object {
         rdm = TestSamples.comp.randomizer()
     }
 
-    object Q{}
+    object Q
 
     @Test
     fun `random on object`(){

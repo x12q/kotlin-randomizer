@@ -8,7 +8,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class Randomizer_End_Enum {
+class RandomizeGenerator_Enum {
 
 
     lateinit var rdm: RandomGenerator

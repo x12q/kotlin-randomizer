@@ -1,4 +1,4 @@
-package com.x12q.randomizer.randomizer_processor
+package com.x12q.randomizer.randomizer_checker
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -13,7 +13,7 @@ import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RandomGeneratorProcessorTest {
+class RandomizerCheckerTest {
 
     lateinit var processor: RandomizerChecker
 
@@ -117,7 +117,6 @@ class RandomGeneratorProcessorTest {
         )
 
         val parentClass = RDClassData.from<IA>()
-
 
         for ((subject, expectation) in testMap) {
             processor.checkValidClassRandomizer(

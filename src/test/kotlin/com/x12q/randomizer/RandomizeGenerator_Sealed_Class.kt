@@ -12,7 +12,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class Randomizer_End_Sealed_Class {
+class RandomizeGenerator_Sealed_Class {
     lateinit var rdm: RandomGenerator
 
     @BeforeTest

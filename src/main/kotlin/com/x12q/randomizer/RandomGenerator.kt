@@ -9,7 +9,7 @@ import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
-import com.x12q.randomizer.randomizer_processor.RandomizerChecker
+import com.x12q.randomizer.randomizer_checker.RandomizerChecker
 import com.x12q.randomizer.util.ReflectionUtils
 import com.x12q.randomizer.util.getEnumValue
 import javax.inject.Inject

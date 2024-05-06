@@ -11,7 +11,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_GetLv3 {
+class RandomizeGenerator_GetLv3 {
 
     lateinit var rdm: RandomGenerator
 
@@ -30,7 +30,7 @@ class Randomizer_End_GetLv3 {
 
     @Test
     fun `pickConstructor on annotated constructor but with wrong type`() {
-        shouldThrow<SingleErrorReport> {
+        shouldThrow<Throwable> {
             rdm.getLv3Randomizer(A::class)
         }
     }

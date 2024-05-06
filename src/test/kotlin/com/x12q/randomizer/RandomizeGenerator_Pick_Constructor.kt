@@ -11,7 +11,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_Pick_Constructor {
+class RandomizeGenerator_Pick_Constructor {
 
     lateinit var rdm: RandomGenerator
 

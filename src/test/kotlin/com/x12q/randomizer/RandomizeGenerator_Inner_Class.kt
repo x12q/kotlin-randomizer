@@ -9,7 +9,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
-class Randomizer_End_Inner_Class {
+class RandomizeGenerator_Inner_Class {
 
     lateinit var rdm: RandomGenerator
 
