@@ -6,13 +6,15 @@ import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRando
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
-import com.x12q.randomizer.randomizer_processor.RandomizerChecker
+import com.x12q.randomizer.randomizer_checker.RandomizerChecker
 import com.x12q.randomizer.util.ReflectionUtils
 import com.x12q.randomizer.util.getEnumValue
 import javax.inject.Inject
+import kotlin.jvm.Throws
 import kotlin.random.Random
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotations
@@ -67,7 +69,7 @@ data class RandomGenerator @Inject constructor(
         )
     }
 
-    fun randomInnerClass(
+    private fun randomInnerClass(
         innerClassData: RDClassData,
         enclosingObject: Any?,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
@@ -137,7 +139,6 @@ data class RandomGenerator @Inject constructor(
             return rdEnumAndPrim
         }
 
-        // TODO simplify the block below
         if (targetClass.isAbstract) {
 
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
@@ -272,7 +273,7 @@ data class RandomGenerator @Inject constructor(
      * Pick a random constructor among constructors annotated with [Randomizable] in [targetClass].
      * If none is found, return the primary constructor.
      */
-    internal fun pickAnnotatedConstructorButIgnoreAnnotationContent(targetClass: KClass<*>): KFunction<Any>? {
+    private fun pickAnnotatedConstructorButIgnoreAnnotationContent(targetClass: KClass<*>): KFunction<Any>? {
         val annotatedConstructors = targetClass.constructors.filter {
             it.findAnnotations<Randomizable>().firstOrNull() != null
         }
@@ -290,8 +291,10 @@ data class RandomGenerator @Inject constructor(
 
 
     /**
-     * Get lv3 randomizer from a class
+     * Get lv3 randomizer from a class.
+     * Throw an error if a randomizer exist, but of the wrong type.
      */
+    @Throws(Throwable::class)
     internal fun getLv3Randomizer(targetClass: KClass<*>): ClassRandomizer<*>? {
         /**
          * First, extract the randomizer class in the [Randomizable] on the class
@@ -320,6 +323,7 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    @Throws(Throwable::class)
     fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData): Any? {
         val rs = randomConstructorParameterRs(kParam, parentClassData)
         when (rs) {
@@ -341,6 +345,7 @@ data class RandomGenerator @Inject constructor(
     /**
      * TODO this function is too large, break it apart and test each part
      */
+    @Throws(Throwable::class)
     fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData
@@ -381,7 +386,7 @@ data class RandomGenerator @Inject constructor(
                 }
 
                 val lv2Lz = lazy {
-                    val lv2paramClassOrParamRandomizer = param
+                    val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? = param
                         .findAnnotations(Randomizable::class).firstOrNull()
                         ?.getClassRandomizerOrParamRandomizerRs()
                         ?.getOrElse { err ->
@@ -534,12 +539,12 @@ data class RandomGenerator @Inject constructor(
         return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData)
     }
 
-    internal fun lv4EnumRandom(classData: RDClassData): Any? {
+    private fun lv4EnumRandom(classData: RDClassData): Any? {
         return getEnumValue(classData.kClass)?.random(random)
     }
 
     @Suppress("IMPLICIT_CAST_TO_ANY")
-    internal fun lv4RandomPrimitive(classData: RDClassData): Any? {
+    private fun lv4RandomPrimitive(classData: RDClassData): Any? {
         val clzz: KClass<*> = classData.kClass
         val rt = when (clzz) {
             Char::class -> randomChar()

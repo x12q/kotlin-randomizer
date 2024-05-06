@@ -9,7 +9,7 @@ import kotlin.random.Random
 
 @Singleton
 @MergeComponent(
-    scope = RandomizableAnvilScope::class,
+    scope = RandomizerAnvilScope::class,
 )
 interface RandomizerComponent {
     fun random():Random

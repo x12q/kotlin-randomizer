@@ -36,7 +36,7 @@ class ConditionalParamRandomizer<T>(
         val paramInfo = ParamInfo(
             paramClassData = paramClassData,
             kParam = parameter,
-            parentClassData = enclosingClassData
+            enclosingClassData = enclosingClassData
         )
         if (this.isApplicableTo(paramInfo)) {
             return makeRandom(paramInfo)

@@ -1,6 +1,9 @@
 package com.x12q.randomizer.randomizer.builder
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
 import kotlin.random.Random
 
