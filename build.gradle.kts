@@ -54,7 +54,7 @@ mavenPublishing {
 
     pom{
         name.set("Randomizer")
-        description.set("A randomizer library for kotlin")
+        description.set("A randomizer library for Kotlin")
         inceptionYear.set("2024")
         url.set("https://github.com/x12q/randomizer")
         licenses {
@@ -67,8 +67,8 @@ mavenPublishing {
         developers {
             developer {
                 id.set("x12q")
-                name.set("x12q")
-                url.set("https://github.com/x12q/")
+                name.set("The-Phong Pham")
+                url.set("x12q.com")
             }
         }
         scm {
