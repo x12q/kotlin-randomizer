@@ -1,23 +1,18 @@
 # Randomizer
 
-A library for generate random instance of any class, interface, object, and enum (kinda). 
+A library for generating random instance of any class, interface, object, and enum (kinda), for testing and prototyping.
 
-This library is for generating data for testing and prototyping.
 
-Like this:
+# Introduction
+
+Generating random data for testing sometimes can be tedious, especially with large old classes that have deep nesting. This library aim to making generating random instances for any class easier.  
+
+A random instance of any class can be created as easy as this:
 
 ```kotlin
 val instance: MyClass = random<MyClass>()
 ```
-
-or this:
-
-```kotlin
-@Randomizable(MyClassRandomizable::class)
-class MyClass
-
-val instance: MyClass = random<MyClass>()
-```
+Custom random logic can also be easily injected via `random()` function or `@Randomizable` annotation. Read more below to see how. 
 # Content 
 <a id="top"></a>
 
@@ -43,8 +38,8 @@ val instance: MyClass = random<MyClass>()
     - [Change base random configs](#how-to-7)
 - [Rule](#rule)
     - [Custom randomizer order of priority (important !!!)](#rule-4)
-    - [Picking constructor](#rule-3)
     - [How `@Randomizable` works?](#rule-2)
+    - [How are constructors picked?](#rule-3)
     - [How is randomization being done?](#rule-1)
         - [For concrete class](#rule-1-1)
         - [For sealed class](#rule-1-2)
@@ -496,12 +491,6 @@ The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest
 
 If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly. 
 
-## [How are constructors picked?](#top) <a id="rule-3"></a>
-
-In a class:
-- if no constructor is annotated with `@Randomizable`, the primary constructor will be used. All other constructors are ignored.
-- if some constructors are annotated with `@Randomizable`, one will be picked randomly among the annotated constructors.
-
 
 ## [How `@Randomizable` works?](#top) <a id="rule-2"></a>
 
@@ -510,10 +499,16 @@ In a class:
   - constructor
   - constructor parameter
 
-- `@Randomizable` plays a role in constructor picking, see the above rule.
+- `@Randomizable` plays a role in constructor picking, see the below rule.
 
 - if a `@Randomizable` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor. 
 
+## [How are constructors picked?](#top) <a id="rule-3"></a>
+
+In a class:
+- constructors annotated with `@Randomizable` (either blank, or with a valid randomizer) are prioritized over non-annotated constructors, including primary constructors.
+- if some constructors are annotated with `@Randomizable`, one will be picked randomly among the annotated constructors.
+- if no constructor is annotated with `@Randomizable`, the primary constructor will be used. All other constructors are ignored.
 
 ## [How is randomization being done?](#top) <a id="rule-1"></a>
 
