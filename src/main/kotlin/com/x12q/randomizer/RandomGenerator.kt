@@ -69,7 +69,7 @@ data class RandomGenerator @Inject constructor(
         )
     }
 
-    fun randomInnerClass(
+    private fun randomInnerClass(
         innerClassData: RDClassData,
         enclosingObject: Any?,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
@@ -139,7 +139,6 @@ data class RandomGenerator @Inject constructor(
             return rdEnumAndPrim
         }
 
-        // TODO simplify the block below
         if (targetClass.isAbstract) {
 
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.qualifiedName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
