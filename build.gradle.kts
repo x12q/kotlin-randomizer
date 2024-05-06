@@ -42,9 +42,9 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(javaVersion)
-    java {
-        withSourcesJar()
-    }
+//    java {
+//        withSourcesJar()
+//    }
 }
 
 mavenPublishing {

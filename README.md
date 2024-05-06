@@ -55,9 +55,19 @@ Custom random logic can also be easily provided via `random()` function or `@Ran
 
 
 ## [Gradle &#9650;](#top) <a id="gradle"></a>
-TODO add maven + gradle
+```
+dependencies {
+    implementation("com.x12q:randomizer:1.0.0-alpha.1")
+}
+```
 ## [Maven &#9650;](#top) <a id="maven"></a>
-TODO add maven + gradle
+```
+<dependency>
+    <groupId>com.x12q</groupId>
+    <artifactId>randomizer</artifactId>
+    <version>1.0.0-alpha.1</version>
+</dependency>
+```
 
 # [How to &#9650;](#top) <a id="how-to"></a>
 
