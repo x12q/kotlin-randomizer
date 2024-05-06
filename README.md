@@ -5,7 +5,7 @@ A library for generating random instance of any class, interface, object, and en
 
 # Introduction
 
-Generating random data for testing sometimes can be tedious, especially with large old classes that have deep nesting. This library aim to making generating random instances for any class easier.  
+Generating random data for testing sometimes can be tedious, especially with large old classes that have deep nesting. This library aims to making generating random instances for any class easier.  
 
 A random instance of any class can be created as easy as this:
 
