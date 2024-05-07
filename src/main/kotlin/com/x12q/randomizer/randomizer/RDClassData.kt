@@ -11,7 +11,7 @@ import kotlin.reflect.typeOf
  */
 data class RDClassData(
     val kClass: KClass<*>,
-    val kType: KType?
+    val kType: KType?,
 ) {
 
     /**
@@ -20,16 +20,21 @@ data class RDClassData(
     fun getDataFor(kTypeParameter: KTypeParameter): RDClassData? {
         val typeParameterName = kTypeParameter.name
         val typeParameterIndex = kClass.typeParameters.indexOfFirst { it.name == typeParameterName }
-        if (typeParameterIndex >= 0) {
+        val immediateRt = if (typeParameterIndex >= 0) {
             val parameterKType = kType?.arguments?.get(typeParameterIndex)?.type
             val rt = parameterKType?.let {
-                val kclass = parameterKType.classifier as KClass<*>
-                RDClassData(kclass, parameterKType)
+                val kclass = parameterKType.classifier as? KClass<*>
+                if(kclass!=null){
+                    RDClassData(kclass, parameterKType)
+                }else{
+                    null
+                }
             }
-            return rt
+            rt
         } else {
-            return null
+            null
         }
+        return immediateRt
     }
 
     fun getKClassFor(kTypeParameter: KTypeParameter):KClass<*>?{

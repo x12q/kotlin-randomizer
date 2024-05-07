@@ -11,6 +11,8 @@ import com.x12q.randomizer.randomizer.primitive.*
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.isSuperclassOf
 
 
 @Serializable
@@ -61,83 +63,87 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
     }
 }
 
-data class Q<T>(val t: T)
-
-data class A4(val c:Collection<Int>)
 
 fun main() {
-    println(random<A4>())
-    println(random<ABC2>(
-        randomizers = listOf(
-            intRandomizer {
-                99
-            },
-            floatRandomizer {
-                1.0f
-            },
-            stringRandomizer {
-                "abc123"
-            },
-            listRandomizer {
-                listOf(1f, 2f)
-            }
-        ),
-        paramRandomizers = listOf(
-            stringParamRandomizer(
-//                condition = {
-//                    it.paramName == "t2" && it.parentIs<A2>()
-//                },
-                random = {
-                    "${it.paramName}:__qwe__"
-                }
-            )
-        )
-    ))
+//    RDClassData.from<Q3<Int>>().also {
+//        println(it.kClass.typeParameters)
+//        println(it.kType?.arguments)
+//    }
 
-    println(
-        random<ABC2>(
-            randomizers = randomizers {
-                int {
-                    99
-                }
-                float {
-                    1f
-                }
-                string {
-                    "abc123"
-                }
-                list {
-                    listOf(1f, 2f)
-                }
-                add(classRandomizer {
-
-                })
-            },
-            paramRandomizers = paramRandomizers {
-//                add(paramRandomizer {
-//                    OtherClass(123)
-//                })
-//                add(paramRandomizer(
-//                    condition = {paramInfo ->
-//                        paramInfo.paramName == "someParamName"
-//                    },
-//                    random= {
-//                        OtherClass(456)
-//                    }
-//                ))
-//                string { paramInfo->
-//                    "${paramInfo.paramName} -- some str"
+//    println(List::class.isSubclassOf(Iterable::class))
+//    println(Iterable::class.isSuperclassOf(List::class))
+//    println(List::class.isSuperclassOf(List::class))
+//    println(random<ABC2>(
+//        randomizers = listOf(
+//            intRandomizer {
+//                99
+//            },
+//            floatRandomizer {
+//                1.0f
+//            },
+//            stringRandomizer {
+//                "abc123"
+//            },
+//            listRandomizer {
+//                listOf(1f, 2f)
+//            }
+//        ),
+//        paramRandomizers = listOf(
+//            stringParamRandomizer(
+////                condition = {
+////                    it.paramName == "t2" && it.parentIs<A2>()
+////                },
+//                random = {
+//                    "${it.paramName}:__qwe__"
 //                }
-//                int(
-//                    condition = { paramInfo->
-//                        paramInfo.paramName="age" && paramInfo.enclosingKClass == Person::class
-//                    },
-//                    random= {
-//                        Random.nextInt(1000)
-//                    }
-//                )
-            }
-        )
-    )
+//            )
+//        )
+//    ))
+//
+//    println(
+//        random<ABC2>(
+//            randomizers = randomizers {
+//                int {
+//                    99
+//                }
+//                float {
+//                    1f
+//                }
+//                string {
+//                    "abc123"
+//                }
+//                list {
+//                    listOf(1f, 2f)
+//                }
+//                add(classRandomizer {
+//
+//                })
+//            },
+//            paramRandomizers = paramRandomizers {
+////                add(paramRandomizer {
+////                    OtherClass(123)
+////                })
+////                add(paramRandomizer(
+////                    condition = {paramInfo ->
+////                        paramInfo.paramName == "someParamName"
+////                    },
+////                    random= {
+////                        OtherClass(456)
+////                    }
+////                ))
+////                string { paramInfo->
+////                    "${paramInfo.paramName} -- some str"
+////                }
+////                int(
+////                    condition = { paramInfo->
+////                        paramInfo.paramName="age" && paramInfo.enclosingKClass == Person::class
+////                    },
+////                    random= {
+////                        Random.nextInt(1000)
+////                    }
+////                )
+//            }
+//        )
+//    )
 }
 

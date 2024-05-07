@@ -97,3 +97,17 @@ fun main() {
     println(C::class.primaryConstructor!!.call(BooleanRef(), BooleanRef(), BooleanRef(), BooleanRef(),1, "", true)) // this works
 }
 ```
+
+
+```kotlin
+data class Q2<T>(val l1:List<T>)
+
+data class Q3<T>(val q2:Q2<Int>, val l2:List<T>)
+// this crash.
+```
+All of type information is available, I need to find a way to pass it down stream.
+Pass down to exact one level
+Q3 -> q2 + l2
+q2 -> l1 
+
+order of search: search within oneself first, then search in parent

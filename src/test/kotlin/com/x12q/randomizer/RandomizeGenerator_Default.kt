@@ -37,12 +37,14 @@ class RandomizeGenerator_Default {
     fun randomConstructorParameterRs() {
         val p0 = rdm0.randomConstructorParameterRs(
             Class1.tm12KParam,
-            Class1.dt
+            Class1.dt,
+            null
         )
 
         val rs = rdm.randomConstructorParameterRs(
             Class1.tm12KParam,
-            Class1.dt
+            Class1.dt,
+            null
         )
 
         rs shouldNotBe p0
@@ -57,7 +59,7 @@ class RandomizeGenerator_Default {
 
         rdm.randomConstructorParameter(
             Class1.tm12KParam,
-            Class1.dt
+            Class1.dt, null
         ) shouldBe rs.component1()
 
     }

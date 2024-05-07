@@ -55,7 +55,7 @@ class RandomizeGenerator_Pick_Constructor {
     fun `pickConstructor with annotated constructor`() {
         rdm.pickConstructor(C::class).also {
             it?.constructor shouldBe C::class.constructors.toList()[0]
-            it?.randomizer shouldBe null
+            it?.lv3RandomizerClass shouldBe null
         }
     }
 
@@ -68,7 +68,7 @@ class RandomizeGenerator_Pick_Constructor {
     fun `pickConstructor with annotated primary constructor`() {
         rdm.pickConstructor(C2::class).also {
             it?.constructor shouldBe C2::class.primaryConstructor
-            it?.randomizer shouldBe null
+            it?.lv3RandomizerClass shouldBe null
         }
     }
 
