@@ -63,10 +63,10 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
 
 data class Q<T>(val t: T)
 
-
+data class A4(val c:Collection<Int>)
 
 fun main() {
-    println(random<A3>())
+    println(random<A4>())
     println(random<ABC2>(
         randomizers = listOf(
             intRandomizer {

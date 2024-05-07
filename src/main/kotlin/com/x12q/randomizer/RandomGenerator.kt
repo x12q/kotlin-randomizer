@@ -386,12 +386,13 @@ data class RandomGenerator @Inject constructor(
                 }
 
                 val lv2Lz = lazy {
-                    val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? = param
-                        .findAnnotations(Randomizable::class).firstOrNull()
-                        ?.getClassRandomizerOrParamRandomizerRs()
-                        ?.getOrElse { err ->
-                            throw err.toException()
-                        }
+                    val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? =
+                        param
+                            .findAnnotations(Randomizable::class).firstOrNull()
+                            ?.getClassRandomizerOrParamRandomizerRs()
+                            ?.getOrElse { err ->
+                                throw err.toException()
+                            }
 
                     // At this point, lv1 randomizer cannot be used, so move on to check lv2 and below randomizers
                     val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
@@ -546,6 +547,7 @@ data class RandomGenerator @Inject constructor(
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun lv4RandomPrimitive(classData: RDClassData): Any? {
         val clzz: KClass<*> = classData.kClass
+
         val rt = when (clzz) {
             Char::class -> randomChar()
             Int::class -> random.nextInt()
@@ -556,12 +558,13 @@ data class RandomGenerator @Inject constructor(
             Boolean::class -> random.nextBoolean()
             Byte::class -> random.nextBytes(1)[0]
             Short::class -> random.nextInt().toShort()
-            List::class, Collection::class -> makeRandomList(classData)
+            List::class, Collection::class, Iterable::class -> makeRandomList(classData)
             Map::class -> makeRandomMap(classData)
             Set::class -> makeRandomList(classData).toSet()
             else -> null
         }
         return rt
+
     }
 
     private val collectionSize: IntRange = defaultRandomConfig.collectionSize
