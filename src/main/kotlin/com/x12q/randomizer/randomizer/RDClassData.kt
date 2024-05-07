@@ -19,9 +19,15 @@ data class RDClassData(
      */
     fun getDataFor(kTypeParameter: KTypeParameter): RDClassData? {
         val typeParameterName = kTypeParameter.name
-        val typeParameterIndex = kClass.typeParameters.indexOfFirst { it.name == typeParameterName }
+
+        val can = kClass.typeParameters
+        val typeParameterIndex = can.indexOfFirst { it.name == typeParameterName }
+        val args = kType?.arguments
+        if(typeParameterName == "V"){
+            println()
+        }
         val immediateRt = if (typeParameterIndex >= 0) {
-            val parameterKType = kType?.arguments?.get(typeParameterIndex)?.type
+            val parameterKType = args?.get(typeParameterIndex)?.type
             val rt = parameterKType?.let {
                 val kclass = parameterKType.classifier as? KClass<*>
                 if(kclass!=null){

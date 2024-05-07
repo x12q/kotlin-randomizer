@@ -215,10 +215,245 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    @Throws(Throwable::class)
+    fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData,rdChain: RDClassDataChain?): Any? {
+        val rs = randomConstructorParameterRs(kParam, parentClassData,rdChain)
+        when (rs) {
+            is Ok -> {
+                return rs.value
+            }
+
+            is Err -> {
+                val er = rs.error
+                if (er.isType(RandomizerErrors.ClassifierNotSupported.header)) {
+                    throw er.toException()
+                } else {
+                    return null
+                }
+            }
+        }
+    }
+
+    /**
+     * enclosing class is the class that use [param] in its constructor.
+     * For example:
+     * class ABC(val i:Int)
+     * For "val i", ABC is the enclosing class
+     *
+     * [rdChain] already contain [enclosingClassData]
+     */
+    @Throws(Throwable::class)
+    fun randomConstructorParameterRs(
+        param: KParameter,
+        enclosingClassData: RDClassData,
+        rdChain:RDClassDataChain?,
+    ): Result<Any?, ErrorReport> {
+        /**
+         * There are 2 types of parameter:
+         * - clear-type parameter
+         * - generic-type parameter
+         *
+         * both can be turned into clear-type, that means, both can be checked by clear-type checker
+         */
+
+        val paramType: KType = param.type
+
+        val classifier = paramType.classifier
+
+        when (classifier) {
+            is KClass<*> -> {
+                /**
+                 * This is for normal parameter
+                 */
+                val paramData = RDClassData(classifier, paramType)
+
+                val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
+
+                if (!lv1Randomizer.isNullOrEmpty()) {
+                    for (rd in lv1Randomizer) {
+                        val i = rd.random(
+                            parameterClassData = paramData,
+                            parameter = param,
+                            enclosingClassData = enclosingClassData
+                        )
+                        if (i != null) {
+                            return Ok(i)
+                        }
+                    }
+                }
+
+                val lv2Lz = lazy {
+                    makeLv2ForKClass(
+                        param = param,
+                        paramData = paramData,
+                        enclosingClassData = enclosingClassData,
+                        kClass = classifier
+                    )
+                }
+
+                val nextChain = rdChain?.add(paramData) ?: RDClassDataChain.from(paramData)
+
+                val rt = random(
+                    classData = paramData,
+                    lv2RandomizerClassLz = lv2Lz,
+                    rdChain = nextChain,
+                )
+                return Ok(rt)
+            }
+            /**
+             * This is for generic-type parameters
+             * such as: class Q<T>(val s:T)
+             */
+            is KTypeParameter -> {
+                val parameterData = rdChain?.getDataFor(classifier)
+                if (parameterData != null) {
+
+                    // lv2 is extracted + type check here, then passed to random(). Within random(), it will be decided lv2 will be used or not.
+
+                    val lv2Lz = lazy {
+                        makeLv2ForTypeParam(
+                            param = param,
+                            parameterData = parameterData,
+                            enclosingClassData = enclosingClassData,
+                            ktypeParam = classifier
+                        )
+                    }
+
+                    return Ok(
+                        random(
+                            classData = parameterData,
+                            lv2RandomizerClassLz = lv2Lz,
+                            rdChain = rdChain.add(parameterData),
+                        )
+                    )
+
+                } else {
+                    return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, enclosingClassData))
+                }
+            }
+
+            else -> return Err(RandomizerErrors.ClassifierNotSupported.report(classifier))
+        }
+    }
+    /**
+     * Create lv2 randomizer for KClass, used in [randomConstructorParameterRs]
+     */
+    private fun makeLv2ForKClass(
+        param: KParameter,
+        paramData: RDClassData,
+        enclosingClassData: RDClassData,
+        kClass: KClass<*>,
+    ): ClassRandomizer<Any?>? {
+        val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? =
+            param
+                .findAnnotations(Randomizable::class).firstOrNull()
+                ?.getClassRandomizerOrParamRandomizerRs()
+                ?.getOrElse { err ->
+                    throw err.toException()
+                }
+
+        // At this point, lv1 randomizer cannot be used, so move on to check lv2 and below randomizers
+        val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
+            randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, kClass)
+            ReflectionUtils.createClassRandomizer(lv2Rd)
+        }
+
+        val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
+            randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, kClass)
+            ReflectionUtils.createParamRandomizer(lv2Rd)
+        }
+
+        val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
+            object : ClassRandomizer<Any?> {
+                override val returnedInstanceData: RDClassData = paramData
+
+                override fun isApplicableTo(classData: RDClassData): Boolean {
+                    return classData == returnedInstanceData
+                }
+
+                override fun random(): Any? {
+                    return lv2ParamRandomizer0.random(
+                        parameterClassData = paramData,
+                        parameter = param,
+                        enclosingClassData = enclosingClassData,
+                    )
+                }
+            }
+        }
+
+        val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
+        return    lv2ClassRandomizer
+
+    }
+
+    /**
+     * Create lv2 randomizer for KTypeParam, used in [randomConstructorParameterRs]
+     */
+    private fun makeLv2ForTypeParam(
+        param: KParameter,
+        parameterData: RDClassData,
+        enclosingClassData: RDClassData,
+        ktypeParam: KTypeParameter,
+    ): ClassRandomizer<Any?>? {
+        val lv2paramClassOrParamRandomizer = param
+            .findAnnotations(Randomizable::class).firstOrNull()
+            ?.getClassRandomizerOrParamRandomizerRs()
+            ?.getOrElse { err ->
+                throw err.toException()
+            }
+
+        val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
+            randomizerChecker.checkValidRandomizerClassRs(
+                randomizerClass = lv2Rd,
+                targetClass = parameterData.kClass
+            )
+            ReflectionUtils.createClassRandomizer(lv2Rd)
+        }
+
+        val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
+            randomizerChecker.checkValidParamRandomizer(
+                parentClassData = enclosingClassData,
+                targetParam = param,
+                targetTypeParam = ktypeParam,
+                randomizerClass = lv2Rd
+            )
+            ReflectionUtils.createParamRandomizer(lv2Rd)
+        }
+
+        val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
+            object : ClassRandomizer<Any?> {
+                override val returnedInstanceData: RDClassData = parameterData
+
+                override fun isApplicableTo(classData: RDClassData): Boolean {
+                    return classData == returnedInstanceData
+                }
+
+                override fun random(): Any? {
+                    return lv2ParamRandomizer0.random(
+                        parameterClassData = parameterData,
+                        parameter = param,
+                        enclosingClassData = enclosingClassData,
+                    )
+                }
+            }
+        }
+
+        val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
+        return lv2ClassRandomizer
+    }
+
 
     internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
 
         val constructors: Collection<KFunction<Any>> = targetClass.constructors
+        if(targetClass == ArrayList::class){
+            val con = constructors.first{
+                val c1 = it.parameters.size==1
+                val c2 = it.parameters[0].type.classifier == Collection::class
+                c1&&c2
+            }
+            return PickConstructorResult(con,null)
+        }
 
         /**
          * A rich annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
@@ -343,197 +578,6 @@ data class RandomGenerator @Inject constructor(
                 return ReflectionUtils.createClassRandomizer(lv3)
             }
             return null
-        }
-    }
-
-    @Throws(Throwable::class)
-    fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData,rdChain: RDClassDataChain?): Any? {
-        val rs = randomConstructorParameterRs(kParam, parentClassData,rdChain)
-        when (rs) {
-            is Ok -> {
-                return rs.value
-            }
-
-            is Err -> {
-                val er = rs.error
-                if (er.isType(RandomizerErrors.ClassifierNotSupported.header)) {
-                    throw er.toException()
-                } else {
-                    return null
-                }
-            }
-        }
-    }
-
-    /**
-     * enclosing class is the class that use [param] in its constructor.
-     * For example:
-     * class ABC(val i:Int)
-     * For "val i", ABC is the enclosing class
-     *
-     * [rdChain] already contain [enclosingClassData]
-     */
-    @Throws(Throwable::class)
-    fun randomConstructorParameterRs(
-        param: KParameter,
-        enclosingClassData: RDClassData,
-        rdChain:RDClassDataChain?,
-    ): Result<Any?, ErrorReport> {
-        /**
-         * There are 2 types of parameter:
-         * - clear-type parameter
-         * - generic-type parameter
-         *
-         * both can be turned into clear-type, that means, both can be checked by clear-type checker
-         */
-
-        val paramType: KType = param.type
-
-        val classifier = paramType.classifier
-
-        when (classifier) {
-            is KClass<*> -> {
-                /**
-                 * This is for normal parameter
-                 */
-                val paramData = RDClassData(classifier, paramType)
-
-                val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
-
-                if (!lv1Randomizer.isNullOrEmpty()) {
-                    for (rd in lv1Randomizer) {
-                        val i = rd.random(
-                            parameterClassData = paramData,
-                            parameter = param,
-                            enclosingClassData = enclosingClassData
-                        )
-                        if (i != null) {
-                            return Ok(i)
-                        }
-                    }
-                }
-
-                val lv2Lz = lazy {
-                    val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? =
-                        param
-                            .findAnnotations(Randomizable::class).firstOrNull()
-                            ?.getClassRandomizerOrParamRandomizerRs()
-                            ?.getOrElse { err ->
-                                throw err.toException()
-                            }
-
-                    // At this point, lv1 randomizer cannot be used, so move on to check lv2 and below randomizers
-                    val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
-                        randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, classifier)
-                        ReflectionUtils.createClassRandomizer(lv2Rd)
-                    }
-
-                    val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
-                        randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, classifier)
-                        ReflectionUtils.createParamRandomizer(lv2Rd)
-                    }
-
-                    val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
-                        object : ClassRandomizer<Any?> {
-                            override val returnedInstanceData: RDClassData = paramData
-
-                            override fun isApplicableTo(classData: RDClassData): Boolean {
-                                return classData == returnedInstanceData
-                            }
-
-                            override fun random(): Any? {
-                                return lv2ParamRandomizer0.random(
-                                    parameterClassData = paramData,
-                                    parameter = param,
-                                    enclosingClassData = enclosingClassData,
-                                )
-                            }
-                        }
-                    }
-
-                    val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
-                    lv2ClassRandomizer
-                }
-
-                val nextChain = rdChain?.add(paramData) ?: RDClassDataChain.from(paramData)
-                val rt = random(
-                    classData = paramData,
-                    lv2RandomizerClassLz = lv2Lz,
-                    rdChain = nextChain,
-                )
-                return Ok(rt)
-            }
-            /**
-             * This is for generic-type parameters
-             * such as: class Q<T>(val s:T)
-             */
-            is KTypeParameter -> {
-                val parameterData = rdChain?.getDataFor(classifier)
-                if (parameterData != null) {
-
-                    // lv2 is extracted + type check here, then passed to random(). Within random(), it will be decided lv2 will be used or not.
-
-                    val lv2Lz = lazy {
-                        val lv2paramClassOrParamRandomizer = param
-                            .findAnnotations(Randomizable::class).firstOrNull()
-                            ?.getClassRandomizerOrParamRandomizerRs()
-                            ?.getOrElse { err ->
-                                throw err.toException()
-                            }
-
-                        val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
-                            randomizerChecker.checkValidRandomizerClassRs(
-                                randomizerClass = lv2Rd,
-                                targetClass = parameterData.kClass
-                            )
-                            ReflectionUtils.createClassRandomizer(lv2Rd)
-                        }
-
-                        val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
-                            randomizerChecker.checkValidParamRandomizer(
-                                parentClassData = enclosingClassData,
-                                targetParam = param,
-                                targetTypeParam = classifier,
-                                randomizerClass = lv2Rd
-                            )
-                            ReflectionUtils.createParamRandomizer(lv2Rd)
-                        }
-
-                        val lv2ParamRandomizer = lv2ParamRandomizer0?.let {
-                            object : ClassRandomizer<Any?> {
-                                override val returnedInstanceData: RDClassData = parameterData
-
-                                override fun isApplicableTo(classData: RDClassData): Boolean {
-                                    return classData == returnedInstanceData
-                                }
-
-                                override fun random(): Any? {
-                                    return lv2ParamRandomizer0.random(
-                                        parameterClassData = parameterData,
-                                        parameter = param,
-                                        enclosingClassData = enclosingClassData,
-                                    )
-                                }
-                            }
-                        }
-
-                        val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
-                        lv2ClassRandomizer
-                    }
-
-                    return Ok(
-                        random(
-                            classData = parameterData,
-                            lv2RandomizerClassLz = lv2Lz,
-                            rdChain = rdChain.add(parameterData),
-                        )
-                    )
-                } else {
-                    return Err(RandomizerErrors.TypeDoesNotExist.report(classifier, enclosingClassData))
-                }
-            }
-
-            else -> return Err(RandomizerErrors.ClassifierNotSupported.report(classifier))
         }
     }
 

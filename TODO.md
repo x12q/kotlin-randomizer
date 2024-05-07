@@ -111,3 +111,7 @@ Q3 -> q2 + l2
 q2 -> l1 
 
 order of search: search within oneself first, then search in parent
+need to create a matching table to match generic types of different name to each other
+Q1<T> (l: List<T>)
+Q2<E>(q1:Q1<E>)
+E <==>T
