@@ -379,7 +379,6 @@ data class RandomGenerator @Inject constructor(
         enclosingClassData: RDClassData,
         rdChain:RDClassDataChain?,
     ): Result<Any?, ErrorReport> {
-        println(param)
         /**
          * There are 2 types of parameter:
          * - clear-type parameter
