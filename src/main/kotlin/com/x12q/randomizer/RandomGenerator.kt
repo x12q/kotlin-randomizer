@@ -7,7 +7,7 @@ import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
 import com.x12q.randomizer.randomizer_checker.RandomizerChecker
@@ -158,6 +158,9 @@ data class RandomGenerator @Inject constructor(
                     /**
                      * seal class children does not need KType
                      */
+                    /**
+                     * seal class children does not need KType
+                     */
                     kType = null,
                 )
             )
@@ -216,7 +219,7 @@ data class RandomGenerator @Inject constructor(
     }
 
     @Throws(Throwable::class)
-    fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData,rdChain: RDClassDataChain?): Any? {
+    fun randomConstructorParameter(kParam: KParameter, parentClassData: RDClassData, rdChain: RDClassDataChain?): Any? {
         val rs = randomConstructorParameterRs(kParam, parentClassData,rdChain)
         when (rs) {
             is Ok -> {

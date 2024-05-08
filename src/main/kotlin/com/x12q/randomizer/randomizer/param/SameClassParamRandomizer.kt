@@ -2,7 +2,7 @@ package com.x12q.randomizer.randomizer.param
 
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 
 class SameClassParamRandomizer<T> private constructor(
     private val conditionalParamRandomizer: ConditionalParamRandomizer<T>

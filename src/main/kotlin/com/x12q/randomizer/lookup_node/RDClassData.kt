@@ -1,4 +1,4 @@
-package com.x12q.randomizer.randomizer
+package com.x12q.randomizer.lookup_node
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
@@ -12,20 +12,17 @@ import kotlin.reflect.typeOf
 data class RDClassData(
     val kClass: KClass<*>,
     val kType: KType?,
-) {
+): LookupNode {
 
     /**
-     * Query [RDClassData] for a particular [kTypeParameter]
+     * Query [RDClassData] for a particular [typeParam].
+     * Param is matched by name.
      */
-    fun getDataFor(kTypeParameter: KTypeParameter): RDClassData? {
-        val typeParameterName = kTypeParameter.name
-
+    override fun getDataFor(typeParam: KTypeParameter): RDClassData? {
+        val typeParameterName = typeParam.name
         val can = kClass.typeParameters
         val typeParameterIndex = can.indexOfFirst { it.name == typeParameterName }
         val args = kType?.arguments
-        if(typeParameterName == "V"){
-            println()
-        }
         val immediateRt = if (typeParameterIndex >= 0) {
             val parameterKType = args?.get(typeParameterIndex)?.type
             val rt = parameterKType?.let {
@@ -43,8 +40,8 @@ data class RDClassData(
         return immediateRt
     }
 
-    fun getKClassFor(kTypeParameter: KTypeParameter):KClass<*>?{
-        val typeParameterName = kTypeParameter.name
+    fun getKClassFor(typeParam: KTypeParameter):KClass<*>?{
+        val typeParameterName = typeParam.name
         val typeParameterIndex = kClass.typeParameters.indexOfFirst { it.name == typeParameterName }
         if (typeParameterIndex >= 0) {
             val parameterKType = kType?.arguments?.get(typeParameterIndex)?.type

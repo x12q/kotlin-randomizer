@@ -4,7 +4,7 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.Randomizer
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf

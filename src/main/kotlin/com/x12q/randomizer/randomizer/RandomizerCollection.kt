@@ -1,5 +1,6 @@
 package com.x12q.randomizer.randomizer
 
+import com.x12q.randomizer.lookup_node.RDClassData
 import javax.inject.Inject
 import kotlin.random.Random
 import kotlin.reflect.full.isSubclassOf

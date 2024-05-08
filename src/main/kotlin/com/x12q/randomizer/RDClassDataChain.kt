@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 import kotlin.reflect.KTypeParameter
 
 data class RDClassDataChain(
@@ -16,7 +16,7 @@ data class RDClassDataChain(
         return null
     }
 
-    fun add(r:RDClassData):RDClassDataChain{
+    fun add(r: RDClassData):RDClassDataChain{
         val newList = listOf(r) + l
         return this.copy(l=newList)
     }

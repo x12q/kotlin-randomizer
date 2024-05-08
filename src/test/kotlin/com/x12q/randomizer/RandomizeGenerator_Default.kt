@@ -1,7 +1,7 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.test_util.TestSamples
 import com.x12q.randomizer.test_util.TestSamples.Class1
 import com.x12q.randomizer.test_util.TestSamples.Class2

@@ -7,7 +7,7 @@ import com.github.michaelbull.result.orElse
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.Randomizer
 import javax.inject.Inject
 import javax.inject.Singleton
