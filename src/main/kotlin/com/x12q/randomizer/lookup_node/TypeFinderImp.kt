@@ -69,8 +69,8 @@ class TypeFinderImp(
     /**
      * enclosing class = class that contain that paremeter
      */
-    fun append(enclosingClass: KClass<*>, parameter: KParameter): TypeFinderImp {
-        val paramTypeMap = getTypeMap(enclosingClass,parameter)
+    fun updateWith(enclosingClass: KClass<*>, parameter: KParameter): TypeFinderImp {
+        val paramTypeMap: Map<ShallowTypeSignature, ShallowTypeSignature>? = getTypeMap(enclosingClass,parameter)
         if (paramTypeMap != null) {
             for ((innerType, suppliedType) in paramTypeMap) {
                 if (suppliedType in topTypeSig) {

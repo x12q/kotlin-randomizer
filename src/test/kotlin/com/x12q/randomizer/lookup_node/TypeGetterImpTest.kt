@@ -28,20 +28,20 @@ class TypeGetterImpTest {
 
         rd3.kClass.primaryConstructor!!.parameters.also { paramListRd3 ->
             paramListRd3.forEach {
-                finder.append(rd3.kClass,it)
+                finder.updateWith(rd3.kClass,it)
             }
             val rd2 = paramListRd3[0]
 
             val rd2Clazz = rd2.type.classifier as KClass<*>
             rd2Clazz.primaryConstructor!!.parameters.also { paramListRd2 ->
                 paramListRd2.forEach {
-                    finder.append(rd2Clazz,it)
+                    finder.updateWith(rd2Clazz,it)
                 }
 
                 val rd1 = paramListRd2[0]
                 val rd1Clazz = rd1.type.classifier as KClass<*>
                 rd1Clazz.primaryConstructor!!.parameters.forEach {
-                    finder.append(rd1Clazz,it)
+                    finder.updateWith(rd1Clazz,it)
                 }
 
                 /**
