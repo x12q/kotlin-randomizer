@@ -5,27 +5,32 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.primaryConstructor
 
+/**
+ * This does not work with duplicate generic
+ */
 class TypeFinderImp(
     val top: RDClassData
 ) {
 
-    val topTypeSet: List<KTypeParameter> = top.kClass.typeParameters
+    val topTypeParameters: List<KTypeParameter> = top.kClass.typeParameters
 
-    val topTypeSig: List<ShallowTypeSignature> = topTypeSet.map {
+    val topTypeSignatures: List<ShallowTypeSignature> = topTypeParameters.map {
         ShallowTypeSignature(it.name, top.kClass.qualifiedName)
     }
-    val topTypeMap: Map<ShallowTypeSignature, KTypeParameter> = topTypeSig.zip(topTypeSet).toMap()
+    val topTypeMap: Map<ShallowTypeSignature, KTypeParameter> = topTypeSignatures.zip(topTypeParameters).toMap()
 
-    val typeSigMap: MutableMap<ShallowTypeSignature, ShallowTypeSignature> = mutableMapOf<ShallowTypeSignature, ShallowTypeSignature>().also { m->
-        topTypeSig.forEach {
-            m[it] = it
+    val typeMap: MutableMap<ShallowTypeSignature, ShallowTypeSignature> =
+        mutableMapOf<ShallowTypeSignature, ShallowTypeSignature>().also { m ->
+            // map each top type signature to itself.
+            topTypeSignatures.forEach {
+                m[it] = it
+            }
         }
-    }
 
     /**
      * enclosing class = class that contain the param
      */
-    private fun getSuppliedTypes(enclosingClass: KClass<*>, param: KParameter): List<ShallowTypeSignature> {
+    fun getSuppliedTypes(enclosingClass: KClass<*>, param: KParameter): List<ShallowTypeSignature> {
         return param.type.arguments.mapNotNull {
             (it.type?.classifier as? KTypeParameter)?.let {
                 ShallowTypeSignature(
@@ -38,7 +43,7 @@ class TypeFinderImp(
     /**
      *
      */
-    private fun getInnerTypes(kParam: KParameter): List<ShallowTypeSignature>? {
+    fun getInnerTypes(kParam: KParameter): List<ShallowTypeSignature>? {
         val classifier = kParam.type.classifier
         val innerTypes = when (classifier) {
             is KClass<*> -> {
@@ -50,6 +55,7 @@ class TypeFinderImp(
                 }
                 rt
             }
+
             else -> null
         }
         return innerTypes
@@ -59,7 +65,7 @@ class TypeFinderImp(
     fun getTypeMap(enclosingClass: KClass<*>, kParam: KParameter): Map<ShallowTypeSignature, ShallowTypeSignature>? {
         val innerTypes = getInnerTypes(kParam)
         if (innerTypes != null) {
-            val suppliedType = getSuppliedTypes(enclosingClass,kParam)
+            val suppliedType = getSuppliedTypes(enclosingClass, kParam)
             return innerTypes.zip(suppliedType).toMap()
         } else {
             return null
@@ -70,15 +76,15 @@ class TypeFinderImp(
      * enclosing class = class that contain that paremeter
      */
     fun updateWith(enclosingClass: KClass<*>, parameter: KParameter): TypeFinderImp {
-        val paramTypeMap: Map<ShallowTypeSignature, ShallowTypeSignature>? = getTypeMap(enclosingClass,parameter)
+        val paramTypeMap: Map<ShallowTypeSignature, ShallowTypeSignature>? = getTypeMap(enclosingClass, parameter)
         if (paramTypeMap != null) {
             for ((innerType, suppliedType) in paramTypeMap) {
-                if (suppliedType in topTypeSig) {
-                    typeSigMap[innerType] = suppliedType
+                if (suppliedType in topTypeSignatures) {
+                    typeMap[innerType] = suppliedType
                 } else {
-                    val topTypeEquivalentToSuppliedType = typeSigMap[suppliedType]
+                    val topTypeEquivalentToSuppliedType = typeMap[suppliedType]
                     if (topTypeEquivalentToSuppliedType != null) {
-                        typeSigMap[innerType] = topTypeEquivalentToSuppliedType
+                        typeMap[innerType] = topTypeEquivalentToSuppliedType
                     } else {
                         // inner type is mapped to something that can not be traced back to any top type
                     }
@@ -93,7 +99,7 @@ class TypeFinderImp(
             typeParam.name,
             enclosingClass.qualifiedName,
         )
-        val topTypeSig = typeSigMap[typeSig]?.let {
+        val topTypeSig = typeMap[typeSig]?.let {
             topTypeMap[it]
         }
         val rt = topTypeSig?.let {
@@ -102,4 +108,86 @@ class TypeFinderImp(
         }
         return rt
     }
+}
+
+
+data class Q1<K, V>(val l: Map<K, V>)
+data class Q2<T>(val l: List<T>)
+data class Q3<T>(val q2: Q2<T>, val l2: List<T>)
+data class Q4<T>(val q3: Q3<T>)
+data class A(val d: Double, val str: String)
+data class Q5<E>(val q1: Q1<Int, E>)
+
+
+
+data class Inner1<I1,I2,I3>(val i1:I1,val i2:I2,val i3:I2)
+data class Q6<Q6_1,Q6_2>(
+    val l: Inner1<Q6_1,Double,Q6_2>
+)
+
+
+fun main() {
+    val q6 = RDClassData.from<Q6<Int,String>>()
+
+    //Q6<List<Int>>
+    println(q6.kType)
+    // List<Int>
+    println(q6.kType!!.arguments[0])
+    // Int
+
+    println("======")
+    q6.kClass.primaryConstructor!!.parameters.forEach {parameter->
+
+        // I can construct a map of generic type for each parameter here, and pass that to the constructor of such parameter
+        // The map should be using index instead type T name, because the constructor of parameter will use different name
+
+        // will this work????
+        /**
+         * Will this work?
+         * => This will work because:
+         * Each parameter can use the information from its enclosing class (enclosure) to construct a full map (with index) of generic - concrete type that it can use to query later.
+         * Whatever parameter cannot get from enclosure, it can get from within itself.
+         *
+         * This process can be repeated for deeper parameter, each only need to construct 1 map from its enclosure's data.
+         * Remember, each mapping must only the information from the immediate enclosure.
+         */
+
+        // THis is type map that parameter construct using the data from its enclosure
+        val typeMapFromEnclosure: Map<Int, RDClassData?> = parameter.type.arguments.withIndex().mapNotNull { (index,e)->
+            val ktypeParam = e.type!!.classifier as? KTypeParameter
+            if(ktypeParam!=null){
+                val concreteType = q6.getDataFor(ktypeParam)
+                index to concreteType
+            }else{
+                null
+            }
+        }.toMap()
+
+        val paramClass = parameter.type.classifier as KClass<*>
+
+        // here it can perform lookup using the map above + data within itself to construct a full list of generic -> concrete mapping
+        paramClass.primaryConstructor!!.parameters.withIndex().map{(index,innerParam)->
+            val classifier = innerParam.type.classifier
+            when(classifier){
+                is KClass<*> -> println("class: ${classifier}")
+                is KTypeParameter -> {
+                    // lookup type from the outer type map
+                    val outerType = typeMapFromEnclosure[index]
+                    if(outerType!=null){
+                        println("outer: ${outerType}")
+                    }else{
+                        // lookup type from within the parameter
+                        println("inside: ${parameter.type.arguments[index].type?.classifier}")
+                    }
+                }
+            }
+        }
+
+
+
+
+        // Next:
+        // invoke function to create parameter along with typeMap.
+    }
+
 }

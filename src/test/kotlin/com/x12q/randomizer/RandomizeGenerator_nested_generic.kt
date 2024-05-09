@@ -45,8 +45,8 @@ class RandomizeGenerator_nested_generic {
     )
     @Test
     fun case3(){
-//        println(rdm.random(RDClassData.from<Q4<Int>>()))
-        println(rdm.random(RDClassData.from<Q4<Q3<Int>>>()))
+        println(rdm.random(RDClassData.from<Q4<Int>>()))
+//        println(rdm.random(RDClassData.from<Q4<Q3<Int>>>()))
     }
 
     @Test

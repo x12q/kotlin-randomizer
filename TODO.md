@@ -115,3 +115,5 @@ need to create a matching table to match generic types of different name to each
 Q1<T> (l: List<T>)
 Q2<E>(q1:Q1<E>)
 E <==>T
+
+TODO: the top does not always have the concrete type
