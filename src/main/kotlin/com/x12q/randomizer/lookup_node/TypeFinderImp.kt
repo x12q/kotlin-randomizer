@@ -97,6 +97,7 @@ class TypeFinderImp(
             topTypeMap[it]
         }
         val rt = topTypeSig?.let {
+            // the top does not always have the concrete type
             top.getDataFor(it)
         }
         return rt

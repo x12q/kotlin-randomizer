@@ -34,7 +34,7 @@ class RandomizeGenerator_class {
             )
         )
 
-        lv1Randomizer.random(RDClassData.from<A1>(), lv2RandomizerClassLz = lazy{A1.Randomizer2()}, rdChain = null, typeFinder = null) shouldBe A1.Randomizer1()
+        lv1Randomizer.random(RDClassData.from<A1>(), lv2RandomizerClassLz = lazy{A1.Randomizer2()}, rdChain = null, typeFinder = null, enclosingClass = null) shouldBe A1.Randomizer1()
             .random()
     }
 

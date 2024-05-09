@@ -43,6 +43,11 @@ class RandomizeGenerator_nested_generic {
         val rd2: RD2<T3_1, T3_2, T3_4>,
         val c: T3_3,
     )
+    @Test
+    fun case3(){
+//        println(rdm.random(RDClassData.from<Q4<Int>>()))
+        println(rdm.random(RDClassData.from<Q4<Q3<Int>>>()))
+    }
 
     @Test
     fun rrr(){
@@ -66,10 +71,7 @@ class RandomizeGenerator_nested_generic {
         println(rdm.random(RDClassData.from<Q4<Q3<Q2<Q4<Int>>>>>()))
     }
 
-    @Test
-    fun case3(){
-        println(rdm.random(RDClassData.from<Q4<Int>>()))
-    }
+
 
 //    @Test
     fun forever(){
