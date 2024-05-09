@@ -4,7 +4,7 @@ import kotlin.reflect.KTypeParameter
 
 /**
  * An indirect node perform lookup by checking if the input is similar to a pre-defined [frontParam], then do the actual lookup with a completely different [backParam].
- * lookupInput -> ? is [frontParam] -> use [backParam] to lookup
+ * lookupInput -> ? is [frontParam] -> use [backParam] to lookup.
  */
 class IndirectLookupNode(
     val frontParam: KTypeParameter,
