@@ -4,6 +4,8 @@ import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.Randomizer
 import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.createInstance
 
 object ReflectionUtils {
@@ -34,5 +36,34 @@ object ReflectionUtils {
      */
     fun createParamRandomizer(clazz: KClass<out ParameterRandomizer<*>>): ParameterRandomizer<*> {
         return createRandomizer(clazz) as ParameterRandomizer<*>
+    }
+
+    fun getInnerTypes(kParam: KParameter):List<KTypeParameter>?{
+        val classifier = kParam.type.classifier
+        val innerTypes = when(classifier){
+            is KClass<*> -> classifier.typeParameters
+            is KTypeParameter -> listOf(classifier)
+            else -> null
+        }
+        return innerTypes
+    }
+    /**
+     * Get type parameter supplied by enclosing class within a KParameter
+     */
+    fun getSuppliedTypes(param:KParameter): List<KTypeParameter> {
+        return param.type.arguments.mapNotNull { it.type?.classifier as? KTypeParameter }
+    }
+
+    /**
+     * Extract a mapping from inner generic type -> supplied type.
+     */
+    fun getTypeMap(kParam:KParameter): Map<KTypeParameter, KTypeParameter>? {
+        val innerTypes = getInnerTypes(kParam)
+        if (innerTypes != null) {
+            val suppliedType = getSuppliedTypes(kParam)
+            return innerTypes.zip(suppliedType).toMap()
+        } else {
+            return null
+        }
     }
 }

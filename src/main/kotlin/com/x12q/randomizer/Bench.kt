@@ -1,21 +1,28 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.lookup_node.TypeFinderImp
 import com.x12q.randomizer.randomizer.clazz.AbsSameClassRandomizer
 import com.x12q.randomizer.randomizer.param.AbsSameClassParamRandomizer
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.primaryConstructor
 
 
 @Serializable
 data class ABC(val lst: List<Float>, val tm12: Int)
 
-data class A2(val t2: String){
-    companion object{
+data class A2(val t2: String) {
+    companion object {
         class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
             override val paramClassData: RDClassData = RDClassData.from<A2>()
 
-            override fun random(parameterClassData: RDClassData, parameter: KParameter, enclosingClassData: RDClassData): A2? {
+            override fun random(
+                parameterClassData: RDClassData,
+                parameter: KParameter,
+                enclosingClassData: RDClassData
+            ): A2? {
                 return A2("from custom randomizer")
             }
         }
@@ -31,17 +38,17 @@ data class ABC2(
     val a2: A2
 )
 
-data class A3(val  i:Int, val str:String){
+data class A3(val i: Int, val str: String) {
 
     @Randomizable(A3.Companion.A3Randomizer::class)
-    constructor(f:Float):this(f.toInt(),"pppp")
+    constructor(f: Float) : this(f.toInt(), "pppp")
 
-    companion object{
-        class A3Randomizer: AbsSameClassRandomizer<A3>(){
+    companion object {
+        class A3Randomizer : AbsSameClassRandomizer<A3>() {
             override val returnedInstanceData: RDClassData = RDClassData.from<A3>()
 
             override fun random(): A3 {
-                return A3(1,"-")
+                return A3(1, "-")
             }
         }
     }
@@ -56,7 +63,30 @@ class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
 }
 
 
+class RD1<T1>(val t1: T1)
+
+class RD2<T2_1, T2_2, T2_3>(
+    val rd1: RD1<T2_2>,
+    val d: T2_1,
+    val x: T2_3,
+)
+
+class RD3<T3_1, T3_2, T3_3, T3_4>(
+    val rd2: RD2<T3_1, T3_2, T3_4>,
+    val c: T3_3,
+)
+
+val rd3 = RDClassData.from<RD3<Double, Short, Float, Int>>()
+
+
 fun main() {
+
+
+
+
+
+
+
 //    RDClassData.from<Q3<Int>>().also {
 //        println(it.kClass.typeParameters)
 //        println(it.kType?.arguments)

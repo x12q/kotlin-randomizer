@@ -12,7 +12,7 @@ import kotlin.reflect.typeOf
 data class RDClassData(
     val kClass: KClass<*>,
     val kType: KType?,
-): LookupNode {
+): TypeGetter {
 
     /**
      * Query [RDClassData] for a particular [typeParam].

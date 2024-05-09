@@ -3,6 +3,7 @@ package com.x12q.randomizer
 import com.x12q.randomizer.RandomizeGenerator_nested_generic.*
 import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.test_util.TestSamples
+import io.kotest.assertions.throwables.shouldNotThrow
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 import kotlin.test.BeforeTest
@@ -32,14 +33,12 @@ class RandomizeGenerator_nested_generic {
 
     @Test
     fun case1(){
-//        shouldNotThrow<Throwable> {
-//            println(rdm.random(RDClassData.from<Q3<Int>>()))
-//            println(rdm.random(RDClassData.from<Q4<A>>()))
-//            println(rdm.random(RDClassData.from<Q4<Q2<Int>>>()))
-
-//            println(rdm.random(RDClassData.from<Q5<Double>>()))
-//        }
-
+        shouldNotThrow<Throwable> {
+            println(rdm.random(RDClassData.from<Q3<Int>>()))
+            println(rdm.random(RDClassData.from<Q4<A>>()))
+            println(rdm.random(RDClassData.from<Q4<Q2<Int>>>()))
+            println(rdm.random(RDClassData.from<Q5<Double>>()))
+        }
     }
 
     @Test
