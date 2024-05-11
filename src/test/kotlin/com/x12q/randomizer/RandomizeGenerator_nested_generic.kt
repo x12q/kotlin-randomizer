@@ -22,7 +22,8 @@ class RandomizeGenerator_nested_generic {
 
     data class Q1<K,V>(val l:Map<K,V>)
     data class Q2<T>(val l:List<T>)
-    data class Q3<T>(val q2:Q2<T>, val l2:List<T>)
+    data class Q2_2<X1,X2>(val l:Map<X2,X1>)
+    data class Q3<T>(val q2:Q2<T>)
     data class Q4<T>(val q3:Q3<T>)
     data class A(val d:Double,val str:String)
     data class Q5<E>(val q1:Q1<Int,E>)
@@ -51,7 +52,7 @@ class RandomizeGenerator_nested_generic {
 
     @Test
     fun rrr(){
-//        println(rdm.random(RDClassData.from<RD2<Int,Double,Float>>()))
+        println(rdm.random(RDClassData.from<RD2<Int,Double,Float>>()))
         println(rdm.random(RDClassData.from<RD3<Int,Boolean,Float,String>>()))
     }
 
@@ -59,10 +60,13 @@ class RandomizeGenerator_nested_generic {
     @Test
     fun case1(){
         shouldNotThrow<Throwable> {
-//            println(rdm.random(RDClassData.from<Q3<Int>>()))
-//            println(rdm.random(RDClassData.from<Q4<A>>()))
-//            println(rdm.random(RDClassData.from<Q4<Q2<Int>>>()))
-//            println(rdm.random(RDClassData.from<Q5<Double>>()))
+            println(rdm.random(RDClassData.from<Q3<Int>>()))
+            println(rdm.random(RDClassData.from<Q4<A>>()))
+            println(rdm.random(RDClassData.from<Q4<Q2<Int>>>()))
+            println(rdm.random(RDClassData.from<Q5<Double>>()))
+            println(rdm.random(RDClassData.from<Q2_2<Int,String>>()))
+            println(rdm.random(RDClassData.from<Q2<Int>>()))
+            println(rdm.random(RDClassData.from<A2<Int>>()))
         }
     }
 
@@ -70,8 +74,6 @@ class RandomizeGenerator_nested_generic {
     fun case2(){
         println(rdm.random(RDClassData.from<Q4<Q3<Q2<Q4<Int>>>>>()))
     }
-
-
 
 //    @Test
     fun forever(){

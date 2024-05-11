@@ -119,49 +119,23 @@ data class A(val d: Double, val str: String)
 data class Q5<E>(val q1: Q1<Int, E>)
 
 
-data class Inner0<I0_1,I0_2>(
-    val t1:I0_1,
-    val t2:I0_2
+data class Inner0<I0_1, I0_2>(
+    val t1: I0_1,
+    val t2: I0_2
 )
+
 data class Inner1<I1_1, I1_2, I1_3>(
-    val inner0: Inner0<I1_2,I1_3>,
+    val inner0: Inner0<I1_2, I1_3>,
 )
+
 data class Q6<Q6_1, Q6_2>(
     val l: Inner1<Q6_1, Double, Q6_2>
 )
 
-
-
-
-/**
- * A param type map, is a type map extracted from enclusure class, but the index is relevant to the param.
- */
-fun makeParamTypeMap(
-    constructorParam: KParameter,
-    enclosureRDClassData: RDClassData,
-): Map<Int, RDClassData> {
-
-    val ktype = constructorParam.type
-    val arguments = ktype.arguments
-    /**
-     * Perform lookup on [enclosureRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
-     */
-    val typeMapFromEnclosure: Map<Int, RDClassData> = arguments.withIndex().mapNotNull { (index, arg) ->
-        // only consider type parameter, ignore the rest
-        val argTypeParam = arg.type?.classifier as? KTypeParameter
-        val concreteType = argTypeParam?.let { enclosureRDClassData.getDataFor(it) }
-        val pair = concreteType?.let {
-            index to it
-        }
-        pair
-    }.toMap()
-    return typeMapFromEnclosure
-}
-
 fun main() {
 
     val q6 = RDClassData.from<Q6<Int, String>>()
-    val q6ProvideMap = q6.directProvideMap2
+    val q6ProvideMap = q6.makeConjunctionProvideMap2(emptyMap())
 
     q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
 
@@ -175,10 +149,9 @@ fun main() {
          * Remember, each mapping must only the information from the immediate enclosure.
          */
 
-        val typeMapForInner1 = makeParamTypeMap(inner1Param,q6)
         val inner1Class = inner1Param.type.classifier as KClass<*>
-        val inner1RD = RDClassData(inner1Class,inner1Param.type)
-        val inner1TypeMap:Map<String,RDClassData> = inner1RD.makeConjunctionProvideMap2(q6ProvideMap)
+        val inner1RD = RDClassData(inner1Class, inner1Param.type)
+        val inner1TypeMap: Map<String, RDClassData> = inner1RD.makeConjunctionProvideMap2(q6ProvideMap)
 
         inner1Class.primaryConstructor!!.parameters.map { inner0 ->
 
@@ -190,10 +163,10 @@ fun main() {
 
             when (inner0Classifier) {
                 is KClass<*> -> {
-                    inner0Classifier.primaryConstructor!!.parameters.map { paramOfInner0->
+                    inner0Classifier.primaryConstructor!!.parameters.map { paramOfInner0 ->
                         val paramOfInner0 = paramOfInner0.type.classifier
-                        when(paramOfInner0){
-                            is KTypeParameter ->{
+                        when (paramOfInner0) {
+                            is KTypeParameter -> {
                                 val rdDataFromInner1 = inner0FullProvideMap[paramOfInner0.name]
                                 println("+++++ rdDataFromInner1: ${paramOfInner0.name} :${rdDataFromInner1}")
                             }
@@ -201,18 +174,14 @@ fun main() {
                     }
                     println("")
                 }
+
                 is KTypeParameter -> {
                     // lookup type from the outer type map
-                    val outerType = typeMapForInner1[index]
-                    if (outerType != null) {
-                        println("outer: ${outerType}")
-                    } else {
-                        // lookup type from within the parameter
-                        val type = inner1Param.type.arguments[index].type!!
-                        val c = type.classifier as KClass<*>
-                        val rd = RDClassData(c,type)
-                        println("inside: ${rd}")
-                    }
+                    // lookup type from within the parameter
+                    val type = inner1Param.type.arguments[index].type!!
+                    val c = type.classifier as KClass<*>
+                    val rd = RDClassData(c, type)
+                    println("inside: ${rd}")
                 }
             }
         }
