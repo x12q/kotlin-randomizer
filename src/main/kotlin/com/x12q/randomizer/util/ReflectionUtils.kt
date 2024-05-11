@@ -49,6 +49,7 @@ object ReflectionUtils {
     fun makeTypeMap(
         constructorParam: KParameter,
         enclosureRDClassData: RDClassData,
+        parentTypeMap:Map<Int, RDClassData> = emptyMap(),
     ): Map<Int, RDClassData> {
         /**
          * This gives the entire type structure of the param
@@ -59,10 +60,10 @@ object ReflectionUtils {
         /**
          * Perform lookup on [enclosureRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
          */
-        val typeMapFromEnclosure: Map<Int, RDClassData> = ktype.arguments.withIndex().mapNotNull { (index, e) ->
+        val typeMapFromEnclosure: Map<Int, RDClassData> = ktype.arguments.withIndex().mapNotNull { (index, arg) ->
             // only consider type parameter, ignore the rest
-            val ktypeParam = e.type?.classifier as? KTypeParameter
-            val concreteType = ktypeParam?.let { enclosureRDClassData.getDataFor(it) }
+            val argKtypeParam = arg.type?.classifier as? KTypeParameter
+            val concreteType = argKtypeParam?.let { enclosureRDClassData.getDataFor(it) }
             val pair = concreteType?.let {
                 index to it
             }

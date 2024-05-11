@@ -1,6 +1,5 @@
 package com.x12q.randomizer.lookup_node
 
-import com.x12q.randomizer.util.ReflectionUtils.makeTypeMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
@@ -120,16 +119,57 @@ data class A(val d: Double, val str: String)
 data class Q5<E>(val q1: Q1<Int, E>)
 
 
-data class Inner1<I1, I2, I3>(val i1: I1, val i2: I2, val i3: I2)
+data class Inner0<I0_1,I0_2>(
+    val t1:I0_1,
+    val t2:I0_2
+)
+data class Inner1<I1_1, I1_2, I1_3>(
+    val inner0: Inner0<I1_2,I1_3>,
+)
 data class Q6<Q6_1, Q6_2>(
     val l: Inner1<Q6_1, Double, Q6_2>
 )
 
 
-fun main() {
-    val q6 = RDClassData.from<Q6<Int, String>>()
 
-    q6.kClass.primaryConstructor!!.parameters.forEach { parameter ->
+
+/**
+ * A param type map, is a type map extracted from enclusure class, but the index is relevant to the param.
+ */
+fun makeParamTypeMap(
+    constructorParam: KParameter,
+    enclosureRDClassData: RDClassData,
+    upperIndexMap:Map<Int,Int> = emptyMap(),
+    upperTypeMap:Map<Int, RDClassData> = emptyMap(),
+): Map<Int, RDClassData> {
+    /**
+     * This gives the entire type structure of the param
+     * Eg: Q1<Q2<Int>>
+     */
+    val index = constructorParam.index
+    val ktype = constructorParam.type
+    val arguments = ktype.arguments
+    /**
+     * Perform lookup on [enclosureRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
+     */
+    val typeMapFromEnclosure: Map<Int, RDClassData> = arguments.withIndex().mapNotNull { (index, arg) ->
+        // only consider type parameter, ignore the rest
+        val argTypeParam = arg.type?.classifier as? KTypeParameter
+        val concreteType = argTypeParam?.let { enclosureRDClassData.getDataFor(it) }
+        val pair = concreteType?.let {
+            index to it
+        }
+        pair
+    }.toMap()
+    return typeMapFromEnclosure
+}
+
+fun main() {
+
+    val q6 = RDClassData.from<Q6<Int, String>>()
+    val q6ProvideMap = q6.directProvideMap
+
+    q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
 
         /**
          * Will this work?
@@ -140,25 +180,41 @@ fun main() {
          * This process can be repeated for deeper parameter, each only need to construct 1 map from its enclosure's data.
          * Remember, each mapping must only the information from the immediate enclosure.
          */
-        println(parameter.type)
 
-        val typeMapFromEnclosure = makeTypeMap(parameter,q6)
+        val typeMapForInner1 = makeParamTypeMap(inner1Param,q6)
+        val inner1Class = inner1Param.type.classifier as KClass<*>
+        val inner1RD = RDClassData(inner1Class,inner1Param.type)
+        val inner1TypeMap:Map<String,KClass<*>> = inner1RD.makeConjunctionProvideMap(q6ProvideMap)
 
-        val paramClass = parameter.type.classifier as KClass<*>
+        inner1Class.primaryConstructor!!.parameters.map { inner0 ->
 
-        // here it can perform lookup using the map above + data within itself to construct a full list of generic -> concrete mapping
-        paramClass.primaryConstructor!!.parameters.withIndex().map { (index, innerParam) ->
-            val classifier = innerParam.type.classifier
-            when (classifier) {
-                is KClass<*> -> println("class: ${classifier}")
+            val inner0Class = inner0.type.classifier as KClass<*>
+            val inner0RD = RDClassData(inner0Class, inner0.type)
+            val inner0FullProvideMap = inner0RD.makeConjunctionProvideMap(inner1TypeMap)
+            val index = inner0.index
+            val inner0Classifier = inner0.type.classifier
+
+            when (inner0Classifier) {
+                is KClass<*> -> {
+                    inner0Classifier.primaryConstructor!!.parameters.map { paramOfInner0->
+                        val paramOfInner0 = paramOfInner0.type.classifier
+                        when(paramOfInner0){
+                            is KTypeParameter ->{
+                                val rdDataFromInner1 = inner0FullProvideMap[paramOfInner0.name]
+                                println("+++++ rdDataFromInner1 :${rdDataFromInner1}")
+                            }
+                        }
+                    }
+                    println("")
+                }
                 is KTypeParameter -> {
                     // lookup type from the outer type map
-                    val outerType = typeMapFromEnclosure[index]
+                    val outerType = typeMapForInner1[index]
                     if (outerType != null) {
                         println("outer: ${outerType}")
                     } else {
                         // lookup type from within the parameter
-                        val type = parameter.type.arguments[index].type!!
+                        val type = inner1Param.type.arguments[index].type!!
                         val c = type.classifier as KClass<*>
                         val rd = RDClassData(c,type)
                         println("inside: ${rd}")
