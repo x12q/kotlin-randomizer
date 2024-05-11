@@ -56,7 +56,6 @@ data class RandomGenerator @Inject constructor(
                 lv1Randomizer = lv1Randomizer,
                 lv2RandomizerLz = lv2RandomizerClassLz,
                 lv3RandomizerLz = lv3RandomizerLz,
-                typeMap = emptyMap(),
                 upperTypeMap = upperTypeMap,
             )
         }
@@ -92,7 +91,6 @@ data class RandomGenerator @Inject constructor(
                 lv1Randomizer = lv1Randomizer,
                 lv2RandomizerLz = lv2RandomizerClassLz,
                 lv3RandomizerLz = lv3RandomizerLz,
-                typeMap = emptyMap(),
                 upperTypeMap = emptyMap(),
             )
         }
@@ -119,7 +117,6 @@ data class RandomGenerator @Inject constructor(
         lv1Randomizer: ClassRandomizer<*>? = null,
         lv2RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
-        typeMap: Map<Int, RDClassData>,
         upperTypeMap: Map<String,RDClassData>,
     ): Any? {
 
@@ -139,7 +136,10 @@ data class RandomGenerator @Inject constructor(
             return lv3RandomizerClass.random()
         }
 
-        val rdEnumAndPrim = randomEnumAndPrimitives(classData,typeMap,upperTypeMap)
+        val rdEnumAndPrim = randomEnumAndPrimitives(
+            classData = classData,
+            upperTypeMap = upperTypeMap,
+        )
         if (rdEnumAndPrim != null) {
             return rdEnumAndPrim
         }
@@ -229,7 +229,6 @@ data class RandomGenerator @Inject constructor(
         val rs = randomConstructorParameterRs(
             param = kParam,
             enclosingClassData = parentClassData,
-            typeMap = typeMap,
             upperTypeMap = upperTypeMap,
         )
         val rt = rs.getOrElse { err ->
@@ -254,7 +253,6 @@ data class RandomGenerator @Inject constructor(
     fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData,
-        typeMap:Map<Int, RDClassData>,
         upperTypeMap: Map<String,RDClassData>,
     ): Result<Any?, ErrorReport> {
         /**
@@ -599,10 +597,9 @@ data class RandomGenerator @Inject constructor(
 
     private fun randomEnumAndPrimitives(
         classData: RDClassData,
-        typeMap: Map<Int, RDClassData>,
         upperTypeMap: Map<String, RDClassData>,
     ): Any? {
-        return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData, emptyMap(), upperTypeMap)
+        return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData, upperTypeMap)
     }
 
     private fun lv4EnumRandom(classData: RDClassData): Any? {
@@ -612,7 +609,6 @@ data class RandomGenerator @Inject constructor(
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun lv4RandomPrimitive(
         classData: RDClassData,
-        typeMap: Map<Int, RDClassData>,
         upperTypeMap: Map<String, RDClassData>,
     ): Any? {
         val clzz: KClass<*> = classData.kClass
