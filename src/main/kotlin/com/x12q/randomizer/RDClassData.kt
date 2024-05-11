@@ -25,10 +25,10 @@ data class RDClassData(
         val args = kType?.arguments
         val immediateRt = if (typeParameterIndex >= 0) {
             val parameterKType = args?.get(typeParameterIndex)?.type
-            val rt = parameterKType?.let {
-                val kclass = parameterKType.classifier as? KClass<*>
-                if (kclass != null) {
-                    RDClassData(kclass, parameterKType)
+            val rt: RDClassData? = parameterKType?.let {
+                val clzz: KClass<*>? = parameterKType.classifier as? KClass<*>
+                if (clzz != null) {
+                    RDClassData(clzz, parameterKType)
                 } else {
                     null
                 }
@@ -40,30 +40,32 @@ data class RDClassData(
         return immediateRt
     }
 
-    fun makeConjunctionProvideMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
-        val direct = this.directProvideMap
-        val indirect = this.makeIndirectProvideMap(outerTypeMap)
-        return direct + indirect
+    /**
+     * Merged [directDeclaredTypeMap] with indirect provide map created by [makeIndirectTypeMap]
+     */
+    fun makeCompositeDeclaredTypeMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+        val direct = this.directDeclaredTypeMap
+        val indirect = this.makeIndirectTypeMap(outerTypeMap)
+        return indirect + direct
     }
 
     /**
-     * a map that map name of provide type of [RDClassData].
-     * This is direct because it only uses information within this object.
+     * This is a mapping between received type arguments and declared types of this class
      */
-    private val directProvideMap: Map<String, RDClassData> by lazy {
+    internal val directDeclaredTypeMap: Map<String, RDClassData> by lazy {
 
-        val receivedArguments = kType?.arguments
-        val provideTypeParamNames = kClass.typeParameters.map { it.name }
+        val receivedTypes = kType?.arguments
+        val declaredTypeNames = kClass.typeParameters.map { it.name }
 
         val rt: Map<String, RDClassData> =
-            provideTypeParamNames
+            declaredTypeNames
                 .withIndex()
                 .mapNotNull { (argIndex, name) ->
                     /**
                      * Match provide type names with receive arguments.
                      */
                     val type =
-                        receivedArguments?.get(argIndex)?.type // the cast here is because only care about received KClass, ignore everything else
+                        receivedTypes?.get(argIndex)?.type // the cast here is because only care about received KClass, ignore everything else
                     val clzz = type?.classifier as? KClass<*>
                     if (type != null && clzz != null) {
                         Pair(name, RDClassData(clzz, type))
@@ -76,11 +78,11 @@ data class RDClassData(
 
     /**
      * This function does:
-     * - Get the names of all the received arguments
+     * - Get the names of all the received type arguments
      * - Then find a [RDClassData] (from [outerTypeMap]) for each received arg name if it is available
      * - Then map each of the found [RDClassData] to provide type name. This is done through the index of receive args and provide types. Each received argument is for the provide type at the same index.
      */
-    private fun makeIndirectProvideMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+    internal fun makeIndirectTypeMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
 
         val receivedArguments = kType?.arguments
 
@@ -107,9 +109,9 @@ data class RDClassData(
             }
         }.toMap()
 
-        val provideTypeNames: List<String> = kClass.typeParameters.map { it.name }
+        val declaredTypeNames: List<String> = kClass.typeParameters.map { it.name }
 
-        val indirect: Map<String, RDClassData> = provideTypeNames
+        val indirect: Map<String, RDClassData> = declaredTypeNames
             .withIndex()
             .mapNotNull { (index, name) ->
                 val rd: RDClassData? = indexToRdClassData[index]
