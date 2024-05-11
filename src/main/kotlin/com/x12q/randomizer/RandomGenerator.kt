@@ -189,7 +189,6 @@ data class RandomGenerator @Inject constructor(
                                 randomConstructorParameter(
                                     kParam = constructorParam,
                                     parentClassData = classData,
-                                    typeMap = emptyMap(),
                                     upperTypeMap = upperTypeMap,
                                 )
                             }.toTypedArray()
@@ -202,7 +201,6 @@ data class RandomGenerator @Inject constructor(
                                 randomConstructorParameter(
                                     kParam = constructorParam,
                                     parentClassData = classData,
-                                    typeMap = emptyMap(),
                                     upperTypeMap = upperTypeMap,
                                 )
                             }.toTypedArray()
@@ -223,7 +221,6 @@ data class RandomGenerator @Inject constructor(
     fun randomConstructorParameter(
         kParam: KParameter,
         parentClassData: RDClassData,
-        typeMap:Map<Int, RDClassData>,
         upperTypeMap: Map<String, RDClassData>,
     ): Any? {
         val rs = randomConstructorParameterRs(
