@@ -46,10 +46,10 @@ object RandomizerErrors {
         }
     }
     object TypeDoesNotExist {
-        private val header = ErrorHeader(errorCode = errCode(6), "Type does not exist")
+        val header = ErrorHeader(errorCode = errCode(6), "Type does not exist")
         fun report(kTypeParameter: KTypeParameter, parentClazz: RDClassData): ErrorReport {
             val header = header.setDescription(
-                "Type $kTypeParameter in ${parentClazz.kClass} does not exist"
+                "Concrete type for $kTypeParameter in ${parentClazz.kClass} does not exist"
             )
             val rt = header.toErrorReport()
             return rt

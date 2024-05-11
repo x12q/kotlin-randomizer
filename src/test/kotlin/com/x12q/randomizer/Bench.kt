@@ -28,60 +28,67 @@ data class Q6<Q6_1, Q6_2>(
     val l: Inner1<Q6_1, Double, Q6_2>
 )
 
+sealed class SealA{
+    data class A1<T>(val t:T):SealA()
+}
+
 fun main() {
-
-    val q6 = RDClassData.from<Q6<Int, String>>()
-    val q6ProvideMap = q6.makeCompositeDeclaredTypeMap(emptyMap())
-
-    q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
-
-        /**
-         * Will this work?
-         * => This will work because:
-         * Each parameter can use the information from its enclosing class (enclosure) to construct a full map (with index) of generic - concrete type that it can use to query later.
-         * Whatever parameter cannot get from enclosure, it can get from within itself.
-         *
-         * This process can be repeated for deeper parameter, each only need to construct 1 map from its enclosure's data.
-         * Remember, each mapping must only the information from the immediate enclosure.
-         */
-
-        val inner1Class = inner1Param.type.classifier as KClass<*>
-        val inner1RD = RDClassData(inner1Class, inner1Param.type)
-        val inner1TypeMap: Map<String, RDClassData> = inner1RD.makeCompositeDeclaredTypeMap(q6ProvideMap)
-
-        inner1Class.primaryConstructor!!.parameters.map { inner0 ->
-
-            val inner0Class = inner0.type.classifier as KClass<*>
-            val inner0RD = RDClassData(inner0Class, inner0.type)
-            val inner0FullProvideMap = inner0RD.makeCompositeDeclaredTypeMap(inner1TypeMap)
-            val index = inner0.index
-            val inner0Classifier = inner0.type.classifier
-
-            when (inner0Classifier) {
-                is KClass<*> -> {
-                    inner0Classifier.primaryConstructor!!.parameters.map { paramOfInner0 ->
-                        val paramOfInner0 = paramOfInner0.type.classifier
-                        when (paramOfInner0) {
-                            is KTypeParameter -> {
-                                val rdDataFromInner1 = inner0FullProvideMap[paramOfInner0.name]
-                                println("+++++ rdDataFromInner1: ${paramOfInner0.name} :${rdDataFromInner1}")
-                            }
-                        }
-                    }
-                    println("")
-                }
-
-                is KTypeParameter -> {
-                    // lookup type from the outer type map
-                    // lookup type from within the parameter
-                    val type = inner1Param.type.arguments[index].type!!
-                    val c = type.classifier as KClass<*>
-                    val rd = RDClassData(c, type)
-                    println("inside: ${rd}")
-                }
-            }
-        }
-    }
+    println(random<SealA>())
+//    println(random<Map<Int,Double>>())
+//    println(random<List<Int>>())
+//
+//    val q6 = RDClassData.from<Q6<Int, String>>()
+//    val q6ProvideMap = q6.makeCombineTypeMap(emptyMap())
+//
+//    q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
+//
+//        /**
+//         * Will this work?
+//         * => This will work because:
+//         * Each parameter can use the information from its enclosing class (enclosure) to construct a full map (with index) of generic - concrete type that it can use to query later.
+//         * Whatever parameter cannot get from enclosure, it can get from within itself.
+//         *
+//         * This process can be repeated for deeper parameter, each only need to construct 1 map from its enclosure's data.
+//         * Remember, each mapping must only the information from the immediate enclosure.
+//         */
+//
+//        val inner1Class = inner1Param.type.classifier as KClass<*>
+//        val inner1RD = RDClassData(inner1Class, inner1Param.type)
+//        val inner1TypeMap: Map<String, RDClassData> = inner1RD.makeCombineTypeMap(q6ProvideMap)
+//
+//        inner1Class.primaryConstructor!!.parameters.map { inner0 ->
+//
+//            val inner0Class = inner0.type.classifier as KClass<*>
+//            val inner0RD = RDClassData(inner0Class, inner0.type)
+//            val inner0FullProvideMap = inner0RD.makeCombineTypeMap(inner1TypeMap)
+//            val index = inner0.index
+//            val inner0Classifier = inner0.type.classifier
+//
+//            when (inner0Classifier) {
+//                is KClass<*> -> {
+//                    inner0Classifier.primaryConstructor!!.parameters.map { paramOfInner0 ->
+//                        val paramOfInner0 = paramOfInner0.type.classifier
+//                        when (paramOfInner0) {
+//                            is KTypeParameter -> {
+//                                val rdDataFromInner1 = inner0FullProvideMap[paramOfInner0.name]
+//                                println("+++++ rdDataFromInner1: ${paramOfInner0.name} :${rdDataFromInner1}")
+//                            }
+//                        }
+//                    }
+//                    println("")
+//                }
+//
+//                is KTypeParameter -> {
+//                    // lookup type from the outer type map
+//                    // lookup type from within the parameter
+//                    val type = inner1Param.type.arguments[index].type!!
+//                    val c = type.classifier as KClass<*>
+//                    val rd = RDClassData(c, type)
+//                    println("inside: ${rd}")
+//                }
+//            }
+//        }
+//    }
 }
 
 

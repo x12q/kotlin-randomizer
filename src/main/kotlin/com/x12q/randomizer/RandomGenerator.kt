@@ -31,14 +31,14 @@ data class RandomGenerator @Inject constructor(
         return random(
             classData = classData,
             lv2RandomizerClassLz = null,
-            upperTypeMap = classData.makeCompositeDeclaredTypeMap(emptyMap()),
+            typeMap = classData.directTypeMap,
         )
     }
 
     internal fun random(
         classData: RDClassData,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
-        upperTypeMap: Map<String, RDClassData>,
+        typeMap: Map<String, RDClassData>,
     ): Any? {
         val targetClass: KClass<*> = classData.kClass
         val objectInstance = targetClass.objectInstance
@@ -55,7 +55,7 @@ data class RandomGenerator @Inject constructor(
                 lv1Randomizer = lv1Randomizer,
                 lv2RandomizerLz = lv2RandomizerClassLz,
                 lv3RandomizerLz = lv3RandomizerLz,
-                upperTypeMap = upperTypeMap,
+                typeMap = typeMap,
             )
         }
     }
@@ -65,6 +65,7 @@ data class RandomGenerator @Inject constructor(
             innerClassData = classData,
             enclosingObject = outerObj,
             lv2RandomizerClassLz = null,
+            typeMap = classData.directTypeMap
         )
     }
 
@@ -72,6 +73,7 @@ data class RandomGenerator @Inject constructor(
         innerClassData: RDClassData,
         enclosingObject: Any?,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
+        typeMap: Map<String, RDClassData>,
     ): Any? {
         val targetClass: KClass<*> = innerClassData.kClass
         val objectInstance = targetClass.objectInstance
@@ -83,14 +85,14 @@ data class RandomGenerator @Inject constructor(
             val lv1Randomizer = lv1RandomizerCollection.getRandomizer(innerClassData)
 
             val lv3RandomizerLz = lazy { getLv3Randomizer(targetClass) }
-
+            val combineTypeMap = innerClassData.makeCombineTypeMap(typeMap)
             return randomByLv(
                 classData = innerClassData,
                 outerObj = enclosingObject,
                 lv1Randomizer = lv1Randomizer,
                 lv2RandomizerLz = lv2RandomizerClassLz,
                 lv3RandomizerLz = lv3RandomizerLz,
-                upperTypeMap = emptyMap(),
+                typeMap = combineTypeMap,
             )
         }
     }
@@ -116,7 +118,7 @@ data class RandomGenerator @Inject constructor(
         lv1Randomizer: ClassRandomizer<*>? = null,
         lv2RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
-        upperTypeMap: Map<String, RDClassData>,
+        typeMap: Map<String, RDClassData>,
     ): Any? {
 
         val targetClass: KClass<*> = classData.kClass
@@ -137,7 +139,7 @@ data class RandomGenerator @Inject constructor(
 
         val rdEnumAndPrim = randomEnumAndPrimitives(
             classData = classData,
-            upperTypeMap = upperTypeMap,
+            typeMap = typeMap,
         )
         if (rdEnumAndPrim != null) {
             return rdEnumAndPrim
@@ -150,16 +152,17 @@ data class RandomGenerator @Inject constructor(
         } else if (targetClass.isSealed) {
 
             val sealedSubClassList = targetClass.sealedSubclasses
-            val randomSubClass = sealedSubClassList.random()
+            val pickedSealClass = sealedSubClassList.random()
 
+            val sealClassRdData = RDClassData(
+                kClass = pickedSealClass,
+                kType = null,
+            )
+            val combinedTypeMap = sealClassRdData.makeCombineTypeMap(typeMap)
             return random(
-                RDClassData(
-                    kClass = randomSubClass,
-                    /**
-                     * seal class children does not need KType
-                     */
-                    kType = null,
-                )
+                classData = sealClassRdData,
+                lv2RandomizerClassLz = null,
+                typeMap = combinedTypeMap,
             )
 
         } else {
@@ -178,7 +181,7 @@ data class RandomGenerator @Inject constructor(
                                 randomConstructorParameter(
                                     kParam = constructorParam,
                                     parentClassData = classData,
-                                    upperTypeMap = upperTypeMap,
+                                    typeMap = typeMap,
                                 )
                             }.toTypedArray()
 
@@ -190,7 +193,7 @@ data class RandomGenerator @Inject constructor(
                                 randomConstructorParameter(
                                     kParam = constructorParam,
                                     parentClassData = classData,
-                                    upperTypeMap = upperTypeMap,
+                                    typeMap = typeMap,
                                 )
                             }.toTypedArray()
 
@@ -210,19 +213,15 @@ data class RandomGenerator @Inject constructor(
     fun randomConstructorParameter(
         kParam: KParameter,
         parentClassData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
+        typeMap: Map<String, RDClassData>,
     ): Any? {
         val rs = randomConstructorParameterRs(
             param = kParam,
             enclosingClassData = parentClassData,
-            upperTypeMap = upperTypeMap,
+            typeMap = typeMap,
         )
         val rt = rs.getOrElse { err ->
-            if (err.isType(RandomizerErrors.ClassifierNotSupported.header)) {
-                throw err.toException()
-            } else {
-                return null
-            }
+            throw err.toException()
         }
         return rt
     }
@@ -235,11 +234,16 @@ data class RandomGenerator @Inject constructor(
      *
      * [rdChain] already contain [enclosingClassData]
      */
-    @Throws(Throwable::class)
     fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
+        /**
+         * This is accumulative type map calculated up to the point of enclosing class.
+         * Not yet including data from the class of [param].
+         * That is because at this point, it is still unclear if a more detail type map is needed or can be computed or not.
+         * That depends on the type of [param], which will be found out inside this function.
+         */
+        typeMap: Map<String, RDClassData>,
     ): Result<Any?, ErrorReport> {
         /**
          * There are 2 types of parameter:
@@ -250,16 +254,16 @@ data class RandomGenerator @Inject constructor(
          */
 
         val paramType: KType = param.type
-
         val classifier = paramType.classifier
 
         when (classifier) {
             is KClass<*> -> {
+
                 /**
                  * This is for normal parameter
                  */
-                val paramData = RDClassData(classifier, paramType)
 
+                val paramData = RDClassData(classifier, paramType)
                 val lv1Randomizer = lv1RandomizerCollection.getParamRandomizer(paramData)
 
                 if (!lv1Randomizer.isNullOrEmpty()) {
@@ -283,26 +287,29 @@ data class RandomGenerator @Inject constructor(
                         kClass = classifier
                     )
                 }
-                val upperMap = paramData.makeCompositeDeclaredTypeMap(upperTypeMap)
 
+                val combinedTypeMap = paramData.makeCombineTypeMap(typeMap)
 
                 val rt = random(
                     classData = paramData,
                     lv2RandomizerClassLz = lv2Lz,
-                    upperTypeMap= upperMap
+                    typeMap = combinedTypeMap
                 )
                 return Ok(rt)
             }
-            /**
-             * This is for generic-type parameters
-             * such as: class Q<T>(val s:T)
-             */
+
             is KTypeParameter -> {
 
-                val parameterData: RDClassData? = upperTypeMap[classifier.name]
+                /**
+                 * This is for generic-type parameters
+                 * such as: class Q<T>(val s:T)
+                 */
+
+                val parameterData: RDClassData? = typeMap[classifier.name]
                 if (parameterData != null) {
 
                     // lv2 is extracted + type check here, then passed to random(). Within random(), it will be decided lv2 will be used or not.
+                    val combineTypeMap = parameterData.makeCombineTypeMap(typeMap)
 
                     val lv2Lz = lazy {
                         makeLv2ForTypeParam(
@@ -317,7 +324,7 @@ data class RandomGenerator @Inject constructor(
                         random(
                             classData = parameterData,
                             lv2RandomizerClassLz = lv2Lz,
-                            upperTypeMap = emptyMap()
+                            typeMap = combineTypeMap
                         )
                     )
 
@@ -328,6 +335,196 @@ data class RandomGenerator @Inject constructor(
 
             else -> return Err(RandomizerErrors.ClassifierNotSupported.report(classifier))
         }
+    }
+
+
+    /**
+     * lv4 is the default randomizer, only used to generate random instances of primitive data types.
+     */
+
+    private fun randomEnumAndPrimitives(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ): Any? {
+        return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData, typeMap)
+    }
+
+    private fun lv4EnumRandom(classData: RDClassData): Any? {
+        return getEnumValue(classData.kClass)?.random(random)
+    }
+
+    @Suppress("IMPLICIT_CAST_TO_ANY")
+    private fun lv4RandomPrimitive(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ): Any? {
+        val clzz: KClass<*> = classData.kClass
+
+        val primitive = when (clzz) {
+            Char::class -> randomChar()
+            Int::class -> random.nextInt()
+            Long::class -> random.nextLong()
+            Float::class -> random.nextFloat()
+            Double::class -> random.nextDouble()
+            String::class -> randomString(random)
+            Boolean::class -> random.nextBoolean()
+            Byte::class -> random.nextBytes(1)[0]
+            Short::class -> random.nextInt().toShort()
+            List::class, Collection::class, Iterable::class -> {
+                makeRandomList(
+                    classData = classData,
+                    typeMap = typeMap,
+                )
+            }
+
+            Map::class -> makeRandomMap(
+                mapClassData = classData,
+                typeMap = typeMap,
+            )
+
+            Set::class -> makeRandomList(
+                classData = classData,
+                typeMap = typeMap,
+            ).toSet()
+
+            else -> null
+        }
+
+        val rt = primitive
+
+        return rt
+
+    }
+
+    private val collectionSize: IntRange = defaultRandomConfig.collectionSize
+    private val strSize: IntRange = defaultRandomConfig.stringSize
+
+    private fun makeRandomList(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ): List<Any?> {
+
+        val type: KType? = classData.kType
+        val combineTypeMap = classData.makeCombineTypeMap(typeMap)
+
+        if (type != null) {
+            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
+            val elementType = classData.kClass.typeParameters[0].name.let {
+                typeMap[it]?.kType!!
+            }
+            return (1..numOfElements).map {
+                randomElement(
+                    paramKType = elementType,
+                    upperTypeMap = combineTypeMap
+                )
+            }
+        } else {
+            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random List")
+        }
+    }
+
+    private fun makeRandomMap(
+        mapClassData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ): Map<Any?, Any?> {
+
+        val type: KType? = mapClassData.kType
+        val combinedTypeMap = mapClassData.makeCombineTypeMap(typeMap)
+
+        if (type != null) {
+            val elementCount = random.nextInt(collectionSize.first, collectionSize.last + 1)
+            val declaredTypeParams: List<KTypeParameter> = mapClassData.kClass.typeParameters
+
+            val keys = run {
+                val keyType = declaredTypeParams[0].name.let {
+                    typeMap[it]?.kType!!
+                }
+                (1..elementCount).map {
+                    randomElement(
+                        paramKType = keyType,
+                        upperTypeMap = combinedTypeMap,
+                    )
+                }
+            }
+
+            val values = run {
+                val valueType = declaredTypeParams[1].name.let {
+                    typeMap[it]?.kType!!
+                }
+                (1..elementCount).map {
+                    randomElement(
+                        paramKType = valueType,
+                        upperTypeMap = combinedTypeMap,
+                    )
+                }
+            }
+            return keys.zip(values).toMap()
+        } else {
+            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random Map")
+        }
+    }
+
+    /**
+     * Example:
+     * class Q<T>(val l:List<T>)
+     * - paramKType = T
+     * - parent class = List
+     * - enclosing class = Q
+     */
+    private fun randomElement(
+        paramKType: KType,
+        upperTypeMap: Map<String, RDClassData>,
+    ): Any? {
+
+        when (val classifier = paramKType.classifier) {
+            is KClass<*> -> {
+                /**
+                 * This is for normal parameter
+                 */
+                val paramClassData = RDClassData(classifier, paramKType)
+                val typeMap = paramClassData.makeCombineTypeMap(upperTypeMap)
+                val element = random(
+                    classData = paramClassData,
+                    lv2RandomizerClassLz = null,
+                    typeMap = typeMap,
+                )
+                return element
+            }
+            /**
+             * This is for generic-type parameters
+             * such as: class Q<T>(val s:T)
+             */
+            is KTypeParameter -> {
+                val parameterData: RDClassData? = upperTypeMap[classifier.name]
+
+                if (parameterData != null) {
+                    val typeMap = parameterData.makeCombineTypeMap(upperTypeMap)
+                    val element = random(
+                        classData = parameterData,
+                        lv2RandomizerClassLz = null,
+                        typeMap = typeMap,
+                    )
+                    return element
+                } else {
+                    throw IllegalArgumentException("type does not exist for ${classifier} in ${upperTypeMap}")
+                }
+            }
+
+            else -> throw Error("Type of the classifier $classifier is not supported")
+        }
+    }
+
+    private val charRange = defaultRandomConfig.charRange
+
+    private fun randomString(random: Random): String {
+        val range = (1..random.nextInt(strSize.first, strSize.last + 1))
+        return range
+            .map { randomChar() }
+            .joinToString(separator = "") { "$it" }
+    }
+
+    private fun randomChar(): Char {
+        return charRange.random(random)
     }
 
     /**
@@ -576,170 +773,4 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
-
-    /**
-     * lv4 is the default randomizer, only used to generate random instances of primitive data types.
-     */
-
-    private fun randomEnumAndPrimitives(
-        classData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
-    ): Any? {
-        return lv4EnumRandom(classData) ?: lv4RandomPrimitive(classData, upperTypeMap)
-    }
-
-    private fun lv4EnumRandom(classData: RDClassData): Any? {
-        return getEnumValue(classData.kClass)?.random(random)
-    }
-
-    @Suppress("IMPLICIT_CAST_TO_ANY")
-    private fun lv4RandomPrimitive(
-        classData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
-    ): Any? {
-        val clzz: KClass<*> = classData.kClass
-
-        val primitive = when (clzz) {
-            Char::class -> randomChar()
-            Int::class -> random.nextInt()
-            Long::class -> random.nextLong()
-            Float::class -> random.nextFloat()
-            Double::class -> random.nextDouble()
-            String::class -> randomString(random)
-            Boolean::class -> random.nextBoolean()
-            Byte::class -> random.nextBytes(1)[0]
-            Short::class -> random.nextInt().toShort()
-            List::class, Collection::class, Iterable::class -> {
-                makeRandomList(
-                    classData = classData,
-                    upperTypeMap = upperTypeMap,
-                )
-            }
-            Map::class -> makeRandomMap(
-                classData = classData,
-                upperTypeMap = upperTypeMap,
-            )
-            Set::class -> makeRandomList(
-                classData = classData,
-                upperTypeMap = upperTypeMap,
-            ).toSet()
-            else -> null
-        }
-
-        val rt = primitive
-
-        return rt
-
-    }
-
-    private val collectionSize: IntRange = defaultRandomConfig.collectionSize
-    private val strSize: IntRange = defaultRandomConfig.stringSize
-
-    private fun makeRandomList(
-        classData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
-    ): List<Any?> {
-        val type: KType? = classData.kType
-        if (type != null) {
-            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
-            val elementType = classData.kClass.typeParameters[0].name.let {
-                upperTypeMap[it]?.kType!!
-            }
-            return (1..numOfElements).map { randomElement(
-                paramKType = elementType,
-                upperTypeMap = upperTypeMap
-            ) }
-        } else {
-            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random List")
-        }
-    }
-
-    private fun makeRandomMap(
-        classData: RDClassData,
-        upperTypeMap: Map<String, RDClassData>,
-    ): Map<Any?, Any?> {
-        val type: KType? = classData.kType
-        if (type != null) {
-            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
-
-            val keyType = classData.kClass.typeParameters[0].name.let {
-                upperTypeMap[it]?.kType!!
-            }
-            val valType = classData.kClass.typeParameters[1].name.let {
-                upperTypeMap[it]?.kType!!
-            }
-            val keys = (1..numOfElements).map { randomElement(
-                paramKType = keyType,
-                upperTypeMap = upperTypeMap,
-            ) }
-            val values = (1..numOfElements).map { randomElement(
-                paramKType = valType,
-                upperTypeMap = upperTypeMap,
-            ) }
-            return keys.zip(values).toMap()
-        } else {
-            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random Map")
-        }
-    }
-
-    /**
-     * Example:
-     * class Q<T>(val l:List<T>)
-     * - paramKType = T
-     * - parent class = List
-     * - enclosing class = Q
-     */
-    private fun randomElement(
-        paramKType: KType,
-        upperTypeMap: Map<String, RDClassData>,
-    ): Any? {
-
-        when (val classifier = paramKType.classifier) {
-            is KClass<*> -> {
-                /**
-                 * This is for normal parameter
-                 */
-                val paramClassData = RDClassData(classifier, paramKType)
-                val provideTypeMap = paramClassData.makeCompositeDeclaredTypeMap(upperTypeMap)
-                return random(
-                    classData = paramClassData,
-                    lv2RandomizerClassLz = null,
-                    upperTypeMap = provideTypeMap,
-                )
-            }
-            /**
-             * This is for generic-type parameters
-             * such as: class Q<T>(val s:T)
-             */
-            is KTypeParameter -> {
-                val parameterData: RDClassData? = upperTypeMap[classifier.name]
-
-                if (parameterData != null) {
-                    val upperMap = parameterData.makeCompositeDeclaredTypeMap(upperTypeMap)
-                    return random(
-                        classData = parameterData,
-                        lv2RandomizerClassLz = null,
-                        upperTypeMap = upperMap,
-                    )
-                } else {
-                    throw IllegalArgumentException("type does not exist for ${classifier} in ${upperTypeMap}")
-                }
-            }
-
-            else -> throw Error("Type of the classifier $classifier is not supported")
-        }
-    }
-
-    private val charRange = ('A'..'z')
-
-    private fun randomChar(): Char {
-        return charRange.random(random)
-    }
-
-    private fun randomString(random: Random): String {
-        return (1..random.nextInt(
-            strSize.start,
-            strSize.endInclusive + 1
-        )).map { randomChar() }.joinToString(separator = "") { "$it" }
-    }
 }

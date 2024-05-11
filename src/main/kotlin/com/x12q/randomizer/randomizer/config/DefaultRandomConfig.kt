@@ -21,14 +21,17 @@ data class DefaultRandomConfig(
      * To constraint random string size
      */
     val stringSize: IntRange,
+    val charRange:CharRange
 ) {
     @Inject
     constructor() : this(
         collectionSize = 1..20,
         stringSize = 1..30,
+        charRange = ('A'..'z')
     )
 
     companion object {
+
         val default by lazy { DefaultRandomConfig() }
     }
 }

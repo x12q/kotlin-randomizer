@@ -38,15 +38,15 @@ class RDClassDataTest {
             q1Param.type
         )
 
-        q1.directDeclaredTypeMap shouldBe mapOf(
+        q1.directTypeMap shouldBe mapOf(
             "Q1_2" to RDClassData.from<Double>()
         )
 
-        q1.makeIndirectTypeMap(q0.directDeclaredTypeMap) shouldContainExactly mapOf(
+        q1.makeIndirectTypeMap(q0.directTypeMap) shouldContainExactly mapOf(
             "Q1_1" to RDClassData.from<String>()
         )
 
-        q1.makeCompositeDeclaredTypeMap(q0.directDeclaredTypeMap) shouldContainExactly mapOf(
+        q1.makeCombineTypeMap(q0.directTypeMap) shouldContainExactly mapOf(
             "Q1_1" to RDClassData.from<String>(),
             "Q1_2" to RDClassData.from<Double>()
         )
@@ -61,8 +61,8 @@ class RDClassDataTest {
             q2Param.type
         )
 
-        q2.directDeclaredTypeMap shouldBe emptyMap()
-        q2.makeIndirectTypeMap(q0.directDeclaredTypeMap) shouldContainExactly mapOf(
+        q2.directTypeMap shouldBe emptyMap()
+        q2.makeIndirectTypeMap(q0.directTypeMap) shouldContainExactly mapOf(
             "Q2_1" to RDClassData.from<String>(),
             "Q2_2" to RDClassData.from<String>(),
         )
@@ -72,7 +72,7 @@ class RDClassDataTest {
     @Test
     fun directProvideMap() {
         val rd = RDClassData.from<Q0<Int, String>>()
-        rd.directDeclaredTypeMap shouldContainAll mapOf(
+        rd.directTypeMap shouldContainAll mapOf(
             "Q0_1" to RDClassData.from<Int>(),
             "Q0_2" to RDClassData.from<String>()
         )

@@ -24,8 +24,20 @@ class RandomizeGenerator_Sealed_Class {
         object C2 : S1()
         class C3(val i: Int) : S1()
         class C4(val i: String) : S1()
-        class C5<T>(val i:T):S1()
+//        class C5<T>(val i:T):S1()
     }
+
+    sealed class SealA{
+        data class A1<T>(val t:T):SealA()
+    }
+
+    @Test
+    fun `generic seal class`(){
+        shouldThrow<Throwable> {
+            rdm.random(RDClassData.from<SealA>())
+        }
+    }
+
 
     @Test
     fun `random on no annotation`(){

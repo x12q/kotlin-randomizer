@@ -57,7 +57,8 @@ target class is abstract without valid lv3 or lv2
   - x: The len of randomized collection
   - x: The range of primitive number
   - x: way to generate string:
-- 
+- TODO: improve error reporting:
+  - TODO Create a common exception class, and make all error report return that type
  
 Tentative feature:
 - Constructor rule (low priority)
@@ -98,22 +99,10 @@ fun main() {
 }
 ```
 
-
+Issue2: Generic inside seal class
+type info is not available, so it is always null
 ```kotlin
-data class Q2<T>(val l1:List<T>)
-
-data class Q3<T>(val q2:Q2<Int>, val l2:List<T>)
-// this crash.
+sealed class SealA{
+    data class A1<T>(val t:T):SealA()
+}
 ```
-All of type information is available, I need to find a way to pass it down stream.
-Pass down to exact one level
-Q3 -> q2 + l2
-q2 -> l1 
-
-order of search: search within oneself first, then search in parent
-need to create a matching table to match generic types of different name to each other
-Q1<T> (l: List<T>)
-Q2<E>(q1:Q1<E>)
-E <==>T
-
-TODO: the top does not always have the concrete type

@@ -41,10 +41,10 @@ data class RDClassData(
     }
 
     /**
-     * Merged [directDeclaredTypeMap] with indirect provide map created by [makeIndirectTypeMap]
+     * Merged [directTypeMap] with indirect provide map created by [makeIndirectTypeMap]
      */
-    fun makeCompositeDeclaredTypeMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
-        val direct = this.directDeclaredTypeMap
+    fun makeCombineTypeMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+        val direct = this.directTypeMap
         val indirect = this.makeIndirectTypeMap(outerTypeMap)
         return indirect + direct
     }
@@ -52,7 +52,7 @@ data class RDClassData(
     /**
      * This is a mapping between received type arguments and declared types of this class
      */
-    internal val directDeclaredTypeMap: Map<String, RDClassData> by lazy {
+    internal val directTypeMap: Map<String, RDClassData> by lazy {
 
         val receivedTypes = kType?.arguments
         val declaredTypeNames = kClass.typeParameters.map { it.name }
