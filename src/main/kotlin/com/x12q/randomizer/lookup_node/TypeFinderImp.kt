@@ -125,36 +125,6 @@ data class Q6<Q6_1, Q6_2>(
     val l: Inner1<Q6_1, Double, Q6_2>
 )
 
-///**
-// * Construct an index-type map for a particular [constructorParam], using type data from [parentRDClassData].
-// * The index of the output map is: the index of generic type appear in [constructorParam]
-// * Example:
-// * For parameter of type Q<T1,T2,T3>, and given that T1 -> String, T3->Double, T3 -> another generic from enclosure
-// */
-//fun makeTypeMap(
-//    constructorParam: KParameter,
-//    parentRDClassData: RDClassData,
-//): Map<Int, RDClassData> {
-//    /**
-//     * This gives the entire type structure of the param
-//     * Eg: Q1<Q2<Int>>
-//     */
-//    val ktype = constructorParam.type
-//
-//    /**
-//     * Perform lookup on [parentRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
-//     */
-//    val typeMapFromEnclosure: Map<Int, RDClassData> = ktype.arguments.withIndex().mapNotNull { (index, e) ->
-//        // only consider type parameter, ignore the rest
-//        val ktypeParam = e.type?.classifier as? KTypeParameter
-//        val concreteType = ktypeParam?.let { parentRDClassData.getDataFor(it) }
-//        val pair = concreteType?.let {
-//            index to it
-//        }
-//        pair
-//    }.toMap()
-//    return typeMapFromEnclosure
-//}
 
 fun main() {
     val q6 = RDClassData.from<Q6<Int, String>>()
