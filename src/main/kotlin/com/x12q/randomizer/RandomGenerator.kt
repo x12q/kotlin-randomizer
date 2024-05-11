@@ -31,7 +31,7 @@ data class RandomGenerator @Inject constructor(
         return random(
             classData = classData,
             lv2RandomizerClassLz = null,
-            upperTypeMap = classData.makeConjunctionProvideMap2(emptyMap()),
+            upperTypeMap = classData.makeConjunctionProvideMap(emptyMap()),
         )
     }
 
@@ -296,7 +296,7 @@ data class RandomGenerator @Inject constructor(
                         kClass = classifier
                     )
                 }
-                val upperMap = paramData.makeConjunctionProvideMap2(upperTypeMap)
+                val upperMap = paramData.makeConjunctionProvideMap(upperTypeMap)
 
 
                 val rt = random(
@@ -713,7 +713,7 @@ data class RandomGenerator @Inject constructor(
                  * This is for normal parameter
                  */
                 val paramClassData = RDClassData(classifier, paramKType)
-                val provideTypeMap = paramClassData.makeConjunctionProvideMap2(upperTypeMap)
+                val provideTypeMap = paramClassData.makeConjunctionProvideMap(upperTypeMap)
                 return random(
                     classData = paramClassData,
                     lv2RandomizerClassLz = null,
@@ -728,7 +728,7 @@ data class RandomGenerator @Inject constructor(
                 val parameterData: RDClassData? = upperTypeMap[classifier.name]
 
                 if (parameterData != null) {
-                    val upperMap = parameterData.makeConjunctionProvideMap2(upperTypeMap)
+                    val upperMap = parameterData.makeConjunctionProvideMap(upperTypeMap)
                     return random(
                         classData = parameterData,
                         lv2RandomizerClassLz = null,

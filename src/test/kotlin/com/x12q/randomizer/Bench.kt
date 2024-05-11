@@ -31,7 +31,7 @@ data class Q6<Q6_1, Q6_2>(
 fun main() {
 
     val q6 = RDClassData.from<Q6<Int, String>>()
-    val q6ProvideMap = q6.makeConjunctionProvideMap2(emptyMap())
+    val q6ProvideMap = q6.makeConjunctionProvideMap(emptyMap())
 
     q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
 
@@ -47,13 +47,13 @@ fun main() {
 
         val inner1Class = inner1Param.type.classifier as KClass<*>
         val inner1RD = RDClassData(inner1Class, inner1Param.type)
-        val inner1TypeMap: Map<String, RDClassData> = inner1RD.makeConjunctionProvideMap2(q6ProvideMap)
+        val inner1TypeMap: Map<String, RDClassData> = inner1RD.makeConjunctionProvideMap(q6ProvideMap)
 
         inner1Class.primaryConstructor!!.parameters.map { inner0 ->
 
             val inner0Class = inner0.type.classifier as KClass<*>
             val inner0RD = RDClassData(inner0Class, inner0.type)
-            val inner0FullProvideMap = inner0RD.makeConjunctionProvideMap2(inner1TypeMap)
+            val inner0FullProvideMap = inner0RD.makeConjunctionProvideMap(inner1TypeMap)
             val index = inner0.index
             val inner0Classifier = inner0.type.classifier
 

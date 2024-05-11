@@ -40,9 +40,9 @@ data class RDClassData(
         return immediateRt
     }
 
-    fun makeConjunctionProvideMap2(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
-        val direct = this.directProvideMap2
-        val indirect = this.makeIndirectProvideMap2(outerTypeMap)
+    fun makeConjunctionProvideMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+        val direct = this.directProvideMap
+        val indirect = this.makeIndirectProvideMap(outerTypeMap)
         return direct + indirect
     }
 
@@ -50,7 +50,7 @@ data class RDClassData(
      * a map that map name of provide type of [RDClassData].
      * This is direct because it only uses information within this object.
      */
-    val directProvideMap2: Map<String, RDClassData> by lazy {
+    private val directProvideMap: Map<String, RDClassData> by lazy {
 
         val receivedArguments = kType?.arguments
         val provideTypeParamNames = kClass.typeParameters.map { it.name }
@@ -80,7 +80,7 @@ data class RDClassData(
      * - Then find a [RDClassData] (from [outerTypeMap]) for each received arg name if it is available
      * - Then map each of the found [RDClassData] to provide type name. This is done through the index of receive args and provide types. Each received argument is for the provide type at the same index.
      */
-    fun makeIndirectProvideMap2(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+    private fun makeIndirectProvideMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
 
         val receivedArguments = kType?.arguments
 
