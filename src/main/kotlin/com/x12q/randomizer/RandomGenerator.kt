@@ -7,7 +7,6 @@ import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.RandomizerCollection
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
 import com.x12q.randomizer.randomizer_checker.RandomizerChecker
@@ -39,7 +38,7 @@ data class RandomGenerator @Inject constructor(
     internal fun random(
         classData: RDClassData,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
-        upperTypeMap: Map<String,RDClassData>,
+        upperTypeMap: Map<String, RDClassData>,
     ): Any? {
         val targetClass: KClass<*> = classData.kClass
         val objectInstance = targetClass.objectInstance
@@ -117,7 +116,7 @@ data class RandomGenerator @Inject constructor(
         lv1Randomizer: ClassRandomizer<*>? = null,
         lv2RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
         lv3RandomizerLz: Lazy<ClassRandomizer<*>?>? = null,
-        upperTypeMap: Map<String,RDClassData>,
+        upperTypeMap: Map<String, RDClassData>,
     ): Any? {
 
         val targetClass: KClass<*> = classData.kClass
@@ -156,6 +155,9 @@ data class RandomGenerator @Inject constructor(
             return random(
                 RDClassData(
                     kClass = randomSubClass,
+                    /**
+                     * seal class children does not need KType
+                     */
                     /**
                      * seal class children does not need KType
                      */
@@ -250,7 +252,7 @@ data class RandomGenerator @Inject constructor(
     fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData,
-        upperTypeMap: Map<String,RDClassData>,
+        upperTypeMap: Map<String, RDClassData>,
     ): Result<Any?, ErrorReport> {
         /**
          * There are 2 types of parameter:
@@ -310,7 +312,7 @@ data class RandomGenerator @Inject constructor(
              */
             is KTypeParameter -> {
 
-                val parameterData:RDClassData? = upperTypeMap[classifier.name]
+                val parameterData: RDClassData? = upperTypeMap[classifier.name]
                 if (parameterData != null) {
 
                     // lv2 is extracted + type check here, then passed to random(). Within random(), it will be decided lv2 will be used or not.
@@ -723,7 +725,7 @@ data class RandomGenerator @Inject constructor(
              * such as: class Q<T>(val s:T)
              */
             is KTypeParameter -> {
-                val parameterData:RDClassData? = upperTypeMap[classifier.name]
+                val parameterData: RDClassData? = upperTypeMap[classifier.name]
 
                 if (parameterData != null) {
                     val upperMap = parameterData.makeConjunctionProvideMap2(upperTypeMap)

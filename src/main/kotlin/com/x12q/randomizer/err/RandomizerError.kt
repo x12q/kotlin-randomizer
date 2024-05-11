@@ -1,7 +1,7 @@
 package com.x12q.randomizer.err
 
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.RDClassData
 import kotlin.reflect.KClass
 import kotlin.reflect.KClassifier
 import kotlin.reflect.KTypeParameter

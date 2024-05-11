@@ -1,7 +1,7 @@
 package com.x12q.randomizer.randomizer.clazz
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.RDClassData
 
 /**
  * Create a [SameClassRandomizer]

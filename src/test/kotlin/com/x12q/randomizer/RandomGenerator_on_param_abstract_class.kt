@@ -1,6 +1,5 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow

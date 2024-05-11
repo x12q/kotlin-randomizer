@@ -1,6 +1,6 @@
 package com.x12q.randomizer.randomizer
 
-import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.RDClassData
 
 /**
  * Can generate a random instance of some type [T].

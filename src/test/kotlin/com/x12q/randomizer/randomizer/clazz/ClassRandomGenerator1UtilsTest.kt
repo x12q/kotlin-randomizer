@@ -1,6 +1,6 @@
 package com.x12q.randomizer.randomizer.clazz
 
-import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

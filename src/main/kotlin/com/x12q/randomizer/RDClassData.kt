@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lookup_node
+package com.x12q.randomizer
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KType

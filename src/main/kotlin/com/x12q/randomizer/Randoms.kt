@@ -3,7 +3,6 @@ package com.x12q.randomizer
 import com.x12q.randomizer.di.DaggerRandomizerComponent
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
 import kotlin.random.Random
 

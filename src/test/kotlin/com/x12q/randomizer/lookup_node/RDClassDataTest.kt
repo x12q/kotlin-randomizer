@@ -1,5 +1,6 @@
 package com.x12q.randomizer.lookup_node
 
+import com.x12q.randomizer.RDClassData
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

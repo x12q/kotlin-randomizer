@@ -1,6 +1,6 @@
 package com.x12q.randomizer.util
 
-import com.x12q.randomizer.lookup_node.RDClassData
+import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.Randomizer
