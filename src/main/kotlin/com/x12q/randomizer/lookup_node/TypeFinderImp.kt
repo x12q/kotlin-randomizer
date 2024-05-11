@@ -139,14 +139,8 @@ data class Q6<Q6_1, Q6_2>(
 fun makeParamTypeMap(
     constructorParam: KParameter,
     enclosureRDClassData: RDClassData,
-    upperIndexMap:Map<Int,Int> = emptyMap(),
-    upperTypeMap:Map<Int, RDClassData> = emptyMap(),
 ): Map<Int, RDClassData> {
-    /**
-     * This gives the entire type structure of the param
-     * Eg: Q1<Q2<Int>>
-     */
-    val index = constructorParam.index
+
     val ktype = constructorParam.type
     val arguments = ktype.arguments
     /**
@@ -167,7 +161,7 @@ fun makeParamTypeMap(
 fun main() {
 
     val q6 = RDClassData.from<Q6<Int, String>>()
-    val q6ProvideMap = q6.directProvideMap
+    val q6ProvideMap = q6.directProvideMap2
 
     q6.kClass.primaryConstructor!!.parameters.forEach { inner1Param ->
 
@@ -184,13 +178,13 @@ fun main() {
         val typeMapForInner1 = makeParamTypeMap(inner1Param,q6)
         val inner1Class = inner1Param.type.classifier as KClass<*>
         val inner1RD = RDClassData(inner1Class,inner1Param.type)
-        val inner1TypeMap:Map<String,KClass<*>> = inner1RD.makeConjunctionProvideMap(q6ProvideMap)
+        val inner1TypeMap:Map<String,RDClassData> = inner1RD.makeConjunctionProvideMap2(q6ProvideMap)
 
         inner1Class.primaryConstructor!!.parameters.map { inner0 ->
 
             val inner0Class = inner0.type.classifier as KClass<*>
             val inner0RD = RDClassData(inner0Class, inner0.type)
-            val inner0FullProvideMap = inner0RD.makeConjunctionProvideMap(inner1TypeMap)
+            val inner0FullProvideMap = inner0RD.makeConjunctionProvideMap2(inner1TypeMap)
             val index = inner0.index
             val inner0Classifier = inner0.type.classifier
 
@@ -201,7 +195,7 @@ fun main() {
                         when(paramOfInner0){
                             is KTypeParameter ->{
                                 val rdDataFromInner1 = inner0FullProvideMap[paramOfInner0.name]
-                                println("+++++ rdDataFromInner1 :${rdDataFromInner1}")
+                                println("+++++ rdDataFromInner1: ${paramOfInner0.name} :${rdDataFromInner1}")
                             }
                         }
                     }

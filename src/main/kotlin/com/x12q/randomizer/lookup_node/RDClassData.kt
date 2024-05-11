@@ -46,6 +46,11 @@ data class RDClassData(
         val indirect = this.makeIndirectProvideMap(outerTypeMap)
         return direct+indirect
     }
+    fun makeConjunctionProvideMap2(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+        val direct = this.directProvideMap2
+        val indirect = this.makeIndirectProvideMap2(outerTypeMap)
+        return direct+indirect
+    }
     /**
      * Make a matching between internal provide type and [outerTypeMap]
      */
@@ -90,11 +95,62 @@ data class RDClassData(
         val rt: Map<String, KClass<*>> = inner1TypeParams.withIndex().mapNotNull { (i, name) ->
             // the cast here is because only care about received KClass, ignore everything else
             val respective = inner1Arguments?.get(i)?.type?.classifier as? KClass<*>
-            respective?.let {
-                name to it
+            respective?.let { clzz->
+                name to clzz
             }
         }.toMap()
         rt
+    }
+
+    val directProvideMap2: Map<String, RDClassData> by lazy {
+        val inner1Arguments = kType?.arguments
+        // provide
+        val inner1TypeParams = kClass.typeParameters.map { it.name }
+        val rt: Map<String, RDClassData> = inner1TypeParams.withIndex().mapNotNull { (i, name) ->
+            // the cast here is because only care about received KClass, ignore everything else
+            val type = inner1Arguments?.get(i)?.type
+            val clzz = type?.classifier as? KClass<*>
+            if(type!=null && clzz!=null){
+                name to RDClassData(clzz,type)
+            }else{
+                null
+            }
+        }.toMap()
+        rt
+    }
+
+    fun makeIndirectProvideMap2(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
+        // receive
+        val receivedTypes = kType?.arguments
+
+        val indexToTypename = receivedTypes
+            ?.map { (it.type?.classifier as? KTypeParameter)?.name }
+            ?.withIndex()
+            ?.mapNotNull { (index, name) ->
+                name?.let { index to name }
+            }?.toMap() ?: emptyMap()
+
+
+        val m2: Map<Int, RDClassData> = indexToTypename.mapNotNull { (index, name) ->
+            val type = outerTypeMap[name]
+            if (type != null) {
+                index to type
+            } else {
+                null
+            }
+        }.toMap()
+
+        val provide = kClass.typeParameters.map { it.name }
+        val indirect = provide.withIndex().mapNotNull { (index, name) ->
+            val t = m2[index]
+            if (t != null) {
+                name to t
+            } else {
+                null
+            }
+        }.toMap()
+
+        return indirect
     }
 
     fun getKClassFor(typeParam: KTypeParameter): KClass<*>? {
