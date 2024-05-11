@@ -641,12 +641,12 @@ data class RandomGenerator @Inject constructor(
     ): List<Any?> {
         val type: KType? = classData.kType
         if (type != null) {
-            val numOfElements = random.nextInt(collectionSize.start, collectionSize.endInclusive + 1)
-            val elemtType = classData.kClass.typeParameters[0].name.let {
+            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
+            val elementType = classData.kClass.typeParameters[0].name.let {
                 upperTypeMap[it]?.kType!!
             }
             return (1..numOfElements).map { randomElement(
-                paramKType = elemtType,
+                paramKType = elementType,
                 upperTypeMap = upperTypeMap
             ) }
         } else {
@@ -660,7 +660,7 @@ data class RandomGenerator @Inject constructor(
     ): Map<Any?, Any?> {
         val type: KType? = classData.kType
         if (type != null) {
-            val numOfElements = random.nextInt(collectionSize.start, collectionSize.endInclusive + 1)
+            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
 
             val keyType = classData.kClass.typeParameters[0].name.let {
                 upperTypeMap[it]?.kType!!
