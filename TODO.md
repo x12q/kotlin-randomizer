@@ -60,6 +60,15 @@ target class is abstract without valid lv3 or lv2
 - TODO: improve error reporting:
   - TODO simplify it, no need to use elaborated error report. That thing was for UI app.
   - TODO Create a common exception class, and make all error report return that type
+- Improve for seal class:
+  - TODO Add option to create randomizer base on type declaration instead of logic.
+```kotlin
+randomizer<SealClass>(
+    randomizers = randomizers{
+        add(classRandomizer<SealClass.A1<Int>>())
+    }
+)
+```
  
 Tentative feature:
 - Constructor rule (low priority)

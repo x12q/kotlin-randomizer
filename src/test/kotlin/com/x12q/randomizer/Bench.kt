@@ -1,5 +1,7 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.randomizer.builder.randomizers
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import kotlin.reflect.KClass
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.primaryConstructor
@@ -33,7 +35,13 @@ sealed class SealA{
 }
 
 fun main() {
-    println(random<SealA>())
+    println(random<SealA>(
+        randomizers = randomizers {
+            add(classRandomizer {
+                SealA.A1(100)
+            })
+        }
+    ))
 //    println(random<Map<Int,Double>>())
 //    println(random<List<Int>>())
 //
