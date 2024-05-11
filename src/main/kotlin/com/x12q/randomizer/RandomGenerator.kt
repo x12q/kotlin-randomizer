@@ -158,9 +158,6 @@ data class RandomGenerator @Inject constructor(
                     /**
                      * seal class children does not need KType
                      */
-                    /**
-                     * seal class children does not need KType
-                     */
                     kType = null,
                 )
             )
@@ -172,16 +169,6 @@ data class RandomGenerator @Inject constructor(
             val constructor = pickConstructorButIgnoreAnnotationContent(targetClass)
 
             if (constructor != null) {
-
-                val visibility = constructor.visibility
-                val visibilityIsValid = visibility != null
-                        && visibility != KVisibility.PRIVATE
-                        && visibility != KVisibility.INTERNAL
-
-                if (!visibilityIsValid) {
-                    println("WARNING: target constructor of ${targetClass.simpleName}$ should be public or protected")
-                }
-
                 try {
                     if (targetClass.isInner) {
 
