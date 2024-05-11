@@ -1,5 +1,6 @@
 package com.x12q.randomizer.lookup_node
 
+import com.x12q.randomizer.util.ReflectionUtils.makeTypeMap
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
@@ -119,29 +120,47 @@ data class A(val d: Double, val str: String)
 data class Q5<E>(val q1: Q1<Int, E>)
 
 
-
-data class Inner1<I1,I2,I3>(val i1:I1,val i2:I2,val i3:I2)
-data class Q6<Q6_1,Q6_2>(
-    val l: Inner1<Q6_1,Double,Q6_2>
+data class Inner1<I1, I2, I3>(val i1: I1, val i2: I2, val i3: I2)
+data class Q6<Q6_1, Q6_2>(
+    val l: Inner1<Q6_1, Double, Q6_2>
 )
 
+///**
+// * Construct an index-type map for a particular [constructorParam], using type data from [parentRDClassData].
+// * The index of the output map is: the index of generic type appear in [constructorParam]
+// * Example:
+// * For parameter of type Q<T1,T2,T3>, and given that T1 -> String, T3->Double, T3 -> another generic from enclosure
+// */
+//fun makeTypeMap(
+//    constructorParam: KParameter,
+//    parentRDClassData: RDClassData,
+//): Map<Int, RDClassData> {
+//    /**
+//     * This gives the entire type structure of the param
+//     * Eg: Q1<Q2<Int>>
+//     */
+//    val ktype = constructorParam.type
+//
+//    /**
+//     * Perform lookup on [parentRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
+//     */
+//    val typeMapFromEnclosure: Map<Int, RDClassData> = ktype.arguments.withIndex().mapNotNull { (index, e) ->
+//        // only consider type parameter, ignore the rest
+//        val ktypeParam = e.type?.classifier as? KTypeParameter
+//        val concreteType = ktypeParam?.let { parentRDClassData.getDataFor(it) }
+//        val pair = concreteType?.let {
+//            index to it
+//        }
+//        pair
+//    }.toMap()
+//    return typeMapFromEnclosure
+//}
 
 fun main() {
-    val q6 = RDClassData.from<Q6<Int,String>>()
+    val q6 = RDClassData.from<Q6<Int, String>>()
 
-    //Q6<List<Int>>
-    println(q6.kType)
-    // List<Int>
-    println(q6.kType!!.arguments[0])
-    // Int
+    q6.kClass.primaryConstructor!!.parameters.forEach { parameter ->
 
-    println("======")
-    q6.kClass.primaryConstructor!!.parameters.forEach {parameter->
-
-        // I can construct a map of generic type for each parameter here, and pass that to the constructor of such parameter
-        // The map should be using index instead type T name, because the constructor of parameter will use different name
-
-        // will this work????
         /**
          * Will this work?
          * => This will work because:
@@ -151,43 +170,31 @@ fun main() {
          * This process can be repeated for deeper parameter, each only need to construct 1 map from its enclosure's data.
          * Remember, each mapping must only the information from the immediate enclosure.
          */
+        println(parameter.type)
 
-        // THis is type map that parameter construct using the data from its enclosure
-        val typeMapFromEnclosure: Map<Int, RDClassData?> = parameter.type.arguments.withIndex().mapNotNull { (index,e)->
-            val ktypeParam = e.type!!.classifier as? KTypeParameter
-            if(ktypeParam!=null){
-                val concreteType = q6.getDataFor(ktypeParam)
-                index to concreteType
-            }else{
-                null
-            }
-        }.toMap()
+        val typeMapFromEnclosure = makeTypeMap(parameter,q6)
 
         val paramClass = parameter.type.classifier as KClass<*>
 
         // here it can perform lookup using the map above + data within itself to construct a full list of generic -> concrete mapping
-        paramClass.primaryConstructor!!.parameters.withIndex().map{(index,innerParam)->
+        paramClass.primaryConstructor!!.parameters.withIndex().map { (index, innerParam) ->
             val classifier = innerParam.type.classifier
-            when(classifier){
+            when (classifier) {
                 is KClass<*> -> println("class: ${classifier}")
                 is KTypeParameter -> {
                     // lookup type from the outer type map
                     val outerType = typeMapFromEnclosure[index]
-                    if(outerType!=null){
+                    if (outerType != null) {
                         println("outer: ${outerType}")
-                    }else{
+                    } else {
                         // lookup type from within the parameter
-                        println("inside: ${parameter.type.arguments[index].type?.classifier}")
+                        val type = parameter.type.arguments[index].type!!
+                        val c = type.classifier as KClass<*>
+                        val rd = RDClassData(c,type)
+                        println("inside: ${rd}")
                     }
                 }
             }
         }
-
-
-
-
-        // Next:
-        // invoke function to create parameter along with typeMap.
     }
-
 }

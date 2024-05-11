@@ -1,5 +1,6 @@
 package com.x12q.randomizer.util
 
+import com.x12q.randomizer.lookup_node.RDClassData
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.Randomizer
@@ -38,32 +39,36 @@ object ReflectionUtils {
         return createRandomizer(clazz) as ParameterRandomizer<*>
     }
 
-    fun getInnerTypes(kParam: KParameter):List<KTypeParameter>?{
-        val classifier = kParam.type.classifier
-        val innerTypes = when(classifier){
-            is KClass<*> -> classifier.typeParameters
-            is KTypeParameter -> listOf(classifier)
-            else -> null
-        }
-        return innerTypes
-    }
-    /**
-     * Get type parameter supplied by enclosing class within a KParameter
-     */
-    fun getSuppliedTypes(param:KParameter): List<KTypeParameter> {
-        return param.type.arguments.mapNotNull { it.type?.classifier as? KTypeParameter }
-    }
 
     /**
-     * Extract a mapping from inner generic type -> supplied type.
+     * Construct an index-type map for a particular [constructorParam], using type data from [parentRDClassData].
+     * The index of the output map is: the index of generic type appear in [constructorParam]
+     * Example:
+     * For parameter of type Q<T1,T2,T3>, and given that T1 -> String, T3->Double, T3 -> another generic from enclosure
      */
-    fun getTypeMap(kParam:KParameter): Map<KTypeParameter, KTypeParameter>? {
-        val innerTypes = getInnerTypes(kParam)
-        if (innerTypes != null) {
-            val suppliedType = getSuppliedTypes(kParam)
-            return innerTypes.zip(suppliedType).toMap()
-        } else {
-            return null
-        }
+    fun makeTypeMap(
+        constructorParam: KParameter,
+        parentRDClassData: RDClassData,
+    ): Map<Int, RDClassData> {
+        /**
+         * This gives the entire type structure of the param
+         * Eg: Q1<Q2<Int>>
+         */
+        val ktype = constructorParam.type
+
+        /**
+         * Perform lookup on [parentRDClassData] to know which concrete types are passed to this [constructorParam] in place of its generic type, at which index
+         */
+        val typeMapFromEnclosure: Map<Int, RDClassData> = ktype.arguments.withIndex().mapNotNull { (index, e) ->
+            // only consider type parameter, ignore the rest
+            val ktypeParam = e.type?.classifier as? KTypeParameter
+            val concreteType = ktypeParam?.let { parentRDClassData.getDataFor(it) }
+            val pair = concreteType?.let {
+                index to it
+            }
+            pair
+        }.toMap()
+        return typeMapFromEnclosure
     }
+
 }
