@@ -58,6 +58,7 @@ target class is abstract without valid lv3 or lv2
   - x: The range of primitive number
   - x: way to generate string:
 - TODO: improve error reporting:
+  - TODO simplify it, no need to use elaborated error report. That thing was for UI app.
   - TODO Create a common exception class, and make all error report return that type
  
 Tentative feature:
