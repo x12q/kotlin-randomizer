@@ -37,7 +37,6 @@ class RandomizeGenerator_class {
         lv1Randomizer.random(
             classData = RDClassData.from<A1>(),
             lv2RandomizerClassLz = lazy { A1.Randomizer2() },
-            typeMap = emptyMap(),
             upperTypeMap = emptyMap()
         ) shouldBe A1.Randomizer1()
             .random()
