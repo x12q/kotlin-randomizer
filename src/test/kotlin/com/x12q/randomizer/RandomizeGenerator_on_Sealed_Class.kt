@@ -1,7 +1,7 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.builder.randomizers
 import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -12,7 +12,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-class RandomizeGenerator_Sealed_Class {
+class RandomizeGenerator_on_Sealed_Class {
     lateinit var rdm: RandomGenerator
 
     @BeforeTest
@@ -25,8 +25,31 @@ class RandomizeGenerator_Sealed_Class {
         object C2 : S1()
         class C3(val i: Int) : S1()
         class C4(val i: String) : S1()
-        class C5<T>(val i:T):S1()
     }
+
+    sealed class SealA{
+        data class A1<T>(val t:T):SealA()
+    }
+
+    @Test
+    fun `on unknown generic interface seal class`(){
+        shouldThrow<Throwable> {
+            // because type T is unknown -> exception is thrown
+            rdm.random(RDClassData.from<SealA>())
+        }
+        random<SealA>(
+            randomizers = randomizers {
+                randomizerForClass {
+                    SealA.A1(456)
+                }
+//                randomizerForClass<SealA.A1<Int>>()
+                int{
+                    123
+                }
+            }
+        ) shouldBe SealA.A1(456)
+    }
+
 
     @Test
     fun `random on no annotation`(){

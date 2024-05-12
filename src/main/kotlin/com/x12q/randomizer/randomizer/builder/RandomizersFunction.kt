@@ -6,9 +6,9 @@ import com.x12q.randomizer.randomizer.ClassRandomizer
  * Convenient function that invoke [RandomizerListBuilder] to build a list of [ClassRandomizer]
  */
 fun randomizers(
-    configBuilder: RandomizerListBuilder.()->Unit
+    listBuilder: RandomizerListBuilder.()->Unit
 ):Collection<ClassRandomizer<*>>{
     val builder = RandomizerListBuilder()
-    configBuilder(builder)
+    listBuilder(builder)
     return builder.build()
 }

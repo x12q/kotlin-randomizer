@@ -1,7 +1,7 @@
 package com.x12q.randomizer.randomizer.clazz
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.RDClassData
 
 /**
  * An abstract class randomizer that provides same-class checking.

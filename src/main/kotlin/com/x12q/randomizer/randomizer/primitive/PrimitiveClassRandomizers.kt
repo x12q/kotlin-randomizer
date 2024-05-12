@@ -2,6 +2,7 @@ package com.x12q.randomizer.randomizer.primitive
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.util.randomUUIDStr
 import java.util.UUID
 import kotlin.random.Random
 
@@ -97,7 +98,7 @@ fun stringRandomizer(
  */
 fun uuidStringRandomizer(): ClassRandomizer<String> {
     return classRandomizer{
-        UUID.randomUUID().toString()
+        randomUUIDStr()
     }
 }
 

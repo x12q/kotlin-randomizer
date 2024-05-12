@@ -5,7 +5,7 @@ import com.github.michaelbull.result.Ok
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.RDClassData
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter

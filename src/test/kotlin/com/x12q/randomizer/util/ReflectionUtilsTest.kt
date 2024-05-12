@@ -4,14 +4,47 @@ package com.x12q.randomizer.util
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.RDClassData
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KParameter
+import kotlin.reflect.full.primaryConstructor
 import kotlin.test.Test
 
 class ReflectionUtilsTest {
+
+    data class Inner1<I1, I2, I3>(val i1: I1, val i2: I2, val i3: I2)
+    data class Q6<Q6_1, Q6_2>(
+        val l: Inner1<Q6_1, Double, Q6_2>,
+        val t:List<Q6_2>,
+        val t2:Q6_2
+    )
+
+    @Test
+    fun makeTypeMap(){
+        val enclosure = RDClassData.from<Q6<Int, String>>()
+        // l param
+        enclosure.kClass.primaryConstructor!!.parameters[0].also { parameter ->
+            val typeMapFromEnclosure = ReflectionUtils.makeTypeMap(parameter, enclosure)
+            typeMapFromEnclosure shouldBe mapOf(
+                0 to RDClassData.from<Int>(),
+                2 to RDClassData.from<String>()
+            )
+        }
+        // t param
+        enclosure.kClass.primaryConstructor!!.parameters[1].also { parameter ->
+            val typeMapFromEnclosure = ReflectionUtils.makeTypeMap(parameter, enclosure)
+            typeMapFromEnclosure shouldBe mapOf(
+                0 to RDClassData.from<String>(),
+            )
+        }
+        // t2 param
+        enclosure.kClass.primaryConstructor!!.parameters[2].also { parameter ->
+            val typeMapFromEnclosure = ReflectionUtils.makeTypeMap(parameter, enclosure)
+            typeMapFromEnclosure shouldBe emptyMap()
+        }
+    }
 
     abstract class R0:ClassRandomizer<Int>{
         override val returnedInstanceData: RDClassData
@@ -25,6 +58,7 @@ class ReflectionUtilsTest {
             TODO("Not yet implemented")
         }
     }
+
 
     @Test
     fun `createClassRandomizer on abstract class`(){

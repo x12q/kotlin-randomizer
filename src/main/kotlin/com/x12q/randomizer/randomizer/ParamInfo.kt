@@ -1,5 +1,6 @@
 package com.x12q.randomizer.randomizer
 
+import com.x12q.randomizer.RDClassData
 import kotlin.reflect.KParameter
 
 data class ParamInfo(

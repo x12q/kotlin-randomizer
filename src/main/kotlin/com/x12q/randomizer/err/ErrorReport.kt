@@ -9,7 +9,7 @@ sealed interface ErrorReport {
     /**
      * Convert this into an exception.
      */
-    fun toException(): Throwable
+    fun toException(): Exception
 
     /**
      * @return true if this report's header is the same as [errorHeader], false otherwise

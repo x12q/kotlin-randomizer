@@ -1,11 +1,10 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.RandomContext
+import com.x12q.randomizer.random
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
-import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ClassRandomizer]
@@ -15,16 +14,26 @@ class RandomizerListBuilder {
     private var lst = mutableListOf<ClassRandomizer<*>>()
 
     fun build(): Collection<ClassRandomizer<*>> {
-        return lst.toList()
+        return lst
     }
 
     /**
-     * Add a randomizer to this builder.
+     * Add a [randomizer] to this builder.
      */
     fun add(randomizer: ClassRandomizer<*>): RandomizerListBuilder {
         lst.add(randomizer)
         return this
     }
+
+    /**
+     * Add a randomizer that will use [random] function to generate random instances of type [T]
+     */
+    inline fun <reified T> randomizerForClass(
+        crossinline random:()->T
+    ): RandomizerListBuilder {
+        return add(classRandomizer(random))
+    }
+
 
     /**
      * Add a [Set] randomizer to this builder.

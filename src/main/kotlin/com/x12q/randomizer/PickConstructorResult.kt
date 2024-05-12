@@ -6,5 +6,5 @@ import kotlin.reflect.KFunction
 
 data class PickConstructorResult(
     val constructor: KFunction<Any>,
-    val randomizer: KClass<out ClassRandomizer<*>>?
+    val lv3RandomizerClass: KClass<out ClassRandomizer<*>>?
 )

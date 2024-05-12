@@ -8,7 +8,7 @@ import com.github.michaelbull.result.Err
 class SingleErrorReport(
     override val header: ErrorHeader,
     override val data: Any? = null,
-) :Throwable(), ErrorReport {
+): ErrorReport {
 
     override fun toErr():Err<ErrorReport>{
         return Err(this)
@@ -17,8 +17,8 @@ class SingleErrorReport(
     /**
      * Convert this into an exception. If already hold an exception, return that exception
      */
-    override fun toException(): Throwable {
-        return this
+    override fun toException(): Exception {
+        return RandomizerError(this.toString())
     }
 
     override fun plus(another: ErrorReport): ErrorReport {
@@ -43,7 +43,7 @@ class SingleErrorReport(
 
     override fun toString(): String {
         val rt = """
-type: ${this.header}
+${this.header}
 ${if (data != null) "data:${data}" else ""}
         """.trimIndent()
         return rt
@@ -67,9 +67,4 @@ ${if (data != null) "data:${data}" else ""}
         return c1 && this.data == another.data
     }
 
-    companion object{
-        fun random(): SingleErrorReport {
-            return SingleErrorReport(header = ErrorHeader.random())
-        }
-    }
 }

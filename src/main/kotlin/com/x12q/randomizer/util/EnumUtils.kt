@@ -13,7 +13,7 @@ internal fun KClass<*>.isEnum():Boolean{
 /**
  * Extract enum value from a [KClass]. For jvm only.
  */
-fun getEnumValueJvm(clazz: KClass<*>): Array<*>? {
+internal fun getEnumValueJvm(clazz: KClass<*>): Array<*>? {
     if(clazz.isEnum()){
         return clazz.java.enumConstants
     }else{
@@ -21,6 +21,6 @@ fun getEnumValueJvm(clazz: KClass<*>): Array<*>? {
     }
 }
 
-fun getEnumValue(clazz:KClass<*>):Array<*>?{
+internal fun getEnumValue(clazz:KClass<*>):Array<*>?{
     return getEnumValueJvm(clazz)
 }

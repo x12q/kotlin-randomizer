@@ -57,7 +57,18 @@ target class is abstract without valid lv3 or lv2
   - x: The len of randomized collection
   - x: The range of primitive number
   - x: way to generate string:
-- 
+- x: improve error reporting:
+  - x: Create a common exception class, and make all error report return that type
+- Improve for seal class:
+  - TODO Add option to create randomizer base on type declaration instead of logic.
+- TODO: add more comprehensive support for type in standard library
+```kotlin
+randomizer<SealClass>(
+    randomizers = randomizers{
+        add(classRandomizer<SealClass.A1<Int>>())
+    }
+)
+```
  
 Tentative feature:
 - Constructor rule (low priority)
@@ -95,5 +106,13 @@ fun main() {
     ) // this throw exception IllegalArgumentException: Callable expects 7 arguments, but 3 were provided
 
     println(C::class.primaryConstructor!!.call(BooleanRef(), BooleanRef(), BooleanRef(), BooleanRef(),1, "", true)) // this works
+}
+```
+
+Issue2: Generic inside seal class
+type info is not available, so it is always null
+```kotlin
+sealed class SealA{
+    data class A1<T>(val t:T):SealA()
 }
 ```

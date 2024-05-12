@@ -2,7 +2,7 @@ package com.x12q.randomizer.randomizer.param
 
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.RDClassData
+import com.x12q.randomizer.RDClassData
 
 /**
  * Create a [ParameterRandomizer] that check parameter with [condition], and generate random instances with [random]

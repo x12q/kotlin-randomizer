@@ -1,7 +1,7 @@
-import com.vanniktech.maven.publish.JavadocJar
-import com.vanniktech.maven.publish.KotlinJvm
-import com.vanniktech.maven.publish.SonatypeHost
-import org.jetbrains.kotlin.gradle.idea.proto.generated.tcs.ideaKotlinProjectCoordinatesProto
+//import com.vanniktech.maven.publish.JavadocJar
+//import com.vanniktech.maven.publish.KotlinJvm
+//import com.vanniktech.maven.publish.SonatypeHost
+//import org.jetbrains.kotlin.gradle.idea.proto.generated.tcs.ideaKotlinProjectCoordinatesProto
 
 plugins {
     val kotlinVersion = libs.versions.kotlin.get()
@@ -9,7 +9,8 @@ plugins {
     kotlin("kapt") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     alias(libs.plugins.anvil)
-    id("com.vanniktech.maven.publish") version "0.28.0"
+//    id("com.vanniktech.maven.publish") version "0.28.0"
+    `maven-publish`
 }
 
 val javaVersion = libs.versions.jvmVersion.get().toInt()
@@ -47,38 +48,54 @@ kotlin {
 //    }
 }
 
-mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
-    coordinates(group.toString(), id, version.toString())
+//mavenPublishing {
+//    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+//    signAllPublications()
+//    coordinates(group.toString(), id, version.toString())
+//
+//    pom{
+//        name.set("Randomizer")
+//        description.set("A randomizer library for Kotlin")
+//        inceptionYear.set("2024")
+//        url.set("https://github.com/x12q/randomizer")
+//        licenses {
+//            license {
+//                name.set("The Apache License, Version 2.0")
+//                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+//                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+//            }
+//        }
+//        developers {
+//            developer {
+//                id.set("x12q")
+//                name.set("The-Phong Pham")
+//                url.set("x12q.com")
+//            }
+//        }
+//        scm {
+//            url.set("https://github.com/x12q/randomizer")
+//            connection.set("scm:git:git://github.com/x12q/randomizer.git")
+//            developerConnection.set("scm:git:ssh://git@github.com/x12q/randomizer.git")
+//        }
+//        issueManagement {
+//            system.set("GitHub Issues")
+//            url.set("https://github.com/x12q/randomizer/issues")
+//        }
+//    }
+//}
 
-    pom{
-        name.set("Randomizer")
-        description.set("A randomizer library for Kotlin")
-        inceptionYear.set("2024")
-        url.set("https://github.com/x12q/randomizer")
-        licenses {
-            license {
-                name.set("The Apache License, Version 2.0")
-                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-            }
-        }
-        developers {
-            developer {
-                id.set("x12q")
-                name.set("The-Phong Pham")
-                url.set("x12q.com")
-            }
-        }
-        scm {
-            url.set("https://github.com/x12q/randomizer")
-            connection.set("scm:git:git://github.com/x12q/randomizer.git")
-            developerConnection.set("scm:git:ssh://git@github.com/x12q/randomizer.git")
-        }
-        issueManagement {
-            system.set("GitHub Issues")
-            url.set("https://github.com/x12q/randomizer/issues")
+
+
+publishing {
+    /**
+     * This is for local publishing
+     */
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = group.toString()
+            artifactId = id
+            version = version
+            from(components["java"])
         }
     }
 }

@@ -2,6 +2,7 @@ package com.x12q.randomizer.randomizer.builder
 
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
 
 /**
@@ -15,9 +16,29 @@ class ParamRandomizerListBuilder {
         return lst.toList()
     }
 
+
     fun add(randomizer: ParameterRandomizer<*>): ParamRandomizerListBuilder {
         lst.add(randomizer)
         return this
+    }
+
+    inline fun <reified T> randomizerForParameter(
+        crossinline condition: (target: ParamInfo) -> Boolean,
+        crossinline random: (ParamInfo) -> T,
+    ): ParamRandomizerListBuilder {
+       return this.add(paramRandomizer(
+           condition = condition,
+           random = random
+       ))
+    }
+
+    /**
+     * Create a [ParameterRandomizer] that only check for type match
+     */
+    inline fun <reified T> randomizerForParameter(
+        crossinline random: (ParamInfo) -> T,
+    ): ParamRandomizerListBuilder {
+        return this.add(paramRandomizer(random))
     }
 
     /**

@@ -8,7 +8,7 @@ import com.github.michaelbull.result.Err
 data class MultiErrorReport (
     override val header: ErrorHeader,
     val singleErrorReportList: List<ErrorReport>
-) : Throwable(), ErrorReport {
+): ErrorReport {
 
     override val data: List<ErrorReport>
         get() = singleErrorReportList
@@ -21,8 +21,8 @@ data class MultiErrorReport (
         return Err(this)
     }
 
-    override fun toException(): Throwable {
-        return this
+    override fun toException(): Exception {
+        return RandomizerError(this.toString())
     }
 
     /**
