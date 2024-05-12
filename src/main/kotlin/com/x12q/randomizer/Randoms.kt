@@ -23,16 +23,6 @@ inline fun <reified T> randomFromBuilder(
     )
 }
 
-inline fun <reified T> randomFromContext(
-    context: RandomContext,
-): T {
-    return randomFromBuilder(
-        random = context.random,
-        randomizersBuilder = context.randomizersBuilder,
-        paramRandomizersBuilder = context.paramRandomizersBuilder,
-        defaultRandomConfig = context.randomizerConfig
-    )
-}
 /**
  * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
  * can override default random logic.

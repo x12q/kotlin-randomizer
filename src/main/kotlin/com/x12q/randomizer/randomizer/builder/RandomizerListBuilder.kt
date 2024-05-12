@@ -12,12 +12,9 @@ import com.x12q.randomizer.randomizer.primitive.*
 class RandomizerListBuilder {
 
     private var lst = mutableListOf<ClassRandomizer<*>>()
-    private val lzz by lazy {
-        lst.toList()
-    }
 
     fun build(): Collection<ClassRandomizer<*>> {
-        return lzz
+        return lst
     }
 
     /**
@@ -37,16 +34,6 @@ class RandomizerListBuilder {
         return add(classRandomizer(random))
     }
 
-
-    inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
-        val context:RandomContext? = null
-        return add(
-            /**
-             * This randomizer need access to the whole randomizer context
-             */
-            classRandomizer<T>(context)
-        )
-    }
 
     /**
      * Add a [Set] randomizer to this builder.

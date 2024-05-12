@@ -39,15 +39,15 @@ class RandomizeGenerator_on_Sealed_Class {
         }
         random<SealA>(
             randomizers = randomizers {
-//                randomizerForClass {
-//                    SealA.A1(456)
-//                }
-                randomizerForClass<SealA.A1<Int>>()
+                randomizerForClass {
+                    SealA.A1(456)
+                }
+//                randomizerForClass<SealA.A1<Int>>()
                 int{
                     123
                 }
             }
-        ) shouldBe SealA.A1(123)
+        ) shouldBe SealA.A1(456)
     }
 
 

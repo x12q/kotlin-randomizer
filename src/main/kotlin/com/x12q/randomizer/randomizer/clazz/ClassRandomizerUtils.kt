@@ -4,17 +4,8 @@ import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.random
-import com.x12q.randomizer.randomFromContext
 
 
-inline fun <reified T> classRandomizer(
-    // TODO this context need to be the common context used in a call, and it needs to be fixed
-    context: RandomContext
-): ClassRandomizer<T> {
-    return classRandomizer {
-        randomFromContext<T>(context)
-    }
-}
 
 /**
  * Create a [SameClassRandomizer]
