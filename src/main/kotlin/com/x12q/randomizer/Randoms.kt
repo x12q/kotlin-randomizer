@@ -8,30 +8,15 @@ import com.x12q.randomizer.randomizer.builder.RandomizerListBuilder
 import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import kotlin.random.Random
 
-
-inline fun <reified T> random2(
-    random: Random = Random,
-    randomizersBuilder: RandomizerListBuilder = RandomizerListBuilder(),
-    paramRandomizersBuilder: ParamRandomizerListBuilder = ParamRandomizerListBuilder(),
-    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
-): T {
-    return random(
-        random = random,
-        randomizers = randomizersBuilder.build(),
-        paramRandomizers = paramRandomizersBuilder.build(),
-        defaultRandomConfig = defaultRandomConfig,
-    )
-}
-
 /**
  * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
  * can override default random logic.
  */
 inline fun <reified T> random(
     random: Random = Random,
-    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
-    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
-    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
+    randomizers: RandomizerListBuilder = RandomizerListBuilder(),
+    paramRandomizers: ParamRandomizerListBuilder = ParamRandomizerListBuilder(),
+    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default,
 ): T {
 
     val comp = DaggerRandomizerComponent.builder()
@@ -42,8 +27,8 @@ inline fun <reified T> random(
         rdm.copy(
             lv1RandomizerCollection = rdm
                 .lv1RandomizerCollection
-                .addParamRandomizer(*paramRandomizers.toTypedArray())
-                .addRandomizers(*randomizers.toTypedArray()),
+                .addParamRandomizer(paramRandomizers.build())
+                .addRandomizers(randomizers.build()),
             defaultRandomConfig = defaultRandomConfig,
         )
     }
@@ -51,7 +36,6 @@ inline fun <reified T> random(
     val clzzData = RDClassData.from<T>()
     return randomizer.random(clzzData) as T
 }
-
 
 /**
  * Make a random instance of an inner class [T] within [enclosingObject].
@@ -63,26 +47,6 @@ inline fun <reified T : Any> randomInnerClass(
     paramRandomizers: ParamRandomizerListBuilder,
     defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
 ): T {
-    return randomInnerClass(
-        enclosingObject = enclosingObject,
-        random = random,
-        randomizers = randomizers.build(),
-        paramRandomizers = paramRandomizers.build(),
-        defaultRandomConfig = defaultRandomConfig,
-    )
-}
-
-
-/**
- * Make a random instance of an inner class [T] within [enclosingObject].
- */
-inline fun <reified T : Any> randomInnerClass(
-    enclosingObject: Any,
-    random: Random = Random,
-    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
-    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
-    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
-): T {
     val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)
         .build()
@@ -90,12 +54,11 @@ inline fun <reified T : Any> randomInnerClass(
     val randomizer = comp.randomizer().let {
         it.copy(
             lv1RandomizerCollection = it.lv1RandomizerCollection
-                .addParamRandomizer(*paramRandomizers.toTypedArray())
-                .addRandomizers(*randomizers.toTypedArray()),
+                .addParamRandomizer(paramRandomizers.build())
+                .addRandomizers(randomizers.build()),
             defaultRandomConfig = defaultRandomConfig,
         )
     }
     val clzzData = RDClassData.from<T>()
     return randomizer.randomInnerClass(clzzData, enclosingObject) as T
 }
-

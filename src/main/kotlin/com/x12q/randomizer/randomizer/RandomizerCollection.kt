@@ -17,22 +17,24 @@ data class RandomizerCollection(
 ) {
 
     @Inject
-    constructor(
-        random: Random
-    ) : this(emptyMap(), emptyMap(),random)
+    constructor(random: Random) : this(emptyMap(), emptyMap(),random)
 
-    fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
+    fun addParamRandomizer(newRandomizers: Collection<ParameterRandomizer<*>>): RandomizerCollection {
         val newMap = newRandomizers.groupBy { it.paramClassData }
         return this.copy(
             parameterRandomizers = parameterRandomizers + newMap
         )
     }
 
+    fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
+        return addParamRandomizer(newRandomizers.toList())
+    }
+
     fun getParamRandomizer(key: RDClassData): List<ParameterRandomizer<*>>? {
         return parameterRandomizers[key]
     }
 
-    fun addRandomizers(vararg newRandomizers: ClassRandomizer<*>): RandomizerCollection {
+    fun addRandomizers(newRandomizers: Collection<ClassRandomizer<*>>): RandomizerCollection {
         val newMap:MutableMap<RDClassData, List<ClassRandomizer<*>>> = classRandomizers.toMutableMap()
         val newRandomizersMap = newRandomizers.groupBy { it.returnedInstanceData }
 
@@ -49,6 +51,10 @@ data class RandomizerCollection(
         return this.copy(
             classRandomizers = newMap.toMap()
         )
+    }
+
+    fun addRandomizers(vararg newRandomizers: ClassRandomizer<*>): RandomizerCollection {
+        return addRandomizers(newRandomizers.toList())
     }
 
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {

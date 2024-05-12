@@ -210,7 +210,7 @@ data class RandomGenerator @Inject constructor(
     }
 
     @Throws(Throwable::class)
-    fun randomConstructorParameter(
+    private fun randomConstructorParameter(
         kParam: KParameter,
         parentClassData: RDClassData,
         typeMap: Map<String, RDClassData>,
@@ -234,7 +234,7 @@ data class RandomGenerator @Inject constructor(
      *
      * [rdChain] already contain [enclosingClassData]
      */
-    fun randomConstructorParameterRs(
+    private fun randomConstructorParameterRs(
         param: KParameter,
         enclosingClassData: RDClassData,
         /**
