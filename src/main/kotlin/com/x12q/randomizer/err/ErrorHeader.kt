@@ -1,7 +1,5 @@
 package com.x12q.randomizer.err
 
-import java.util.*
-
 
 data class ErrorHeader(val errorCode: String, val errorDescription: String){
     override fun toString(): String {

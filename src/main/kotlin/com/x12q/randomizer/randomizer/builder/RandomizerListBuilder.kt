@@ -1,6 +1,5 @@
 package com.x12q.randomizer.randomizer.builder
 
-import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.random
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
@@ -70,9 +69,7 @@ class RandomizerListBuilder {
     /**
      * Add an [Int] randomizer that generate random int within [range] to this builder.
      */
-    fun int(
-        range: IntRange
-    ): RandomizerListBuilder {
+    fun int(range: IntRange): RandomizerListBuilder {
         lst.add(intRandomizer(range))
         return this
     }
@@ -82,11 +79,6 @@ class RandomizerListBuilder {
      */
     fun int(until:Int): RandomizerListBuilder {
         lst.add(intRandomizer(until))
-        return this
-    }
-
-    fun int(): RandomizerListBuilder {
-        lst.add(intRandomizer())
         return this
     }
 
@@ -101,9 +93,7 @@ class RandomizerListBuilder {
     /**
      * Add a [Float] randomizer that generate random float with a range to this builder.
      */
-    fun float(
-        from: Float, to: Float
-    ): RandomizerListBuilder {
+    fun float(from: Float, to: Float): RandomizerListBuilder {
         lst.add(floatRandomizer(from, to))
         return this
     }
@@ -113,14 +103,6 @@ class RandomizerListBuilder {
      */
     fun float(until: Float): RandomizerListBuilder {
         lst.add(floatRandomizer(until))
-        return this
-    }
-
-    /**
-     * Add a [Float] randomizer to this builder.
-     */
-    fun float(): RandomizerListBuilder {
-        lst.add(floatRandomizer())
         return this
     }
 
@@ -154,9 +136,7 @@ class RandomizerListBuilder {
     /**
      * Convenient function to create a [ClassRandomizer] that can produce random doubles within a range
      */
-    fun double(
-        from:Double, to:Double
-    ): RandomizerListBuilder {
+    fun double(from:Double, to:Double): RandomizerListBuilder {
         lst.add(doubleRandomizer(from,to))
         return this
     }
@@ -169,13 +149,6 @@ class RandomizerListBuilder {
         return this
     }
 
-    /**
-     * Convenient function to create a [ClassRandomizer] that can produce doubles floats
-     */
-    fun double(): RandomizerListBuilder {
-        lst.add(doubleRandomizer())
-        return this
-    }
 
     /**
      * Add a [Byte] randomizer to this builder.
@@ -202,14 +175,6 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a [Boolean] randomizer to this builder.
-     */
-    fun boolean(): RandomizerListBuilder {
-        lst.add(booleanRandomizer())
-        return this
-    }
-
-    /**
      * Add a [Long] randomizer to this builder.
      */
     fun long(random: () -> Long): RandomizerListBuilder {
@@ -232,14 +197,6 @@ class RandomizerListBuilder {
      */
     fun long(until:Long): RandomizerListBuilder {
         lst.add(longRandomizer(until))
-        return this
-    }
-
-    /**
-     * Add a [Long] randomizer to this builder.
-     */
-    fun long(): RandomizerListBuilder {
-        lst.add(longRandomizer())
         return this
     }
 

@@ -2,7 +2,6 @@ package com.x12q.randomizer.randomizer.clazz
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.RDClassData
-import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.random
 
 

@@ -5,11 +5,11 @@ import kotlin.reflect.KParameter
 
 /**
  * For randomizing parameters.
- * * This is to specify random logic for parameters that meet certain requirement (name, type, parent class, etc).
- *  * For example:
- *  * - Generate float representing latitude and longitude.
- *  * - Generate string representing human name
- *  * - Generate string/number representing phone number
+ * This is to specify random logic for parameters that meet certain requirement (name, type, parent class, etc).
+ * For example:
+ *  - Generate float representing latitude and longitude.
+ *  - Generate string representing human name
+ *  - Generate string/number representing phone number
  */
 interface ParameterRandomizer<out T> : Randomizer<T> {
     /**
