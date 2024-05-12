@@ -30,18 +30,8 @@ data class Q6<Q6_1, Q6_2>(
     val l: Inner1<Q6_1, Double, Q6_2>
 )
 
-sealed class SealA{
-    data class A1<T>(val t:T):SealA()
-}
 
 fun main() {
-    println(random<SealA>(
-        randomizers = randomizers {
-            add(classRandomizer {
-                SealA.A1(100)
-            })
-        }
-    ))
 //    println(random<Map<Int,Double>>())
 //    println(random<List<Int>>())
 //

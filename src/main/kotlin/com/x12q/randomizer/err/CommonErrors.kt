@@ -1,9 +1,13 @@
 package com.x12q.randomizer.err
 
-object CommonErrors {
-    private const val prefix = "Common Error "
 
-    fun makeCommonExceptionErrorReport(templateHeader: ErrorHeader,detail:String?,exception: Throwable): ErrorReport {
+object CommonErrors {
+    private const val prefix = "COMMON_ERR-"
+
+    private fun errCode(code:Int):String{
+        return "$prefix${code}"
+    }
+    private fun makeCommonExceptionErrorReport(templateHeader: ErrorHeader,detail:String?,exception: Throwable): ErrorReport {
         return SingleErrorReport(
             header = templateHeader.let { errHeader ->
                 detail?.let {
@@ -18,7 +22,7 @@ object CommonErrors {
      * this error indicates that an exception was caught
      */
     object ExceptionError {
-        val header = ErrorHeader("${prefix}3", "Exception error")
+        val header = ErrorHeader(errCode(3), "Exception error")
 
         fun report(exception: Throwable): ErrorReport {
             return makeCommonExceptionErrorReport(header.appendDescription(":${exception}"),null,exception)
@@ -29,9 +33,7 @@ object CommonErrors {
     }
 
     object MultipleErrors {
-        val header = ErrorHeader("$prefix 4", "Multiple errors")
-
-        data class Data(val errorList: List<ErrorReport>)
+        val header = ErrorHeader(errCode(4), "Multiple errors")
 
         fun report(errorList: List<ErrorReport>): MultiErrorReport {
             return MultiErrorReport(

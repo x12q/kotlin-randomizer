@@ -9,7 +9,7 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.full.createInstance
 
-object ReflectionUtils {
+internal object ReflectionUtils {
 
     /**
      * Create a [Randomizer] from its [KClass]

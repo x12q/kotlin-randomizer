@@ -6,17 +6,15 @@ import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
 import kotlin.random.Random
 
+inline fun <reified T> random(
+    randomConfig:RandomConfig
+):T{
 
-/**
- * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
- * can override default random logic.
- */
-inline fun <reified T : Any> random(
-    random: Random = Random,
-    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
-    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
-    defaultRandomConfig: DefaultRandomConfig = DefaultRandomConfig.default
-): T {
+    val random = randomConfig.random
+    val randomizers = randomConfig.randomizers
+    val paramRandomizers = randomConfig.paramRandomizers
+    val defaultRandomConfig = randomConfig.defaultRandomConfig
+
     val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)
         .build()
@@ -32,6 +30,27 @@ inline fun <reified T : Any> random(
 
     val clzzData = RDClassData.from<T>()
     return randomizer.random(clzzData) as T
+}
+
+/**
+ * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
+ * can override default random logic.
+ */
+inline fun <reified T> random(
+    random: Random = Random,
+    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
+    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
+    defaultRandomConfig: DefaultRandomConfig = DefaultRandomConfig.default
+): T {
+
+    val config = RandomContextImp(
+        random = random,
+        randomizers = randomizers,
+        paramRandomizers = paramRandomizers,
+        defaultRandomConfig = defaultRandomConfig
+    )
+
+    return random(config)
 }
 
 /**

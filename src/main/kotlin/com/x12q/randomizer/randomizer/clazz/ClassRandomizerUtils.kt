@@ -2,6 +2,7 @@ package com.x12q.randomizer.randomizer.clazz
 
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.random
 
 /**
  * Create a [SameClassRandomizer]
@@ -13,6 +14,15 @@ inline fun <reified T> classRandomizer(
         returnedInstanceData = RDClassData.from<T>(),
         makeRandom = {
             random()
+        },
+    )
+}
+
+inline fun <reified T> classRandomizer(): ClassRandomizer<T> {
+    return SameClassRandomizer(
+        returnedInstanceData = RDClassData.from<T>(),
+        makeRandom = {
+            random<T>()
         },
     )
 }

@@ -4,6 +4,7 @@ import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
+import com.x12q.randomizer.util.randomUUIDStr
 import java.util.UUID
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -135,7 +136,7 @@ fun stringParamRandomizer(
 fun uuidStringParamRandomizer(
 ): ParameterRandomizer<String> {
     return paramRandomizer {
-        UUID.randomUUID().toString()
+        randomUUIDStr()
     }
 }
 
