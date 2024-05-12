@@ -3,7 +3,6 @@ package com.x12q.randomizer
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.builder.randomizers
 import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
-import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
@@ -35,21 +34,20 @@ class RandomizeGenerator_on_Sealed_Class {
     @Test
     fun `on unknown generic interface seal class`(){
         shouldThrow<Throwable> {
-//             because type T is unknown -> exception is thrown
+            // because type T is unknown -> exception is thrown
             rdm.random(RDClassData.from<SealA>())
         }
-        println(
-            random<SealA>(
-                randomizers = randomizers {
-                    forClass {
-                        SealA.A1(456)
-                    }
-                    int{
-                        123
-                    }
+        random<SealA>(
+            randomizers = randomizers {
+//                randomizerForClass {
+//                    SealA.A1(456)
+//                }
+                randomizerForClass<SealA.A1<Int>>()
+                int{
+                    123
                 }
-            )
-        )
+            }
+        ) shouldBe SealA.A1(123)
     }
 
 

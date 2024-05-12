@@ -125,7 +125,7 @@ well, as any class. It is the recommended way to create custom randomizers. It l
 ```kotlin
 val randomInstance = random<SomeClass>(
     randomizers = randomizers {
-        forClass {
+        randomizerForClass {
             // custom randomizer for some class 
             SomeClass.random()
         }
@@ -312,6 +312,19 @@ Like this:
 ```kotlin
 val randomInstance = random<MyClass>(
     paramRandomizers = paramRandomizers {
+
+        randomizerForParameter {
+            ABC.random()
+        }
+
+        randomizerForParameter(
+            condition = {
+                // some condition
+            }
+        ) {
+            SomeClass.random()
+        }
+        
         float(
             condition = { paramInfo ->
                 // this means: only apply this randomizer to latitude parameter in LatLng class 
@@ -325,18 +338,7 @@ val randomInstance = random<MyClass>(
             // this applies to all other float parameter
             123f
         }
-
-        forParameter {
-            ABC.random()
-        }
-
-        forParameter(
-            condition = {
-                // some condition
-            }
-        ) {
-            SomeClass.random()
-        }
+        
         add(YourRandomizer()) // call add() to add your custom randomizer
     }
 )
@@ -352,20 +354,6 @@ Like this:
 ```kotlin
  val randomInstance = random<MyClass>(
     paramRandomizers = listOf(
-        floatParamRandomizer(
-            condition = { paramInfo ->
-                // this means: only apply this randomizer to latitude parameter in LatLng class
-                paramInfo.paramName == "latitude" && paramInfo.enclosingClassIs<LatLng>()
-            }
-        ) {
-            456f
-        },
-
-        floatParamRandomizer {
-            // this applies to all other float parameter
-            123f
-        },
-
         paramRandomizer {
             ABC.random()
         },
@@ -377,6 +365,21 @@ Like this:
         ) {
             SomeClass.random()
         },
+        
+        floatParamRandomizer(
+            condition = { paramInfo ->
+                // this means: only apply this randomizer to latitude parameter in LatLng class
+                paramInfo.paramName == "latitude" && paramInfo.enclosingClassIs<LatLng>()
+            }
+        ) {
+            456f
+        },
+        
+        floatParamRandomizer {
+            // this applies to all other float parameter
+            123f
+        },
+        
         YourRandomizer(), // your custom randomizer
     )
 )

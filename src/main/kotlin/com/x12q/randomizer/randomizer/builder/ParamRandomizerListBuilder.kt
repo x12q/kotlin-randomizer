@@ -1,12 +1,9 @@
 package com.x12q.randomizer.randomizer.builder
 
-import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
-import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ParameterRandomizer]
@@ -25,7 +22,7 @@ class ParamRandomizerListBuilder {
         return this
     }
 
-    inline fun <reified T> forParameter(
+    inline fun <reified T> randomizerForParameter(
         crossinline condition: (target: ParamInfo) -> Boolean,
         crossinline random: (ParamInfo) -> T,
     ): ParamRandomizerListBuilder {
@@ -38,7 +35,7 @@ class ParamRandomizerListBuilder {
     /**
      * Create a [ParameterRandomizer] that only check for type match
      */
-    inline fun <reified T> forParameter(
+    inline fun <reified T> randomizerForParameter(
         crossinline random: (ParamInfo) -> T,
     ): ParamRandomizerListBuilder {
         return this.add(paramRandomizer(random))

@@ -1,11 +1,10 @@
 package com.x12q.randomizer.randomizer.builder
 
 import com.x12q.randomizer.RandomContext
+import com.x12q.randomizer.random
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
-import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import com.x12q.randomizer.randomizer.primitive.*
-import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ClassRandomizer]
@@ -32,10 +31,21 @@ class RandomizerListBuilder {
     /**
      * Add a randomizer that will use [random] function to generate random instances of type [T]
      */
-    inline fun <reified T> forClass(
+    inline fun <reified T> randomizerForClass(
         crossinline random:()->T
     ): RandomizerListBuilder {
         return add(classRandomizer(random))
+    }
+
+
+    inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
+        val context:RandomContext? = null
+        return add(
+            /**
+             * This randomizer need access to the whole randomizer context
+             */
+            classRandomizer<T>(context)
+        )
     }
 
     /**
