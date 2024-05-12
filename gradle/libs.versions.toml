@@ -1,6 +1,6 @@
 [versions]
 groupName = "com.x12q"
-version = "1.0.0-alpha.3"
+version = "1.0.0-alpha.4"
 
 kotlin="1.9.20"
 jvmVersion = "8"
