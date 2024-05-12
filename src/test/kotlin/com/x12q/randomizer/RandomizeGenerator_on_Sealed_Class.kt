@@ -43,6 +43,9 @@ class RandomizeGenerator_on_Sealed_Class {
             random<SealA>(
                 randomizers = randomizers {
                     add(classRandomizer<SealA.A1<Int>>())
+                    int{
+                        123
+                    }
                 }
             )
         )

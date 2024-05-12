@@ -3,17 +3,47 @@ package com.x12q.randomizer
 import com.x12q.randomizer.di.DaggerRandomizerComponent
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
+import com.x12q.randomizer.randomizer.builder.ParamRandomizerListBuilder
+import com.x12q.randomizer.randomizer.builder.RandomizerListBuilder
+import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import kotlin.random.Random
 
-inline fun <reified T> random(
-    randomConfig:RandomConfig
-):T{
 
-    val random = randomConfig.random
-    val randomizers = randomConfig.randomizers
-    val paramRandomizers = randomConfig.paramRandomizers
-    val defaultRandomConfig = randomConfig.defaultRandomConfig
+inline fun <reified T> randomFromBuilder(
+    random: Random = Random,
+    randomizers: RandomizerListBuilder,
+    paramRandomizers: ParamRandomizerListBuilder,
+    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
+): T {
+
+    return random<T>(
+        random = random,
+        randomizers = randomizers.build(),
+        paramRandomizers = paramRandomizers.build(),
+        defaultRandomConfig = defaultRandomConfig,
+    )
+}
+inline fun <reified T> randomFromContext(
+    context: RandomContext,
+): T {
+
+    return randomFromBuilder(
+        random = context.random,
+        randomizers = context.randomizers,
+        paramRandomizers = context.paramRandomizers,
+        defaultRandomConfig = context.randomizerConfig
+    )
+}
+/**
+ * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
+ * can override default random logic.
+ */
+inline fun <reified T> random(
+    random: Random = Random,
+    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
+    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
+    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
+): T {
 
     val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)
@@ -33,27 +63,6 @@ inline fun <reified T> random(
 }
 
 /**
- * Make a random instance of [T] with the option to specify [randomizers] and [paramRandomizers] that
- * can override default random logic.
- */
-inline fun <reified T> random(
-    random: Random = Random,
-    randomizers: Collection<ClassRandomizer<*>> = emptyList(),
-    paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
-    defaultRandomConfig: DefaultRandomConfig = DefaultRandomConfig.default
-): T {
-
-    val config = RandomContextImp(
-        random = random,
-        randomizers = randomizers,
-        paramRandomizers = paramRandomizers,
-        defaultRandomConfig = defaultRandomConfig
-    )
-
-    return random(config)
-}
-
-/**
  * Make a random instance of an inner class [T] within [enclosingObject].
  */
 inline fun <reified T : Any> randomInnerClass(
@@ -61,7 +70,7 @@ inline fun <reified T : Any> randomInnerClass(
     random: Random = Random,
     randomizers: Collection<ClassRandomizer<*>> = emptyList(),
     paramRandomizers: Collection<ParameterRandomizer<*>> = emptyList(),
-    defaultRandomConfig: DefaultRandomConfig = DefaultRandomConfig.default
+    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
 ): T {
     val comp = DaggerRandomizerComponent.builder()
         .setRandom(random)

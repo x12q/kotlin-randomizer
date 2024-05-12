@@ -1,25 +1,60 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.randomizer.ClassRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import com.x12q.randomizer.randomizer.primitive.*
+import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ClassRandomizer]
  */
-class RandomizerListBuilder {
+class RandomizerListBuilder : RandomContext {
 
     private var lst = mutableListOf<ClassRandomizer<*>>()
+    private val lzz by lazy {
+        lst.toList()
+    }
 
     fun build(): Collection<ClassRandomizer<*>> {
-        return lst.toList()
+        return lzz
+    }
+
+    private var context:RandomContext? = null
+
+    override val random: Random
+        get() = context?.random ?: Random
+
+    override val randomizerConfig: RandomizerConfig
+        get() = context?.randomizerConfig ?: RandomizerConfig.default
+
+    override val randomizers: RandomizerListBuilder
+        get() = context?.randomizers ?: RandomizerListBuilder()
+
+    override val paramRandomizers: ParamRandomizerListBuilder
+        get() = context?.paramRandomizers ?: ParamRandomizerListBuilder()
+
+    fun addContext(config: RandomContext):RandomizerListBuilder{
+        this.context = config
+        return this
     }
 
     /**
-     * Add a randomizer to this builder.
+     * Add a [randomizer] to this builder.
      */
     fun add(randomizer: ClassRandomizer<*>): RandomizerListBuilder {
         lst.add(randomizer)
         return this
+    }
+
+    /**
+     * Add a randomizer that will use [random] function to generate random instances of type [T]
+     */
+    inline fun <reified T> forClass(
+        crossinline random:()->T
+    ): RandomizerListBuilder {
+        return add(classRandomizer(random))
     }
 
     /**

@@ -125,10 +125,10 @@ well, as any class. It is the recommended way to create custom randomizers. It l
 ```kotlin
 val randomInstance = random<SomeClass>(
     randomizers = randomizers {
-        add(classRandomizer {
+        forClass {
             // custom randomizer for some class 
             SomeClass.random()
-        })
+        }
 
         int {
             // custom randomizer for Int
@@ -149,7 +149,7 @@ val randomInstance = random<SomeClass>(
             // custom randomizer for List<Float>
             listOf(1f, 2f)
         }
-
+        add(YourRandomizer()) // call add() to add your custom randomizer
     }
 )
 ```
@@ -181,7 +181,8 @@ val randomInstance = random<MyClass>(
         listRandomizer {
             // custom randomizer for List<Float>
             listOf(1f, 2f)
-        }
+        },
+        YourRandomizer(), // your custom randomizer
     )
 )
 ```
@@ -325,17 +326,18 @@ val randomInstance = random<MyClass>(
             123f
         }
 
-        add(paramRandomizer {
+        forParameter {
             ABC.random()
-        })
+        }
 
-        add(paramRandomizer(
+        forParameter(
             condition = {
                 // some condition
             }
         ) {
             SomeClass.random()
-        })
+        }
+        add(YourRandomizer()) // call add() to add your custom randomizer
     }
 )
 ```
@@ -374,7 +376,8 @@ Like this:
             }
         ) {
             SomeClass.random()
-        }
+        },
+        YourRandomizer(), // your custom randomizer
     )
 )
 ```

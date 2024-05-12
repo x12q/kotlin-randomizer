@@ -8,7 +8,7 @@ import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.RandomizerCollection
-import com.x12q.randomizer.randomizer.config.DefaultRandomConfig
+import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import com.x12q.randomizer.randomizer_checker.RandomizerChecker
 import com.x12q.randomizer.util.ReflectionUtils
 import com.x12q.randomizer.util.getEnumValue
@@ -24,7 +24,7 @@ data class RandomGenerator @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
     val randomizerChecker: RandomizerChecker,
-    val defaultRandomConfig: DefaultRandomConfig,
+    val defaultRandomConfig: RandomizerConfig,
 ) {
 
     fun random(classData: RDClassData): Any? {

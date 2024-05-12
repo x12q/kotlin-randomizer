@@ -14,3 +14,10 @@ fun paramRandomizers(
     return builder.build()
 }
 
+fun paramRandomizers2(
+    listBuilder: ParamRandomizerListBuilder.()->Unit
+):ParamRandomizerListBuilder{
+    val builder = ParamRandomizerListBuilder()
+    listBuilder(builder)
+    return builder
+}

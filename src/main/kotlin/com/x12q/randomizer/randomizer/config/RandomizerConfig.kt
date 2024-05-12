@@ -4,7 +4,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * It is noted that this configuration data is used only by the default and lowest-level randomizer.
+ * This configuration data is used only by the default and lowest-level randomizer.
  * Therefore, if there are prioritized randomizers (such as one provided by users) then these config are ignore entirely for applicable type/class.
  *
  * For example:
@@ -12,7 +12,7 @@ import javax.inject.Singleton
  * - If there's a prioritized randomizer targeting list of int, then this config will not be used to generate any list of int. But, it is still used to generate lists of string or any other type.
  */
 @Singleton
-data class DefaultRandomConfig(
+data class RandomizerConfig(
     /**
      * To constraint [Map], [List], [Set] size
      */
@@ -32,6 +32,6 @@ data class DefaultRandomConfig(
 
     companion object {
 
-        val default by lazy { DefaultRandomConfig() }
+        val default by lazy { RandomizerConfig() }
     }
 }

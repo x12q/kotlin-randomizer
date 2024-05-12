@@ -1,13 +1,21 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
+import com.x12q.randomizer.randomizer.config.RandomizerConfig
+import com.x12q.randomizer.randomizer.param.ConditionalParamRandomizer
+import com.x12q.randomizer.randomizer.param.SameClassParamRandomizer
+import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
+import kotlin.random.Random
 
 /**
  * A builder that can build a list of [ParameterRandomizer]
  */
-class ParamRandomizerListBuilder {
+class ParamRandomizerListBuilder : RandomContext {
 
     private var lst = mutableListOf<ParameterRandomizer<*>>()
 
@@ -15,9 +23,47 @@ class ParamRandomizerListBuilder {
         return lst.toList()
     }
 
+    private var context: RandomContext? = null
+
+    override val random: Random
+        get() = context?.random ?: Random
+
+    override val randomizerConfig: RandomizerConfig
+        get() = context?.randomizerConfig ?: RandomizerConfig.default
+
+    override val randomizers: RandomizerListBuilder
+        get() = context?.randomizers ?: RandomizerListBuilder()
+
+    override val paramRandomizers: ParamRandomizerListBuilder
+        get() = context?.paramRandomizers ?: ParamRandomizerListBuilder()
+
+    fun addContext(config: RandomContext):ParamRandomizerListBuilder{
+        this.context = config
+        return this
+    }
+
     fun add(randomizer: ParameterRandomizer<*>): ParamRandomizerListBuilder {
         lst.add(randomizer)
         return this
+    }
+
+    inline fun <reified T> forParameter(
+        crossinline condition: (target: ParamInfo) -> Boolean,
+        crossinline random: (ParamInfo) -> T,
+    ): ParamRandomizerListBuilder {
+       return this.add(paramRandomizer(
+           condition = condition,
+           random = random
+       ))
+    }
+
+    /**
+     * Create a [ParameterRandomizer] that only check for type match
+     */
+    inline fun <reified T> forParameter(
+        crossinline random: (ParamInfo) -> T,
+    ): ParamRandomizerListBuilder {
+        return this.add(paramRandomizer(random))
     }
 
     /**
