@@ -57,7 +57,7 @@ Custom random logic can also be easily provided via `random()` function or `@Ran
 ## [Gradle &#9650;](#top) <a id="gradle"></a>
 ```
 dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.1")
+    implementation("com.x12q:randomizer:1.0.0-alpha.3")
 }
 ```
 ## [Maven &#9650;](#top) <a id="maven"></a>
