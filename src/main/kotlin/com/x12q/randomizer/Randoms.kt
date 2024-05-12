@@ -9,13 +9,13 @@ import com.x12q.randomizer.randomizer.config.RandomizerConfig
 import kotlin.random.Random
 
 
-inline fun <reified T> randomFromBuilder(
+inline fun <reified T> random2(
     random: Random = Random,
-    randomizersBuilder: RandomizerListBuilder,
-    paramRandomizersBuilder: ParamRandomizerListBuilder,
+    randomizersBuilder: RandomizerListBuilder = RandomizerListBuilder(),
+    paramRandomizersBuilder: ParamRandomizerListBuilder = ParamRandomizerListBuilder(),
     defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
 ): T {
-    return random<T>(
+    return random(
         random = random,
         randomizers = randomizersBuilder.build(),
         paramRandomizers = paramRandomizersBuilder.build(),
@@ -51,6 +51,27 @@ inline fun <reified T> random(
     val clzzData = RDClassData.from<T>()
     return randomizer.random(clzzData) as T
 }
+
+
+/**
+ * Make a random instance of an inner class [T] within [enclosingObject].
+ */
+inline fun <reified T : Any> randomInnerClass(
+    enclosingObject: Any,
+    random: Random = Random,
+    randomizers: RandomizerListBuilder,
+    paramRandomizers: ParamRandomizerListBuilder,
+    defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
+): T {
+    return randomInnerClass(
+        enclosingObject = enclosingObject,
+        random = random,
+        randomizers = randomizers.build(),
+        paramRandomizers = paramRandomizers.build(),
+        defaultRandomConfig = defaultRandomConfig,
+    )
+}
+
 
 /**
  * Make a random instance of an inner class [T] within [enclosingObject].

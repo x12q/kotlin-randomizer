@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 /**
- *
+ * Annotation to provide custom randomizer to class, constructor
  */
 @Target(CLASS, VALUE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)

@@ -6,7 +6,9 @@ import kotlin.random.Random
 import kotlin.reflect.full.isSubclassOf
 
 /**
- * A collection of [ClassRandomizer] and [ParameterRandomizer]
+ * A collection of [ClassRandomizer] and [ParameterRandomizer].
+ * For one class, there can be multiple randomizers. But only one will be used to generate such class.
+ * Such selection is random for [classRandomizers], for [parameterRandomizers] condition check is performed.
  */
 data class RandomizerCollection(
     val parameterRandomizers: Map<RDClassData, List<ParameterRandomizer<*>>>,

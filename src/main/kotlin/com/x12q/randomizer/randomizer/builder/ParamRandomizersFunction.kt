@@ -14,7 +14,7 @@ fun paramRandomizers(
     return builder.build()
 }
 
-fun paramRandomizers2(
+fun paramRandomizersBuilder(
     listBuilder: ParamRandomizerListBuilder.()->Unit
 ):ParamRandomizerListBuilder{
     val builder = ParamRandomizerListBuilder()
