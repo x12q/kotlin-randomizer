@@ -12,13 +12,28 @@ A random instance of any class can be created as easy as this:
 ```kotlin
 val instance = random<MyClass>()
 ```
-Custom random logic can also be easily provided via `random()` function or `@Randomizable` annotation. Read more below to see how. 
+Custom random logic can also be easily provided via `random()` function or `@Randomizable` annotation. Read more below to see how.
+
+Get it here:
+
+
+## [Gradle](#gradle) <a id="gradle"></a>
+```
+dependencies {
+    implementation("com.x12q:randomizer:1.0.0-alpha.3")
+}
+```
+## [Maven](#maven) <a id="maven"></a>
+```
+<dependency>
+    <groupId>com.x12q</groupId>
+    <artifactId>randomizer</artifactId>
+    <version>1.0.0-alpha.3</version>
+</dependency>
+```
 # Content 
 <a id="top"></a>
 
-- [Install](#install)
-  - [Gradle](#gradle)
-  - [Maven](#maven)
 - [How to](#how-to)
     - [Randomize a class](#how-to-1)
     - [Randomize a class with custom randomizers](#how-to-2)
@@ -49,25 +64,7 @@ Custom random logic can also be easily provided via `random()` function or `@Ran
         - [For inner class](#rule-1-6)
 - [Limitation](#limitation)
 
-<a id="install"></a>
 
-# [Install &#9650;](#top)
-
-
-## [Gradle &#9650;](#top) <a id="gradle"></a>
-```
-dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.3")
-}
-```
-## [Maven &#9650;](#top) <a id="maven"></a>
-```
-<dependency>
-    <groupId>com.x12q</groupId>
-    <artifactId>randomizer</artifactId>
-    <version>1.0.0-alpha.1</version>
-</dependency>
-```
 
 # [How to &#9650;](#top) <a id="how-to"></a>
 
