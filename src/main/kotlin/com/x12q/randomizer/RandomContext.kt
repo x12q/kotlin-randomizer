@@ -12,6 +12,6 @@ import kotlin.random.Random
 interface RandomContext{
     val random: Random
     val randomizerConfig: RandomizerConfig
-    val randomizers: RandomizerListBuilder
-    val paramRandomizers: ParamRandomizerListBuilder
+    val randomizersBuilder: RandomizerListBuilder
+    val paramRandomizersBuilder: ParamRandomizerListBuilder
 }

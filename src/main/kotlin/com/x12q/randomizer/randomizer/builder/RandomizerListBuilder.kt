@@ -10,7 +10,7 @@ import kotlin.random.Random
 /**
  * A builder that can build a list of [ClassRandomizer]
  */
-class RandomizerListBuilder : RandomContext {
+class RandomizerListBuilder {
 
     private var lst = mutableListOf<ClassRandomizer<*>>()
     private val lzz by lazy {
@@ -19,25 +19,6 @@ class RandomizerListBuilder : RandomContext {
 
     fun build(): Collection<ClassRandomizer<*>> {
         return lzz
-    }
-
-    private var context:RandomContext? = null
-
-    override val random: Random
-        get() = context?.random ?: Random
-
-    override val randomizerConfig: RandomizerConfig
-        get() = context?.randomizerConfig ?: RandomizerConfig.default
-
-    override val randomizers: RandomizerListBuilder
-        get() = context?.randomizers ?: RandomizerListBuilder()
-
-    override val paramRandomizers: ParamRandomizerListBuilder
-        get() = context?.paramRandomizers ?: ParamRandomizerListBuilder()
-
-    fun addContext(config: RandomContext):RandomizerListBuilder{
-        this.context = config
-        return this
     }
 
     /**

@@ -11,26 +11,25 @@ import kotlin.random.Random
 
 inline fun <reified T> randomFromBuilder(
     random: Random = Random,
-    randomizers: RandomizerListBuilder,
-    paramRandomizers: ParamRandomizerListBuilder,
+    randomizersBuilder: RandomizerListBuilder,
+    paramRandomizersBuilder: ParamRandomizerListBuilder,
     defaultRandomConfig: RandomizerConfig = RandomizerConfig.default
 ): T {
-
     return random<T>(
         random = random,
-        randomizers = randomizers.build(),
-        paramRandomizers = paramRandomizers.build(),
+        randomizers = randomizersBuilder.build(),
+        paramRandomizers = paramRandomizersBuilder.build(),
         defaultRandomConfig = defaultRandomConfig,
     )
 }
+
 inline fun <reified T> randomFromContext(
     context: RandomContext,
 ): T {
-
     return randomFromBuilder(
         random = context.random,
-        randomizers = context.randomizers,
-        paramRandomizers = context.paramRandomizers,
+        randomizersBuilder = context.randomizersBuilder,
+        paramRandomizersBuilder = context.paramRandomizersBuilder,
         defaultRandomConfig = context.randomizerConfig
     )
 }
@@ -49,9 +48,10 @@ inline fun <reified T> random(
         .setRandom(random)
         .build()
 
-    val randomizer = comp.randomizer().let {
-        it.copy(
-            lv1RandomizerCollection = it.lv1RandomizerCollection
+    val randomizer = comp.randomizer().let {rdm->
+        rdm.copy(
+            lv1RandomizerCollection = rdm
+                .lv1RandomizerCollection
                 .addParamRandomizer(*paramRandomizers.toTypedArray())
                 .addRandomizers(*randomizers.toTypedArray()),
             defaultRandomConfig = defaultRandomConfig,

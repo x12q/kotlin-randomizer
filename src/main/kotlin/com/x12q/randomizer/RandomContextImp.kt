@@ -8,6 +8,6 @@ import kotlin.random.Random
 data class RandomContextImp(
     override val random: Random,
     override val randomizerConfig: RandomizerConfig,
-    override val randomizers: RandomizerListBuilder,
-    override val paramRandomizers: ParamRandomizerListBuilder,
+    override val randomizersBuilder: RandomizerListBuilder,
+    override val paramRandomizersBuilder: ParamRandomizerListBuilder,
 ): RandomContext

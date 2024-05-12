@@ -21,11 +21,10 @@ inline fun <reified T> classRandomizer(
 }
 
 inline fun <reified T> RandomContext.classRandomizer(): ClassRandomizer<T> {
-    val context = this
     return SameClassRandomizer(
         returnedInstanceData = RDClassData.from<T>(),
         makeRandom = {
-            randomFromContext<T>(context)
+            randomFromContext<T>(this)
         },
     )
 }

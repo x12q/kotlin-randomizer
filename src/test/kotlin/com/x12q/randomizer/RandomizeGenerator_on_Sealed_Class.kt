@@ -34,15 +34,16 @@ class RandomizeGenerator_on_Sealed_Class {
 
     @Test
     fun `on unknown generic interface seal class`(){
-//        shouldThrow<Throwable> {
-////             because type T is unknown -> exception is thrown
-//            rdm.random(RDClassData.from<SealA>())
-//        }
-
+        shouldThrow<Throwable> {
+//             because type T is unknown -> exception is thrown
+            rdm.random(RDClassData.from<SealA>())
+        }
         println(
             random<SealA>(
                 randomizers = randomizers {
-                    add(classRandomizer<SealA.A1<Int>>())
+                    forClass {
+                        SealA.A1(456)
+                    }
                     int{
                         123
                     }
