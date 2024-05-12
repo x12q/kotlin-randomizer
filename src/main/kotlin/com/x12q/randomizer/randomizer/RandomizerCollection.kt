@@ -7,8 +7,8 @@ import kotlin.reflect.full.isSubclassOf
 
 /**
  * A collection of [ClassRandomizer] and [ParameterRandomizer].
- * For one class, there can be multiple randomizers. But only one will be used to generate such class.
- * Such selection is random for [classRandomizers], for [parameterRandomizers] condition check is performed.
+ * For one class, there can be multiple randomizers. But only one will be actually used to generate random instances for such class.
+ * The selection is random for [classRandomizers], for [parameterRandomizers] condition check is performed.
  */
 data class RandomizerCollection(
     val parameterRandomizers: Map<RDClassData, List<ParameterRandomizer<*>>>,
