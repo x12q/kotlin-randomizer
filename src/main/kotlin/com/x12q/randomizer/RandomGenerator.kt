@@ -27,6 +27,29 @@ data class RandomGenerator @Inject constructor(
     val defaultRandomConfig: RandomizerConfig,
 ) {
 
+    constructor(randomContext: RandomContext) : this(
+        random = randomContext.random,
+        lv1RandomizerCollection = randomContext.lv1RandomizerCollection,
+        randomizerChecker = randomContext.randomizerChecker,
+        defaultRandomConfig = randomContext.defaultRandomConfig,
+    )
+
+    fun mergeWith(another:RandomGenerator):RandomGenerator{
+        return this.copy(
+            lv1RandomizerCollection = this.lv1RandomizerCollection.mergeWith(another.lv1RandomizerCollection)
+        )
+    }
+
+    fun makeContext():RandomContext{
+        val context = RandomContext(
+            random=random,
+            lv1RandomizerCollection = lv1RandomizerCollection,
+            randomizerChecker = randomizerChecker,
+            defaultRandomConfig = defaultRandomConfig,
+        )
+        return context
+    }
+
     fun random(classData: RDClassData): Any? {
         return random(
             classData = classData,

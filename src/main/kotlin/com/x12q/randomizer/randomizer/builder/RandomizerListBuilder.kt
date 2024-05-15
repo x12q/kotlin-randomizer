@@ -1,21 +1,23 @@
 package com.x12q.randomizer.randomizer.builder
 
-import com.x12q.randomizer.RandomContext
-import com.x12q.randomizer.random
+import com.x12q.randomizer.*
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
 
 /**
- * A builder that can build a list of [ClassRandomizer]
+ * A builder that can build a list of [ClassRandomizer].
  */
 class RandomizerListBuilder {
 
+    /**
+     * Normal randomizers are those that do not rely on any external context
+     */
     private var normalRandomizers = mutableListOf<ClassRandomizer<*>>()
 
-    private var contextualRandomizers = mutableListOf<ClassRandomizer<*>>()
+    var contextualRandomizers = mutableListOf<ClassRandomizer<*>>()
 
-    internal var innerContext: RandomContext? = null
+    var innerContext: RandomContext? = null
 
     fun buildNormalRandomizer(): Collection<ClassRandomizer<*>> {
         return normalRandomizers.toList()
@@ -55,10 +57,15 @@ class RandomizerListBuilder {
     }
 
     inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
-        classRandomizer {
-            val context = getContext()
-            random<T>()
-        }
+        this.contextualRandomizers.add(
+            classRandomizer<T> {
+                val context = getContext()
+                val generator = RandomGenerator(context)
+                val clzzData = RDClassData.from<T>()
+                generator.random(clzzData) as T
+            }
+        )
+        return this
     }
 
 

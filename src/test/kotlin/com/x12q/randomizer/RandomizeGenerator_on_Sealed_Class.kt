@@ -47,7 +47,7 @@ class RandomizeGenerator_on_Sealed_Class {
                     123
                 }
             }
-        ) shouldBe SealA.A1(456)
+        ) shouldBe SealA.A1(123)
     }
 
 

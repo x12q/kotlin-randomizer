@@ -21,18 +21,28 @@ inline fun <reified T> random(
         .setRandom(random)
         .build()
 
-    val randomizer = comp.randomizer().let {rdm->
-        rdm.copy(
-            lv1RandomizerCollection = rdm
-                .lv1RandomizerCollection
-                .addRandomizers(randomizers.buildNormalRandomizer())
-                .addParamRandomizer(paramRandomizers.build()),
-            defaultRandomConfig = defaultRandomConfig,
-        )
-    }
+    val baseRandomizer = comp.randomizer()
+
+    val randomizerCollection = baseRandomizer.lv1RandomizerCollection
+        .addRandomizers(randomizers.buildNormalRandomizer())
+        .addParamRandomizer(paramRandomizers.build())
+
+    val nonContextRandomizer = baseRandomizer.copy(
+        lv1RandomizerCollection = randomizerCollection,
+        defaultRandomConfig = defaultRandomConfig,
+    )
+
+    randomizers.innerContext = nonContextRandomizer.makeContext()
+
+    val contextRandomizer = baseRandomizer.copy(
+        lv1RandomizerCollection = baseRandomizer.lv1RandomizerCollection
+            .addRandomizers(randomizers.buildContextualRandomizer())
+    )
+
+    val mergedRandomizer = nonContextRandomizer.mergeWith(contextRandomizer)
 
     val clzzData = RDClassData.from<T>()
-    return randomizer.random(clzzData) as T
+    return mergedRandomizer.random(clzzData) as T
 }
 
 /**

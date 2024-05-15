@@ -19,6 +19,13 @@ data class RandomizerCollection(
     @Inject
     constructor(random: Random) : this(emptyMap(), emptyMap(),random)
 
+    fun mergeWith(another:RandomizerCollection):RandomizerCollection{
+        return this.copy(
+            parameterRandomizers = parameterRandomizers + another.parameterRandomizers,
+            classRandomizers = classRandomizers + another.classRandomizers
+        )
+    }
+
     fun addParamRandomizer(newRandomizers: Collection<ParameterRandomizer<*>>): RandomizerCollection {
         val newMap = newRandomizers.groupBy { it.paramClassData }
         return this.copy(
