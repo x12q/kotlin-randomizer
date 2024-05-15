@@ -1,5 +1,6 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.random
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
@@ -10,17 +11,33 @@ import com.x12q.randomizer.randomizer.primitive.*
  */
 class RandomizerListBuilder {
 
-    private var lst = mutableListOf<ClassRandomizer<*>>()
+    private var normalRandomizers = mutableListOf<ClassRandomizer<*>>()
 
-    fun build(): Collection<ClassRandomizer<*>> {
-        return lst
+    private var contextualRandomizers = mutableListOf<ClassRandomizer<*>>()
+
+    internal var innerContext: RandomContext? = null
+
+    fun buildNormalRandomizer(): Collection<ClassRandomizer<*>> {
+        return normalRandomizers.toList()
+    }
+
+    fun buildContextualRandomizer(): Collection<ClassRandomizer<*>> {
+        if (contextualRandomizers.isNotEmpty()) {
+            if (innerContext != null) {
+                return contextualRandomizers.toList()
+            } else {
+                throw IllegalStateException("${this::class.simpleName} must have an inner context")
+            }
+        } else {
+            return emptyList()
+        }
     }
 
     /**
      * Add a [randomizer] to this builder.
      */
     fun add(randomizer: ClassRandomizer<*>): RandomizerListBuilder {
-        lst.add(randomizer)
+        normalRandomizers.add(randomizer)
         return this
     }
 
@@ -28,9 +45,20 @@ class RandomizerListBuilder {
      * Add a randomizer that will use [random] function to generate random instances of type [T]
      */
     inline fun <reified T> randomizerForClass(
-        crossinline random:()->T
+        crossinline random: () -> T
     ): RandomizerListBuilder {
         return add(classRandomizer(random))
+    }
+
+    fun getContext(): RandomContext {
+        return innerContext!!
+    }
+
+    inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
+        classRandomizer {
+            val context = getContext()
+            random<T>()
+        }
     }
 
 
@@ -38,7 +66,7 @@ class RandomizerListBuilder {
      * Add a [Set] randomizer to this builder.
      */
     fun <T> set(random: () -> Set<T>): RandomizerListBuilder {
-        lst.add(setRandomizer(random))
+        normalRandomizers.add(setRandomizer(random))
         return this
     }
 
@@ -46,7 +74,7 @@ class RandomizerListBuilder {
      * Add a [List] randomizer to this builder.
      */
     fun <T> list(random: () -> List<T>): RandomizerListBuilder {
-        lst.add(listRandomizer(random))
+        normalRandomizers.add(listRandomizer(random))
         return this
     }
 
@@ -54,7 +82,7 @@ class RandomizerListBuilder {
      * Add a [Map] randomizer to this builder.
      */
     fun <K, V> map(random: () -> Map<K, V>): RandomizerListBuilder {
-        lst.add(mapRandomizer(random))
+        normalRandomizers.add(mapRandomizer(random))
         return this
     }
 
@@ -62,7 +90,7 @@ class RandomizerListBuilder {
      * Add an [Int] randomizer to this builder.
      */
     fun int(random: () -> Int): RandomizerListBuilder {
-        lst.add(intRandomizer(random))
+        normalRandomizers.add(intRandomizer(random))
         return this
     }
 
@@ -70,15 +98,15 @@ class RandomizerListBuilder {
      * Add an [Int] randomizer that generate random int within [range] to this builder.
      */
     fun int(range: IntRange): RandomizerListBuilder {
-        lst.add(intRandomizer(range))
+        normalRandomizers.add(intRandomizer(range))
         return this
     }
 
     /**
      * Add an [Int] randomizer that generate random integers up to certain value to this builder.
      */
-    fun int(until:Int): RandomizerListBuilder {
-        lst.add(intRandomizer(until))
+    fun int(until: Int): RandomizerListBuilder {
+        normalRandomizers.add(intRandomizer(until))
         return this
     }
 
@@ -86,7 +114,7 @@ class RandomizerListBuilder {
      * Add a [Float] randomizer to this builder.
      */
     fun float(random: () -> Float): RandomizerListBuilder {
-        lst.add(floatRandomizer(random))
+        normalRandomizers.add(floatRandomizer(random))
         return this
     }
 
@@ -94,7 +122,7 @@ class RandomizerListBuilder {
      * Add a [Float] randomizer that generate random float with a range to this builder.
      */
     fun float(from: Float, to: Float): RandomizerListBuilder {
-        lst.add(floatRandomizer(from, to))
+        normalRandomizers.add(floatRandomizer(from, to))
         return this
     }
 
@@ -102,7 +130,7 @@ class RandomizerListBuilder {
      * Add a [Float] randomizer that generate random integers up to certain value to this builder.
      */
     fun float(until: Float): RandomizerListBuilder {
-        lst.add(floatRandomizer(until))
+        normalRandomizers.add(floatRandomizer(until))
         return this
     }
 
@@ -111,15 +139,15 @@ class RandomizerListBuilder {
      * Add a [String] randomizer to this builder.
      */
     fun string(random: () -> String): RandomizerListBuilder {
-        lst.add(stringRandomizer(random))
+        normalRandomizers.add(stringRandomizer(random))
         return this
     }
 
     /**
      * Add an uuid [String] randomizer to this builder.
      */
-    fun uuidString():RandomizerListBuilder{
-        lst.add(uuidStringRandomizer())
+    fun uuidString(): RandomizerListBuilder {
+        normalRandomizers.add(uuidStringRandomizer())
         return this
     }
 
@@ -128,7 +156,7 @@ class RandomizerListBuilder {
      * Add a [Double] randomizer to this builder.
      */
     fun double(random: () -> Double): RandomizerListBuilder {
-        lst.add(doubleRandomizer(random))
+        normalRandomizers.add(doubleRandomizer(random))
         return this
     }
 
@@ -136,16 +164,16 @@ class RandomizerListBuilder {
     /**
      * Convenient function to create a [ClassRandomizer] that can produce random doubles within a range
      */
-    fun double(from:Double, to:Double): RandomizerListBuilder {
-        lst.add(doubleRandomizer(from,to))
+    fun double(from: Double, to: Double): RandomizerListBuilder {
+        normalRandomizers.add(doubleRandomizer(from, to))
         return this
     }
 
     /**
      * Convenient function to create a [ClassRandomizer] that can produce random doubles up to a limit
      */
-    fun double(until:Double): RandomizerListBuilder {
-        lst.add(doubleRandomizer(until))
+    fun double(until: Double): RandomizerListBuilder {
+        normalRandomizers.add(doubleRandomizer(until))
         return this
     }
 
@@ -154,7 +182,7 @@ class RandomizerListBuilder {
      * Add a [Byte] randomizer to this builder.
      */
     fun byte(random: () -> Byte): RandomizerListBuilder {
-        lst.add(byteRandomizer(random))
+        normalRandomizers.add(byteRandomizer(random))
         return this
     }
 
@@ -162,7 +190,7 @@ class RandomizerListBuilder {
      * Add a [Short] randomizer to this builder.
      */
     fun short(random: () -> Short): RandomizerListBuilder {
-        lst.add(shortRandomizer(random))
+        normalRandomizers.add(shortRandomizer(random))
         return this
     }
 
@@ -170,7 +198,7 @@ class RandomizerListBuilder {
      * Add a [Boolean] randomizer to this builder.
      */
     fun boolean(random: () -> Boolean): RandomizerListBuilder {
-        lst.add(booleanRandomizer(random))
+        normalRandomizers.add(booleanRandomizer(random))
         return this
     }
 
@@ -178,7 +206,7 @@ class RandomizerListBuilder {
      * Add a [Long] randomizer to this builder.
      */
     fun long(random: () -> Long): RandomizerListBuilder {
-        lst.add(longRandomizer(random))
+        normalRandomizers.add(longRandomizer(random))
         return this
     }
 
@@ -188,15 +216,15 @@ class RandomizerListBuilder {
     fun long(
         range: LongRange
     ): RandomizerListBuilder {
-        lst.add(longRandomizer(range))
+        normalRandomizers.add(longRandomizer(range))
         return this
     }
 
     /**
      * Add an [Long] randomizer that generate random integers up to certain value to this builder.
      */
-    fun long(until:Long): RandomizerListBuilder {
-        lst.add(longRandomizer(until))
+    fun long(until: Long): RandomizerListBuilder {
+        normalRandomizers.add(longRandomizer(until))
         return this
     }
 
@@ -204,7 +232,7 @@ class RandomizerListBuilder {
      * Add a [Char] randomizer to this builder.
      */
     fun char(random: () -> Char): RandomizerListBuilder {
-        lst.add(charRandomizer(random))
+        normalRandomizers.add(charRandomizer(random))
         return this
     }
 }

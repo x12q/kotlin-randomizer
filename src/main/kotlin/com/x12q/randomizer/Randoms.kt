@@ -1,8 +1,6 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.di.DaggerRandomizerComponent
-import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.builder.ParamRandomizerListBuilder
 import com.x12q.randomizer.randomizer.builder.RandomizerListBuilder
 import com.x12q.randomizer.randomizer.config.RandomizerConfig
@@ -27,8 +25,8 @@ inline fun <reified T> random(
         rdm.copy(
             lv1RandomizerCollection = rdm
                 .lv1RandomizerCollection
-                .addParamRandomizer(paramRandomizers.build())
-                .addRandomizers(randomizers.build()),
+                .addRandomizers(randomizers.buildNormalRandomizer())
+                .addParamRandomizer(paramRandomizers.build()),
             defaultRandomConfig = defaultRandomConfig,
         )
     }
@@ -54,11 +52,21 @@ inline fun <reified T : Any> randomInnerClass(
     val randomizer = comp.randomizer().let {
         it.copy(
             lv1RandomizerCollection = it.lv1RandomizerCollection
-                .addParamRandomizer(paramRandomizers.build())
-                .addRandomizers(randomizers.build()),
+                .addRandomizers(randomizers.buildNormalRandomizer())
+                .addParamRandomizer(paramRandomizers.build()),
             defaultRandomConfig = defaultRandomConfig,
         )
     }
     val clzzData = RDClassData.from<T>()
     return randomizer.randomInnerClass(clzzData, enclosingObject) as T
 }
+
+/**
+ * What is a context?
+ * - a context is an object contains:
+ *  - random seed
+ *  - custom randomizer
+ * - out-context randomizer:
+ *  - is a randomizer belong to an outer context, but pass an inner context to its own randomizer generator
+ *
+ */
