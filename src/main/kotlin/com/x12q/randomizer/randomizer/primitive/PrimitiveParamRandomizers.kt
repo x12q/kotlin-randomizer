@@ -361,15 +361,6 @@ fun booleanParamRandomizer(
 }
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random booleans
- */
-fun booleanParamRandomizer(): ParameterRandomizer<Boolean> {
-    return paramRandomizer {
-        Random.nextBoolean()
-    }
-}
-
-/**
  * Convenient function to create a [ParameterRandomizer] that can produce random long
  */
 fun longParamRandomizer(
@@ -387,6 +378,15 @@ fun longParamRandomizer(
     value: Long,
 ): ParameterRandomizer<Long> {
     return paramRandomizer(condition = condition, random = { value })
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random longs
+ */
+fun longParamRandomizer(
+    random: (ParamInfo) -> Long,
+): ParameterRandomizer<Long> {
+    return paramRandomizer(random)
 }
 
 
