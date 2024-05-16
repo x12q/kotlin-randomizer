@@ -377,20 +377,23 @@ data class RandomGenerator @Inject constructor(
         return getEnumValue(classData.kClass)?.random(random)
     }
 
+
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun lv4RandomPrimitive(
         classData: RDClassData,
         typeMap: Map<String, RDClassData>,
     ): Any? {
+
         val clzz: KClass<*> = classData.kClass
 
-        val primitive = when (clzz) {
-            Char::class -> randomChar()
+        val primitive: Any? = when (clzz) {
+            Number::class -> randomNumber()
             Int::class -> random.nextInt()
             Long::class -> random.nextLong()
             Float::class -> random.nextFloat()
             Double::class -> random.nextDouble()
-            String::class -> randomString(random)
+            Char::class -> randomChar()
+            CharSequence::class, String::class -> randomString(random)
             Boolean::class -> random.nextBoolean()
             Byte::class -> random.nextBytes(1)[0]
             Short::class -> random.nextInt().toShort()
@@ -399,20 +402,36 @@ data class RandomGenerator @Inject constructor(
 
         if (primitive == null) {
             val rt = if (clzz.isSuperclassOf(List::class)) {
-                makeRandomList(
+                val list = makeRandomList(
                     classData = classData,
                     typeMap = typeMap,
                 )
+                if (clzz.isSuperclassOf(MutableList::class)) {
+                    list.toMutableList()
+                } else {
+                    list
+                }
             } else if (clzz.isSuperclassOf(Map::class)) {
-                makeRandomMap(
+                val mp = makeRandomMap(
                     mapClassData = classData,
                     typeMap = typeMap,
                 )
+                if (clzz.isSuperclassOf(MutableMap::class)) {
+                    mp.toMutableMap()
+                } else {
+                    mp
+                }
             } else if (clzz.isSuperclassOf(Set::class)) {
-                makeRandomList(
+
+                val st = makeRandomList(
                     classData = classData,
                     typeMap = typeMap,
                 ).toSet()
+                if(clzz.isSuperclassOf(MutableSet::class)){
+                    st.toMutableSet()
+                }else{
+                    st
+                }
             } else {
                 null
             }
@@ -420,6 +439,10 @@ data class RandomGenerator @Inject constructor(
         } else {
             return primitive
         }
+    }
+
+    private fun randomNumber(): Number {
+        return listOf(random.nextInt(), random.nextDouble(), random.nextFloat(), random.nextLong()).random()
     }
 
     private val collectionSize: IntRange = defaultRandomConfig.collectionSize
