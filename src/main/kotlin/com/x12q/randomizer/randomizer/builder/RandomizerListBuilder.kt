@@ -15,7 +15,7 @@ import com.x12q.randomizer.randomizer.primitive.*
 class RandomizerListBuilder {
 
     /**
-     * Normal randomizers are those that do not rely on any external context
+     * Normal randomizers are those that do not rely on any external context.
      */
     private var normalRandomizers = mutableListOf<ClassRandomizer<*>>()
 
@@ -25,7 +25,7 @@ class RandomizerListBuilder {
     var contextualRandomizers = mutableListOf<ClassRandomizer<*>>()
 
     /**
-     * This must be set before adding any contextual randomizers, otherwise
+     * This must be set before adding any contextual randomizers, otherwise.
      */
     var externalContext: RandomContext? = null
 
@@ -54,7 +54,7 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add a randomizer that will use [random] function to generate random instances of type [T]
+     * Add a randomizer that will use [random] function to generate random instances of type [T].
      */
     inline fun <reified T> randomizerForClass(
         crossinline random: () -> T
@@ -71,6 +71,9 @@ class RandomizerListBuilder {
         }
     }
 
+    /**
+     * Add a randomizer that generate random [T] using [externalContext].
+     */
     inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
         /**
          * The reason why [externalContext] is not checked here is:

@@ -38,7 +38,8 @@ data class RandomizerCollection(
     }
 
     fun getParamRandomizer(key: RDClassData): List<ParameterRandomizer<*>>? {
-        return parameterRandomizers[key]
+        val rt = this.parameterRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten()
+        return rt
     }
 
     fun addRandomizers(newRandomizers: Collection<ClassRandomizer<*>>): RandomizerCollection {

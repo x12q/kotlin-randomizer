@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.randomizer.builder.paramRandomizers
 import com.x12q.randomizer.randomizer.builder.randomizers
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -45,7 +46,7 @@ class RandomizerGenerator_contextual_randomizers {
             randomizers = randomizers {
                 randomizerForClass<B<Int>>()
             }
-        ).shouldBeInstanceOf<B<Int>>()
+        ).t.shouldBeInstanceOf<Int>()
 
         random<B<Any>>(
             randomizers = randomizers {
@@ -53,7 +54,26 @@ class RandomizerGenerator_contextual_randomizers {
                 int{123}
             }
         ) shouldBe B(123)
+    }
 
+
+    data class C<T>(
+        val b:B<T>
+    )
+
+    @Test
+    fun `contextual randomizer on generic param`(){
+        random<C<Any>>(
+            paramRandomizers = paramRandomizers {
+                randomizerForParameter<B<Int>>()
+            }
+        ).b.t.shouldBeInstanceOf<Int>()
+
+        random<C<Any>>(
+            randomizers = randomizers {
+                randomizerForClass<B<Int>>()
+            }
+        ).b.t.shouldBeInstanceOf<Int>()
     }
 
 }

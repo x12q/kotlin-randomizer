@@ -1,7 +1,12 @@
 package com.x12q.randomizer.randomizer.builder
 
+import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.RandomContext
+import com.x12q.randomizer.RandomGenerator
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
+import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
 
@@ -10,15 +15,37 @@ import com.x12q.randomizer.randomizer.primitive.*
  */
 class ParamRandomizerListBuilder {
 
-    private var lst = mutableListOf<ParameterRandomizer<*>>()
+    private var normalRandomizers = mutableListOf<ParameterRandomizer<*>>()
+
+    /**
+     * Contextual randomizers are those that rely on an external context object.
+     */
+    var contextualRandomizers = mutableListOf<ParameterRandomizer<*>>()
+
+    /**
+     * This must be set before adding any contextual randomizers, otherwise.
+     */
+    var externalContext: RandomContext? = null
+
 
     fun build(): Collection<ParameterRandomizer<*>> {
-        return lst.toList()
+        return normalRandomizers.toList()
     }
 
+    fun buildContextualRandomizer():Collection<ParameterRandomizer<*>>{
+        if (contextualRandomizers.isNotEmpty()) {
+            if (externalContext != null) {
+                return contextualRandomizers.toList()
+            } else {
+                throw IllegalStateException("${this::class.simpleName} must have an inner context in order to invoke buildContextualRandomizer")
+            }
+        } else {
+            return emptyList()
+        }
+    }
 
     fun add(randomizer: ParameterRandomizer<*>): ParamRandomizerListBuilder {
-        lst.add(randomizer)
+        normalRandomizers.add(randomizer)
         return this
     }
 
@@ -41,6 +68,31 @@ class ParamRandomizerListBuilder {
         return this.add(paramRandomizer(random))
     }
 
+
+    fun getContext(): RandomContext {
+        val context = externalContext
+        if (context == null) {
+            throw IllegalStateException("A ${RandomContext::class.simpleName} must be provided when adding a contextual randomizer")
+        } else {
+            return context
+        }
+    }
+
+    /**
+     * Create a [ParameterRandomizer] that only check for type match
+     */
+    inline fun <reified T> randomizerForParameter(): ParamRandomizerListBuilder {
+        this.contextualRandomizers.add(
+            paramRandomizer <T> {
+                val generator = RandomGenerator(getContext())
+                val clzzData = RDClassData.from<T>()
+                generator.random(clzzData) as T
+            }
+        )
+        return this
+    }
+
+
     /**
      * Add a [Set] randomizer to this builder.
      */
@@ -48,7 +100,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Set<T>
     ): ParamRandomizerListBuilder {
-        lst.add(setParamRandomizer(condition, random))
+        normalRandomizers.add(setParamRandomizer(condition, random))
         return this
     }
 
@@ -58,7 +110,7 @@ class ParamRandomizerListBuilder {
     fun <T> set(
         random: (ParamInfo) -> Set<T>
     ): ParamRandomizerListBuilder {
-        lst.add(setParamRandomizer(random))
+        normalRandomizers.add(setParamRandomizer(random))
         return this
     }
 
@@ -69,7 +121,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> List<T>
     ): ParamRandomizerListBuilder {
-        lst.add(listParamRandomizer(condition, random))
+        normalRandomizers.add(listParamRandomizer(condition, random))
         return this
     }
 
@@ -79,7 +131,7 @@ class ParamRandomizerListBuilder {
     fun <T> list(
         random: (ParamInfo) -> List<T>
     ): ParamRandomizerListBuilder {
-        lst.add(listParamRandomizer(random))
+        normalRandomizers.add(listParamRandomizer(random))
         return this
     }
 
@@ -90,7 +142,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Map<K, V>
     ): ParamRandomizerListBuilder {
-        lst.add(mapParamRandomizer(condition, random))
+        normalRandomizers.add(mapParamRandomizer(condition, random))
         return this
     }
 
@@ -100,7 +152,7 @@ class ParamRandomizerListBuilder {
     fun <K, V> map(
         random: (ParamInfo) -> Map<K, V>
     ): ParamRandomizerListBuilder {
-        lst.add(mapParamRandomizer(random))
+        normalRandomizers.add(mapParamRandomizer(random))
         return this
     }
 
@@ -112,7 +164,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Int,
     ): ParamRandomizerListBuilder {
-        lst.add(intParamRandomizer(condition, random))
+        normalRandomizers.add(intParamRandomizer(condition, random))
         return this
     }
 
@@ -122,7 +174,7 @@ class ParamRandomizerListBuilder {
     fun int(
         random: (ParamInfo) -> Int,
     ): ParamRandomizerListBuilder {
-        lst.add(intParamRandomizer(random))
+        normalRandomizers.add(intParamRandomizer(random))
         return this
     }
 
@@ -132,7 +184,7 @@ class ParamRandomizerListBuilder {
     fun int(
         range: IntRange,
     ): ParamRandomizerListBuilder {
-        lst.add(intParamRandomizer(range))
+        normalRandomizers.add(intParamRandomizer(range))
         return this
     }
 
@@ -140,7 +192,7 @@ class ParamRandomizerListBuilder {
      * Add an [Int] randomizer to this builder.
      */
     fun int(until: Int): ParamRandomizerListBuilder {
-        lst.add(intParamRandomizer(until))
+        normalRandomizers.add(intParamRandomizer(until))
         return this
     }
 
@@ -151,7 +203,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Float
     ): ParamRandomizerListBuilder {
-        lst.add(floatParamRandomizer(condition, random))
+        normalRandomizers.add(floatParamRandomizer(condition, random))
         return this
     }
 
@@ -161,7 +213,7 @@ class ParamRandomizerListBuilder {
     fun float(
         random: (ParamInfo) -> Float
     ): ParamRandomizerListBuilder {
-        lst.add(floatParamRandomizer(random))
+        normalRandomizers.add(floatParamRandomizer(random))
         return this
     }
 
@@ -169,7 +221,7 @@ class ParamRandomizerListBuilder {
      * Add a [Float] randomizer to this builder.
      */
     fun float(from: Float, to: Float): ParamRandomizerListBuilder {
-        lst.add(floatParamRandomizer(from, to))
+        normalRandomizers.add(floatParamRandomizer(from, to))
         return this
     }
 
@@ -177,7 +229,7 @@ class ParamRandomizerListBuilder {
      * Add a [Float] randomizer to this builder.
      */
     fun float(until: Float): ParamRandomizerListBuilder {
-        lst.add(floatParamRandomizer(until))
+        normalRandomizers.add(floatParamRandomizer(until))
         return this
     }
 
@@ -188,7 +240,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> String
     ): ParamRandomizerListBuilder {
-        lst.add(stringParamRandomizer(condition, random))
+        normalRandomizers.add(stringParamRandomizer(condition, random))
         return this
     }
 
@@ -198,7 +250,7 @@ class ParamRandomizerListBuilder {
     fun string(
         random: (ParamInfo) -> String
     ): ParamRandomizerListBuilder {
-        lst.add(stringParamRandomizer(random))
+        normalRandomizers.add(stringParamRandomizer(random))
         return this
     }
 
@@ -207,7 +259,7 @@ class ParamRandomizerListBuilder {
      * Add an uuid [String] randomizer to this builder.
      */
     fun uuidString():ParamRandomizerListBuilder{
-        lst.add(uuidStringParamRandomizer())
+        normalRandomizers.add(uuidStringParamRandomizer())
         return this
     }
 
@@ -218,7 +270,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Double
     ): ParamRandomizerListBuilder {
-        lst.add(doubleParamRandomizer(condition, random))
+        normalRandomizers.add(doubleParamRandomizer(condition, random))
         return this
     }
 
@@ -228,7 +280,7 @@ class ParamRandomizerListBuilder {
     fun double(
         random: (ParamInfo) -> Double
     ): ParamRandomizerListBuilder {
-        lst.add(doubleParamRandomizer(random))
+        normalRandomizers.add(doubleParamRandomizer(random))
         return this
     }
 
@@ -236,7 +288,7 @@ class ParamRandomizerListBuilder {
      * Add a [Double] randomizer to this builder.
      */
     fun double(from: Double, to: Double): ParamRandomizerListBuilder {
-        lst.add(doubleParamRandomizer(from, to))
+        normalRandomizers.add(doubleParamRandomizer(from, to))
         return this
     }
 
@@ -244,7 +296,7 @@ class ParamRandomizerListBuilder {
      * Add a [Double] randomizer to this builder.
      */
     fun double(until: Double): ParamRandomizerListBuilder {
-        lst.add(doubleParamRandomizer(until))
+        normalRandomizers.add(doubleParamRandomizer(until))
         return this
     }
 
@@ -256,7 +308,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Byte
     ): ParamRandomizerListBuilder {
-        lst.add(byteParamRandomizer(condition, random))
+        normalRandomizers.add(byteParamRandomizer(condition, random))
         return this
     }
 
@@ -266,7 +318,7 @@ class ParamRandomizerListBuilder {
     fun byte(
         random: (ParamInfo) -> Byte
     ): ParamRandomizerListBuilder {
-        lst.add(byteParamRandomizer(random))
+        normalRandomizers.add(byteParamRandomizer(random))
         return this
     }
 
@@ -277,7 +329,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Short
     ): ParamRandomizerListBuilder {
-        lst.add(shortParamRandomizer(condition, random))
+        normalRandomizers.add(shortParamRandomizer(condition, random))
         return this
     }
 
@@ -287,7 +339,7 @@ class ParamRandomizerListBuilder {
     fun short(
         random: (ParamInfo) -> Short
     ): ParamRandomizerListBuilder {
-        lst.add(shortParamRandomizer(random))
+        normalRandomizers.add(shortParamRandomizer(random))
         return this
     }
 
@@ -298,7 +350,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Boolean
     ): ParamRandomizerListBuilder {
-        lst.add(booleanParamRandomizer(condition, random))
+        normalRandomizers.add(booleanParamRandomizer(condition, random))
         return this
     }
 
@@ -308,7 +360,7 @@ class ParamRandomizerListBuilder {
     fun boolean(
         random: (ParamInfo) -> Boolean
     ): ParamRandomizerListBuilder {
-        lst.add(booleanParamRandomizer(random))
+        normalRandomizers.add(booleanParamRandomizer(random))
         return this
     }
 
@@ -319,7 +371,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Long
     ): ParamRandomizerListBuilder {
-        lst.add(longParamRandomizer(condition, random))
+        normalRandomizers.add(longParamRandomizer(condition, random))
         return this
     }
 
@@ -329,7 +381,7 @@ class ParamRandomizerListBuilder {
     fun long(
         random: (ParamInfo) -> Long
     ): ParamRandomizerListBuilder {
-        lst.add(longParamRandomizer(random))
+        normalRandomizers.add(longParamRandomizer(random))
         return this
     }
 
@@ -339,7 +391,7 @@ class ParamRandomizerListBuilder {
     fun long(
         longRange: LongRange
     ): ParamRandomizerListBuilder {
-        lst.add(longParamRandomizer(longRange))
+        normalRandomizers.add(longParamRandomizer(longRange))
         return this
     }
 
@@ -347,7 +399,7 @@ class ParamRandomizerListBuilder {
      * Add a [Long] randomizer to this builder.
      */
     fun long(until: Long): ParamRandomizerListBuilder {
-        lst.add(longParamRandomizer(until))
+        normalRandomizers.add(longParamRandomizer(until))
         return this
     }
 
@@ -358,7 +410,7 @@ class ParamRandomizerListBuilder {
         condition: (target: ParamInfo) -> Boolean,
         random: (ParamInfo) -> Char
     ): ParamRandomizerListBuilder {
-        lst.add(charParamRandomizer(condition, random))
+        normalRandomizers.add(charParamRandomizer(condition, random))
         return this
     }
 
@@ -368,7 +420,7 @@ class ParamRandomizerListBuilder {
     fun char(
         random: (ParamInfo) -> Char
     ): ParamRandomizerListBuilder {
-        lst.add(charParamRandomizer(random))
+        normalRandomizers.add(charParamRandomizer(random))
         return this
     }
 }
