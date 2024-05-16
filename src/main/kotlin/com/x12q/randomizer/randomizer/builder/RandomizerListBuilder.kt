@@ -114,10 +114,18 @@ class RandomizerListBuilder {
     }
 
     /**
-     * Add an [Int] randomizer to this builder.
+     * Add an [Int] randomizer that generate random int by running [random] function
      */
     fun int(random: () -> Int): RandomizerListBuilder {
         normalRandomizers.add(intRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add an [Int] randomizer that returns a fixed [value]
+     */
+    fun int(value: Int): RandomizerListBuilder {
+        normalRandomizers.add(intRandomizer(value))
         return this
     }
 
@@ -132,8 +140,8 @@ class RandomizerListBuilder {
     /**
      * Add an [Int] randomizer that generate random integers up to certain value to this builder.
      */
-    fun int(until: Int): RandomizerListBuilder {
-        normalRandomizers.add(intRandomizer(until))
+    fun intUntil(until: Int): RandomizerListBuilder {
+        normalRandomizers.add(intRandomizerUntil(until))
         return this
     }
 

@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.*
 
-class RandomizerGenerator_contextual_randomizers {
+class Random_contextual_randomizers {
 
     lateinit var rdm: RandomGenerator
 

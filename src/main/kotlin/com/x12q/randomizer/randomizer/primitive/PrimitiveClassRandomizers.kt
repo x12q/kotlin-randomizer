@@ -3,9 +3,14 @@ package com.x12q.randomizer.randomizer.primitive
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.util.randomUUIDStr
-import java.util.UUID
 import kotlin.random.Random
 
+/**
+ * Convenient function to create a [ClassRandomizer] that always returns a fixed [value]
+ */
+fun intRandomizer(value:Int):ClassRandomizer<Int>{
+    return intRandomizer { value }
+}
 
 /**
  * Convenient function to create a [ClassRandomizer] that can produce random integers
@@ -30,18 +35,9 @@ fun intRandomizer(
 /**
  * Convenient function to create a [ClassRandomizer] that can produce random integers up to certain value
  */
-fun intRandomizer(until:Int): ClassRandomizer<Int> {
+fun intRandomizerUntil(until:Int): ClassRandomizer<Int> {
     return classRandomizer {
         Random.nextInt(until)
-    }
-}
-
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random integers
- */
-fun intRandomizer(): ClassRandomizer<Int> {
-    return classRandomizer {
-        Random.nextInt()
     }
 }
 
@@ -72,15 +68,6 @@ fun floatRandomizer(
 fun floatRandomizer(until:Float): ClassRandomizer<Float> {
     return classRandomizer {
         Random.nextDouble(until.toDouble()).toFloat()
-    }
-}
-
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random floats
- */
-fun floatRandomizer(): ClassRandomizer<Float> {
-    return classRandomizer {
-        Random.nextFloat()
     }
 }
 
@@ -132,15 +119,6 @@ fun doubleRandomizer(until:Double): ClassRandomizer<Double> {
 }
 
 /**
- * Convenient function to create a [ClassRandomizer] that can produce doubles floats
- */
-fun doubleRandomizer(): ClassRandomizer<Double> {
-    return classRandomizer {
-        Random.nextDouble()
-    }
-}
-
-/**
  * Convenient function to create a [ClassRandomizer] that can produce random bytes
  */
 fun byteRandomizer(
@@ -165,15 +143,6 @@ fun booleanRandomizer(
     random: () -> Boolean
 ): ClassRandomizer<Boolean> {
     return classRandomizer(random)
-}
-
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random booleans
- */
-fun booleanRandomizer(): ClassRandomizer<Boolean> {
-    return classRandomizer{
-        Random.nextBoolean()
-    }
 }
 
 /**
@@ -202,15 +171,6 @@ fun longRandomizer(
 fun longRandomizer(until:Long): ClassRandomizer<Long> {
     return classRandomizer {
         Random.nextLong(until)
-    }
-}
-
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random longs
- */
-fun longRandomizer(): ClassRandomizer<Long> {
-    return classRandomizer {
-        Random.nextLong()
     }
 }
 
