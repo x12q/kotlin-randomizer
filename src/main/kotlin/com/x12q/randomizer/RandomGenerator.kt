@@ -17,6 +17,7 @@ import kotlin.jvm.Throws
 import kotlin.random.Random
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotations
+import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 
 
@@ -34,15 +35,15 @@ data class RandomGenerator @Inject constructor(
         defaultRandomConfig = randomContext.defaultRandomConfig,
     )
 
-    fun mergeWith(another:RandomGenerator):RandomGenerator{
+    fun mergeWith(another: RandomGenerator): RandomGenerator {
         return this.copy(
             lv1RandomizerCollection = this.lv1RandomizerCollection.mergeWith(another.lv1RandomizerCollection)
         )
     }
 
-    fun makeContext():RandomContext{
+    fun makeContext(): RandomContext {
         val context = RandomContext(
-            random=random,
+            random = random,
             lv1RandomizerCollection = lv1RandomizerCollection,
             randomizerChecker = randomizerChecker,
             defaultRandomConfig = defaultRandomConfig,
@@ -393,30 +394,32 @@ data class RandomGenerator @Inject constructor(
             Boolean::class -> random.nextBoolean()
             Byte::class -> random.nextBytes(1)[0]
             Short::class -> random.nextInt().toShort()
-            List::class, Collection::class, Iterable::class -> {
+            else -> null
+        }
+
+        if (primitive == null) {
+            val rt = if (clzz.isSuperclassOf(List::class)) {
                 makeRandomList(
                     classData = classData,
                     typeMap = typeMap,
                 )
+            } else if (clzz.isSuperclassOf(Map::class)) {
+                makeRandomMap(
+                    mapClassData = classData,
+                    typeMap = typeMap,
+                )
+            } else if (clzz.isSuperclassOf(Set::class)) {
+                makeRandomList(
+                    classData = classData,
+                    typeMap = typeMap,
+                ).toSet()
+            } else {
+                null
             }
-
-            Map::class -> makeRandomMap(
-                mapClassData = classData,
-                typeMap = typeMap,
-            )
-
-            Set::class -> makeRandomList(
-                classData = classData,
-                typeMap = typeMap,
-            ).toSet()
-
-            else -> null
+            return rt
+        } else {
+            return primitive
         }
-
-        val rt = primitive
-
-        return rt
-
     }
 
     private val collectionSize: IntRange = defaultRandomConfig.collectionSize
