@@ -72,13 +72,3 @@ inline fun <reified T : Any> randomInnerClass(
     val clzzData = RDClassData.from<T>()
     return randomizer.randomInnerClass(clzzData, enclosingObject) as T
 }
-
-/**
- * What is a context?
- * - a context is an object contains:
- *  - random seed
- *  - custom randomizer
- * - out-context randomizer:
- *  - is a randomizer belong to an outer context, but pass an inner context to its own randomizer generator
- *
- */
