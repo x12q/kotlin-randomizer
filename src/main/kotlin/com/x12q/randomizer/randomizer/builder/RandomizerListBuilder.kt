@@ -98,6 +98,15 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [Set] randomizer that always returns a fixed [value].
+     */
+    fun <T> set(value: Set<T>): RandomizerListBuilder {
+        normalRandomizers.add(setRandomizer(value))
+        return this
+    }
+
+
+    /**
      * Add a [List] randomizer to this builder.
      */
     fun <T> list(random: () -> List<T>): RandomizerListBuilder {
@@ -106,10 +115,27 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [List] randomizer that always returns a fixed [value].
+     */
+    fun <T> list(value: List<T>): RandomizerListBuilder {
+        normalRandomizers.add(listRandomizer(value))
+        return this
+    }
+
+
+    /**
      * Add a [Map] randomizer to this builder.
      */
     fun <K, V> map(random: () -> Map<K, V>): RandomizerListBuilder {
         normalRandomizers.add(mapRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Map] randomizer that always returns a fixed [value].
+     */
+    fun <K, V> map(value: Map<K, V>): RandomizerListBuilder {
+        normalRandomizers.add(mapRandomizer(value))
         return this
     }
 
@@ -154,6 +180,14 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [Float] randomizer that always return a fixed [value].
+     */
+    fun float(value:Float): RandomizerListBuilder {
+        normalRandomizers.add(floatRandomizer(value))
+        return this
+    }
+
+    /**
      * Add a [Float] randomizer that generate random float with a range to this builder.
      */
     fun float(from: Float, to: Float): RandomizerListBuilder {
@@ -164,8 +198,8 @@ class RandomizerListBuilder {
     /**
      * Add a [Float] randomizer that generate random integers up to certain value to this builder.
      */
-    fun float(until: Float): RandomizerListBuilder {
-        normalRandomizers.add(floatRandomizer(until))
+    fun floatUntil(until: Float): RandomizerListBuilder {
+        normalRandomizers.add(floatRandomizerUntil(until))
         return this
     }
 
@@ -177,6 +211,15 @@ class RandomizerListBuilder {
         normalRandomizers.add(stringRandomizer(random))
         return this
     }
+
+    /**
+     * Add a [String] randomizer that always returns a fixed [value].
+     */
+    fun string(value: String): RandomizerListBuilder {
+        normalRandomizers.add(stringRandomizer(value))
+        return this
+    }
+
 
     /**
      * Add an uuid [String] randomizer to this builder.
@@ -195,6 +238,13 @@ class RandomizerListBuilder {
         return this
     }
 
+    /**
+     * Add a [Double] randomizer to this builder.
+     */
+    fun double(value: Double): RandomizerListBuilder {
+        normalRandomizers.add(doubleRandomizer(value))
+        return this
+    }
 
     /**
      * Convenient function to create a [ClassRandomizer] that can produce random doubles within a range
@@ -207,17 +257,24 @@ class RandomizerListBuilder {
     /**
      * Convenient function to create a [ClassRandomizer] that can produce random doubles up to a limit
      */
-    fun double(until: Double): RandomizerListBuilder {
-        normalRandomizers.add(doubleRandomizer(until))
+    fun doubleUntil(until: Double): RandomizerListBuilder {
+        normalRandomizers.add(doubleRandomizerUntil(until))
         return this
     }
-
 
     /**
      * Add a [Byte] randomizer to this builder.
      */
     fun byte(random: () -> Byte): RandomizerListBuilder {
         normalRandomizers.add(byteRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Byte] randomizer to this builder.
+     */
+    fun byte(value: Byte): RandomizerListBuilder {
+        normalRandomizers.add(byteRandomizer(value))
         return this
     }
 
@@ -230,10 +287,26 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [Short] randomizer that always returns a fixed [value].
+     */
+    fun short(value: Short): RandomizerListBuilder {
+        normalRandomizers.add(shortRandomizer(value))
+        return this
+    }
+
+    /**
      * Add a [Boolean] randomizer to this builder.
      */
     fun boolean(random: () -> Boolean): RandomizerListBuilder {
         normalRandomizers.add(booleanRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Boolean] randomizer that always returns a fixed [value].
+     */
+    fun boolean(value: Boolean): RandomizerListBuilder {
+        normalRandomizers.add(booleanRandomizer(value))
         return this
     }
 
@@ -246,11 +319,18 @@ class RandomizerListBuilder {
     }
 
     /**
+     * Add a [Long] randomizer that always returns a fixed [value].
+     */
+    fun long(value: Long): RandomizerListBuilder {
+        normalRandomizers.add(longRandomizer(value))
+        return this
+    }
+
+
+    /**
      * Add an [Long] randomizer that generate random int within [range] to this builder.
      */
-    fun long(
-        range: LongRange
-    ): RandomizerListBuilder {
+    fun long(range: LongRange): RandomizerListBuilder {
         normalRandomizers.add(longRandomizer(range))
         return this
     }
@@ -258,8 +338,8 @@ class RandomizerListBuilder {
     /**
      * Add an [Long] randomizer that generate random integers up to certain value to this builder.
      */
-    fun long(until: Long): RandomizerListBuilder {
-        normalRandomizers.add(longRandomizer(until))
+    fun longUntil(until: Long): RandomizerListBuilder {
+        normalRandomizers.add(longRandomizerUntil(until))
         return this
     }
 
@@ -268,6 +348,14 @@ class RandomizerListBuilder {
      */
     fun char(random: () -> Char): RandomizerListBuilder {
         normalRandomizers.add(charRandomizer(random))
+        return this
+    }
+
+    /**
+     * Add a [Char] randomizer that always returns a fixed [value].
+     */
+    fun char(value: Char): RandomizerListBuilder {
+        normalRandomizers.add(charRandomizer(value))
         return this
     }
 }
