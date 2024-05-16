@@ -3,11 +3,8 @@ package com.x12q.randomizer.randomizer.builder
 import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.RandomContext
 import com.x12q.randomizer.RandomGenerator
-import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.clazz.classRandomizer
-import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.randomizer.primitive.*
 
 /**
@@ -49,23 +46,25 @@ class ParamRandomizerListBuilder {
         return this
     }
 
-    inline fun <reified T> randomizerForParameter(
+    inline fun <reified T> paramRandomizer(
         crossinline condition: (target: ParamInfo) -> Boolean,
         crossinline random: (ParamInfo) -> T,
     ): ParamRandomizerListBuilder {
-       return this.add(paramRandomizer(
-           condition = condition,
-           random = random
-       ))
+       return this.add(
+           com.x12q.randomizer.randomizer.param.paramRandomizer(
+               condition = condition,
+               random = random
+           )
+       )
     }
 
     /**
      * Create a [ParameterRandomizer] that only check for type match
      */
-    inline fun <reified T> randomizerForParameter(
+    inline fun <reified T> paramRandomizer(
         crossinline random: (ParamInfo) -> T,
     ): ParamRandomizerListBuilder {
-        return this.add(paramRandomizer(random))
+        return this.add(com.x12q.randomizer.randomizer.param.paramRandomizer(random))
     }
 
 
@@ -81,9 +80,9 @@ class ParamRandomizerListBuilder {
     /**
      * Create a [ParameterRandomizer] that only check for type match
      */
-    inline fun <reified T> randomizerForParameter(): ParamRandomizerListBuilder {
+    inline fun <reified T> paramRandomizer(): ParamRandomizerListBuilder {
         this.contextualRandomizers.add(
-            paramRandomizer <T> {
+            com.x12q.randomizer.randomizer.param.paramRandomizer <T> {
                 val generator = RandomGenerator(getContext())
                 val clzzData = RDClassData.from<T>()
                 generator.random(clzzData) as T
@@ -192,7 +191,7 @@ class ParamRandomizerListBuilder {
      * Add an [Int] randomizer to this builder.
      */
     fun int(until: Int): ParamRandomizerListBuilder {
-        normalRandomizers.add(intParamRandomizer(until))
+        normalRandomizers.add(intParamRandomizerUntil(until))
         return this
     }
 
@@ -229,7 +228,7 @@ class ParamRandomizerListBuilder {
      * Add a [Float] randomizer to this builder.
      */
     fun float(until: Float): ParamRandomizerListBuilder {
-        normalRandomizers.add(floatParamRandomizer(until))
+        normalRandomizers.add(floatParamRandomizerUntil(until))
         return this
     }
 
@@ -296,7 +295,7 @@ class ParamRandomizerListBuilder {
      * Add a [Double] randomizer to this builder.
      */
     fun double(until: Double): ParamRandomizerListBuilder {
-        normalRandomizers.add(doubleParamRandomizer(until))
+        normalRandomizers.add(doubleParamRandomizerUntil(until))
         return this
     }
 

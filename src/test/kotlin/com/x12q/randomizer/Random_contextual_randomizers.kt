@@ -29,7 +29,7 @@ class Random_contextual_randomizers {
         }
         random<SealA>(
             randomizers = randomizers {
-                randomizerForClass<SealA.A1<Int>>()
+                randomizer<SealA.A1<Int>>()
                 int {
                     123
                 }
@@ -44,13 +44,13 @@ class Random_contextual_randomizers {
 
         random<B<Any>>(
             randomizers = randomizers {
-                randomizerForClass<B<Int>>()
+                randomizer<B<Int>>()
             }
         ).t.shouldBeInstanceOf<Int>()
 
         random<B<Any>>(
             randomizers = randomizers {
-                randomizerForClass<B<Int>>()
+                randomizer<B<Int>>()
                 int{123}
             }
         ) shouldBe B(123)
@@ -65,13 +65,13 @@ class Random_contextual_randomizers {
     fun `contextual randomizer on generic param`(){
         random<C<Any>>(
             paramRandomizers = paramRandomizers {
-                randomizerForParameter<B<Int>>()
+                paramRandomizer<B<Int>>()
             }
         ).b.t.shouldBeInstanceOf<Int>()
 
         random<C<Any>>(
             randomizers = randomizers {
-                randomizerForClass<B<Int>>()
+                randomizer<B<Int>>()
             }
         ).b.t.shouldBeInstanceOf<Int>()
     }

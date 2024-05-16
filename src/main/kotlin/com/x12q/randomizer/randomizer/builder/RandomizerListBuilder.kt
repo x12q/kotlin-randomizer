@@ -56,7 +56,7 @@ class RandomizerListBuilder {
     /**
      * Add a randomizer that will use [random] function to generate random instances of type [T].
      */
-    inline fun <reified T> randomizerForClass(
+    inline fun <reified T> randomizer(
         crossinline random: () -> T
     ): RandomizerListBuilder {
         return add(classRandomizer(random))
@@ -74,7 +74,7 @@ class RandomizerListBuilder {
     /**
      * Add a randomizer that generate random [T] using [externalContext].
      */
-    inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
+    inline fun <reified T> randomizer(): RandomizerListBuilder {
         /**
          * The reason why [externalContext] is not checked here is:
          * - At the time of this builder function is called, it is guaranteed that context is not available.
