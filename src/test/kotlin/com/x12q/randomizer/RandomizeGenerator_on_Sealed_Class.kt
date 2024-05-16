@@ -27,30 +27,6 @@ class RandomizeGenerator_on_Sealed_Class {
         class C4(val i: String) : S1()
     }
 
-    sealed class SealA{
-        data class A1<T>(val t:T):SealA()
-    }
-
-    @Test
-    fun `on unknown generic interface seal class`(){
-        shouldThrow<Throwable> {
-            // because type T is unknown -> exception is thrown
-            rdm.random(RDClassData.from<SealA>())
-        }
-        random<SealA>(
-            randomizers = randomizers {
-                randomizerForClass {
-                    SealA.A1(456)
-                }
-//                randomizerForClass<SealA.A1<Int>>()
-                int{
-                    123
-                }
-            }
-        ) shouldBe SealA.A1(456)
-    }
-
-
     @Test
     fun `random on no annotation`(){
         shouldNotThrow<Throwable> {

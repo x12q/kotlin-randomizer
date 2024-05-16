@@ -19,6 +19,13 @@ data class RandomizerCollection(
     @Inject
     constructor(random: Random) : this(emptyMap(), emptyMap(),random)
 
+    fun mergeWith(another:RandomizerCollection):RandomizerCollection{
+        return this.copy(
+            parameterRandomizers = parameterRandomizers + another.parameterRandomizers,
+            classRandomizers = classRandomizers + another.classRandomizers
+        )
+    }
+
     fun addParamRandomizer(newRandomizers: Collection<ParameterRandomizer<*>>): RandomizerCollection {
         val newMap = newRandomizers.groupBy { it.paramClassData }
         return this.copy(
@@ -29,9 +36,13 @@ data class RandomizerCollection(
     fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
         return addParamRandomizer(newRandomizers.toList())
     }
-
+    /**
+     * Get a random param randomizer for a [key].
+     * A qualified randomizers are those that can generate an instance of a super class of the class in [key].
+     */
     fun getParamRandomizer(key: RDClassData): List<ParameterRandomizer<*>>? {
-        return parameterRandomizers[key]
+        val rt = this.parameterRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten()
+        return rt
     }
 
     fun addRandomizers(newRandomizers: Collection<ClassRandomizer<*>>): RandomizerCollection {
@@ -57,6 +68,10 @@ data class RandomizerCollection(
         return addRandomizers(newRandomizers.toList())
     }
 
+    /**
+     * Get a random class randomizer for a [key].
+     * A qualified randomizers are those that can generate an instance of a super class of the class in [key].
+     */
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {
         val rt = this.classRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten().randomOrNull()
         return rt

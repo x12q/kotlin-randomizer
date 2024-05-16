@@ -62,6 +62,7 @@ target class is abstract without valid lv3 or lv2
 - Improve for seal class:
   - TODO Add option to create randomizer base on type declaration instead of logic.
 - TODO: add more comprehensive support for type in standard library
+- 
 ```kotlin
 randomizer<SealClass>(
     randomizers = randomizers{
@@ -110,7 +111,7 @@ fun main() {
 ```
 
 Issue2: Generic inside seal class
-type info is not available, so it is always null
+type info is not available, so it will throw an exception
 ```kotlin
 sealed class SealA{
     data class A1<T>(val t:T):SealA()

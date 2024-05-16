@@ -1,8 +1,6 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.di.DaggerRandomizerComponent
-import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.builder.ParamRandomizerListBuilder
 import com.x12q.randomizer.randomizer.builder.RandomizerListBuilder
 import com.x12q.randomizer.randomizer.config.RandomizerConfig
@@ -23,18 +21,34 @@ inline fun <reified T> random(
         .setRandom(random)
         .build()
 
-    val randomizer = comp.randomizer().let {rdm->
-        rdm.copy(
-            lv1RandomizerCollection = rdm
-                .lv1RandomizerCollection
-                .addParamRandomizer(paramRandomizers.build())
-                .addRandomizers(randomizers.build()),
-            defaultRandomConfig = defaultRandomConfig,
-        )
-    }
+    val baseRandomizer = comp.randomizer()
+
+    val randomizerCollection = baseRandomizer.lv1RandomizerCollection
+        .addRandomizers(randomizers.buildNormalRandomizer())
+        .addParamRandomizer(paramRandomizers.build())
+
+    val nonContextRandomizer = baseRandomizer.copy(
+        lv1RandomizerCollection = randomizerCollection,
+        defaultRandomConfig = defaultRandomConfig,
+    )
+
+    val context=  nonContextRandomizer.makeContext()
+    randomizers.externalContext = context
+    paramRandomizers.externalContext = context
+
+    val contextualRandomCollection = baseRandomizer.lv1RandomizerCollection
+        .addRandomizers(randomizers.buildContextualRandomizer())
+        .addParamRandomizer(paramRandomizers.buildContextualRandomizer())
+
+
+    val contextRandomizer = baseRandomizer.copy(
+        lv1RandomizerCollection = contextualRandomCollection
+    )
+
+    val mergedRandomizer = nonContextRandomizer.mergeWith(contextRandomizer)
 
     val clzzData = RDClassData.from<T>()
-    return randomizer.random(clzzData) as T
+    return mergedRandomizer.random(clzzData) as T
 }
 
 /**
@@ -54,8 +68,8 @@ inline fun <reified T : Any> randomInnerClass(
     val randomizer = comp.randomizer().let {
         it.copy(
             lv1RandomizerCollection = it.lv1RandomizerCollection
-                .addParamRandomizer(paramRandomizers.build())
-                .addRandomizers(randomizers.build()),
+                .addRandomizers(randomizers.buildNormalRandomizer())
+                .addParamRandomizer(paramRandomizers.build()),
             defaultRandomConfig = defaultRandomConfig,
         )
     }

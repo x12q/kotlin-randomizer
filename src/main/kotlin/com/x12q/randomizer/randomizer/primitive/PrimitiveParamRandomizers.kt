@@ -5,7 +5,6 @@ import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.param.paramRandomizer
 import com.x12q.randomizer.util.randomUUIDStr
-import java.util.UUID
 import kotlin.random.Random
 import kotlin.random.nextLong
 
@@ -24,9 +23,31 @@ fun intParamRandomizer(
  * Convenient function to create a [ParameterRandomizer] that can produce random integers
  */
 fun intParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Int,
+): ParameterRandomizer<Int> {
+    return paramRandomizer(
+        condition = condition,
+        random = { value },
+    )
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random integers
+ */
+fun intParamRandomizer(
     random: (ParamInfo) -> Int,
 ): ParameterRandomizer<Int> {
     return paramRandomizer(random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun intParamRandomizer(
+    value: Int,
+): ParameterRandomizer<Int> {
+    return paramRandomizer { value }
 }
 
 /**
@@ -43,18 +64,9 @@ fun intParamRandomizer(
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random integers up to a certain value
  */
-fun intParamRandomizer(until: Int): ParameterRandomizer<Int> {
+fun intParamRandomizerUntil(until: Int): ParameterRandomizer<Int> {
     return paramRandomizer {
         Random.nextInt(until)
-    }
-}
-
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random integers
- */
-fun intParamRandomizer(): ParameterRandomizer<Int> {
-    return paramRandomizer {
-        Random.nextInt()
     }
 }
 
@@ -69,6 +81,16 @@ fun floatParamRandomizer(
     return paramRandomizer(condition, random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun floatParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Float,
+): ParameterRandomizer<Float> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random floats
@@ -77,6 +99,15 @@ fun floatParamRandomizer(
     random: (ParamInfo) -> Float,
 ): ParameterRandomizer<Float> {
     return paramRandomizer(random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun floatParamRandomizer(
+    value: Float,
+): ParameterRandomizer<Float> {
+    return paramRandomizer { value }
 }
 
 
@@ -94,24 +125,15 @@ fun floatParamRandomizer(
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random floats up to a certain value
  */
-fun floatParamRandomizer(until: Float): ParameterRandomizer<Float> {
+fun floatParamRandomizerUntil(until: Float): ParameterRandomizer<Float> {
     return paramRandomizer {
         Random.nextDouble(until.toDouble()).toFloat()
     }
 }
 
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random floats
- */
-fun floatParamRandomizer(): ParameterRandomizer<Float> {
-    return paramRandomizer {
-        Random.nextFloat()
-    }
-}
-
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random strings
+ * Convenient function to create a [ParameterRandomizer] that can produce random strings.
  */
 fun stringParamRandomizer(
     condition: (target: ParamInfo) -> Boolean,
@@ -120,15 +142,35 @@ fun stringParamRandomizer(
     return paramRandomizer(condition, random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun stringParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: String,
+): ParameterRandomizer<String> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random strings
+ * Convenient function to create a [ParameterRandomizer] that can produce random strings.
  */
 fun stringParamRandomizer(
     random: (ParamInfo) -> String,
 ): ParameterRandomizer<String> {
     return paramRandomizer(random)
 }
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun stringParamRandomizer(
+    value: String,
+): ParameterRandomizer<String> {
+    return paramRandomizer { value }
+}
+
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random uuid strings
@@ -141,13 +183,23 @@ fun uuidStringParamRandomizer(
 }
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random doubles
+ * Convenient function to create a [ParameterRandomizer] that can produce random doubles.
  */
 fun doubleParamRandomizer(
     condition: (target: ParamInfo) -> Boolean,
     random: (ParamInfo) -> Double,
 ): ParameterRandomizer<Double> {
     return paramRandomizer(condition, random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun doubleParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Double,
+): ParameterRandomizer<Double> {
+    return paramRandomizer(condition = condition, random = { value })
 }
 
 
@@ -158,6 +210,16 @@ fun doubleParamRandomizer(
     random: (ParamInfo) -> Double,
 ): ParameterRandomizer<Double> {
     return paramRandomizer(random)
+}
+
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun doubleParamRandomizer(
+    value: Double,
+): ParameterRandomizer<Double> {
+    return paramRandomizer { value }
 }
 
 
@@ -175,23 +237,15 @@ fun doubleParamRandomizer(
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random doubles up to a certain value
  */
-fun doubleParamRandomizer(until: Double): ParameterRandomizer<Double> {
+fun doubleParamRandomizerUntil(until: Double): ParameterRandomizer<Double> {
     return paramRandomizer {
         Random.nextDouble(until)
     }
 }
 
-/**
- * Convenient function to create a [ClassRandomizer] that can produce random doubles
- */
-fun doubleParamRandomizer(): ParameterRandomizer<Double> {
-    return paramRandomizer {
-        Random.nextDouble()
-    }
-}
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random bytes
+ * Convenient function to create a [ParameterRandomizer] that can produce random bytes.
  */
 fun byteParamRandomizer(
     condition: (target: ParamInfo) -> Boolean,
@@ -201,12 +255,31 @@ fun byteParamRandomizer(
 }
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random bytes
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun byteParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Byte
+): ParameterRandomizer<Byte> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random bytes.
  */
 fun byteParamRandomizer(
     random: (ParamInfo) -> Byte,
 ): ParameterRandomizer<Byte> {
     return paramRandomizer(random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun byteParamRandomizer(
+    value: Byte,
+): ParameterRandomizer<Byte> {
+    return paramRandomizer { value }
 }
 
 
@@ -220,6 +293,15 @@ fun shortParamRandomizer(
     return paramRandomizer(condition, random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun shortParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Short,
+): ParameterRandomizer<Short> {
+    return paramRandomizer(condition = condition, random = { value })
+}
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random shorts
@@ -231,6 +313,15 @@ fun shortParamRandomizer(
 }
 
 /**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun shortParamRandomizer(
+    value: Short,
+): ParameterRandomizer<Short> {
+    return paramRandomizer { value }
+}
+
+/**
  * Convenient function to create a [ParameterRandomizer] that can produce random booleans
  */
 fun booleanParamRandomizer(
@@ -238,6 +329,16 @@ fun booleanParamRandomizer(
     random: (ParamInfo) -> Boolean,
 ): ParameterRandomizer<Boolean> {
     return paramRandomizer(condition, random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun booleanParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Boolean,
+): ParameterRandomizer<Boolean> {
+    return paramRandomizer(condition = condition, random = { value })
 }
 
 
@@ -251,12 +352,12 @@ fun booleanParamRandomizer(
 }
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random booleans
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
  */
-fun booleanParamRandomizer(): ParameterRandomizer<Boolean> {
-    return paramRandomizer {
-        Random.nextBoolean()
-    }
+fun booleanParamRandomizer(
+    value: Boolean,
+): ParameterRandomizer<Boolean> {
+    return paramRandomizer { value }
 }
 
 /**
@@ -270,12 +371,32 @@ fun longParamRandomizer(
 }
 
 /**
- * Convenient function to create a [ParameterRandomizer] that can produce random long
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun longParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Long,
+): ParameterRandomizer<Long> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random longs
  */
 fun longParamRandomizer(
     random: (ParamInfo) -> Long,
 ): ParameterRandomizer<Long> {
     return paramRandomizer(random)
+}
+
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun longParamRandomizer(
+    value: Long
+): ParameterRandomizer<Long> {
+    return paramRandomizer { value }
 }
 
 
@@ -293,22 +414,13 @@ fun longParamRandomizer(
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random doubles up to a certain value
  */
-fun longParamRandomizer(until: Long): ParameterRandomizer<Long> {
+fun longParamRandomizerUntil(until: Long): ParameterRandomizer<Long> {
     return paramRandomizer {
         Random.nextLong(until)
     }
 }
 
 /**
- * Convenient function to create a [ClassRandomizer] that can produce random doubles
- */
-fun longParamRandomizer(): ParameterRandomizer<Long> {
-    return paramRandomizer {
-        Random.nextLong()
-    }
-}
-
-/**
  * Convenient function to create a [ParameterRandomizer] that can produce random characters
  */
 fun charParamRandomizer(
@@ -316,6 +428,16 @@ fun charParamRandomizer(
     random: (ParamInfo) -> Char,
 ): ParameterRandomizer<Char> {
     return paramRandomizer(condition, random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun charParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Char,
+): ParameterRandomizer<Char> {
+    return paramRandomizer(condition = condition, random = { value })
 }
 
 /**
@@ -327,6 +449,14 @@ fun charParamRandomizer(
     return paramRandomizer(random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun charParamRandomizer(
+    value: Char,
+): ParameterRandomizer<Char> {
+    return paramRandomizer { value }
+}
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random sets
@@ -339,12 +469,33 @@ fun <T> setParamRandomizer(
 }
 
 /**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun <T> setParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Set<T>,
+): ParameterRandomizer<Set<T>> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
+
+/**
  * Convenient function to create a [ParameterRandomizer] that can produce random sets
  */
 fun <T> setParamRandomizer(
     random: (ParamInfo) -> Set<T>,
 ): ParameterRandomizer<Set<T>> {
     return paramRandomizer(random)
+}
+
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun <T> setParamRandomizer(
+    value: Set<T>,
+): ParameterRandomizer<Set<T>> {
+    return paramRandomizer { value }
 }
 
 
@@ -358,6 +509,16 @@ fun <K, V> mapParamRandomizer(
     return paramRandomizer(condition, random)
 }
 
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun <K, V> mapParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: Map<K, V>,
+): ParameterRandomizer<Map<K, V>> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
 
 /**
  * Convenient function to create a [ParameterRandomizer] that can produce random map
@@ -366,6 +527,15 @@ fun <K, V> mapParamRandomizer(
     random: (ParamInfo) -> Map<K, V>,
 ): ParameterRandomizer<Map<K, V>> {
     return paramRandomizer(random)
+}
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that can produce random map
+ */
+fun <K, V> mapParamRandomizer(
+    value: Map<K, V>,
+): ParameterRandomizer<Map<K, V>> {
+    return paramRandomizer { value }
 }
 
 
@@ -380,6 +550,17 @@ fun <T> listParamRandomizer(
 }
 
 /**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun <T> listParamRandomizer(
+    condition: (target: ParamInfo) -> Boolean,
+    value: List<T>,
+): ParameterRandomizer<List<T>> {
+    return paramRandomizer(condition = condition, random = { value })
+}
+
+
+/**
  * Convenient function to create a [ParameterRandomizer] that can produce random list
  */
 fun <T> listParamRandomizer(
@@ -387,3 +568,13 @@ fun <T> listParamRandomizer(
 ): ParameterRandomizer<List<T>> {
     return paramRandomizer(random)
 }
+
+/**
+ * Convenient function to create a [ParameterRandomizer] that always returns a fixed [value].
+ */
+fun <T> listParamRandomizer(
+    value: List<T>,
+): ParameterRandomizer<List<T>> {
+    return paramRandomizer { value }
+}
+
