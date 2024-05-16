@@ -7,6 +7,10 @@ import com.x12q.randomizer.randomizer.primitive.*
 
 /**
  * A builder that can build a list of [ClassRandomizer].
+ * This builder can include 2 kinds of randomizers:
+ * - non-contextual randomizers: these host their own randomizing logic, and has no depends on external [RandomContext].
+ * - contextual randomizers: this one contains a reference to an external [RandomContext] that it does NOT belong to, and can use components from such context to do its work.
+ * In order to add contextual randomizers, [externalContext] must be set before [buildContextualRandomizer] is called, otherwise an exception will be thrown.
  */
 class RandomizerListBuilder {
 
@@ -15,9 +19,15 @@ class RandomizerListBuilder {
      */
     private var normalRandomizers = mutableListOf<ClassRandomizer<*>>()
 
+    /**
+     * Contextual randomizers are those that rely on an external context object.
+     */
     var contextualRandomizers = mutableListOf<ClassRandomizer<*>>()
 
-    var innerContext: RandomContext? = null
+    /**
+     * This must be set before adding any contextual randomizers, otherwise
+     */
+    var externalContext: RandomContext? = null
 
     fun buildNormalRandomizer(): Collection<ClassRandomizer<*>> {
         return normalRandomizers.toList()
@@ -25,10 +35,10 @@ class RandomizerListBuilder {
 
     fun buildContextualRandomizer(): Collection<ClassRandomizer<*>> {
         if (contextualRandomizers.isNotEmpty()) {
-            if (innerContext != null) {
+            if (externalContext != null) {
                 return contextualRandomizers.toList()
             } else {
-                throw IllegalStateException("${this::class.simpleName} must have an inner context")
+                throw IllegalStateException("${this::class.simpleName} must have an inner context in order to invoke buildContextualRandomizer")
             }
         } else {
             return emptyList()
@@ -53,21 +63,28 @@ class RandomizerListBuilder {
     }
 
     fun getContext(): RandomContext {
-        return innerContext!!
+        val context = externalContext
+        if (context == null) {
+            throw IllegalStateException("A ${RandomContext::class.simpleName} must be provided when adding a contextual randomizer")
+        } else {
+            return context
+        }
     }
 
     inline fun <reified T> randomizerForClass(): RandomizerListBuilder {
+        /**
+         * The reason why [externalContext] is not checked here is:
+         * - At the time of this builder function is called, it is guaranteed that context is not available.
+         */
         this.contextualRandomizers.add(
             classRandomizer<T> {
-                val context = getContext()
-                val generator = RandomGenerator(context)
+                val generator = RandomGenerator(getContext())
                 val clzzData = RDClassData.from<T>()
                 generator.random(clzzData) as T
             }
         )
         return this
     }
-
 
     /**
      * Add a [Set] randomizer to this builder.

@@ -32,11 +32,13 @@ inline fun <reified T> random(
         defaultRandomConfig = defaultRandomConfig,
     )
 
-    randomizers.innerContext = nonContextRandomizer.makeContext()
+    randomizers.externalContext = nonContextRandomizer.makeContext()
+
+    val contextualRandomCollection = baseRandomizer.lv1RandomizerCollection
+        .addRandomizers(randomizers.buildContextualRandomizer())
 
     val contextRandomizer = baseRandomizer.copy(
-        lv1RandomizerCollection = baseRandomizer.lv1RandomizerCollection
-            .addRandomizers(randomizers.buildContextualRandomizer())
+        lv1RandomizerCollection = contextualRandomCollection
     )
 
     val mergedRandomizer = nonContextRandomizer.mergeWith(contextRandomizer)
