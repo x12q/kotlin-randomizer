@@ -36,7 +36,10 @@ data class RandomizerCollection(
     fun addParamRandomizer(vararg newRandomizers: ParameterRandomizer<*>): RandomizerCollection {
         return addParamRandomizer(newRandomizers.toList())
     }
-
+    /**
+     * Get a random param randomizer for a [key].
+     * A qualified randomizers are those that can generate an instance of a super class of the class in [key].
+     */
     fun getParamRandomizer(key: RDClassData): List<ParameterRandomizer<*>>? {
         val rt = this.parameterRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten()
         return rt
@@ -65,6 +68,10 @@ data class RandomizerCollection(
         return addRandomizers(newRandomizers.toList())
     }
 
+    /**
+     * Get a random class randomizer for a [key].
+     * A qualified randomizers are those that can generate an instance of a super class of the class in [key].
+     */
     fun getRandomizer(key: RDClassData): ClassRandomizer<*>? {
         val rt = this.classRandomizers.filter { it.key.kClass.isSubclassOf(key.kClass) }.values.flatten().randomOrNull()
         return rt
