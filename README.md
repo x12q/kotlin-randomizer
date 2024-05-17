@@ -5,7 +5,7 @@ A library for generating random instance of any class, interface, object, and en
 
 # Introduction
 
-Generating random data for testing sometimes can be tedious, especially with large old classes that have deep nesting. This library aims to making generating random instances for any class easier.  
+Generating random data for testing sometimes can be tedious, especially with large old classes that have deep nesting. This library aims to making generating random instances for any class easier.
 
 A random instance of any class can be created as easy as this:
 
@@ -20,7 +20,7 @@ Get it here:
 ## [Gradle](#gradle) <a id="gradle"></a>
 ```
 dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.3")
+    implementation("com.x12q:randomizer:1.0.0-alpha.4")
 }
 ```
 ## [Maven](#maven) <a id="maven"></a>
@@ -31,7 +31,7 @@ dependencies {
     <version>1.0.0-alpha.3</version>
 </dependency>
 ```
-# Content 
+# Content
 <a id="top"></a>
 
 - [How to](#how-to)
@@ -502,19 +502,19 @@ Randomizers are categorized into 4 `lv` in this library:
 
 The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest priority)
 
-If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly. 
+If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly.
 
 
 ## [How `@Randomizable` works?](#top) <a id="rule-2"></a>
 
 - `@Randomizable` can be used to annotate:
-  - class, enum, sealed class, interface, abstract class, inner class
-  - constructor
-  - constructor parameter
+    - class, enum, sealed class, interface, abstract class, inner class
+    - constructor
+    - constructor parameter
 
 - `@Randomizable` plays a role in constructor picking, see the below rule.
 
-- if a `@Randomizable` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor. 
+- if a `@Randomizable` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor.
 
 ## [How are constructors picked?](#top) <a id="rule-3"></a>
 
@@ -529,7 +529,7 @@ Randomization is done recursively.
 
 ### [For concrete class](#top) <a id="rule-1-1"></a>
 
-For a concrete class, randomization is done by invoking one of its constructor with randomized parameters. 
+For a concrete class, randomization is done by invoking one of its constructor with randomized parameters.
 
 ### [For sealed class](#top) <a id="rule-1-2"></a>
 
@@ -538,9 +538,9 @@ For sealed class, if no custom randomizer is provided (either via `random()` or 
 ### [For interface & abstract class](#top) <a id="rule-1-3"></a>
 
 For interface and abstract classes, a custom randomizer must be provided:
-- either via the `random()` function 
+- either via the `random()` function
 - or `@Randomizable` on such interfaces or abstract classes
-- or `@Randomizable`on parameter of such type 
+- or `@Randomizable`on parameter of such type
 
 Otherwise the library will crash.
 
@@ -562,7 +562,9 @@ For inner class, randomization is done similarly to a normal class.
 
 <a id="limitation"></a>
 
-There is a case in which this library will crash. Fortunately, this is a pretty weird case that are very uncommon in
+### [Class inside function]()
+
+There is a case in which this library will crash. Fortunately, this is a rather uncommon case in
 real scenarios.
 
 It is not possible for this library to generate a random instance of `MyClass` below.
@@ -587,5 +589,15 @@ fun main() {
     random<MyClass>() // => this crashes
 }
 ```
+### [Function properties]()
 
-Well, maybe there are others that I am not aware of. Please let me know.
+At the moment, this library cannot generate random function properties such as in this case. It will throw an exception.
+
+A solution is being worked on and hopefully will be in next release
+```kotlin
+class ABC(
+    val f:(Int,String)->Float
+)
+```
+
+There are others limitation that I am not aware of. Please let me know.
