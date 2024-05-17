@@ -170,7 +170,7 @@ data class RandomGenerator @Inject constructor(
         }
 
         if (targetClass.isAbstract) {
-
+            randomFunction(classData,typeMap)
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.simpleName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
 
         } else if (targetClass.isSealed) {
@@ -377,20 +377,32 @@ data class RandomGenerator @Inject constructor(
         return getEnumValue(classData.kClass)?.random(random)
     }
 
+    private fun randomFunction(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ){
+        val clzz = classData.kClass
+        if(clzz is Function<*>){
+            throw IllegalArgumentException("does not support function")
+        }
+    }
+
     @Suppress("IMPLICIT_CAST_TO_ANY")
     private fun lv4RandomPrimitive(
         classData: RDClassData,
         typeMap: Map<String, RDClassData>,
     ): Any? {
+
         val clzz: KClass<*> = classData.kClass
 
-        val primitive = when (clzz) {
-            Char::class -> randomChar()
+        val primitive: Any? = when (clzz) {
+            Number::class -> randomNumber()
             Int::class -> random.nextInt()
             Long::class -> random.nextLong()
             Float::class -> random.nextFloat()
             Double::class -> random.nextDouble()
-            String::class -> randomString(random)
+            Char::class -> randomChar()
+            CharSequence::class, String::class -> randomString(random)
             Boolean::class -> random.nextBoolean()
             Byte::class -> random.nextBytes(1)[0]
             Short::class -> random.nextInt().toShort()
@@ -399,20 +411,36 @@ data class RandomGenerator @Inject constructor(
 
         if (primitive == null) {
             val rt = if (clzz.isSuperclassOf(List::class)) {
-                makeRandomList(
+                val list = makeRandomList(
                     classData = classData,
                     typeMap = typeMap,
                 )
+                if (clzz.isSuperclassOf(MutableList::class)) {
+                    list.toMutableList()
+                } else {
+                    list
+                }
             } else if (clzz.isSuperclassOf(Map::class)) {
-                makeRandomMap(
+                val mp = makeRandomMap(
                     mapClassData = classData,
                     typeMap = typeMap,
                 )
+                if (clzz.isSuperclassOf(MutableMap::class)) {
+                    mp.toMutableMap()
+                } else {
+                    mp
+                }
             } else if (clzz.isSuperclassOf(Set::class)) {
-                makeRandomList(
+
+                val st = makeRandomList(
                     classData = classData,
                     typeMap = typeMap,
                 ).toSet()
+                if(clzz.isSuperclassOf(MutableSet::class)){
+                    st.toMutableSet()
+                }else{
+                    st
+                }
             } else {
                 null
             }
@@ -422,8 +450,37 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    private fun randomNumber(): Number {
+        return listOf(random.nextInt(), random.nextDouble(), random.nextFloat(), random.nextLong()).random()
+    }
+
     private val collectionSize: IntRange = defaultRandomConfig.collectionSize
     private val strSize: IntRange = defaultRandomConfig.stringSize
+
+    private fun randomArray(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ): Array<Any?> {
+
+        val type: KType? = classData.kType
+        val combineTypeMap = classData.makeCombineTypeMap(typeMap)
+
+        if (type != null) {
+            val numOfElements = random.nextInt(collectionSize.first, collectionSize.last + 1)
+            val elementType = classData.kClass.typeParameters[0].name.let {
+                typeMap[it]?.kType!!
+            }
+            val rt = (1..numOfElements).map {
+                randomElement(
+                    paramKType = elementType,
+                    upperTypeMap = combineTypeMap
+                )
+            }.toTypedArray()
+            return rt
+        } else {
+            throw IllegalArgumentException("Unable to get Ktype, therefore can't to generate random List")
+        }
+    }
 
     private fun makeRandomList(
         classData: RDClassData,
@@ -664,14 +721,6 @@ data class RandomGenerator @Inject constructor(
     internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
 
         val constructors: Collection<KFunction<Any>> = targetClass.constructors
-        if (targetClass == ArrayList::class) {
-            val con = constructors.first {
-                val c1 = it.parameters.size == 1
-                val c2 = it.parameters[0].type.classifier == Collection::class
-                c1 && c2
-            }
-            return PickConstructorResult(con, null)
-        }
 
         /**
          * A rich annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
@@ -728,10 +777,6 @@ data class RandomGenerator @Inject constructor(
          * Use primary constructor if there are not any annotated constructor
          */
 
-        if (targetClass == ArrayList::class) {
-            val con = constructors.toList()[0]
-            return PickConstructorResult(con, null)
-        }
         val nonAnnotatedConstructor = targetClass.primaryConstructor ?: targetClass.constructors.randomOrNull()
         return nonAnnotatedConstructor?.let {
             PickConstructorResult(it, null)
@@ -798,5 +843,9 @@ data class RandomGenerator @Inject constructor(
             return null
         }
     }
+
+}
+
+class Q: Function<Int>{
 
 }

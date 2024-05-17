@@ -60,8 +60,10 @@ target class is abstract without valid lv3 or lv2
 - x: improve error reporting:
   - x: Create a common exception class, and make all error report return that type
 - Improve for seal class:
-  - TODO Add option to create randomizer base on type declaration instead of logic.
-- TODO: add more comprehensive support for type in standard library
+  - x Add option to create randomizer base on type declaration instead of logic.
+- TODO: add more comprehensive support for type in standard library:
+  - TODO: Array
+- TODO: how about function param (params that are functions)
 - 
 ```kotlin
 randomizer<SealClass>(
