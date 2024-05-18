@@ -811,6 +811,16 @@ data class RandomGenerator @Inject constructor(
     }
 
 
+    /**
+     * Pick a random constructor from [targetClass].
+     *
+     * The order of priority is:
+     * - richly annotated constructor > poorly annotated constructor > primary constructor > other constructors
+     *
+     * A richly annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
+     * A poor annotated constructor is one that annotated with [Randomizable] and without any randomizer
+     *
+     */
     internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
 
         val constructors: Collection<KFunction<Any>> = targetClass.constructors
@@ -818,12 +828,12 @@ data class RandomGenerator @Inject constructor(
         /**
          * A rich annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
          */
-        val withRichRandomizer: MutableList<PickConstructorResult> = mutableListOf()
+        val richConstructors: MutableList<PickConstructorResult> = mutableListOf()
 
         /**
          * A poor annotated constructor is one that annotated with [Randomizable] and without any randomizer
          */
-        val withPoorRandomizer: MutableList<KFunction<Any>> = mutableListOf()
+        val poorConstructors: MutableList<KFunction<Any>> = mutableListOf()
 
         var stillConsiderPoorAnnotatedConstructor = true
 
@@ -841,28 +851,25 @@ data class RandomGenerator @Inject constructor(
                     if (rdmClass != null) {
                         randomizerChecker.checkValidRandomizerClassOrThrow(rdmClass, targetClass)
                         stillConsiderPoorAnnotatedConstructor = false
-                        withRichRandomizer.add(PickConstructorResult(con, rdmClass))
+                        richConstructors.add(PickConstructorResult(con, rdmClass))
                     }
                 }
                 if (stillConsiderPoorAnnotatedConstructor) {
-                    withPoorRandomizer.add(con)
+                    poorConstructors.add(con)
                 }
             }
         }
 
-        if (withRichRandomizer.isNotEmpty()) {
-            /**
-             * Pick a random from the richly annotated constructor
-             */
-            return withRichRandomizer.random()
+        if (richConstructors.isNotEmpty()) {
+            return richConstructors.random()
         }
 
-        if (withPoorRandomizer.isNotEmpty()) {
+        if (poorConstructors.isNotEmpty()) {
             /**
-             * Pick a random from the blank annotated constructors
+             * Pick a random from the poorly annotated constructors
              */
             return PickConstructorResult(
-                withPoorRandomizer.random(), null
+                poorConstructors.random(), null
             )
         }
 
@@ -936,9 +943,5 @@ data class RandomGenerator @Inject constructor(
             return null
         }
     }
-
-}
-
-class Q : Function<Int> {
 
 }
