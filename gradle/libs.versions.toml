@@ -1,5 +1,4 @@
 [versions]
-
 kotlin="1.9.20"
 jvmVersion = "8"
 dagger2Version = "2.46.1"
@@ -13,7 +12,8 @@ dagger = { module = "com.google.dagger:dagger", version.ref = "dagger2Version" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger2Version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
-[plugins]
 
+
+[plugins]
 anvil = { id = "com.squareup.anvil", version="2.4.9" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version="0.28.0" }
