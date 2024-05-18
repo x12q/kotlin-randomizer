@@ -29,40 +29,6 @@ class RandomizeGenerator_Default {
     }
 
     /**
-     * Verify that a custom rdm is used to generate Class1.tm12
-     */
-//    @Test
-//    fun randomConstructorParameterRs() {
-//        val p0 = rdm0.randomConstructorParameterRs(
-//            Class1.tm12KParam,
-//            Class1.dt,
-//            null
-//        )
-//
-//        val rs = rdm.randomConstructorParameterRs(
-//            Class1.tm12KParam,
-//            Class1.dt,
-//            null
-//        )
-//
-//        rs shouldNotBe p0
-//
-//        rs shouldBe Ok(
-//            spyParamRdm.random(
-//                RDClassData.from<String>(),
-//                Class1.tm12KParam,
-//                RDClassData.from<Class1>(),
-//            )
-//        )
-//
-//        rdm.randomConstructorParameter(
-//            Class1.tm12KParam,
-//            Class1.dt, null
-//        ) shouldBe rs.component1()
-//
-//    }
-
-    /**
      * Verify that custom class randomizer was used instead of the default one.
      */
     @Test
@@ -74,7 +40,4 @@ class RandomizeGenerator_Default {
         p1 shouldBe classRdm.random()
 
     }
-
-    abstract class A
-
 }
