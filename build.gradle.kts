@@ -6,15 +6,9 @@ plugins {
     kotlin("kapt") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     alias(libs.plugins.anvil)
-    id("com.vanniktech.maven.publish") version "0.28.0"
+    alias(libs.plugins.vanniktech.mavenPublish)
     `maven-publish`
 }
-
-val javaVersion = libs.versions.jvmVersion.get().toInt()
-group = libs.versions.groupName.get()
-version = libs.versions.version.get()
-
-val id = "randomizer"
 
 repositories {
     mavenCentral()
@@ -25,27 +19,33 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
-    implementation(libs.mockk)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 
     kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 kotlin {
+    val javaVersion = libs.versions.jvmVersion.get().toInt()
     jvmToolchain(javaVersion)
 }
 
 mavenPublishing {
+
+    group = "com.x12q"
+    version = "1.0.0-alpha.5"
+    val libId =  "randomizer"
+
+
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
-    coordinates(group.toString(), id, version.toString())
+    coordinates(group.toString(), libId, version.toString())
 
     pom{
         name.set("Randomizer")

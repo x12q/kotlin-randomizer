@@ -20,7 +20,7 @@ Get it here:
 ## [Gradle](#gradle) <a id="gradle"></a>
 ```
 dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.4")
+    implementation("com.x12q:randomizer:1.0.0-alpha.5")
 }
 ```
 ## [Maven](#maven) <a id="maven"></a>
