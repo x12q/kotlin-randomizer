@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.matchers.shouldBe

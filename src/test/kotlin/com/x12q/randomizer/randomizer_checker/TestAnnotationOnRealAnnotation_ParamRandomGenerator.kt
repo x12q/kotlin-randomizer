@@ -2,7 +2,7 @@ package com.x12q.randomizer.randomizer_checker
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.Randomizable
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.RDClassData

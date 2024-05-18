@@ -1,7 +1,7 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.builder.randomizers
 import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldNotThrow

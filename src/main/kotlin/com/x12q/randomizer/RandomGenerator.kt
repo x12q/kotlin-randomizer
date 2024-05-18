@@ -1,8 +1,9 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOnlyRs
-import com.x12q.randomizer.Randomizable.Companion.getClassRandomizerOrParamRandomizerRs
+import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.annotations.Randomizable.Companion.getClassRandomizerOnlyRs
+import com.x12q.randomizer.annotations.Randomizable.Companion.getClassRandomizerOrParamRandomizerRs
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
