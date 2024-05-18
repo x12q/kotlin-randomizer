@@ -28,7 +28,7 @@ dependencies {
 <dependency>
     <groupId>com.x12q</groupId>
     <artifactId>randomizer</artifactId>
-    <version>1.0.0-alpha.3</version>
+    <version>1.0.0-alpha.4</version>
 </dependency>
 ```
 # Content
