@@ -1,22 +1,19 @@
 [versions]
-groupName = "com.x12q"
-version = "1.0.0-alpha.4"
 
 kotlin="1.9.20"
 jvmVersion = "8"
-
 dagger2Version = "2.46.1"
-kotestVersion = "5.5.4"
-anvilVersion = "2.4.9"
+
 
 [libraries]
-
+kotlin-coroutine = {module="org.jetbrains.kotlinx:kotlinx-coroutines-core", version="1.8.0"}
 mockk = { module = "io.mockk:mockk", version = "1.12.3" }
-kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotestVersion" }
+kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version = "5.5.4" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger2Version" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger2Version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
 [plugins]
 
-anvil = { id = "com.squareup.anvil", version.ref="anvilVersion" }
+anvil = { id = "com.squareup.anvil", version="2.4.9" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version="0.28.0" }
