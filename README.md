@@ -20,7 +20,7 @@ Get it here:
 ## [Gradle](#gradle) <a id="gradle"></a>
 ```
 dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.5")
+    implementation("com.x12q:randomizer:1.0.0-alpha.6")
 }
 ```
 ## [Maven](#maven) <a id="maven"></a>
@@ -28,7 +28,7 @@ dependencies {
 <dependency>
     <groupId>com.x12q</groupId>
     <artifactId>randomizer</artifactId>
-    <version>1.0.0-alpha.5</version>
+    <version>1.0.0-alpha.6</version>
 </dependency>
 ```
 # Content

@@ -9,7 +9,7 @@ import kotlin.random.Random
 /**
  * A random context is simply an encapsulation of everything a [RandomGenerator] need.
  */
-data class RandomContext(
+data class RandomContext @Inject constructor(
     val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
     val randomizerChecker: RandomizerChecker,

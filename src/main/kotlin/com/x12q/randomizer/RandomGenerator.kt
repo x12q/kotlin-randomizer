@@ -20,7 +20,14 @@ import kotlin.reflect.full.findAnnotations
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 
-
+/**
+ * This class handle the main randomizing logic.
+ * There are 4 type(lv) of randomizers used in this class:
+ * - lv1: randomizers provided by users explicitly via the top-level random function.
+ * - lv2: randomizers from annotations on parameters
+ * - lv3: randomizers from annotations on classes
+ * - lv4: default randomizers baked into the logic of this class.
+ */
 data class RandomGenerator @Inject constructor(
     private val random: Random,
     val lv1RandomizerCollection: RandomizerCollection,
@@ -35,12 +42,18 @@ data class RandomGenerator @Inject constructor(
         defaultRandomConfig = randomContext.defaultRandomConfig,
     )
 
+    /**
+     * Merge the content of this with another [RandomGenerator]
+     */
     fun mergeWith(another: RandomGenerator): RandomGenerator {
         return this.copy(
             lv1RandomizerCollection = this.lv1RandomizerCollection.mergeWith(another.lv1RandomizerCollection)
         )
     }
 
+    /**
+     * Produce a [RandomContext] object from the content of this
+     */
     fun makeContext(): RandomContext {
         val context = RandomContext(
             random = random,
@@ -51,6 +64,9 @@ data class RandomGenerator @Inject constructor(
         return context
     }
 
+    /**
+     * Create a random instance of a class represented by [classData]
+     */
     fun random(classData: RDClassData): Any? {
         return random(
             classData = classData,
@@ -59,6 +75,11 @@ data class RandomGenerator @Inject constructor(
         )
     }
 
+    /**
+     * Create a random instance of a class represented by [classData].
+     * [typeMap] is a map of generic type to class data.
+     * The [typeMap] passed to this function must guarantee that it provides all the concrete class data for all the generic type that the class need.
+     */
     internal fun random(
         classData: RDClassData,
         lv2RandomizerClassLz: Lazy<ClassRandomizer<*>?>?,
@@ -69,11 +90,17 @@ data class RandomGenerator @Inject constructor(
         if (objectInstance != null) {
             return objectInstance
         } else {
-            // lv1 = randomizer is provided explicitly by the users in the top-level random function
-            // No need to check for return type because the lv1RandomizerCollection already covers that.
+            /**
+             * lv1 = randomizer is provided explicitly by the users in the top-level random function
+             * No need to check for return type because the lv1RandomizerCollection already covers that.
+             */
             val lv1Randomizer = lv1RandomizerCollection.getRandomizer(classData)
 
+            /**
+             * lv3 randomizers are randomizer provided by annotation on classes
+             */
             val lv3RandomizerLz = lazy { getLv3Randomizer(targetClass) }
+
             return randomByLv(
                 classData = classData,
                 lv1Randomizer = lv1Randomizer,
@@ -84,6 +111,10 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    /**
+     * Make a random instance of an inner class represented by [classData].
+     * [outerObj] is the object containing such inner class.
+     */
     fun randomInnerClass(classData: RDClassData, outerObj: Any?): Any? {
         return randomInnerClass(
             innerClassData = classData,
@@ -165,29 +196,17 @@ data class RandomGenerator @Inject constructor(
             classData = classData,
             typeMap = typeMap,
         )
+
         if (rdEnumAndPrim != null) {
             return rdEnumAndPrim
         }
 
         if (targetClass.isAbstract) {
-            randomFunction(classData,typeMap)
+            randomFunction(classData, typeMap)
             throw IllegalArgumentException("can't randomized abstract class ${targetClass.simpleName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
-
         } else if (targetClass.isSealed) {
 
-            val sealedSubClassList = targetClass.sealedSubclasses
-            val pickedSealClass = sealedSubClassList.random()
-
-            val sealClassRdData = RDClassData(
-                kClass = pickedSealClass,
-                kType = null,
-            )
-            val combinedTypeMap = sealClassRdData.makeCombineTypeMap(typeMap)
-            return random(
-                classData = sealClassRdData,
-                lv2RandomizerClassLz = null,
-                typeMap = combinedTypeMap,
-            )
+            return randomSealClass(classData, typeMap)
 
         } else {
             /**
@@ -197,33 +216,11 @@ data class RandomGenerator @Inject constructor(
 
             if (constructor != null) {
                 try {
-                    if (targetClass.isInner) {
-
-                        val arguments = constructor.parameters
-                            .takeLast(constructor.parameters.size - 1)
-                            .map { constructorParam ->
-                                randomConstructorParameter(
-                                    kParam = constructorParam,
-                                    parentClassData = classData,
-                                    typeMap = typeMap,
-                                )
-                            }.toTypedArray()
-
-                        return constructor.call(outerObj, *arguments)
-
-                    } else {
-                        val arguments = constructor.parameters
-                            .map { constructorParam ->
-                                randomConstructorParameter(
-                                    kParam = constructorParam,
-                                    parentClassData = classData,
-                                    typeMap = typeMap,
-                                )
-                            }.toTypedArray()
-
-                        return constructor.call(*arguments)
+                    if(targetClass.isInner){
+                        return callInnerClassConstructor(constructor,classData,outerObj,typeMap)
+                    }else{
+                        return callClassConstructor(constructor, classData, typeMap)
                     }
-
                 } catch (e: Throwable) {
                     throw e
                 }
@@ -233,15 +230,111 @@ data class RandomGenerator @Inject constructor(
         }
     }
 
+    /**
+     * Call [constructor] of a class represented by [classData].
+     * [typeMap] passed to this function must guarantee that it can provide all concrete class data for all generic type in such class.
+     */
+    private fun callClassConstructor(
+        constructor:KFunction<Any?>,
+        classData:RDClassData,
+        typeMap: Map<String, RDClassData>
+    ):Any?{
+
+        val parameters = constructor.parameters
+
+        val arguments = parameters
+            .map { constructorParam ->
+                randomConstructorParameter(
+                    kParam = constructorParam,
+                    enclosingClassData = classData,
+                    typeMap = typeMap,
+                )
+            }.toTypedArray()
+
+        val rt = constructor.call(*arguments)
+
+        return rt
+    }
+
+    /**
+     * Call [constructor] of an inner class represented by [classData]. The inner class is inside [outerObj].
+     * [typeMap] passed to this function must guarantee that it can provide all concrete class data for all generic type in such class.
+     *
+     * Inner classes' constructors are invoked differently from normal class.
+     * The constructor always receive the outer object as the first parameter
+     */
+    private fun callInnerClassConstructor(
+        constructor:KFunction<Any?>,
+        classData:RDClassData,
+        outerObj: Any?,
+        typeMap: Map<String, RDClassData>
+    ):Any?{
+
+        val targetClass = classData.kClass
+
+        if (!targetClass.isInner) {
+            throw IllegalArgumentException("This function is only used for inner class. [${targetClass}] is not an inner class.")
+        }
+
+        if(outerObj == null){
+            throw IllegalArgumentException("Outer object of an inner class ([${targetClass}]) must not be null.")
+        }
+
+        val parameters = constructor
+                .parameters
+                .takeLast(constructor.parameters.size - 1)
+
+        val arguments = parameters
+            .map { constructorParam ->
+                randomConstructorParameter(
+                    kParam = constructorParam,
+                    enclosingClassData = classData,
+                    typeMap = typeMap,
+                )
+            }.toTypedArray()
+
+        val rt = constructor.call(outerObj, *arguments)
+        return rt
+    }
+
+    /**
+     * For seal classes, a random subclass is picked for randomization.
+     * [typeMap] + type data in the chosen subclass must guarantee that they can provide all concrete class data for all generic types in the chosen class.
+     */
+    private fun randomSealClass(
+        classData: RDClassData,
+        typeMap: Map<String, RDClassData>,
+    ):Any?{
+        val targetClass: KClass<*> = classData.kClass
+        if(!targetClass.isSealed){
+            throw IllegalArgumentException("This function is for sealed class only. [${targetClass}] is not a sealed class.")
+        }
+        val sealedSubClassList = targetClass.sealedSubclasses
+        val pickedSealClass = sealedSubClassList.random()
+
+        val sealClassRdData = RDClassData(
+            kClass = pickedSealClass,
+            kType = null,
+        )
+        val combinedTypeMap = sealClassRdData.makeCombineTypeMap(typeMap)
+        return random(
+            classData = sealClassRdData,
+            lv2RandomizerClassLz = null,
+            typeMap = combinedTypeMap,
+        )
+    }
+
+
+
     @Throws(Throwable::class)
     private fun randomConstructorParameter(
         kParam: KParameter,
-        parentClassData: RDClassData,
+        enclosingClassData: RDClassData,
         typeMap: Map<String, RDClassData>,
     ): Any? {
         val rs = randomConstructorParameterRs(
             param = kParam,
-            enclosingClassData = parentClassData,
+            enclosingClassData = enclosingClassData,
             typeMap = typeMap,
         )
         val rt = rs.getOrElse { err ->
@@ -380,9 +473,9 @@ data class RandomGenerator @Inject constructor(
     private fun randomFunction(
         classData: RDClassData,
         typeMap: Map<String, RDClassData>,
-    ){
+    ) {
         val clzz = classData.kClass
-        if(clzz is Function<*>){
+        if (clzz is Function<*>) {
             throw IllegalArgumentException("does not support function")
         }
     }
@@ -436,9 +529,9 @@ data class RandomGenerator @Inject constructor(
                     classData = classData,
                     typeMap = typeMap,
                 ).toSet()
-                if(clzz.isSuperclassOf(MutableSet::class)){
+                if (clzz.isSuperclassOf(MutableSet::class)) {
                     st.toMutableSet()
-                }else{
+                } else {
                     st
                 }
             } else {
@@ -846,6 +939,6 @@ data class RandomGenerator @Inject constructor(
 
 }
 
-class Q: Function<Int>{
+class Q : Function<Int> {
 
 }

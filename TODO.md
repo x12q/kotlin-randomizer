@@ -63,23 +63,16 @@ target class is abstract without valid lv3 or lv2
   - x Add option to create randomizer base on type declaration instead of logic.
 - TODO: add more comprehensive support for type in standard library:
   - TODO: Array
-- TODO: how about function param (params that are functions)
-- 
-```kotlin
-randomizer<SealClass>(
-    randomizers = randomizers{
-        add(classRandomizer<SealClass.A1<Int>>())
-    }
-)
-```
+- TODO: support function param (params that are functions)
+- TODO: add annotation to support more convenient randomizing logic:
+  - @RandomizeNumber(range = 1.0 to 100.0): for any number type
+  - @Randomize
+  - 
+
+Tentative:
+- Consider rename @Randomizable to @Randomizer
+
  
-Tentative feature:
-- Constructor rule (low priority)
-  - If no rule is provided -> default to primary constructor
-  - One way to make constructor marking easier is to use annotation to mark constructor. And then declare such annotation in the constructor rule.
-  - Provide user a way to access the low level constructor data so that they can do whatever they want at the low level.
-
-
 Not support (yet) and known crash:
 
 Issue 1: this is a limitation of kotlin language, there's an open issue: https://l.messenger.com/l.php?u=https%3A%2F%2Fyoutrack.jetbrains.com%2Fissue%2FKT-25573%2F&h=AT1tpVdGxWJYHcu2XCgZbEF4IVMVCHQIrbGqG6cG0awC5uTWpq20a8eSJk_Fu3AfLvyauZJxJh9N1Ww6P8kPeleimIeP2oQvo6sELDpku6hRfrCSzr80utKVkhr0zQ
@@ -112,10 +105,3 @@ fun main() {
 }
 ```
 
-Issue2: Generic inside seal class
-type info is not available, so it will throw an exception
-```kotlin
-sealed class SealA{
-    data class A1<T>(val t:T):SealA()
-}
-```

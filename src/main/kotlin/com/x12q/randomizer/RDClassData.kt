@@ -50,7 +50,8 @@ data class RDClassData(
     }
 
     /**
-     * This is a mapping between received type arguments and declared types of this class
+     * This is a mapping between received type arguments and declared types of this class.
+     * This type map is constructed using only information with this class data.
      */
     internal val directTypeMap: Map<String, RDClassData> by lazy {
 
