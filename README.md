@@ -224,18 +224,18 @@ class MNO(
 
 Custom randomizer class passed to `@Randomizer` must:
 
-- implement `ClassRandomizer` interface (but `AbsSameClassRandomizer` is preferred in most cases)
+- implement `ClassRandomizer` interface (but `BaseClassRandomizer` is preferred in most cases)
 - have a no-argument public constructor
 
 #### [Create custom randomizers by implementing `ClassRandomizer` interface &#9650;](#top) <a id="how-to-2-2-1"></a>
 
-In most cases where custom randomizers only need trivia type check, it is preferred to extend `AbsSameClassRandomizer`
+In most cases where custom randomizers only need trivia type check, it is preferred to extend `BaseClassRandomizer`
 abstract class because this one already contains the basic type check logic.
 
 It looks like this:
 
 ```kotlin
-class SomeCustomRandomizer : AbsSameClassRandomizer<SomeClass>() {
+class SomeCustomRandomizer : BaseClassRandomizer<SomeClass>() {
     // this is a must
     override val returnedInstanceData: RDClassData = RDClassData.from<SomeClass>()
 
@@ -406,19 +406,19 @@ class MNO(
 
 Custom randomizer class passed to `@Randomizer` must:
 
-- implement `ParamRandomizer` interface (but `AbsSameClassParamRandomizer` is preferred in most cases)
+- implement `ParamRandomizer` interface (but `BaseParamRandomizer` is preferred in most cases)
 - have a no-argument public constructor
 -
 
 #### [Create custom param randomizers by implementing `ParamRandomizer` interface &#9650;](#top) <a id="how-to-4-2-1"></a>
 
 In most cases where custom randomizers only need trivia type check, it is preferred to
-extend `AbsSameClassParamRandomizer` abstract class because this one already contains the basic type check logic.
+extend `BaseParamRandomizer` abstract class because this one already contains the basic type check logic.
 
 It looks like this:
 
 ```kotlin
-class A2Randomizer : AbsSameClassParamRandomizer<A2>() {
+class A2Randomizer : BaseParamRandomizer<A2>() {
     // this is a must
     override val paramClassData: RDClassData = RDClassData.from<A2>()
 
