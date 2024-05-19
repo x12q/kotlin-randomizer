@@ -2,11 +2,11 @@ package com.x12q.randomizer.randomizer_checker
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.Randomizer
+import com.x12q.randomizer.randomizer.CommonRandomizer
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -24,7 +24,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
     @Test
     fun `check valid param randomizer 1`() {
         val param = Class_1::class.primaryConstructor!!.parameters.get(0)
-        val annotation = param.findAnnotations<Randomizable>().first()
+        val annotation = param.findAnnotations<Randomizer>().first()
         val processor = RandomizerChecker()
         val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
         processor.checkValidParamRandomizer(
@@ -37,7 +37,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
     @Test
     fun `check valid param randomizer 2`() {
         val param = Class_3::class.primaryConstructor!!.parameters.get(0)
-        val annotation = param.findAnnotations<Randomizable>().first()
+        val annotation = param.findAnnotations<Randomizer>().first()
         val processor = RandomizerChecker()
         val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
 
@@ -53,7 +53,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
     fun `randomizer class extracted from annotation can actually work`() {
 
         val param = Class_1::class.primaryConstructor!!.parameters.get(0)
-        val annotation = param.findAnnotations<Randomizable>().first()
+        val annotation = param.findAnnotations<Randomizer>().first()
         val processor = RandomizerChecker()
         val randomizerClass = annotation.randomizer as KClass<out ParameterRandomizer<*>>
 
@@ -79,24 +79,24 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
     @Test
     fun testOnRealAnnotation_default() {
         val param = Class_2::class.primaryConstructor!!.parameters.get(0)
-        val annotation = param.findAnnotations<Randomizable>().first()
-        annotation.randomizer shouldBe Randomizer.__DefaultRandomizer::class
+        val annotation = param.findAnnotations<Randomizer>().first()
+        annotation.randomizer shouldBe CommonRandomizer.__DefaultRandomizer::class
     }
 
     class Class_1(
-        @Randomizable(
+        @Randomizer(
             randomizer = Randomizer_1::class
         )
         val target1: Param1
     )
 
     class Class_2(
-        @Randomizable
+        @Randomizer
         val param2: Param2
     )
 
     class Class_3(
-        @Randomizable(
+        @Randomizer(
             randomizer = Randomizer_1::class
         )
         val wronglyAnnotated: Param3

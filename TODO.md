@@ -13,9 +13,9 @@ target class is abstract without valid lv3 or lv2
 
 # Requirement:
  - recursive function to traverse the constructor tree, and init object.
- - for abstract parameter, add @Randomizable(ConcreteClass1::class, ConcreteClass2::class, AnotherRandomizableAbstractClass::class)
- - For abstract class, add the same @Randomizable, the one in parameter override the one in the class.
- - For concrete class, add @Randomizable(factoryFunction=...) or @Randomizable(randomizer = CustomRandomizer::class)
+ - for abstract parameter, add @Randomizer(ConcreteClass1::class, ConcreteClass2::class, AnotherRandomizableAbstractClass::class)
+ - For abstract class, add the same @Randomizer, the one in parameter override the one in the class.
+ - For concrete class, add @Randomizer(factoryFunction=...) or @Randomizer(randomizer = CustomRandomizer::class)
 
 ## The top level random function:
 - should it accept some kind of master rule that override everything?
@@ -43,7 +43,7 @@ target class is abstract without valid lv3 or lv2
 - x: remove repetition in RandomizerEnd
 - x: improve performance of randomizer by avoiding creating randomizer obj before it is needed
 
-- x: Add @Randomizable annotation + integrate its content(concrete class + randomizer) into the random logic
+- x: Add @Randomizer annotation + integrate its content(concrete class + randomizer) into the random logic
   - x: Priority order: randomizer from top-level function (lv1) -> parameter randomize (lv2) -> class randomizer (lv3) -> no randomizer (lv4)
   - TODO Test more, this is very important
     - test generic
@@ -65,12 +65,11 @@ target class is abstract without valid lv3 or lv2
   - TODO: Array
 - TODO: support function param (params that are functions)
 - TODO: add annotation to support more convenient randomizing logic:
-  - @RandomizeNumber(range = 1.0 to 100.0): for any number type
-  - @Randomize
-  - 
-
+  - for each type of generic: Int, float, string, double, etc
+  - fixed, withinRange, oneOf
+  
 Tentative:
-- Consider rename @Randomizable to @Randomizer
+- Consider rename @Randomizer to @Randomizer
 
  
 Not support (yet) and known crash:

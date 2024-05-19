@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -84,7 +84,7 @@ class RandomizeGenerator_OnCollection_concrete {
     }
 
 
-    @Randomizable(randomizer = A1.Randomizer3::class)
+    @Randomizer(randomizer = A1.Randomizer3::class)
     data class A1(val s: String) : A() {
 
         companion object {

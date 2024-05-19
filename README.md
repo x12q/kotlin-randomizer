@@ -12,7 +12,7 @@ A random instance of any class can be created as easy as this:
 ```kotlin
 val instance = random<MyClass>()
 ```
-Custom random logic can also be easily provided via `random()` function or `@Randomizable` annotation. Read more below to see how.
+Custom random logic can also be easily provided via `random()` function or `@Randomizer` annotation. Read more below to see how.
 
 Get it here:
 
@@ -40,20 +40,20 @@ dependencies {
         - [Custom randomizers via `random()` function](#how-to-2-1)
             - [Create custom randomizers with `randomizers()` builder](#how-to-2-1-1)
             - [Create custom randomizers with factory function](#how-to-2-1-2)
-        - [Custom randomizers via `@Randomizable` annotation](#how-to-2-2)
+        - [Custom randomizers via `@Randomizer` annotation](#how-to-2-2)
             - [Create custom randomizers by implementing `ClassRandomizer` interface](#how-to-2-2-1)
     - [Randomize a parameter](#how-to-3)
     - [Randomize a parameter with custom randomizers](#how-to-4)
         - [Custom param randomizers via `random()` function](#how-to-4-1)
             - [Create custom param randomizers with `paramRandomizers()` builder](#how-to-4-1-1)
             - [Create custom param randomizers with factory functions](#how-to-4-1-1)
-        - [Custom param randomizers via `@Randomizable` annotation](#how-to-4-2)
+        - [Custom param randomizers via `@Randomizer` annotation](#how-to-4-2)
             - [Create custom param randomizers by implementing `ParamRandomizer` interface](#how-to-4-2-1)
     - [Randomize an inner class](#how-to-6)
     - [Change base random configs](#how-to-7)
 - [Rule](#rule)
     - [Custom randomizer order of priority (important !!!)](#rule-4)
-    - [How `@Randomizable` works?](#rule-2)
+    - [How `@Randomizer` works?](#rule-2)
     - [How are constructors picked?](#rule-3)
     - [How is randomization being done?](#rule-1)
         - [For concrete class](#rule-1-1)
@@ -78,7 +78,7 @@ For most use case, these are often more than enough:
 - `randomizers()`: to create custom class randomizers
 - `paramRandomizers()`: to create custom param randomizers
 
-`@Randomizable` annotation is for global configuration.
+`@Randomizer` annotation is for global configuration.
 
 See below for more detail on how to use these.
 
@@ -93,8 +93,8 @@ val randomInstance = random<SomeClass>()
 There are two ways to use custom randomizers to generate random instances of classes:
 
 - via `random()` functions
-- via `@Randomizable` annotation, which can be used on class, interface, sealed class, enum, constructor, and
-  constructor parameter (parameter for short)
+- via `@Randomizer` annotation, which can be used on class, interface, sealed class, enum, constructor, and
+  constructor parameters (parameters for short)
   <a id=""></a>
 
 ### [Custom randomizers via `random()` function &#9650;](#top) <a id="how-to-2-1"></a>
@@ -112,7 +112,7 @@ There are 3 ways to create custom randomizers that can be passed to `random()`.
 
 - use `randomizers()`builder (preferred)
 - use factory functions
-- implement `ClassRandomizer` interface (detailed in `@Randomizable` section)
+- implement `ClassRandomizer` interface (detailed in `@Randomizer` section)
 
 #### [Create custom randomizers with `randomizers()` builder &#9650;](#top)  <a id="how-to-2-1-1"></a>
 
@@ -184,9 +184,9 @@ val randomInstance = random<MyClass>(
 )
 ```
 
-### [Custom randomizers via `@Randomizable` annotation &#9650;](#top) <a id="how-to-2-2"></a>
+### [Custom randomizers via `@Randomizer` annotation &#9650;](#top) <a id="how-to-2-2"></a>
 
-`@Randomizable` annotation is provided by this library. It can be used to provide custom randomizers to:
+`@Randomizer` annotation is provided by this library. It can be used to provide custom randomizers to:
 
 - class, interface, sealed class, abstract class
 - enum
@@ -202,7 +202,7 @@ class ABC
 
 class QWE(
     // on parameter
-    @Randomizable(randomizer = MyX1RandomizerClass::class)
+    @Randomizer(randomizer = MyX1RandomizerClass::class)
     val x1: X1
 )
 
@@ -211,18 +211,18 @@ class MNO(
     val str: String,
 ) {
     // on constructor
-    @Randomizable(randomizer = MyMNORandomizerClass::class)
+    @Randomizer(randomizer = MyMNORandomizerClass::class)
     constructor(
         x2: X2,
-        @Randomizable(randomizer = MyX4Randomizer::class)
+        @Randomizer(randomizer = MyX4Randomizer::class)
         x4: X4,
     ) : this(x2, "someStr")
 }
 ```
 
-`@Randomizable` is also used to marked preferred constructors. For detail on how `@Randomizable` works, click [here](#rule-3)
+`@Randomizer` is also used to marked preferred constructors. For detail on how `@Randomizer` works, click [here](#rule-3)
 
-Custom randomizer class passed to `@Randomizable` must:
+Custom randomizer class passed to `@Randomizer` must:
 
 - implement `ClassRandomizer` interface (but `AbsSameClassRandomizer` is preferred in most cases)
 - have a no-argument public constructor
@@ -294,7 +294,7 @@ to `random()`.
 
 - use `paramRandomizers()`builder (preferred)
 - use factory functions
-- implement `ParamRandomizer` interface (detailed in `@Randomizable` section)
+- implement `ParamRandomizer` interface (detailed in `@Randomizer` section)
 
 #### [Create custom param randomizers via `paramRandomizers()` builder &#9650;](#top) <a id="how-to-4-1-1"></a>
 
@@ -382,13 +382,13 @@ Like this:
 )
 ```
 
-### [Custom param randomizers via `@Randomizable` annotation &#9650;](#top) <a id="how-to-4-2"></a>
+### [Custom param randomizers via `@Randomizer` annotation &#9650;](#top) <a id="how-to-4-2"></a>
 
 It looks like this:
 
 ```kotlin
 class QWE(
-    @Randomizable(randomizer = MyX1RandomizerClass::class)
+    @Randomizer(randomizer = MyX1RandomizerClass::class)
     val x1: X1
 )
 
@@ -398,13 +398,13 @@ class MNO(
 ) {
     constructor(
         x2: X2,
-        @Randomizable(randomizer = MyX4Randomizer::class)
+        @Randomizer(randomizer = MyX4Randomizer::class)
         x4: X4,
     ) : this(x2, "someStr")
 }
 ```
 
-Custom randomizer class passed to `@Randomizable` must:
+Custom randomizer class passed to `@Randomizer` must:
 
 - implement `ParamRandomizer` interface (but `AbsSameClassParamRandomizer` is preferred in most cases)
 - have a no-argument public constructor
@@ -496,8 +496,8 @@ These are the randomizing rules used by the library.
 
 Randomizers are categorized into 4 `lv` in this library:
 - `lv1`: randomizers provided in `random()` function
-- `lv2`: randomizers provided in `@Randomizable` at constructor parameters
-- `lv3`: randomizers provided in `@Randomizable` at class and constructor
+- `lv2`: randomizers provided in `@Randomizer` at constructor parameters
+- `lv3`: randomizers provided in `@Randomizer` at class and constructor
 - `lv4`: the default, baked-in randomizers
 
 The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest priority)
@@ -505,23 +505,23 @@ The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest
 If at the same `lv`, there are multiple valid randomizers, then one is chosen randomly.
 
 
-## [How `@Randomizable` works?](#top) <a id="rule-2"></a>
+## [How `@Randomizer` works?](#top) <a id="rule-2"></a>
 
-- `@Randomizable` can be used to annotate:
+- `@Randomizer` can be used to annotate:
     - class, enum, sealed class, interface, abstract class, inner class
     - constructor
     - constructor parameter
 
-- `@Randomizable` plays a role in constructor picking, see the below rule.
+- `@Randomizer` plays a role in constructor picking, see the below rule.
 
-- if a `@Randomizable` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor.
+- if a `@Randomizer` with valid randomizer is applied on a constructor, that valid randomizer will be used instead of the constructor.
 
 ## [How are constructors picked?](#top) <a id="rule-3"></a>
 
 In a class:
-- constructors annotated with `@Randomizable` (either blank, or with a valid randomizer) are prioritized over non-annotated constructors, including primary constructors.
-- if some constructors are annotated with `@Randomizable`, one will be picked randomly among the annotated constructors.
-- if no constructor is annotated with `@Randomizable`, the primary constructor will be used. All other constructors are ignored.
+- constructors annotated with `@Randomizer` (either blank, or with a valid randomizer) are prioritized over non-annotated constructors, including primary constructors.
+- if some constructors are annotated with `@Randomizer`, one will be picked randomly among the annotated constructors.
+- if no constructor is annotated with `@Randomizer`, the primary constructor will be used. All other constructors are ignored.
 
 ## [How is randomization being done?](#top) <a id="rule-1"></a>
 
@@ -533,14 +533,14 @@ For a concrete class, randomization is done by invoking one of its constructor w
 
 ### [For sealed class](#top) <a id="rule-1-2"></a>
 
-For sealed class, if no custom randomizer is provided (either via `random()` or `@Randomizable`), a random implementation will be chosen and generated.
+For sealed class, if no custom randomizer is provided (either via `random()` or `@Randomizer`), a random implementation will be chosen and generated.
 
 ### [For interface & abstract class](#top) <a id="rule-1-3"></a>
 
 For interface and abstract classes, a custom randomizer must be provided:
 - either via the `random()` function
-- or `@Randomizable` on such interfaces or abstract classes
-- or `@Randomizable`on parameter of such type
+- or `@Randomizer` on such interfaces or abstract classes
+- or `@Randomizer`on parameter of such type
 
 Otherwise the library will crash.
 

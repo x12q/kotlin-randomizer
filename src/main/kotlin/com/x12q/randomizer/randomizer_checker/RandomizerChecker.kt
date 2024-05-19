@@ -8,7 +8,7 @@ import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.RDClassData
-import com.x12q.randomizer.randomizer.Randomizer
+import com.x12q.randomizer.randomizer.CommonRandomizer
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.reflect.*
@@ -24,7 +24,7 @@ class RandomizerChecker @Inject constructor() {
 
     @Throws(Exception::class)
     fun checkValidRandomizerClassOrThrow(
-        randomizerClass: KClass<out Randomizer<*>>,
+        randomizerClass: KClass<out CommonRandomizer<*>>,
         targetClass: KClass<*>,
     ){
         checkValidRandomizerClassRs(randomizerClass, targetClass).orElse { err->throw err.toException() }
@@ -33,16 +33,16 @@ class RandomizerChecker @Inject constructor() {
      * Check if a [randomizerClass] can produce instances of [targetClass]
      */
     fun checkValidRandomizerClassRs(
-        randomizerClass: KClass<out Randomizer<*>>,
+        randomizerClass: KClass<out CommonRandomizer<*>>,
         targetClass: KClass<*>,
-    ): Result<KClass<out Randomizer<*>>, ErrorReport> {
+    ): Result<KClass<out CommonRandomizer<*>>, ErrorReport> {
 
         if (randomizerClass.isAbstract) {
             return Err(InvalidRandomizerReason.IsAbstract.report(randomizerClass))
         } else {
             val classRandomizerType = randomizerClass
                 .allSupertypes
-                .firstOrNull { it.classifier == Randomizer::class }
+                .firstOrNull { it.classifier == CommonRandomizer::class }
 
             if (classRandomizerType != null) {
                 if (canProduce(classRandomizerType, targetClass)) {
