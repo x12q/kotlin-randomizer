@@ -28,7 +28,7 @@ fun intRandomizer(
     range: IntRange
 ): ClassRandomizer<Int> {
     return classRandomizer {
-        Random.nextInt(range.first, range.last)
+        range.random()
     }
 }
 

@@ -5,7 +5,6 @@ import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.randomizer.primitive.intParamRandomizer
 import com.x12q.randomizer.randomizer.primitive.intRandomizer
 
-
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RandomIntWithin(
@@ -15,10 +14,6 @@ annotation class RandomIntWithin(
     companion object{
         fun RandomIntWithin.makeClassRandomizer(): ClassRandomizer<Int> {
             return intRandomizer(from..to)
-        }
-
-        fun RandomIntWithin.makeParamRandomizer(): ParameterRandomizer<Int> {
-            return intParamRandomizer(from..to)
         }
     }
 }

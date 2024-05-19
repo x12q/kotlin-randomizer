@@ -6,6 +6,10 @@ import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOn
 import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOrParamRandomizerRs
 import com.x12q.randomizer.annotations.number._int.RandomIntFixed
 import com.x12q.randomizer.annotations.number._int.RandomIntFixed.Companion.makeClassRandomizer
+import com.x12q.randomizer.annotations.number._int.RandomIntOneOf
+import com.x12q.randomizer.annotations.number._int.RandomIntOneOf.Companion.makeClassRandomizer
+import com.x12q.randomizer.annotations.number._int.RandomIntWithin
+import com.x12q.randomizer.annotations.number._int.RandomIntWithin.Companion.makeClassRandomizer
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
@@ -753,7 +757,7 @@ data class RandomGenerator @Inject constructor(
         /**
          * Prioritize param randomizer over class randomizer
          */
-        val intRandomizers = makeLv2IntRandomizer(param, paramData)
+        val intRandomizers = getLv2IntRandomizer(param, paramData)
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
 
@@ -813,64 +817,83 @@ data class RandomGenerator @Inject constructor(
             }
         }
 
-        val intRandomizers = makeLv2IntRandomizer(param, parameterData)
+        val intRandomizers = getLv2IntRandomizer(param, parameterData)
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
         return lv2Randomizer
     }
 
-    fun makeLv2IntRandomizer(
+    fun getLv2IntRandomizer(
         param: KParameter,
         parameterData: RDClassData,
     ): List<ClassRandomizer<Any?>> {
         val rt = listOfNotNull(
-            getRandomizerFrom_RandomIntFixed(param, parameterData) as? ClassRandomizer<Any?>
+            getRandomizerFrom_RandomIntFixed(param, parameterData) as? ClassRandomizer<Any?>,
+            getRandomizerFrom_RandomIntOneOf(param, parameterData) as? ClassRandomizer<Any?>,
+            getRandomizerFrom_RandomIntWithin(param, parameterData) as? ClassRandomizer<Any?>,
         )
         return rt
     }
 
-    fun getRandomizerFrom_RandomIntFixed(
+    private fun getRandomizerFrom_RandomIntWithin(
         param: KParameter,
         parameterData: RDClassData,
     ): ClassRandomizer<Int>? {
-        return makeIntRandomizerFromAnnotation(param, parameterData, RandomIntFixed::class, makeRandomizer = { annotation ->
-            val lv2ClassRandomizer = annotation.makeClassRandomizer()
-            val lv2ClassRandomizer0 = lv2ClassRandomizer.let { lv2Rd ->
-                lv2Rd.throwIfNotApplicableTo(parameterData)
-                lv2Rd
-            }
-            lv2ClassRandomizer0
-        })
+        return getRandomizerFromAnnotation<RandomIntWithin, Int>(
+            param = param,
+            parameterData = parameterData,
+            annotationClass = RandomIntWithin::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
     }
 
-    fun <T : Annotation> makeIntRandomizerFromAnnotation(
+    private fun getRandomizerFrom_RandomIntOneOf(
         param: KParameter,
         parameterData: RDClassData,
-        annotationClass: KClass<T>,
-        makeRandomizer: (T) -> ClassRandomizer<Int>
     ): ClassRandomizer<Int>? {
-        return makeRandomizerFromAnnotation(param, parameterData, annotationClass, makeRandomizer)
+        return getRandomizerFromAnnotation<RandomIntOneOf, Int>(
+            param = param,
+            parameterData = parameterData,
+            annotationClass = RandomIntOneOf::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
     }
+
+    private fun getRandomizerFrom_RandomIntFixed(
+        param: KParameter,
+        parameterData: RDClassData,
+    ): ClassRandomizer<Int>? {
+        return getRandomizerFromAnnotation<RandomIntFixed, Int>(
+            param = param,
+            parameterData = parameterData,
+            annotationClass = RandomIntFixed::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
+    }
+
 
     /**
-     * Extract annotation of type [T] from [param]. Then check if such param is of type [V].
-     * Then run [makeRandomizer]. Otherwise, throw an exception or return null.
+     * Extract randomizer from annotation of type [T] on [param] by calling [extractRandomizerFromAnnotation].
      */
-    inline fun <T : Annotation, reified V> makeRandomizerFromAnnotation(
+    private inline fun <T : Annotation, reified V> getRandomizerFromAnnotation(
         param: KParameter,
         parameterData: RDClassData,
         annotationClass: KClass<T>,
-        makeRandomizer: (T) -> ClassRandomizer<V>
+        extractRandomizerFromAnnotation: (T) -> ClassRandomizer<V>
     ): ClassRandomizer<V>? {
         val annotation = param.findAnnotations(annotationClass).firstOrNull()
         if (annotation != null) {
-            val rt =  if(parameterData.kClass == V::class){
-                makeRandomizer(annotation)
-            }else{
-                // basically can't run this function on non-int parameter
+            val rt = if (parameterData.kClass == V::class) {
+                extractRandomizerFromAnnotation(annotation)
+            } else {
+                /**
+                 * Can't use annotation [T] on non-[V] parameter
+                 */
                 throw IllegalArgumentException("Can't use annotation [${annotationClass}] on [${param}]")
             }
-
             return rt
         } else {
             return null

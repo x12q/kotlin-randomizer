@@ -69,7 +69,7 @@ target class is abstract without valid lv3 or lv2
   - fixed, withinRange, oneOf
   - look at: RandomGenerator.makeLv2ForKClass
 
- 
+ Checkpoint: makeRandomizerFromAnnotation
 Not support (yet) and known crash:
 
 Issue 1: this is a limitation of kotlin language, there's an open issue: https://l.messenger.com/l.php?u=https%3A%2F%2Fyoutrack.jetbrains.com%2Fissue%2FKT-25573%2F&h=AT1tpVdGxWJYHcu2XCgZbEF4IVMVCHQIrbGqG6cG0awC5uTWpq20a8eSJk_Fu3AfLvyauZJxJh9N1Ww6P8kPeleimIeP2oQvo6sELDpku6hRfrCSzr80utKVkhr0zQ

@@ -16,8 +16,5 @@ annotation class RandomIntFixed(
         fun RandomIntFixed.makeClassRandomizer():ClassRandomizer<Int>{
             return intRandomizer(value)
         }
-        fun RandomIntFixed.makeParamRandomizer(): ParameterRandomizer<Int> {
-            return intParamRandomizer(value)
-        }
     }
 }
