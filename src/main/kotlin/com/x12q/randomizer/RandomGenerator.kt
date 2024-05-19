@@ -757,7 +757,7 @@ data class RandomGenerator @Inject constructor(
         /**
          * Prioritize param randomizer over class randomizer
          */
-        val intRandomizers = getLv2IntRandomizer(param, paramData)
+        val intRandomizers = getLv2IntRandomizer(param, paramData,enclosingClassData)
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
 
@@ -817,7 +817,7 @@ data class RandomGenerator @Inject constructor(
             }
         }
 
-        val intRandomizers = getLv2IntRandomizer(param, parameterData)
+        val intRandomizers = getLv2IntRandomizer(param, parameterData,enclosingClassData)
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
         return lv2Randomizer
@@ -826,11 +826,12 @@ data class RandomGenerator @Inject constructor(
     fun getLv2IntRandomizer(
         param: KParameter,
         parameterData: RDClassData,
+        enclosingClassData: RDClassData,
     ): List<ClassRandomizer<Any?>> {
         val rt = listOfNotNull(
-            getRandomizerFrom_RandomIntFixed(param, parameterData) as? ClassRandomizer<Any?>,
-            getRandomizerFrom_RandomIntOneOf(param, parameterData) as? ClassRandomizer<Any?>,
-            getRandomizerFrom_RandomIntWithin(param, parameterData) as? ClassRandomizer<Any?>,
+            getRandomizerFrom_RandomIntFixed(param, parameterData,enclosingClassData) as? ClassRandomizer<Any?>,
+            getRandomizerFrom_RandomIntOneOf(param, parameterData,enclosingClassData) as? ClassRandomizer<Any?>,
+            getRandomizerFrom_RandomIntWithin(param, parameterData,enclosingClassData) as? ClassRandomizer<Any?>,
         )
         return rt
     }
@@ -838,10 +839,12 @@ data class RandomGenerator @Inject constructor(
     private fun getRandomizerFrom_RandomIntWithin(
         param: KParameter,
         parameterData: RDClassData,
+        enclosingClassData: RDClassData,
     ): ClassRandomizer<Int>? {
         return getRandomizerFromAnnotation<RandomIntWithin, Int>(
             param = param,
             parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
             annotationClass = RandomIntWithin::class,
             extractRandomizerFromAnnotation = { annotation ->
                 annotation.makeClassRandomizer()
@@ -851,10 +854,12 @@ data class RandomGenerator @Inject constructor(
     private fun getRandomizerFrom_RandomIntOneOf(
         param: KParameter,
         parameterData: RDClassData,
+        enclosingClassData: RDClassData,
     ): ClassRandomizer<Int>? {
         return getRandomizerFromAnnotation<RandomIntOneOf, Int>(
             param = param,
             parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
             annotationClass = RandomIntOneOf::class,
             extractRandomizerFromAnnotation = { annotation ->
                 annotation.makeClassRandomizer()
@@ -864,10 +869,12 @@ data class RandomGenerator @Inject constructor(
     private fun getRandomizerFrom_RandomIntFixed(
         param: KParameter,
         parameterData: RDClassData,
+        enclosingClassData: RDClassData,
     ): ClassRandomizer<Int>? {
         return getRandomizerFromAnnotation<RandomIntFixed, Int>(
             param = param,
             parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
             annotationClass = RandomIntFixed::class,
             extractRandomizerFromAnnotation = { annotation ->
                 annotation.makeClassRandomizer()
@@ -881,6 +888,7 @@ data class RandomGenerator @Inject constructor(
     private inline fun <T : Annotation, reified V> getRandomizerFromAnnotation(
         param: KParameter,
         parameterData: RDClassData,
+        enclosingClassData: RDClassData,
         annotationClass: KClass<T>,
         extractRandomizerFromAnnotation: (T) -> ClassRandomizer<V>
     ): ClassRandomizer<V>? {
@@ -892,7 +900,7 @@ data class RandomGenerator @Inject constructor(
                 /**
                  * Can't use annotation [T] on non-[V] parameter
                  */
-                throw IllegalArgumentException("Can't use annotation [${annotationClass}] on [${param}]")
+                throw IllegalArgumentException("Can't use annotation [${annotationClass.simpleName}] on parameter [${param.name}: ${param.type}] in [${enclosingClassData.kType}]")
             }
             return rt
         } else {
