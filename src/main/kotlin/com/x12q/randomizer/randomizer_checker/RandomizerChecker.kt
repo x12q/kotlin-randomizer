@@ -22,6 +22,9 @@ import kotlin.reflect.full.isSubclassOf
 @Singleton
 class RandomizerChecker @Inject constructor() {
 
+    /**
+     * Check if [randomizerClass] is applicable to [targetClass]. Throw if not. Do nothing otherwise.
+     */
     @Throws(Exception::class)
     fun checkValidRandomizerClassOrThrow(
         randomizerClass: KClass<out CommonRandomizer<*>>,
@@ -159,22 +162,22 @@ class RandomizerChecker @Inject constructor() {
     }
 
     /**
-     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetTypeParam] of parent class [parentClassData].
+     * Check if a randomizer of class [randomizerClass] can generate instances of parameter described by [targetParam] & [targetTypeParam] of parent class [enclosingClassData].
      */
     fun checkValidParamRandomizer(
-        parentClassData: RDClassData,
+        enclosingClassData: RDClassData,
         targetParam: KParameter,
         targetTypeParam: KTypeParameter,
         randomizerClass: KClass<out ParameterRandomizer<*>>
     ): Result<KClass<out ParameterRandomizer<*>>, InvalidParamRandomizerReason> {
-        val targetClass = parentClassData.getKClassFor(targetTypeParam)
+        val targetClass = enclosingClassData.getKClassFor(targetTypeParam)
         if (targetClass != null) {
             if (randomizerClass.isAbstract) {
                 return Err(
                     InvalidParamRandomizerReason.IsAbstract(
                         randomizerClass = randomizerClass,
                         targetParam = targetParam,
-                        parentClass = parentClassData.kClass
+                        parentClass = enclosingClassData.kClass
                     )
                 )
             } else {
@@ -191,7 +194,7 @@ class RandomizerChecker @Inject constructor() {
                             InvalidParamRandomizerReason.UnableToGenerateTarget(
                                 randomizerClass = randomizerClass,
                                 targetParam = targetParam,
-                                parentClass = parentClassData.kClass,
+                                parentClass = enclosingClassData.kClass,
                                 actualClass = randomizerSuperType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
                                 targetClass = targetClass,
                             )
@@ -202,13 +205,13 @@ class RandomizerChecker @Inject constructor() {
                         InvalidParamRandomizerReason.IllegalRandomizerClass(
                             randomizerClass = randomizerClass,
                             targetParam = targetParam,
-                            parentClass = parentClassData.kClass
+                            parentClass = enclosingClassData.kClass
                         )
                     )
                 }
             }
         } else {
-            throw IllegalArgumentException("$targetParam does not belong to $parentClassData")
+            throw IllegalArgumentException("$targetParam does not belong to $enclosingClassData")
         }
     }
 

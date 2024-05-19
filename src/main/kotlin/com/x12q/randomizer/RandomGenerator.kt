@@ -4,6 +4,8 @@ import com.github.michaelbull.result.*
 import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOnlyRs
 import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOrParamRandomizerRs
+import com.x12q.randomizer.annotations.number._int.RandomIntFixed
+import com.x12q.randomizer.annotations.number._int.RandomIntFixed.Companion.makeClassRandomizer
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
@@ -217,9 +219,9 @@ data class RandomGenerator @Inject constructor(
 
             if (constructor != null) {
                 try {
-                    if(targetClass.isInner){
-                        return callInnerClassConstructor(constructor,classData,outerObj,typeMap)
-                    }else{
+                    if (targetClass.isInner) {
+                        return callInnerClassConstructor(constructor, classData, outerObj, typeMap)
+                    } else {
                         return callClassConstructor(constructor, classData, typeMap)
                     }
                 } catch (e: Throwable) {
@@ -236,10 +238,10 @@ data class RandomGenerator @Inject constructor(
      * [typeMap] passed to this function must guarantee that it can provide all concrete class data for all generic type in such class.
      */
     private fun callClassConstructor(
-        constructor:KFunction<Any?>,
-        classData:RDClassData,
+        constructor: KFunction<Any?>,
+        classData: RDClassData,
         typeMap: Map<String, RDClassData>
-    ):Any?{
+    ): Any? {
 
         val parameters = constructor.parameters
 
@@ -265,11 +267,11 @@ data class RandomGenerator @Inject constructor(
      * The constructor always receive the outer object as the first parameter
      */
     private fun callInnerClassConstructor(
-        constructor:KFunction<Any?>,
-        classData:RDClassData,
+        constructor: KFunction<Any?>,
+        classData: RDClassData,
         outerObj: Any?,
         typeMap: Map<String, RDClassData>
-    ):Any?{
+    ): Any? {
 
         val targetClass = classData.kClass
 
@@ -277,13 +279,13 @@ data class RandomGenerator @Inject constructor(
             throw IllegalArgumentException("This function is only used for inner class. [${targetClass}] is not an inner class.")
         }
 
-        if(outerObj == null){
+        if (outerObj == null) {
             throw IllegalArgumentException("Outer object of an inner class ([${targetClass}]) must not be null.")
         }
 
         val parameters = constructor
-                .parameters
-                .takeLast(constructor.parameters.size - 1)
+            .parameters
+            .takeLast(constructor.parameters.size - 1)
 
         val arguments = parameters
             .map { constructorParam ->
@@ -305,9 +307,9 @@ data class RandomGenerator @Inject constructor(
     private fun randomSealClass(
         classData: RDClassData,
         typeMap: Map<String, RDClassData>,
-    ):Any?{
+    ): Any? {
         val targetClass: KClass<*> = classData.kClass
-        if(!targetClass.isSealed){
+        if (!targetClass.isSealed) {
             throw IllegalArgumentException("This function is for sealed class only. [${targetClass}] is not a sealed class.")
         }
         val sealedSubClassList = targetClass.sealedSubclasses
@@ -324,7 +326,6 @@ data class RandomGenerator @Inject constructor(
             typeMap = combinedTypeMap,
         )
     }
-
 
 
     @Throws(Throwable::class)
@@ -434,7 +435,7 @@ data class RandomGenerator @Inject constructor(
                             param = param,
                             parameterData = parameterData,
                             enclosingClassData = enclosingClassData,
-                            ktypeParam = classifier
+                            kTypeParam = classifier
                         )
                     }
 
@@ -752,7 +753,9 @@ data class RandomGenerator @Inject constructor(
         /**
          * Prioritize param randomizer over class randomizer
          */
-        val lv2Randomizer = lv2ParamRandomizer ?: lv2ClassRandomizer
+        val intRandomizers = makeLv2IntRandomizer(param, paramData)
+        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
+        val lv2Randomizer = randomizers.randomOrNull()
 
         return lv2Randomizer
 
@@ -765,7 +768,7 @@ data class RandomGenerator @Inject constructor(
         param: KParameter,
         parameterData: RDClassData,
         enclosingClassData: RDClassData,
-        ktypeParam: KTypeParameter,
+        kTypeParam: KTypeParameter,
     ): ClassRandomizer<Any?>? {
         val lv2paramClassOrParamRandomizer = param
             .findAnnotations(Randomizer::class).firstOrNull()
@@ -774,21 +777,21 @@ data class RandomGenerator @Inject constructor(
                 throw err.toException()
             }
 
-        val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
+        val lv2ClassRandomizer = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
             randomizerChecker.checkValidRandomizerClassRs(
                 randomizerClass = lv2Rd,
                 targetClass = parameterData.kClass
-            )
+            ) // TODO throw this if err
             ReflectionUtils.createClassRandomizer(lv2Rd)
         }
 
         val lv2ParamRandomizer0 = lv2paramClassOrParamRandomizer?.second?.let { lv2Rd ->
             randomizerChecker.checkValidParamRandomizer(
-                parentClassData = enclosingClassData,
+                enclosingClassData = enclosingClassData,
                 targetParam = param,
-                targetTypeParam = ktypeParam,
+                targetTypeParam = kTypeParam,
                 randomizerClass = lv2Rd
-            )
+            ) // TODO throw this if err
             ReflectionUtils.createParamRandomizer(lv2Rd)
         }
 
@@ -810,10 +813,79 @@ data class RandomGenerator @Inject constructor(
             }
         }
 
-        val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
-        return lv2ClassRandomizer
+        val intRandomizers = makeLv2IntRandomizer(param, parameterData)
+        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers
+        val lv2Randomizer = randomizers.randomOrNull()
+        return lv2Randomizer
     }
 
+    fun makeLv2IntRandomizer(
+        param: KParameter,
+        parameterData: RDClassData,
+    ): List<ClassRandomizer<Any?>> {
+        val rt = listOfNotNull(
+            getRandomizerFrom_RandomIntFixed(param, parameterData) as? ClassRandomizer<Any?>
+        )
+        return rt
+    }
+
+    fun getRandomizerFrom_RandomIntFixed(
+        param: KParameter,
+        parameterData: RDClassData,
+    ): ClassRandomizer<Int>? {
+        return makeIntRandomizerFromAnnotation(param, parameterData, RandomIntFixed::class, makeRandomizer = { annotation ->
+            val lv2ClassRandomizer = annotation.makeClassRandomizer()
+            val lv2ClassRandomizer0 = lv2ClassRandomizer.let { lv2Rd ->
+                lv2Rd.throwIfNotApplicableTo(parameterData)
+                lv2Rd
+            }
+            lv2ClassRandomizer0
+        })
+    }
+
+    fun <T : Annotation> makeIntRandomizerFromAnnotation(
+        param: KParameter,
+        parameterData: RDClassData,
+        annotationClass: KClass<T>,
+        makeRandomizer: (T) -> ClassRandomizer<Int>
+    ): ClassRandomizer<Int>? {
+        return makeRandomizerFromAnnotation(param, parameterData, annotationClass, makeRandomizer)
+    }
+
+    /**
+     * Extract annotation of type [T] from [param]. Then check if such param is of type [V].
+     * Then run [makeRandomizer]. Otherwise, throw an exception or return null.
+     */
+    inline fun <T : Annotation, reified V> makeRandomizerFromAnnotation(
+        param: KParameter,
+        parameterData: RDClassData,
+        annotationClass: KClass<T>,
+        makeRandomizer: (T) -> ClassRandomizer<V>
+    ): ClassRandomizer<V>? {
+        val annotation = param.findAnnotations(annotationClass).firstOrNull()
+        if (annotation != null) {
+            val rt =  if(parameterData.kClass == V::class){
+                makeRandomizer(annotation)
+            }else{
+                // basically can't run this function on non-int parameter
+                throw IllegalArgumentException("Can't use annotation [${annotationClass}] on [${param}]")
+            }
+
+            return rt
+        } else {
+            return null
+        }
+    }
+
+
+    /**
+     * Throw an exception if a [ClassRandomizer] is not applicable to [rdClassData]
+     */
+    private fun ClassRandomizer<*>.throwIfNotApplicableTo(rdClassData: RDClassData) {
+        if (!this.isApplicableTo(rdClassData)) {
+            throw RandomizerErrors.CantApplyClassRandomizerToClass.report(this, rdClassData.kClass).toException()
+        }
+    }
 
     /**
      * Pick a random constructor from [targetClass].

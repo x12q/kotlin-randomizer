@@ -147,5 +147,18 @@ data class RDClassData(
                 kType = typeOf<T>(),
             )
         }
+
+        fun <T> RDClassData.ifIsInt(makeRandomizer:()->T?, exception:(()->Exception)?):T?{
+            if(this.kClass == Int::class){
+                return makeRandomizer()
+            }else{
+                val exc = exception?.invoke()
+                if(exc!=null){
+                    throw exc
+                }else{
+                    return null
+                }
+            }
+        }
     }
 }
