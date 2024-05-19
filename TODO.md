@@ -67,6 +67,7 @@ target class is abstract without valid lv3 or lv2
 - TODO: add annotation to support more convenient randomizing logic:
   - for each type of generic: Int, float, string, double, etc
   - fixed, withinRange, oneOf
+  - look at: RandomGenerator.makeLv2ForKClass
   
 Tentative:
 - Consider rename @Randomizer to @Randomizer

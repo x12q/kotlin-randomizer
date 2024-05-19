@@ -721,8 +721,7 @@ data class RandomGenerator @Inject constructor(
                     throw err.toException()
                 }
 
-        // At this point, lv1 randomizer cannot be used, so move on to check lv2 and below randomizers
-        val lv2ClassRandomizer0 = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
+        val lv2ClassRandomizer = lv2paramClassOrParamRandomizer?.first?.let { lv2Rd ->
             randomizerChecker.checkValidRandomizerClassOrThrow(lv2Rd, kClass)
             ReflectionUtils.createClassRandomizer(lv2Rd)
         }
@@ -750,8 +749,12 @@ data class RandomGenerator @Inject constructor(
             }
         }
 
-        val lv2ClassRandomizer = lv2ParamRandomizer ?: lv2ClassRandomizer0
-        return lv2ClassRandomizer
+        /**
+         * Prioritize param randomizer over class randomizer
+         */
+        val lv2Randomizer = lv2ParamRandomizer ?: lv2ClassRandomizer
+
+        return lv2Randomizer
 
     }
 
