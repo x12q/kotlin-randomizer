@@ -150,10 +150,7 @@ class RandomizerCheckerTest {
             M3Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M3Pr::class,
-                    targetParam = target,
-                    parentClass = Target2::class,
                     actualClass = String::class,
-                    targetClass = Number::class,
                 )
             )
         )
@@ -189,10 +186,7 @@ class RandomizerCheckerTest {
             MA1Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = MA1Pr::class,
-                    targetParam = target,
-                    parentClass = Target2::class,
                     actualClass = A1::class,
-                    targetClass = IA::class,
                 )
             ),
             MA2Pr::class to Ok(MA2Pr::class),
@@ -232,27 +226,19 @@ class RandomizerCheckerTest {
             M1Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M1Pr::class,
-                    targetParam = targetType,
-                    parentClass = parentDt.kClass,
                     actualClass = Int::class,
-                    targetClass = targetType.type.classifier as KClass<*>,
                 )
             ),
             M2Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M2Pr::class,
-                    targetParam = targetType,
-                    parentClass = parentDt.kClass,
                     actualClass = Float::class,
-                    targetClass = targetType.type.classifier as KClass<*>,
                 )
             ),
             M3Pr::class to Ok(M3Pr::class),
             M4Pr::class to Err(
                 InvalidParamRandomizerReason.IsAbstract(
                     randomizerClass = M4Pr::class,
-                    targetParam = targetType,
-                    parentClass = parentDt.kClass
                 )
             )
         )
@@ -290,26 +276,18 @@ class RandomizerCheckerTest {
             M2Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M2Pr::class,
-                    targetParam = target,
-                    parentClass = parentDt.kClass,
                     actualClass = Float::class,
-                    targetClass = Int::class,
                 )
             ),
             M3Pr::class to Err(
                 InvalidParamRandomizerReason.UnableToGenerateTarget(
                     randomizerClass = M3Pr::class,
-                    targetParam = target,
-                    parentClass = parentDt.kClass,
                     actualClass = String::class,
-                    targetClass = Int::class,
                 )
             ),
             M4Pr::class to Err(
                 InvalidParamRandomizerReason.IsAbstract(
                     randomizerClass = M4Pr::class,
-                    targetParam = target,
-                    parentClass = parentDt.kClass
                 )
             )
         )

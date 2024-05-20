@@ -149,13 +149,8 @@ class RandomizerChecker @Inject constructor() {
             }
 
             else -> {
-
                 return Err(
-                    InvalidParamRandomizerReason.InvalidTarget(
-                        randomizerClass = randomizerClass,
-                        parentClass = parentClassData.kClass,
-                        targetParam = targetParam
-                    )
+                    InvalidParamRandomizerReason.InvalidTarget
                 )
             }
         }
@@ -176,8 +171,6 @@ class RandomizerChecker @Inject constructor() {
                 return Err(
                     InvalidParamRandomizerReason.IsAbstract(
                         randomizerClass = randomizerClass,
-                        targetParam = targetParam,
-                        parentClass = enclosingClassData.kClass
                     )
                 )
             } else {
@@ -193,10 +186,7 @@ class RandomizerChecker @Inject constructor() {
                         return Err(
                             InvalidParamRandomizerReason.UnableToGenerateTarget(
                                 randomizerClass = randomizerClass,
-                                targetParam = targetParam,
-                                parentClass = enclosingClassData.kClass,
                                 actualClass = randomizerSuperType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                                targetClass = targetClass,
                             )
                         )
                     }
@@ -230,8 +220,6 @@ class RandomizerChecker @Inject constructor() {
             return Err(
                 InvalidParamRandomizerReason.IsAbstract(
                     randomizerClass = randomizerClass,
-                    targetParam = targetParam,
-                    parentClass = parentKClass
                 )
             )
         } else {
@@ -246,10 +234,7 @@ class RandomizerChecker @Inject constructor() {
                     return Err(
                         InvalidParamRandomizerReason.UnableToGenerateTarget(
                             randomizerClass = randomizerClass,
-                            targetParam = targetParam,
-                            parentClass = parentKClass,
                             actualClass = randomizerKType.arguments.firstOrNull()?.type?.classifier as KClass<*>,
-                            targetClass = targetClass,
                         )
                     )
                 }
