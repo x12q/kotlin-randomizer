@@ -356,7 +356,7 @@ Otherwise, the library will crash.
 
 ### [For object](#top) <a id="rule-1-4"></a>
 
-For object, the object itself is returned. So no randomization is actually performed here.
+For object, the object itself is returned. So no randomization is actually performed.
 
 ### [For enum](#top) <a id="rule-1-5"></a>
 
