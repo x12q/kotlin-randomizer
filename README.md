@@ -65,7 +65,7 @@ To create a random instance of a class, run this:
 ```kotlin
 val randomInstance = random<SomeClass>()
 ```
-## [`random()` function](#random-function)
+## [`random()` function &#9650;](#top)<a id="random-function"></a>
 `random()` is the main function to use create random instances. 
 
 It can accept custom randomizers that can alter the randomization process. 
