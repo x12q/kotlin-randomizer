@@ -150,7 +150,7 @@ val randomInstance = random<SomeClass>(
 
 ## [Annotations &#9650;](#top) <a id="annotations"></a>
 
-Aside from injecting randomizers via `random()` function, this library provides some annotations do the same thing.
+Aside from injecting randomizers via `random()` function, this library provides some annotations doing the same thing.
 
 ### [`@Randomizer` &#9650;](#top) <a id="randomizer-annotation"></a>
 
