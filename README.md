@@ -1,4 +1,4 @@
-**# Randomizer
+# Randomizer
 
 Generate random instance of (kinda) any class, interface, object, and enum, for testing and prototyping.
 
