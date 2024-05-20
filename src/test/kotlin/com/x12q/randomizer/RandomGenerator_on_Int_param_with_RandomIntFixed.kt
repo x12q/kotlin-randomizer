@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._int.RandomIntFixed
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -47,11 +48,20 @@ class RandomGenerator_on_Int_param_with_RandomIntFixed {
     @Test
     fun `on int generic type param`() {
         (rdm.random(RDClassData.from<B3<Int>>()) as B3<Int>).i shouldBe 123
-        
+
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
         }
 
     }
 
+    data class B4(
+        @RandomIntFixed(1)
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe 1
+    }
 }

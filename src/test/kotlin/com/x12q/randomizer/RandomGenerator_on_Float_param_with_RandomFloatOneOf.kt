@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._float.RandomFloatOneOf
 import com.x12q.randomizer.annotations.number._int.RandomIntOneOf
 import com.x12q.randomizer.test_util.TestSamples
@@ -52,6 +53,14 @@ class RandomGenerator_on_Float_param_with_RandomFloatOneOf {
             rdm.random(RDClassData.from<B3<String>>())
         }
     }
+    data class B4(
+        @RandomFloatOneOf([1.0f])
+        val n:Number
+    )
 
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe 1.0f
+    }
 
 }

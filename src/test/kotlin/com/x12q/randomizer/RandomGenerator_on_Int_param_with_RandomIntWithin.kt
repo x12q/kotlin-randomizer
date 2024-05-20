@@ -4,6 +4,7 @@ import com.x12q.randomizer.annotations.number._int.RandomIntWithin
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -47,10 +48,22 @@ class RandomGenerator_on_Int_param_with_RandomIntWithin {
     @Test
     fun `on int generic type param`() {
         (rdm.random(RDClassData.from<B3<Int>>()) as B3<Int>).i shouldBe 123
-        
+
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
         }
     }
 
+
+    data class B4(
+        @RandomIntWithin(1,2)
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n.also {
+            it.shouldBeInstanceOf<Int>()
+        }
+    }
 }

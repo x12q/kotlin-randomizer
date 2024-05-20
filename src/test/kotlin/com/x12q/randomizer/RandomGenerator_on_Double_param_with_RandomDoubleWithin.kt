@@ -1,6 +1,7 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.RandomGenerator_on_Double_param_with_RandomDoubleOneOf.B3
+import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._double.RandomDoubleWithin
 import com.x12q.randomizer.annotations.number._float.RandomFloatWithin
 import com.x12q.randomizer.annotations.number._int.RandomIntWithin
@@ -9,6 +10,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.doubles.shouldBeBetween
 import io.kotest.matchers.floats.shouldBeBetween
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -54,6 +56,19 @@ class RandomGenerator_on_Double_param_with_RandomDoubleWithin {
         (rdm.random(RDClassData.from<B3<Double>>()) as B3<Double>).i.shouldBeBetween(1.0,2.0,0.000001)
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
+        }
+    }
+
+    data class B4(
+        @RandomDoubleWithin(1.0,2.0)
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n.also {
+            it.shouldBeInstanceOf<Double>()
+            it.shouldBeBetween(1.0,2.0,0.000001)
         }
     }
 

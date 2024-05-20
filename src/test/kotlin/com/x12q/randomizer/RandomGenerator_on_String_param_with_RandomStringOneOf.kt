@@ -57,4 +57,14 @@ class RandomGenerator_on_String_param_with_RandomStringOneOf {
         }
     }
 
+    data class B4(
+        @RandomStringOneOf(["qwe"])
+        val n:CharSequence
+    )
+
+    @Test
+    fun `on CharSequence`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe "qwe"
+    }
+
 }

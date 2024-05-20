@@ -47,10 +47,20 @@ class RandomGenerator_on_Int_param_with_RandomIntOneOf {
     @Test
     fun `on int generic type param`() {
         (rdm.random(RDClassData.from<B3<Int>>()) as B3<Int>).i shouldBe 123
-        
+
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
         }
+    }
+
+     data class B4(
+        @RandomIntOneOf([1])
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe 1
     }
 
 }

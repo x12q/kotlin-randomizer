@@ -12,6 +12,7 @@ import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeUUID
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -57,6 +58,19 @@ class RandomGenerator_on_String_param_with_RandomStringUUID {
         (rdm.random(RDClassData.from<B3<String>>()) as B3<String>).i.shouldBeUUID()
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<Double>>())
+        }
+    }
+
+    data class B4(
+        @RandomStringUUID
+        val n:CharSequence
+    )
+
+    @Test
+    fun `on CharSequence`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n.also {
+            it.shouldBeInstanceOf<String>()
+            it.shouldBeUUID()
         }
     }
 

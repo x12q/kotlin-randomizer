@@ -42,6 +42,7 @@ import kotlin.jvm.Throws
 import kotlin.random.Random
 import kotlin.reflect.*
 import kotlin.reflect.full.findAnnotations
+import kotlin.reflect.full.isSubclassOf
 import kotlin.reflect.full.isSuperclassOf
 import kotlin.reflect.full.primaryConstructor
 
@@ -1132,7 +1133,7 @@ data class RandomGenerator @Inject constructor(
     ): ClassRandomizer<V>? {
         val annotation = param.findAnnotations(annotationClass).firstOrNull()
         if (annotation != null) {
-            val rt = if (parameterData.kClass == V::class) {
+            val rt = if (V::class.isSubclassOf(parameterData.kClass)) {
                 extractRandomizerFromAnnotation(annotation)
             } else {
                 /**

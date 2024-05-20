@@ -1,9 +1,11 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._float.RandomLongitude
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.floats.shouldBeBetween
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -50,6 +52,19 @@ class RandomGenerator_on_Float_param_with_RandomLongitude {
         (rdm.random(RDClassData.from<B3<Float>>()) as B3<Float>).i.shouldBeInstanceOf<Float>()
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
+        }
+    }
+
+    data class B4(
+        @RandomLongitude
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n.also {
+            it.shouldBeInstanceOf<Float>()
+            it.shouldBeBetween(-180f,180f,0.000001f)
         }
     }
 

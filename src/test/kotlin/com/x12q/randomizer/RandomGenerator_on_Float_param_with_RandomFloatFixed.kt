@@ -1,6 +1,7 @@
 package com.x12q.randomizer
 
 import com.x12q.randomizer.RandomGenerator_on_Double_param_with_RandomDoubleOneOf.B3
+import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._float.RandomFloatFixed
 import com.x12q.randomizer.annotations.number._int.RandomIntFixed
 import com.x12q.randomizer.test_util.TestSamples
@@ -54,4 +55,14 @@ class RandomGenerator_on_Float_param_with_RandomFloatFixed {
         }
     }
 
+
+    data class B4(
+        @RandomFloatFixed(1.0f)
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe 1.0f
+    }
 }

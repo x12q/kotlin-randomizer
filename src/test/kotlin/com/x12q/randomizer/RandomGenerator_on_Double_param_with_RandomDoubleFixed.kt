@@ -47,11 +47,21 @@ class RandomGenerator_on_Double_param_with_RandomDoubleFixed {
     )
 
     @Test
-    fun `on Double generic type param`() {
+    fun `on generic type param`() {
         (rdm.random(RDClassData.from<B3<Double>>()) as B3<Double>).i shouldBe 123f
         shouldThrow<Exception> {
             rdm.random(RDClassData.from<B3<String>>())
         }
+    }
+
+    data class B4(
+        @RandomDoubleFixed(1.0)
+        val n:Number
+    )
+
+    @Test
+    fun `on Number`(){
+        (rdm.random(RDClassData.from<B4>()) as B4).n shouldBe 1.0
     }
 
 }
