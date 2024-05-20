@@ -154,7 +154,7 @@ Aside from injecting randomizers via `random()` function, this library provides 
 
 ### [`@Randomizer` &#9650;](#top) <a id="randomizer-annotation"></a>
 
-`@Randomizer` can provide custom randomizers to classes, constructors. A custom randomizers must extend :
+`@Randomizer` can provide custom randomizers to classes, constructors, and parameters. A custom randomizers passed to `@Randomizer` must extend :
 - `ClassRandomizer` / `BaseClassRandomizer` : can be used everywhere
 - `ParameterRandomizer` / `BaseParameterRandomizer` : can only be used on parameter
 
