@@ -70,7 +70,7 @@ val randomInstance = random<SomeClass>()
 
 It can accept custom randomizers that can alter the randomization process. 
 
-There are two type of custom randomizers that `random()` can accept `class randomizers` and `parameter randomizers`.
+There are two type of custom randomizers that `random()` can accept: `class randomizers` and `parameter randomizers`.
 
 Here's an example using builder function `randomizers()` and `paramRandomizers()`.
 
