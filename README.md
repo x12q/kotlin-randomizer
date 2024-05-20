@@ -374,9 +374,7 @@ For inner class, randomization is done similarly to a normal class.
 
 ### [Class inside function]()
 
-There is a case in which this library will crash. Fortunately, this is a rather uncommon case in
-real scenarios.
-This is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until
+This is a case in which this library will crash. Unfortunately, this is a limitation of the kotlin reflection library (see https://youtrack.jetbrains.com/issue/KT-25573/). So until
 then, ...
 
 For example, it is not possible for the library to generate a random instance of `MyClass` below.
