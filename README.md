@@ -5,7 +5,7 @@ Generate random instance of (kinda) any class, interface, object, and enum, for 
 
 ⚠️ Note:
 - It is noted that, this library is best used to randomize classes that only contain data.
-- For service classes that depends on interfaces or abstract classes, it is still possible to use this library, but it is not advisable to do so because it would require you to create a lot of custom randomizers that it's better just initialize the service classes directly.
+- For service classes that depends on complex interfaces or abstract classes, it's better just initialize them directly. Using this library is possible, but you will need to declare many custom randomizers that it's not worth it anymore.
 
 
 # Introduction
