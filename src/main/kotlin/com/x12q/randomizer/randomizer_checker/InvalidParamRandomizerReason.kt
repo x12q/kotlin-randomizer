@@ -4,43 +4,37 @@ import com.x12q.randomizer.randomizer.ParameterRandomizer
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 
-sealed class InvalidParamRandomizerReason {
-    abstract val randomizerClass: KClass<out ParameterRandomizer<*>>
-    abstract val parentClass: KClass<*>
-    abstract val targetParam: KParameter
+sealed class InvalidParamRandomizerReason(msg: String) : Exception(msg) {
 
     /**
      * When the checked class is an abstract class
      */
     data class IsAbstract(
-        override val randomizerClass: KClass<out ParameterRandomizer<*>>,
-        override val targetParam: KParameter,
-        override val parentClass: KClass<*>
-    ) : InvalidParamRandomizerReason()
+        val randomizerClass: KClass<out ParameterRandomizer<*>>,
+    ) : InvalidParamRandomizerReason(
+        "[${randomizerClass}] is abstract. Can't use an abstract class randomizer"
+    )
 
     /**
      * When the checked class is a [ClassRandomizer] but cannot generate random instance of [targetClass]
      */
     data class UnableToGenerateTarget(
-        override val randomizerClass: KClass<out ParameterRandomizer<*>>,
-        override val targetParam: KParameter,
-        override val parentClass: KClass<*>,
+        val randomizerClass: KClass<out ParameterRandomizer<*>>,
         val actualClass: KClass<*>?,
-        val targetClass: KClass<*>,
-    ) : InvalidParamRandomizerReason()
+    ) : InvalidParamRandomizerReason(
+        "[${randomizerClass}] cannot generate instances for [${actualClass}]"
+    )
 
     /**
      * When the checked class is not of type [ClassRandomizer]
      */
     data class IllegalRandomizerClass(
-        override val randomizerClass: KClass<out ParameterRandomizer<*>>,
-        override val targetParam: KParameter,
-        override val parentClass: KClass<*>,
-    ) : InvalidParamRandomizerReason()
+        val randomizerClass: KClass<*>,
+        val targetParam: KParameter,
+        val parentClass: KClass<*>,
+    ) : InvalidParamRandomizerReason(
+        "[${randomizerClass}] is not a param randomizer"
+    )
 
-    data class InvalidTarget(
-        override val randomizerClass: KClass<out ParameterRandomizer<*>>,
-        override val parentClass: KClass<*>,
-        override val targetParam: KParameter
-    ): InvalidParamRandomizerReason()
+    data object InvalidTarget : InvalidParamRandomizerReason("Invalid param random target. Can only generate random for KClass or KParameter")
 }

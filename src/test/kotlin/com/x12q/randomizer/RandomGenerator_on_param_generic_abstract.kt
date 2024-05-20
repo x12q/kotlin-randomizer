@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -131,7 +132,7 @@ class RandomGenerator_on_param_generic_abstract {
     }
 
     class B<T>(
-        @Randomizable(randomizer = E2.E2Randomizer2::class)
+        @Randomizer(randomizer = E2.E2Randomizer2::class)
         val m: T
     )
 
@@ -142,17 +143,17 @@ class RandomGenerator_on_param_generic_abstract {
     )
 
     class C2<T>(
-        @Randomizable(randomizer = A1.ParamRandomizer2::class)
+        @Randomizer(randomizer = A1.ParamRandomizer2::class)
         val m: T,
     )
 
     class C1<T>(val t: T)
 
-    @Randomizable(randomizer = E3.E3Randomizer3::class)
+    @Randomizer(randomizer = E3.E3Randomizer3::class)
     interface E
 
 
-    @Randomizable(randomizer = D1.D1Randomizer3::class) //level3
+    @Randomizer(randomizer = D1.D1Randomizer3::class) //level3
     interface D
 
     class D1(val d: String) : D {
@@ -234,7 +235,7 @@ class RandomGenerator_on_param_generic_abstract {
 
     abstract class A
 
-    @Randomizable(randomizer = A1.Randomizer3::class)
+    @Randomizer(randomizer = A1.Randomizer3::class)
     data class A1(val s: String) : A() {
 
         companion object {

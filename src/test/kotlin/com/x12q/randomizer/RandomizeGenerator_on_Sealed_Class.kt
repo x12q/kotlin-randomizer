@@ -1,7 +1,7 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.ClassRandomizer
-import com.x12q.randomizer.randomizer.builder.randomizers
 import com.x12q.randomizer.randomizer.clazz.SameClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -36,7 +36,7 @@ class RandomizeGenerator_on_Sealed_Class {
         }
     }
 
-    @Randomizable(randomizer = S2.Companion.Rdm1::class)
+    @Randomizer(randomizer = S2.Companion.Rdm1::class)
     sealed class S2 {
         object C1 : S2()
         object C2 : S2()
@@ -64,7 +64,7 @@ class RandomizeGenerator_on_Sealed_Class {
 
 
     sealed class S3 {
-        @Randomizable(S3.Companion.ChildrenRandomizer::class)
+        @Randomizer(S3.Companion.ChildrenRandomizer::class)
         class C3(val i: Int) : S3()
 
         companion object {
@@ -87,9 +87,9 @@ class RandomizeGenerator_on_Sealed_Class {
         }
     }
 
-    @Randomizable(randomizer = S4.Companion.ParentRandomizer::class)
+    @Randomizer(randomizer = S4.Companion.ParentRandomizer::class)
     sealed class S4 {
-        @Randomizable(S4.Companion.ChildrenRandomizer::class)
+        @Randomizer(S4.Companion.ChildrenRandomizer::class)
         data class C3(val i: Int) : S4()
 
         companion object {
@@ -121,9 +121,9 @@ class RandomizeGenerator_on_Sealed_Class {
         }
     }
 
-    @Randomizable(randomizer = S5.Companion.ParentRandomizer::class)
+    @Randomizer(randomizer = S5.Companion.ParentRandomizer::class)
     sealed class S5 {
-        @Randomizable(S5.Companion.ChildrenRandomizer::class)
+        @Randomizer(S5.Companion.ChildrenRandomizer::class)
         data class C3<T>(val i: T) : S5()
 
         companion object {
@@ -153,9 +153,9 @@ class RandomizeGenerator_on_Sealed_Class {
         rdm.random(RDClassData.from<S5>()) shouldBe S5.Companion.ParentRandomizer().random()
     }
 
-    @Randomizable(randomizer = S6.Companion.ParentRandomizer::class)
+    @Randomizer(randomizer = S6.Companion.ParentRandomizer::class)
     sealed class S6 {
-        @Randomizable(S6.Companion.ChildrenRandomizer::class)
+        @Randomizer(S6.Companion.ChildrenRandomizer::class)
         abstract class C2: S6()
         data class C3<T>(val i: T) : C2()
 
@@ -198,7 +198,7 @@ class RandomizeGenerator_on_Sealed_Class {
     }
 
     sealed class S8 {
-        @Randomizable(S6.Companion.ChildrenRandomizer::class)
+        @Randomizer(S6.Companion.ChildrenRandomizer::class)
         abstract class C2: S8()
         data class C3<T>(val i: T) : C2()
     }

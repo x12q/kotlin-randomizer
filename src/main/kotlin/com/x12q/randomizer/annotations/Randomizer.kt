@@ -1,4 +1,4 @@
-package com.x12q.randomizer
+package com.x12q.randomizer.annotations
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
@@ -7,7 +7,7 @@ import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.randomizer.ParameterRandomizer
-import com.x12q.randomizer.randomizer.Randomizer
+import com.x12q.randomizer.randomizer.CommonRandomizer
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
 import kotlin.reflect.KClass
@@ -18,8 +18,8 @@ import kotlin.reflect.full.isSubclassOf
  */
 @Target(CLASS, VALUE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)
-annotation class Randomizable(
-    val randomizer: KClass<out Randomizer<*>> = Randomizer.__DefaultRandomizer::class
+annotation class Randomizer(
+    val randomizer: KClass<out CommonRandomizer<*>> = CommonRandomizer.__DefaultRandomizer::class
 ) {
     companion object {
 
@@ -27,9 +27,9 @@ annotation class Randomizable(
          * try to cast [randomizer] as [ClassRandomizer].
          * Return an error only when [randomizer] is a [ParameterRandomizer], otherwise return the cast obj, or a null if there's any other error.
          */
-        fun Randomizable.getClassRandomizerOnlyRs(targetClass: KClass<*>): Result<KClass<out ClassRandomizer<*>>?, ErrorReport> {
-            val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
-            val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
+        fun Randomizer.getClassRandomizerOnlyRs(targetClass: KClass<*>): Result<KClass<out ClassRandomizer<*>>?, ErrorReport> {
+            val randomizerClass: KClass<out CommonRandomizer<*>> = this.randomizer
+            val rt = if (randomizerClass == CommonRandomizer.__DefaultRandomizer::class) {
                 Ok(null)
             } else {
                 if (randomizerClass.isSubclassOf(ClassRandomizer::class)) {
@@ -48,9 +48,9 @@ annotation class Randomizable(
             return rt
         }
 
-        fun Randomizable.getClassRandomizerOrParamRandomizerRs(): Result<Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>,ErrorReport> {
-            val randomizerClass: KClass<out Randomizer<*>> = this.randomizer
-            val rt = if (randomizerClass == Randomizer.__DefaultRandomizer::class) {
+        fun Randomizer.getClassRandomizerOrParamRandomizerRs(): Result<Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>,ErrorReport> {
+            val randomizerClass: KClass<out CommonRandomizer<*>> = this.randomizer
+            val rt = if (randomizerClass == CommonRandomizer.__DefaultRandomizer::class) {
                 Ok(Pair(null, null))
             } else {
                 if (randomizerClass.isSubclassOf(ClassRandomizer::class)) {

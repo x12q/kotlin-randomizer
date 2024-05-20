@@ -2,6 +2,7 @@ package com.x12q.randomizer.err
 
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.RDClassData
+import com.x12q.randomizer.randomizer.ClassRandomizer
 import kotlin.reflect.KClass
 import kotlin.reflect.KClassifier
 import kotlin.reflect.KTypeParameter
@@ -17,6 +18,23 @@ object RandomizerErrors {
         return "${_prefix}${code}"
     }
 
+    /**
+     * This is for when a [ParameterRandomizer] is not applicable to a class
+     */
+    object CantApplyClassRandomizerToClass {
+        private val header = ErrorHeader(errorCode = errCode(5), "Can't apply class randomizer to class")
+        fun report(randomizer: ClassRandomizer<*>, targetClass:KClass<*>): ErrorReport {
+            val header =
+                header.setDescription("Can't apply class randomizer [${randomizer::class}] to [${targetClass}]")
+            val rt = header.toErrorReport()
+            return rt
+        }
+    }
+
+
+    /**
+     * This is for when a non-randomizer class is provided as a randomizer
+     */
     object IllegalRandomizer{
         private val header = ErrorHeader(errorCode = errCode(4), "Illegal randomizer")
         fun report(randomizer: KClass<*>): ErrorReport {
@@ -27,11 +45,14 @@ object RandomizerErrors {
         }
     }
 
+    /**
+     * This is for when a [ParameterRandomizer] is not applicable to a class
+     */
     object CantApplyParamRandomizerToClass {
         private val header = ErrorHeader(errorCode = errCode(3), "Can't apply param randomizer to class")
-        fun report(paramRandomizer: ParameterRandomizer<*>, targetClass:KClass<*>): ErrorReport {
+        fun report(randomizer: ParameterRandomizer<*>, targetClass:KClass<*>): ErrorReport {
             val header =
-                header.setDescription("Can't apply param randomizer [${paramRandomizer::class}] to [${targetClass}] because it is a [${ParameterRandomizer::class}]")
+                header.setDescription("Can't apply param randomizer [${randomizer::class}] to [${targetClass}]")
             val rt = header.toErrorReport()
             return rt
         }

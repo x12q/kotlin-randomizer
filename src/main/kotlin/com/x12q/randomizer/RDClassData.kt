@@ -50,7 +50,8 @@ data class RDClassData(
     }
 
     /**
-     * This is a mapping between received type arguments and declared types of this class
+     * This is a mapping between received type arguments and declared types of this class.
+     * This type map is constructed using only information with this class data.
      */
     internal val directTypeMap: Map<String, RDClassData> by lazy {
 
@@ -145,6 +146,19 @@ data class RDClassData(
                 kClass = T::class,
                 kType = typeOf<T>(),
             )
+        }
+
+        fun <T> RDClassData.ifIsInt(makeRandomizer:()->T?, exception:(()->Exception)?):T?{
+            if(this.kClass == Int::class){
+                return makeRandomizer()
+            }else{
+                val exc = exception?.invoke()
+                if(exc!=null){
+                    throw exc
+                }else{
+                    return null
+                }
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -58,11 +59,11 @@ class RandomizeGenerator_OnCollection_abstract {
         }
     }
 
-    @Randomizable(randomizer = E3.E3Randomizer3::class)
+    @Randomizer(randomizer = E3.E3Randomizer3::class)
     interface E
 
 
-    @Randomizable(randomizer = D1.D1Randomizer3::class) //level3
+    @Randomizer(randomizer = D1.D1Randomizer3::class) //level3
     interface D
 
     class D1(val d: String) : D {
@@ -125,7 +126,7 @@ class RandomizeGenerator_OnCollection_abstract {
 
     abstract class A
 
-    @Randomizable(randomizer = A1.Randomizer3::class)
+    @Randomizer(randomizer = A1.Randomizer3::class)
     data class A1(val s: String) : A() {
 
         companion object {

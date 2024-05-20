@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -18,11 +19,11 @@ class RandomizeGenerator_GetLv3 {
         rdm = TestSamples.comp.randomizer()
     }
 
-    @Randomizable
-    class A @Randomizable constructor(val i: Int, val str: String, val l: List<Float>) {
-        @Randomizable(randomizer = R1::class)
+    @Randomizer
+    class A @Randomizer constructor(val i: Int, val str: String, val l: List<Float>) {
+        @Randomizer(randomizer = R1::class)
         constructor(i: Int) : this(i, "str${i}", emptyList())
-        @Randomizable
+        @Randomizer
         constructor(str: String) : this(0, str, listOf(str.length.toFloat()))
     }
 
@@ -33,11 +34,11 @@ class RandomizeGenerator_GetLv3 {
         }
     }
 
-    @Randomizable
-    class B @Randomizable constructor(val i: Int, val str: String, val l: List<Float>) {
-        @Randomizable(B.RB1::class)
+    @Randomizer
+    class B @Randomizer constructor(val i: Int, val str: String, val l: List<Float>) {
+        @Randomizer(B.RB1::class)
         constructor(i: Int) : this(i, "str${i}", emptyList())
-        @Randomizable
+        @Randomizer
         constructor(str: String) : this(0, str, listOf(str.length.toFloat()))
 
         abstract class RB0:ClassRandomizer<B>{
@@ -72,11 +73,11 @@ class RandomizeGenerator_GetLv3 {
         rdm.getLv3Randomizer(C::class).shouldBeNull()
     }
 
-    @Randomizable
-    class C2 @Randomizable constructor(val i: Int, val str: String, val b: Boolean) {
-        @Randomizable
+    @Randomizer
+    class C2 @Randomizer constructor(val i: Int, val str: String, val b: Boolean) {
+        @Randomizer
         constructor(i:Int):this(i,"str1",false)
-        @Randomizable
+        @Randomizer
         constructor(str:String):this(100,str,true)
     }
 
