@@ -322,8 +322,8 @@ These are the randomizing rules used by the library.
 
 Randomizers are categorized into 4 `lv` in this library:
 - `lv1`: randomizers provided in `random()` function
-- `lv2`: randomizers provided in `@Randomizer` at constructor parameters
-- `lv3`: randomizers provided in `@Randomizer` at class and constructor
+- `lv2`: randomizers provided by annotations at parameters
+- `lv3`: randomizers provided by annotations at class and constructor
 - `lv4`: the default, baked-in randomizers
 
 The order of priority is: `lv1` > `lv2` > `lv3` > `lv4` . (`lv1` has the highest priority)
