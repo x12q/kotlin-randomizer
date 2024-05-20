@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.RandomGenerator_on_Double_param_with_RandomDoubleOneOf.B3
 import com.x12q.randomizer.annotations.number._double.RandomDoubleWithin
 import com.x12q.randomizer.annotations.number._float.RandomFloatWithin
 import com.x12q.randomizer.annotations.number._int.RandomIntWithin
@@ -51,6 +52,9 @@ class RandomGenerator_on_Double_param_with_RandomDoubleWithin {
     @Test
     fun `on Double generic type param`() {
         (rdm.random(RDClassData.from<B3<Double>>()) as B3<Double>).i.shouldBeBetween(1.0,2.0,0.000001)
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<B3<String>>())
+        }
     }
 
 }

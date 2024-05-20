@@ -49,6 +49,9 @@ class RandomGenerator_on_Double_param_with_RandomDoubleFixed {
     @Test
     fun `on Double generic type param`() {
         (rdm.random(RDClassData.from<B3<Double>>()) as B3<Double>).i shouldBe 123f
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<B3<String>>())
+        }
     }
 
 }

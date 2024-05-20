@@ -1,5 +1,6 @@
 package com.x12q.randomizer
 
+import com.x12q.randomizer.RandomGenerator_on_Double_param_with_RandomDoubleFixed.B3
 import com.x12q.randomizer.annotations.number._double.RandomDoubleOneOf
 import com.x12q.randomizer.annotations.number._float.RandomFloatOneOf
 import com.x12q.randomizer.annotations.number._int.RandomIntOneOf
@@ -49,6 +50,9 @@ class RandomGenerator_on_Double_param_with_RandomDoubleOneOf {
     @Test
     fun `on Double generic type param`() {
         (rdm.random(RDClassData.from<B3<Double>>()) as B3<Double>).i shouldBe 123f
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<B3<String>>())
+        }
     }
 
 

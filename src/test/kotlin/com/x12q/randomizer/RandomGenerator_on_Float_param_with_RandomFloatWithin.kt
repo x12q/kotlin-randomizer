@@ -49,6 +49,9 @@ class RandomGenerator_on_Float_param_with_RandomFloatWithin {
     @Test
     fun `on float generic type param`() {
         (rdm.random(RDClassData.from<B3<Float>>()) as B3<Float>).i.shouldBeBetween(1f,2f,0.000001f)
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<B3<String>>())
+        }
     }
 
 }

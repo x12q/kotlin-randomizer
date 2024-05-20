@@ -47,6 +47,10 @@ class RandomGenerator_on_Int_param_with_RandomIntWithin {
     @Test
     fun `on int generic type param`() {
         (rdm.random(RDClassData.from<B3<Int>>()) as B3<Int>).i shouldBe 123
+        
+        shouldThrow<Exception> {
+            rdm.random(RDClassData.from<B3<String>>())
+        }
     }
 
 }
