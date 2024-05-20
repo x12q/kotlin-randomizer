@@ -408,7 +408,7 @@ class ABC(
 )
 ```
 
-A solution is being worked on and hopefully will be in next release
+A solution is being considered and worked on and hopefully will be in next release if it is deemed appropriate.
 
 
 If there are others limitation that I am not aware of. Please let me know.**
