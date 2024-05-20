@@ -1,4 +1,4 @@
-# Randomizer
+**# Randomizer
 
 Generate random instance of (kinda) any class, interface, object, and enum, for testing and prototyping.
 
@@ -72,14 +72,14 @@ It can accept custom randomizers that can alter the randomization process.
 
 There are two type of custom randomizers that `random()` can accept: `class randomizers` and `parameter randomizers`.
 
-Here's an example using builder function `randomizers()` and `paramRandomizers()`.
+Here's an example of providing randomizers using builder function `randomizers()` and `paramRandomizers()`.
 
 ⚠️ It is noted that `random()` does `not` need custom randomizers to work. This option is for when the default randomization is not good enough for your requirements.
 
 ```kotlin
 val randomInstance = random<SomeClass>(
     /**
-     * These are custom class randomizer,
+     * These are custom class randomizers,
      * they can override default randomization logic for their target class
      */
     randomizers = randomizers {
@@ -413,4 +413,4 @@ class ABC(
 A solution is being worked on and hopefully will be in next release
 
 
-If there are others limitation that I am not aware of. Please let me know.
+If there are others limitation that I am not aware of. Please let me know.**
