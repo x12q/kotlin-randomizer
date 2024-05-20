@@ -332,10 +332,9 @@ At the same `lv`, if there are multiple valid randomizers, then one is chosen ra
 
 ## [How are constructors picked?](#top) <a id="rule-3"></a>
 
-In a class:
-- constructors annotated with `@Randomizer` (either with a valid randomizer or without any randomizers) are prioritized over non-annotated constructors.
-- if multiple constructors are annotated with `@Randomizer`, one will be picked randomly.
-- if no constructor is annotated with `@Randomizer`, the primary constructor will be prioritized. If there's no primary constructor, a random constructor is chosen.
+- Annotated constructors (with the above annotations) are prioritized over non-annotated constructors.
+- if there are multiple annotated constructors, one will be picked randomly.
+- if there is no annotated constructor, the primary constructor will be prioritized. If there's no primary constructor, a random constructor is chosen.
 
 ## [How is randomization being done?](#top) <a id="rule-1"></a>
 
