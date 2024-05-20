@@ -22,6 +22,12 @@ import com.x12q.randomizer.annotations.number._int.RandomIntOneOf
 import com.x12q.randomizer.annotations.number._int.RandomIntOneOf.Companion.makeClassRandomizer
 import com.x12q.randomizer.annotations.number._int.RandomIntWithin
 import com.x12q.randomizer.annotations.number._int.RandomIntWithin.Companion.makeClassRandomizer
+import com.x12q.randomizer.annotations.str.RandomStringFixed
+import com.x12q.randomizer.annotations.str.RandomStringFixed.Companion.makeClassRandomizer
+import com.x12q.randomizer.annotations.str.RandomStringOneOf
+import com.x12q.randomizer.annotations.str.RandomStringOneOf.Companion.makeClassRandomizer
+import com.x12q.randomizer.annotations.str.RandomStringUUID
+import com.x12q.randomizer.annotations.str.RandomStringUUID.Companion.makeClassRandomizer
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
@@ -772,8 +778,9 @@ data class RandomGenerator @Inject constructor(
         val intRandomizers = getLv2IntRandomizer(param, paramData,enclosingClassData)
         val floatRandomizers = getLv2FloatRandomizer(param, paramData,enclosingClassData)
         val doubleRandomizers = getLv2DoubleRandomizer(param, paramData,enclosingClassData)
+        val strRandomizers = getLv2StringRandomizer(param, paramData,enclosingClassData)
 
-        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers
+        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers + strRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
 
         return lv2Randomizer
@@ -839,17 +846,77 @@ data class RandomGenerator @Inject constructor(
         val intRandomizers = getLv2IntRandomizer(param, parameterData,enclosingClassData)
         val floatRandomizers = getLv2FloatRandomizer(param, parameterData,enclosingClassData)
         val doubleRandomizers = getLv2DoubleRandomizer(param, parameterData,enclosingClassData)
+        val strRandomizers = getLv2StringRandomizer(param, parameterData,enclosingClassData)
 
-        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers
+        val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers + strRandomizers
         val lv2Randomizer = randomizers.randomOrNull()
         return lv2Randomizer
     }
+
+    private fun getLv2StringRandomizer(
+        param: KParameter,
+        parameterData: RDClassData,
+        enclosingClassData: RDClassData,
+    ):List<ClassRandomizer<String>>{
+        val rt = listOfNotNull(
+            getRandomizerFrom_RandomStringFixed(param, parameterData,enclosingClassData),
+            getRandomizerFrom_RandomStringOneOf(param, parameterData,enclosingClassData),
+            getRandomizerFrom_RandomStringUUID(param, parameterData,enclosingClassData),
+        )
+        return rt
+    }
+
+    private fun getRandomizerFrom_RandomStringFixed(
+        param: KParameter,
+        parameterData: RDClassData,
+        enclosingClassData: RDClassData,
+    ): ClassRandomizer<String>? {
+        return getRandomizerFromAnnotation<RandomStringFixed, String>(
+            param = param,
+            parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
+            annotationClass = RandomStringFixed::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
+    }
+
+    private fun getRandomizerFrom_RandomStringOneOf(
+        param: KParameter,
+        parameterData: RDClassData,
+        enclosingClassData: RDClassData,
+    ): ClassRandomizer<String>? {
+        return getRandomizerFromAnnotation<RandomStringOneOf, String>(
+            param = param,
+            parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
+            annotationClass = RandomStringOneOf::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
+    }
+
+    private fun getRandomizerFrom_RandomStringUUID(
+        param: KParameter,
+        parameterData: RDClassData,
+        enclosingClassData: RDClassData,
+    ): ClassRandomizer<String>? {
+        return getRandomizerFromAnnotation<RandomStringUUID, String>(
+            param = param,
+            parameterData = parameterData,
+            enclosingClassData = enclosingClassData,
+            annotationClass = RandomStringUUID::class,
+            extractRandomizerFromAnnotation = { annotation ->
+                annotation.makeClassRandomizer()
+            })
+    }
+
 
     private fun getLv2DoubleRandomizer(
         param: KParameter,
         parameterData: RDClassData,
         enclosingClassData: RDClassData,
-    ):List<ClassRandomizer<Double>?>{
+    ):List<ClassRandomizer<Double>>{
         val rt = listOfNotNull(
             getRandomizerFrom_RandomDoubleFixed(param, parameterData,enclosingClassData),
             getRandomizerFrom_RandomDoubleOneOf(param, parameterData,enclosingClassData),
@@ -857,8 +924,6 @@ data class RandomGenerator @Inject constructor(
         )
         return rt
     }
-
-
 
     private fun getRandomizerFrom_RandomDoubleWithin(
         param: KParameter,
@@ -909,7 +974,7 @@ data class RandomGenerator @Inject constructor(
         param: KParameter,
         parameterData: RDClassData,
         enclosingClassData: RDClassData,
-    ):List<ClassRandomizer<Float>?>{
+    ):List<ClassRandomizer<Float>>{
         val rt = listOfNotNull(
             getRandomizerFrom_RandomFloatFixed(param, parameterData,enclosingClassData),
             getRandomizerFrom_RandomFloatOneOf(param, parameterData,enclosingClassData),
