@@ -157,6 +157,7 @@ Aside from injecting randomizers via `random()` function, this library provides 
 `@Randomizer` can provide custom randomizers to classes, constructors, and parameters. A custom randomizers passed to `@Randomizer` must extend :
 - `ClassRandomizer` / `BaseClassRandomizer` : can be used everywhere
 - `ParameterRandomizer` / `BaseParameterRandomizer` : can only be used on parameter
+- have a no-arg (zero argument) constructor
 
 Here's an example:
 
