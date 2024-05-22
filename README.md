@@ -22,7 +22,7 @@ Custom random logic can also be easily provided via `random()` function or `@Ran
 ## [Gradle](#gradle) <a id="gradle"></a>
 ```
 dependencies {
-    implementation("com.x12q:randomizer:1.0.0-alpha.6")
+    implementation("com.x12q:randomizer:1.0.0-alpha.6.1")
 }
 ```
 ## [Maven](#maven) <a id="maven"></a>
@@ -30,7 +30,7 @@ dependencies {
 <dependency>
     <groupId>com.x12q</groupId>
     <artifactId>randomizer</artifactId>
-    <version>1.0.0-alpha.6</version>
+    <version>1.0.0-alpha.6.1</version>
 </dependency>
 ```
 # Content

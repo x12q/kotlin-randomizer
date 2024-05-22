@@ -39,7 +39,7 @@ kotlin {
 mavenPublishing {
 
     group = "com.x12q"
-    version = "1.0.0-alpha.6"
+    version = "1.0.0-alpha.6.1"
     val libId =  "randomizer"
 
 

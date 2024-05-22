@@ -336,7 +336,7 @@ data class RandomGenerator @Inject constructor(
             throw IllegalArgumentException("This function is for sealed class only. [${targetClass}] is not a sealed class.")
         }
         val sealedSubClassList = targetClass.sealedSubclasses
-        val pickedSealClass = sealedSubClassList.random()
+        val pickedSealClass = sealedSubClassList.random(random)
 
         val sealClassRdData = RDClassData(
             kClass = pickedSealClass,
@@ -569,7 +569,7 @@ data class RandomGenerator @Inject constructor(
     }
 
     private fun randomNumber(): Number {
-        return listOf(random.nextInt(), random.nextDouble(), random.nextFloat(), random.nextLong()).random()
+        return listOf(random.nextInt(), random.nextDouble(), random.nextFloat(), random.nextLong()).random(random)
     }
 
     private val collectionSize: IntRange = defaultRandomConfig.collectionSize
@@ -782,7 +782,7 @@ data class RandomGenerator @Inject constructor(
         val strRandomizers = getLv2StringRandomizer(param, paramData,enclosingClassData)
 
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers + strRandomizers
-        val lv2Randomizer = randomizers.randomOrNull()
+        val lv2Randomizer = randomizers.randomOrNull(random)
 
         return lv2Randomizer
 
@@ -850,7 +850,7 @@ data class RandomGenerator @Inject constructor(
         val strRandomizers = getLv2StringRandomizer(param, parameterData,enclosingClassData)
 
         val randomizers = listOfNotNull(lv2ParamRandomizer, lv2ClassRandomizer) + intRandomizers + floatRandomizers + doubleRandomizers + strRandomizers
-        val lv2Randomizer = randomizers.randomOrNull()
+        val lv2Randomizer = randomizers.randomOrNull(random)
         return lv2Randomizer
     }
 
@@ -1207,7 +1207,7 @@ data class RandomGenerator @Inject constructor(
         }
 
         if (richConstructors.isNotEmpty()) {
-            return richConstructors.random()
+            return richConstructors.random(random)
         }
 
         if (poorConstructors.isNotEmpty()) {
@@ -1215,7 +1215,7 @@ data class RandomGenerator @Inject constructor(
              * Pick a random from the poorly annotated constructors
              */
             return PickConstructorResult(
-                poorConstructors.random(), null
+                poorConstructors.random(random), null
             )
         }
 
@@ -1223,7 +1223,7 @@ data class RandomGenerator @Inject constructor(
          * Use primary constructor if there are not any annotated constructor
          */
 
-        val nonAnnotatedConstructor = targetClass.primaryConstructor ?: targetClass.constructors.randomOrNull()
+        val nonAnnotatedConstructor = targetClass.primaryConstructor ?: targetClass.constructors.randomOrNull(random)
         return nonAnnotatedConstructor?.let {
             PickConstructorResult(it, null)
         }
@@ -1250,7 +1250,7 @@ data class RandomGenerator @Inject constructor(
                 return primaryConstructor
             } else {
                 // java class does not have primary constructor
-                return targetClass.constructors.randomOrNull()
+                return targetClass.constructors.randomOrNull(random)
             }
 
         }
