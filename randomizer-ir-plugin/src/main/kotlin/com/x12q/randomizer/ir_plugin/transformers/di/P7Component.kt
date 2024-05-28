@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.transformers.di
 
-import com.x12q.randomizer.ir_plugin.transformers.randomizable.RandomizableTransformer2
+import com.x12q.randomizer.ir_plugin.transformers.randomizable.RandomizableTransformer
 import com.squareup.anvil.annotations.MergeComponent
 import dagger.BindsInstance
 import dagger.Component
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 )
 interface P7Component {
 
-    fun randomizableTransformer(): RandomizableTransformer2
+    fun randomizableTransformer(): RandomizableTransformer
 
 
     @Component.Builder

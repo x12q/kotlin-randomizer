@@ -20,6 +20,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
 kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version = "0.4.1"}
 
+
 [plugins]
 anvil = { id = "com.squareup.anvil", version="2.4.9" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version="0.28.0" }

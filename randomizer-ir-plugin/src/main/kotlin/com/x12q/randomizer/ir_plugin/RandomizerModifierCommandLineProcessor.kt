@@ -20,7 +20,7 @@ class RandomizerModifierCommandLineProcessor : CommandLineProcessor {
       optionName = enableOption,
       valueDescription = "boolean",
       description = "enable or disable the ir-plugin",
-      required = true,
+      required = false,
     ),
   )
 
@@ -30,7 +30,7 @@ class RandomizerModifierCommandLineProcessor : CommandLineProcessor {
     configuration: CompilerConfiguration
   ) {
     return when (option.optionName) {
-      enableOption->configuration.put(argEnable,value.toBoolean())
+      enableOption->configuration.put(argEnable,value.toBooleanStrictOrNull() ?: true)
       else -> throw IllegalArgumentException("Unexpected config option ${option.optionName}")
     }
   }
