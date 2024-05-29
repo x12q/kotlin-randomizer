@@ -27,17 +27,14 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
     kapt("com.google.auto.service:auto-service:1.0.1")
     compileOnly("com.google.auto.service:auto-service-annotations:1.0.1")
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable")
-
     implementation(project(":randomizer-lib"))
-
     implementation(libs.michaelbull.kotlinResult)
     implementation(libs.kotlin.reflect)
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
 
-    kaptTest("com.google.auto.service:auto-service:1.0.1")
-    testImplementation("com.google.auto.service:auto-service-annotations:1.0.1")
+//    kaptTest("com.google.auto.service:auto-service:1.0.1")
+//    testImplementation("com.google.auto.service:auto-service-annotations:1.0.1")
     kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)
