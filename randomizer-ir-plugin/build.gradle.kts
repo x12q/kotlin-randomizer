@@ -32,9 +32,8 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
+    implementation(project(":randomizer-lib"))
 
-//    kaptTest("com.google.auto.service:auto-service:1.0.1")
-//    testImplementation("com.google.auto.service:auto-service-annotations:1.0.1")
     kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)

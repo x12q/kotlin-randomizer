@@ -1,23 +1,30 @@
 package com.x12q.randomizer.sample_app
 
-import kotlinx.serialization.Serializable
 
 fun main(){
-//    makeRandomInstance<Int>({1}).also {
-//        println(it)
-//    }
 
     ABC(1,"abc")
-    makeRandomInstance<ABC>().also {
-        println(it)
-    }
+    val q = Q()
+    println(q.random<ABC>())
+    println(q.random<XCV>())
+//    println(makeRandomInstance<ABC>())
     someFunction()
 }
 
-@Serializable
+class Q{
+    fun <T> random():T?{
+        return makeRandomInstance<T>()
+    }
+}
+
+
 data class ABC(
     val numberx: Int,
     val text123: String,
+)
+
+data class XCV(
+    val f:Int
 )
 
 fun someFunction() {

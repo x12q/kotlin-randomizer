@@ -15,6 +15,21 @@ import kotlin.reflect.full.*
 import kotlin.reflect.jvm.internal.impl.builtins.functions.FunctionTypeKind
 import kotlin.reflect.jvm.reflect
 
+@Serializable
+class AX1(val i:Int)
+
+fun qwewqe(){
+    AX1.serializer()
+}
+
+
+
+
+
+
+
+
+
 
 data class Q1<K, V>(val l: Map<K, V>)
 data class Q2<T>(val l: List<T>)

@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin.transformers.randomizable
 
 import com.x12q.randomizer.annotations.Randomizer
 import com.x12q.randomizer.ir_plugin.transformers.utils.Standards
+import org.jetbrains.kotlin.backend.common.ClassLoweringPass
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -32,96 +33,24 @@ import kotlin.random.Random
  *      - can access constructor: ok, but how
  *
  * Strategy:
- *  - scan for special function call, and change the lambda of that function.
+ *  - scan for annotated class, then generate a static function generate random
  *
  */
-class RandomizableTransformer @Inject constructor(
+class RandomizableTransformer2 @Inject constructor(
     private val pluginContext: IrPluginContext,
-) : IrElementTransformerVoidWithContext() {
+) : IrElementTransformerVoidWithContext(), ClassLoweringPass {
+
+
 
     private val randomizableName = FqName(Randomizer::class.qualifiedName!!)
     private val randomFunctionName = FqName("com.x12q.randomizer.sample_app.makeRandomInstance")
 
     private val dumpBuilder: StringBuilder = StringBuilder()
 
-    /**
-     * Example of generating a lambda to generate a random ABC class
-     */
-    override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
-        if (expression.symbol.owner.fqNameWhenAvailable == randomFunctionName) {
-            val targetType = expression.typeArguments.firstOrNull()
-            if(targetType!=null){
-                val clazz = targetType.classOrNull
-                if(clazz!=null){
-                    val lambda = pluginContext.irFactory.buildFun {
-                        name = SpecialNames.ANONYMOUS
-                        origin = IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
-                        visibility = DescriptorVisibilities.LOCAL
-                        returnType = targetType
-                        modality = Modality.FINAL
-                        isSuspend = false
-                    }.apply {
-                        val builder = DeclarationIrBuilder(
-                            generatorContext = pluginContext,
-                            symbol = this.symbol,
-                        )
 
-                        val clazz = targetType.classOrNull!!
-                        val constructorSymbol = clazz.constructors.first { it.owner.visibility == DescriptorVisibilities.PUBLIC }
-                        val constructor = constructorSymbol.owner
-
-                        val argTypes = constructor.valueParameters.map {arg->
-                            val type = arg.type
-
-                            val primType = type.getPrimitiveType()
-                            when(primType){
-                                PrimitiveType.BOOLEAN -> TODO()
-                                PrimitiveType.CHAR -> TODO()
-                                PrimitiveType.BYTE -> TODO()
-                                PrimitiveType.SHORT -> TODO()
-                                PrimitiveType.INT -> builder.irInt(12333)
-                                PrimitiveType.FLOAT -> TODO()
-                                PrimitiveType.LONG -> TODO()
-                                PrimitiveType.DOUBLE -> TODO()
-                                else -> {
-                                    if(type == pluginContext.irBuiltIns.stringType){
-                                        builder.irString("UUID: str")
-                                    }else{
-                                        TODO()
-                                    }
-                                }
-                            }
-                        }
-
-                        body = builder.irBlockBody {
-                            +builder.irReturn(builder.irCall(constructorSymbol).also {con->
-                                argTypes.withIndex().forEach {(index,a)->
-                                    con.putValueArgument(index,a)
-                                }
-                            })
-                        }
-                    }
-
-                    val newLambda = IrFunctionExpressionImpl(
-                        startOffset = lambda.startOffset,
-                        endOffset = lambda.endOffset,
-                        type = pluginContext.irBuiltIns.functionN(0).typeWith(targetType),
-                        function = lambda,
-                        origin = IrStatementOrigin.LAMBDA
-                    )
-                    expression.putValueArgument(0, newLambda)
-                }
-            }
-        }
-        return super.visitFunctionAccess(expression)
-    }
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
         return super.visitClassNew(declaration)
-    }
-
-    override fun visitValueParameterNew(declaration: IrValueParameter): IrStatement {
-        return super.visitValueParameterNew(declaration)
     }
 
     fun IrElement.dumpToDump() {
@@ -193,5 +122,9 @@ class RandomizableTransformer @Inject constructor(
 
         return call
 
+    }
+
+    override fun lower(irClass: IrClass) {
+        TODO("Not yet implemented")
     }
 }
