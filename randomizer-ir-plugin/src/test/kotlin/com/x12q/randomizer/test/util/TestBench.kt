@@ -61,7 +61,7 @@ class TestBench {
                 it.exitCode shouldBe KotlinCompilation.ExitCode.OK
             },
             testBefore = {
-                println("xqq: ${it.dump()}")
+//                println("xqq: ${it.dump()}")
             },
             testAfter = { e ->
 //                println(e.dump())
@@ -103,7 +103,7 @@ class TestBench {
                                 .setIRPluginContext(pluginContext)
                                 .build()
 
-                            val transformer = comp.randomizableTransformer()
+                            val transformer = comp.randomizableTransformer2()
                             val testTransformer = VisitFunctionAccessTestTransformer(
                                 randomizableTransformer = transformer,
                                 testBefore = testBefore,

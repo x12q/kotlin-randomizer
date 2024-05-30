@@ -5,8 +5,8 @@ fun main(){
 
     ABC(1,"abc")
     val q = Q()
-    println(q.random<ABC>())
-    println(q.random<XCV>())
+//    println(q.random<ABC>())
+//    println(q.random<XCV>())
 //    println(makeRandomInstance<ABC>())
     someFunction()
 }
@@ -15,6 +15,7 @@ class Q{
     fun <T> random():T?{
         return makeRandomInstance<T>()
     }
+    companion object
 }
 
 

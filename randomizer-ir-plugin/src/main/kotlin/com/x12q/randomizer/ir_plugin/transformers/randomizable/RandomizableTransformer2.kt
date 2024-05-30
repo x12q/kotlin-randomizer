@@ -1,30 +1,23 @@
 package com.x12q.randomizer.ir_plugin.transformers.randomizable
 
 import com.x12q.randomizer.annotations.Randomizer
+import com.x12q.randomizer.ir_plugin.transformers.randomizable.utils.isAnnotatedWith
 import com.x12q.randomizer.ir_plugin.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.ClassLoweringPass
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.builtins.PrimitiveType
-import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.fir.declarations.builder.buildSimpleFunction
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
-import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.name.SpecialNames
 import javax.inject.Inject
-import kotlin.random.Random
 
 
 /**
@@ -38,18 +31,24 @@ import kotlin.random.Random
  */
 class RandomizableTransformer2 @Inject constructor(
     private val pluginContext: IrPluginContext,
-) : IrElementTransformerVoidWithContext(), ClassLoweringPass {
+) : IrElementTransformerVoidWithContext() {
 
-
-
-    private val randomizableName = FqName(Randomizer::class.qualifiedName!!)
-    private val randomFunctionName = FqName("com.x12q.randomizer.sample_app.makeRandomInstance")
+    private val `@Randomizable` = BasicObjects.randomizableAnnotation
 
     private val dumpBuilder: StringBuilder = StringBuilder()
 
 
-
+    /**
+     * Visit class new is the alternative to visit class. Used in *WithContext visitor
+     */
     override fun visitClassNew(declaration: IrClass): IrStatement {
+        val irClass = declaration
+        val name = irClass.name.toString()
+        if (irClass.companionObject() != null) {
+            dumpBuilder.appendLine("$name $currentClass yes")
+        } else {
+            dumpBuilder.appendLine("$name ${currentClass?.irElement?.dumpToDump()} no")
+        }
         return super.visitClassNew(declaration)
     }
 
@@ -59,12 +58,6 @@ class RandomizableTransformer2 @Inject constructor(
         )
     }
 
-    /**
-     * visit generic type parameter <T>
-     */
-    override fun visitTypeParameter(declaration: IrTypeParameter): IrStatement {
-        return super.visitTypeParameter(declaration)
-    }
 
     /**
      * Alter the body of [declaration], so that a println statement that prints out the dump of the function itself is added at the beginning of the function body.
@@ -122,9 +115,5 @@ class RandomizableTransformer2 @Inject constructor(
 
         return call
 
-    }
-
-    override fun lower(irClass: IrClass) {
-        TODO("Not yet implemented")
     }
 }

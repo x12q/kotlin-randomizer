@@ -39,7 +39,6 @@ class RandomizableTransformer @Inject constructor(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoidWithContext() {
 
-    private val randomizableName = FqName(Randomizer::class.qualifiedName!!)
     private val randomFunctionName = FqName("com.x12q.randomizer.sample_app.makeRandomInstance")
 
     private val dumpBuilder: StringBuilder = StringBuilder()
