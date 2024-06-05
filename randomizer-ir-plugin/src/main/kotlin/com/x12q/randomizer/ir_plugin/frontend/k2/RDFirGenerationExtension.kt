@@ -72,7 +72,7 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         if (owner is FirRegularClassSymbol){
             when(name){
                 BaseObjects.companionObjName -> generateCompanionObjDeclaration(owner)
-                else -> error("Can't generate class ${owner.classId.createNestedClassId(name).asSingleFqName()}")
+                else -> error("Can't generate class ${owner.classId.createNestedClassId(name).asSingleFqName()}") //TODO why throw an exception here
             }
 
             return super.generateNestedClassLikeDeclaration(owner, name, context)
