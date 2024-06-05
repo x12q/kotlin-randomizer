@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.transformers.randomizable
+package com.x12q.randomizer.ir_plugin.base
 
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 
@@ -15,7 +15,7 @@ object RandomizerDeclarationOrigin: IrDeclarationOrigin {
             return true
         } else {
             if (other is IrDeclarationOrigin){
-                return this.name == other.name
+                return name == other.name
             }else{
                 return false
             }

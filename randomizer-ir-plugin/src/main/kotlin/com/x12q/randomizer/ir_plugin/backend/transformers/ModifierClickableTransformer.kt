@@ -1,6 +1,6 @@
-package com.x12q.randomizer.ir_plugin.transformers
+package com.x12q.randomizer.ir_plugin.backend.transformers
 
-import com.x12q.randomizer.ir_plugin.transformers.utils.UtilIRBuilderImp
+import com.x12q.randomizer.ir_plugin.backend.transformers.utils.UtilIRBuilderImp
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder

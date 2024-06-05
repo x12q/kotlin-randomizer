@@ -2,6 +2,7 @@
 plugins {
     kotlin("jvm") version "1.9.21"
     id("com.x12q.randomizer") version "1.0.0-alpha.7"
+    kotlin("plugin.serialization") version "1.9.21"
 }
 
 group = "com.x12q"

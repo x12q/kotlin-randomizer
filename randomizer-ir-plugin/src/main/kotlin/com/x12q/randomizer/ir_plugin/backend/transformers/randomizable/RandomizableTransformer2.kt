@@ -1,55 +1,67 @@
-package com.x12q.randomizer.ir_plugin.transformers.randomizable
+package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable
 
-import com.x12q.randomizer.annotations.Randomizer
-import com.x12q.randomizer.ir_plugin.transformers.randomizable.utils.isAnnotatedWith
-import com.x12q.randomizer.ir_plugin.transformers.utils.Standards
-import org.jetbrains.kotlin.backend.common.ClassLoweringPass
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.builders.declarations.addFunction
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
 
-/**
- *  Road map:
- *  - check:
- *      - can access constructor: ok, but how
- *
- * Strategy:
- *  - scan for annotated class, then generate a static function generate random
- *
- */
 class RandomizableTransformer2 @Inject constructor(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoidWithContext() {
 
-    private val `@Randomizable` = BasicObjects.randomizableAnnotation
+    private val `@Randomizable` = BaseObjects.randomizableFqName
 
     private val dumpBuilder: StringBuilder = StringBuilder()
 
+    val irFactory = pluginContext.irFactory
 
-    /**
-     * Visit class new is the alternative to visit class. Used in *WithContext visitor
-     */
     override fun visitClassNew(declaration: IrClass): IrStatement {
         val irClass = declaration
-        val name = irClass.name.toString()
-        if (irClass.companionObject() != null) {
-            dumpBuilder.appendLine("$name $currentClass yes")
-        } else {
-            dumpBuilder.appendLine("$name ${currentClass?.irElement?.dumpToDump()} no")
+        val companionObj = irClass.companionObject()
+        if (companionObj != null) {
+            addRandomFunction(companionObj)
+            declaration.dumpToDump()
         }
         return super.visitClassNew(declaration)
+    }
+
+    /**
+     * Add random() function to [companionObj]
+     */
+    fun addRandomFunction(companionObj: IrClass) {
+        companionObj.addFunction {
+            val builder = this
+            builder.name = BaseObjects.randomFunctionName
+            builder.origin = BaseObjects.randomizerDeclarationOrigin
+            builder.visibility = DescriptorVisibilities.PUBLIC
+            builder.returnType = pluginContext.irBuiltIns.unitType
+            builder.modality = Modality.FINAL
+            builder.isSuspend = false
+        }.apply {
+            val func = this
+            val builder = DeclarationIrBuilder(
+                generatorContext = pluginContext,
+                symbol = this.symbol,
+            )
+            body = builder.irBlockBody {
+                +printDumpCall(
+                    pluginContext, func, this
+                )
+            }
+        }
     }
 
     fun IrElement.dumpToDump() {

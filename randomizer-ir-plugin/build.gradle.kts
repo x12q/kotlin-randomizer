@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-    alias(libs.plugins.anvil)
+//    alias(libs.plugins.anvil)
     alias(libs.plugins.buildConfig)
 }
 

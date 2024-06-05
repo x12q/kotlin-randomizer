@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.transformers.randomizable.utils
+package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.utils
 
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.util.getAnnotation
