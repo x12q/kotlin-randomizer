@@ -4,11 +4,10 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 
 
-class RandomizerModifierIrGenerationExtension(
+class RDIrGenerationExtension(
     private val messageCollector: MessageCollector,
    val enable:Boolean,
 ) : IrGenerationExtension {
@@ -29,10 +28,9 @@ class RandomizerModifierIrGenerationExtension(
             val randomizableTransformer = comp.randomizableTransformer()
             val randomizableTransformer2 = comp.randomizableTransformer2()
 //            moduleFragment.transform(randomizableTransformer,null)
-            moduleFragment.transform(randomizableTransformer2,null)
-            moduleFragment.files.forEach {
+            if(true){
+                moduleFragment.transform(randomizableTransformer2,null)
             }
-
 
 //            val someFunctionTransformer = SomeFunctionTransformer(pluginContext)
 //            val dumpCallTransformer = DumpTransformer(pluginContext)

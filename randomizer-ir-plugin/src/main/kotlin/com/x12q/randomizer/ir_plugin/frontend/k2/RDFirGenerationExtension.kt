@@ -1,12 +1,17 @@
 package com.x12q.randomizer.ir_plugin.frontend.k2
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomFIRFunctionName
+import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomFunctionName
 import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomizableName
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.resolvePhase
+import org.jetbrains.kotlin.fir.declarations.utils.isAbstract
+import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
@@ -30,6 +35,8 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(SymbolInternals::class)
 class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+
+
     /**
      * Predicate provider is used to create predicate that allow quick access to declarations that meet certain requirement.
      * To use a predicate, must do 2 things:
@@ -39,29 +46,39 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
      */
     val predicateProvider = session.predicateBasedProvider
 
+
     fun example_use_predicate(){
         /**
          * Find all symbol annotated with randomizable annotation
          */
         val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
     }
-    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
+//    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
 //        register(RDPredicates.annotatedRandomizable)
-    }
+//    }
 
 
     override fun getNestedClassifiersNames(classSymbol: FirClassSymbol<*>, context: NestedClassGenerationContext): Set<Name>{
         val rt = mutableSetOf<Name>()
-        if(classSymbol.isAnnotatedRandomizable(session)){
+        /**
+         * TODO return name if:
+         * - annotation on concrete class (primary constructor) + all properties are randomizable (not abstract)
+         * - annotation on constructor + concrete class + all constructor arg are not abstract
+         * - annotated on object
+         */
+//        if(classSymbol.isAnnotatedRandomizable(session) && !classSymbol.isAbstract){
+        if(classSymbol.name.identifier.contains("Q123")){
             rt += BaseObjects.companionObjName
         }
+
         return rt
     }
 
     /**
+     * This function is triggered for each name returned by [getNestedClassifiersNames]
      * Generate companion object here.
      * Remember, generate function for such companion in the same generation extension class.
-     * Remember to set origin of companion obj to: FirDeclarationOrigin.Plugin
+     * Remember to set origin of companion obj to: BaseObjects.firDeclarationOrigin
      */
     override fun generateNestedClassLikeDeclaration(
         owner: FirClassSymbol<*>,
@@ -71,7 +88,9 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
 
         if (owner is FirRegularClassSymbol){
             when(name){
-                BaseObjects.companionObjName -> generateCompanionObjDeclaration(owner)
+                BaseObjects.companionObjName -> {
+                    generateCompanionObjDeclaration(owner, name)
+                }
                 else -> error("Can't generate class ${owner.classId.createNestedClassId(name).asSingleFqName()}") //TODO why throw an exception here
             }
 
@@ -81,9 +100,13 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         }
     }
 
+    override fun getTopLevelCallableIds(): Set<CallableId> {
+        return super.getTopLevelCallableIds()
+    }
+
     /**
      * generate function for companion obj here.
-     * remember to set origin of the generated function to: FirDeclarationOrigin.Plugin
+     * remember to set origin of the generated function to: BaseObjects.firDeclarationOrigin
      */
     override fun generateFunctions(
         callableId: CallableId,
@@ -93,12 +116,20 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
     }
 
     override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        classSymbol.fir.resolvePhase
+        val classId = classSymbol.classId
         val rt = mutableSetOf<Name>()
-        if (classSymbol.isAnnotatedRandomizable(session)) {
-            rt += randomizableName
+        if(classSymbol.name.identifier.contains("Q123")){
+            rt+= randomFIRFunctionName
         }
 
+//        if(classSymbol.isCompanion){
+//            throw Exception("${classSymbol.name}")
+//            rt+= randomFIRFunctionName
+//        }
+//        if (classSymbol.isAnnotatedRandomizable(session) && !classSymbol.isAbstract) {
+//        if (classSymbol.isCompanion) {
+//            rt += randomFunctionName
+//        }
         return rt
     }
 
@@ -106,9 +137,12 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
     /**
      * Create companion object if there isn't one already. Return that companion object.
      */
-    private fun generateCompanionObjDeclaration(owner: FirRegularClassSymbol): FirRegularClassSymbol? {
-        if (owner.companionObjectSymbol != null) return null
-        val companion = createCompanionObject(owner, RandomizableDeclarationKey)
-        return companion.symbol
+    private fun generateCompanionObjDeclaration(owner: FirRegularClassSymbol, name:Name): FirRegularClassSymbol? {
+        if (owner.companionObjectSymbol != null) {
+            return null
+        }else{
+            val companion = createCompanionObject(owner, BaseObjects.firRandomizableDeclarationKey)
+            return companion.symbol
+        }
     }
 }

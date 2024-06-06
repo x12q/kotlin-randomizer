@@ -1,6 +1,6 @@
 package com.x12q.randomizer.test.util
 
-import com.x12q.randomizer.ir_plugin.transformers.di.DaggerP7Component
+//import com.x12q.randomizer.ir_plugin.transformers.di.DaggerP7Component
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

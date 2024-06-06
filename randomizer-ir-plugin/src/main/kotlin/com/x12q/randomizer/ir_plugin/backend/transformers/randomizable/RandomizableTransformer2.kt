@@ -42,25 +42,28 @@ class RandomizableTransformer2 @Inject constructor(
      * Add random() function to [companionObj]
      */
     fun addRandomFunction(companionObj: IrClass) {
-        companionObj.addFunction {
-            val builder = this
-            builder.name = BaseObjects.randomFunctionName
-            builder.origin = BaseObjects.randomizerDeclarationOrigin
-            builder.visibility = DescriptorVisibilities.PUBLIC
-            builder.returnType = pluginContext.irBuiltIns.unitType
-            builder.modality = Modality.FINAL
-            builder.isSuspend = false
-        }.apply {
-            val func = this
-            val builder = DeclarationIrBuilder(
-                generatorContext = pluginContext,
-                symbol = this.symbol,
-            )
-            body = builder.irBlockBody {
-                +printDumpCall(
-                    pluginContext, func, this
+        if(true){
+            companionObj.addFunction {
+                val builder = this
+                builder.name = BaseObjects.randomFunctionName
+                builder.origin = BaseObjects.irDeclarationOrigin
+                builder.visibility = DescriptorVisibilities.PUBLIC
+                builder.returnType = pluginContext.irBuiltIns.unitType
+                builder.modality = Modality.FINAL
+                builder.isSuspend = false
+            }.apply {
+                val func = this
+                val builder = DeclarationIrBuilder(
+                    generatorContext = pluginContext,
+                    symbol = this.symbol,
                 )
+                body = builder.irBlockBody {
+                    +printDumpCall(
+                        pluginContext, func, this
+                    )
+                }
             }
+
         }
     }
 
