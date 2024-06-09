@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import javax.inject.Inject
 
 class RandomizableTransformer2 @Inject constructor(
@@ -33,7 +34,7 @@ class RandomizableTransformer2 @Inject constructor(
     val irFactory = pluginContext.irFactory
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
-        if(declaration.name.toString().contains("Q123")){
+        if (declaration.name.toString().contains("Q123")) {
             val irClass = declaration
             val companionObj = irClass.companionObject()
             if (companionObj != null) {
@@ -47,29 +48,45 @@ class RandomizableTransformer2 @Inject constructor(
      * Add random() function to [companionObj]
      */
     fun addRandomFunction(companionObj: IrClass) {
-        if(true){
-            companionObj.addFunction {
-                val builder = this
-                builder.name = BaseObjects.randomFunctionName
-                builder.origin = BaseObjects.irDeclarationOrigin
-                builder.visibility = DescriptorVisibilities.PUBLIC
-                builder.returnType = pluginContext.irBuiltIns.unitType
-                builder.modality = Modality.FINAL
-                builder.isSuspend = false
-            }.apply {
-                val func = this
-                val builder = DeclarationIrBuilder(
-                    generatorContext = pluginContext,
-                    symbol = this.symbol,
-                )
-                body = builder.irBlockBody {
-                    +printDumpCall(
-                        pluginContext, func, this
-                    )
-                }
-            }
-
+        companionObj.dumpToDump()
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f->
+            f.name == BaseObjects.randomFunctionName
         }
+
+        if(randomFunction!=null){
+            val builder = DeclarationIrBuilder(
+                generatorContext = pluginContext,
+                symbol = randomFunction.symbol,
+            )
+
+            randomFunction.body = builder.irBlockBody {
+                +printDumpCall(
+                    pluginContext, randomFunction, this
+                )
+            }
+        }
+
+//        companionObj.addFunction {
+//            val builder = this
+//            builder.name = BaseObjects.randomFunctionName
+//            builder.origin = BaseObjects.irDeclarationOrigin
+//            builder.visibility = DescriptorVisibilities.PUBLIC
+//            builder.returnType = pluginContext.irBuiltIns.unitType
+//            builder.modality = Modality.FINAL
+//            builder.isSuspend = false
+//        }.apply {
+//            val func = this
+//            val builder = DeclarationIrBuilder(
+//                generatorContext = pluginContext,
+//                symbol = this.symbol,
+//            )
+//            body = builder.irBlockBody {
+//                +printDumpCall(
+//                    pluginContext, func, this
+//                )
+//            }
+//        }
+
     }
 
     fun IrElement.dumpToDump() {

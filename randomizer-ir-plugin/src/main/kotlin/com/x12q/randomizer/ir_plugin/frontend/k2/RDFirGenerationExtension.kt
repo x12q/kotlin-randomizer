@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
 import org.jetbrains.kotlin.fir.plugin.createConstructor
 import org.jetbrains.kotlin.fir.plugin.createDefaultPrivateConstructor
+import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.resolve.ScopeSession
 import org.jetbrains.kotlin.fir.resolve.defaultType
 import org.jetbrains.kotlin.fir.resolve.lookupSuperTypes
@@ -167,11 +168,15 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         val origin = owner?.origin as? FirDeclarationOrigin.Plugin
         if(origin?.key == BaseObjects.Fir.randomizableDeclarationKey && owner.isCompanion){
             if(callableId.callableName == BaseObjects.randomFunctionName){
-                val f = buildSimpleFunction {
-                    val builder = this
-                    builder.symbol = FirNamedFunctionSymbol(callableId)
-                    builder.origin = BaseObjects.Fir.declarationOrigin
-                }.symbol
+                val f = createMemberFunction(
+                    owner = owner,
+                    key = BaseObjects.Fir.randomizableDeclarationKey,
+                    name = callableId.callableName,
+                    returnTypeProvider = {
+//                        session.builtinTypes.intType.coneType
+                        session.builtinTypes.unitType.coneType
+                    }
+                ).symbol
                 return listOf(f)
             }
         }else{
