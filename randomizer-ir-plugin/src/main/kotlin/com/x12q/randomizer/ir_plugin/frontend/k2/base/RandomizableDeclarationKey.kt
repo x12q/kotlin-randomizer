@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.base
+package com.x12q.randomizer.ir_plugin.frontend.k2.base
 
 import org.jetbrains.kotlin.GeneratedDeclarationKey
 

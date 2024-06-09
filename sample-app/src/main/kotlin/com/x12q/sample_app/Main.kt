@@ -6,12 +6,14 @@ import kotlinx.serialization.Serializable
 
 fun main(){
 
-    ABC(1,"abc")
     val q = Q123()
+    Q123.Companion.randomFrom_IR()
+//    println()
+    println(ABC(1,"abc"))
 
-    println(q)
+//    println(q)
 //    Q1.random()
-//    println(Q1.serializer())
+//    println(Q1.serializer()
 
 //    Q1.random()
 //    Q123123::

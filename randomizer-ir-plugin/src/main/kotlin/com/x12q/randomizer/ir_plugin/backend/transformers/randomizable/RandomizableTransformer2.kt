@@ -1,22 +1,26 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable
 
-import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.codegen.inline.addFakeContinuationConstructorCallMarker
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.fir.declarations.builder.buildSimpleFunction
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.addFunction
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrDelegatingConstructorCallImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrInstanceInitializerCallImpl
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
-
 
 class RandomizableTransformer2 @Inject constructor(
     private val pluginContext: IrPluginContext,
@@ -29,11 +33,12 @@ class RandomizableTransformer2 @Inject constructor(
     val irFactory = pluginContext.irFactory
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
-        val irClass = declaration
-        val companionObj = irClass.companionObject()
-        if (companionObj != null) {
-            addRandomFunction(companionObj)
-            declaration.dumpToDump()
+        if(declaration.name.toString().contains("Q123")){
+            val irClass = declaration
+            val companionObj = irClass.companionObject()
+            if (companionObj != null) {
+                addRandomFunction(companionObj)
+            }
         }
         return super.visitClassNew(declaration)
     }

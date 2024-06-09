@@ -1,26 +1,34 @@
 package com.x12q.randomizer.ir_plugin.frontend.k2
 
-import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomFIRFunctionName
-import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomFunctionName
-import com.x12q.randomizer.ir_plugin.base.BaseObjects.randomizableName
+import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
-import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
+import org.jetbrains.kotlin.backend.common.serialization.checkIsFunctionTypeInterfacePackageFqName
+import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.copy
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.FirRegularClass
-import org.jetbrains.kotlin.fir.declarations.resolvePhase
-import org.jetbrains.kotlin.fir.declarations.utils.isAbstract
+import org.jetbrains.kotlin.fir.declarations.builder.buildSimpleFunction
+import org.jetbrains.kotlin.fir.declarations.builder.buildSimpleFunctionCopy
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
+import org.jetbrains.kotlin.fir.plugin.createConstructor
+import org.jetbrains.kotlin.fir.plugin.createDefaultPrivateConstructor
+import org.jetbrains.kotlin.fir.resolve.ScopeSession
+import org.jetbrains.kotlin.fir.resolve.defaultType
+import org.jetbrains.kotlin.fir.resolve.lookupSuperTypes
+import org.jetbrains.kotlin.fir.scopes.FirTypeScope
+import org.jetbrains.kotlin.fir.scopes.getFunctions
+import org.jetbrains.kotlin.fir.scopes.scopeForSupertype
 import org.jetbrains.kotlin.fir.symbols.SymbolInternals
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassLikeSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
-import org.jetbrains.kotlin.fir.symbols.impl.FirRegularClassSymbol
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.fir.symbols.impl.*
+import org.jetbrains.kotlin.fir.types.coneType
+import org.jetbrains.kotlin.fir.types.constructClassLikeType
+import org.jetbrains.kotlin.fir.types.toFirResolvedTypeRef
+import org.jetbrains.kotlin.fir.types.toSymbol
+import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 
 /**
  * For generating new declaration (new functions, new classes, properties)
@@ -36,7 +44,7 @@ import org.jetbrains.kotlin.name.Name
 @OptIn(SymbolInternals::class)
 class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
 
-
+//    val c = FirCompanionGenerationTransformer(session)
     /**
      * Predicate provider is used to create predicate that allow quick access to declarations that meet certain requirement.
      * To use a predicate, must do 2 things:
@@ -46,8 +54,9 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
      */
     val predicateProvider = session.predicateBasedProvider
 
+    val strBuilder = StringBuilder()
 
-    fun example_use_predicate(){
+    fun example_use_predicate() {
         /**
          * Find all symbol annotated with randomizable annotation
          */
@@ -58,7 +67,20 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
 //    }
 
 
-    override fun getNestedClassifiersNames(classSymbol: FirClassSymbol<*>, context: NestedClassGenerationContext): Set<Name>{
+    fun FirClassSymbol<*>.needCompanionObj(): Boolean {
+        return this.name.identifier.contains("Q123")
+    }
+
+//    fun FirClassSymbol<*>.needRandomFunction(): Boolean {
+//        val rt = this.isCompanion && this.name == SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT
+//        return rt
+//    }
+
+
+    override fun getNestedClassifiersNames(
+        classSymbol: FirClassSymbol<*>,
+        context: NestedClassGenerationContext
+    ): Set<Name> {
         val rt = mutableSetOf<Name>()
         /**
          * TODO return name if:
@@ -66,11 +88,9 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
          * - annotation on constructor + concrete class + all constructor arg are not abstract
          * - annotated on object
          */
-//        if(classSymbol.isAnnotatedRandomizable(session) && !classSymbol.isAbstract){
-        if(classSymbol.name.identifier.contains("Q123")){
-            rt += BaseObjects.companionObjName
+        if (classSymbol.needCompanionObj()) {
+            rt += SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT
         }
-
         return rt
     }
 
@@ -86,18 +106,49 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         context: NestedClassGenerationContext
     ): FirClassLikeSymbol<*>? {
 
-        if (owner is FirRegularClassSymbol){
-            when(name){
-                BaseObjects.companionObjName -> {
-                    generateCompanionObjDeclaration(owner, name)
+        if (owner is FirRegularClassSymbol) {
+            when (name) {
+                SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT -> {
+                    val companionSymbol = generateCompanionObjDeclaration(owner, name)
+                    return companionSymbol
                 }
-                else -> error("Can't generate class ${owner.classId.createNestedClassId(name).asSingleFqName()}") //TODO why throw an exception here
-            }
 
-            return super.generateNestedClassLikeDeclaration(owner, name, context)
-        }else{
+                else -> error(
+                    "Can't generate class ${
+                        owner.classId.createNestedClassId(name).asSingleFqName()
+                    }"
+                ) //TODO why throw an exception here
+            }
+        } else {
             return null
         }
+    }
+
+
+    override fun getTopLevelClassIds(): Set<ClassId> {
+        return super.getTopLevelClassIds()
+    }
+
+
+    override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
+        val rt = mutableSetOf<Name>()
+        val origin = classSymbol.origin as? FirDeclarationOrigin.Plugin
+        if (origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion) {
+            rt += SpecialNames.INIT
+            rt += BaseObjects.randomFunctionName
+        }
+        return rt
+    }
+
+    override fun generateConstructors(context: MemberGenerationContext): List<FirConstructorSymbol> {
+        val rt = mutableListOf(
+            createDefaultPrivateConstructor(
+                owner = context.owner,
+                key = BaseObjects.Fir.randomizableDeclarationKey,
+                generateDelegatedNoArgConstructorCall = true,
+            ).symbol,
+        )
+        return rt
     }
 
     override fun getTopLevelCallableIds(): Set<CallableId> {
@@ -112,37 +163,39 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         callableId: CallableId,
         context: MemberGenerationContext?
     ): List<FirNamedFunctionSymbol> {
-        return super.generateFunctions(callableId, context)
-    }
-
-    override fun getCallableNamesForClass(classSymbol: FirClassSymbol<*>, context: MemberGenerationContext): Set<Name> {
-        val classId = classSymbol.classId
-        val rt = mutableSetOf<Name>()
-        if(classSymbol.name.identifier.contains("Q123")){
-            rt+= randomFIRFunctionName
+        val owner = context?.owner
+        val origin = owner?.origin as? FirDeclarationOrigin.Plugin
+        if(origin?.key == BaseObjects.Fir.randomizableDeclarationKey && owner.isCompanion){
+            if(callableId.callableName == BaseObjects.randomFunctionName){
+                val f = buildSimpleFunction {
+                    val builder = this
+                    builder.symbol = FirNamedFunctionSymbol(callableId)
+                    builder.origin = BaseObjects.Fir.declarationOrigin
+                }.symbol
+                return listOf(f)
+            }
+        }else{
+            return emptyList()
         }
 
-//        if(classSymbol.isCompanion){
-//            throw Exception("${classSymbol.name}")
-//            rt+= randomFIRFunctionName
-//        }
-//        if (classSymbol.isAnnotatedRandomizable(session) && !classSymbol.isAbstract) {
-//        if (classSymbol.isCompanion) {
-//            rt += randomFunctionName
-//        }
-        return rt
+        return super.generateFunctions(callableId, context)
+
     }
 
 
     /**
      * Create companion object if there isn't one already. Return that companion object.
      */
-    private fun generateCompanionObjDeclaration(owner: FirRegularClassSymbol, name:Name): FirRegularClassSymbol? {
+    private fun generateCompanionObjDeclaration(owner: FirRegularClassSymbol, name: Name): FirRegularClassSymbol? {
         if (owner.companionObjectSymbol != null) {
             return null
-        }else{
-            val companion = createCompanionObject(owner, BaseObjects.firRandomizableDeclarationKey)
-            return companion.symbol
+        } else {
+            val companion = createCompanionObject(owner, BaseObjects.Fir.randomizableDeclarationKey) {
+                val anyClassId = ClassId(FqName("kotlin"), Name.identifier("Any"))
+                superType(anyClassId.constructClassLikeType(emptyArray(), false))
+            }
+            val rt = companion.symbol
+            return rt
         }
     }
 }
