@@ -22,8 +22,10 @@ class RandomizerModifierComponentRegistrar() : CompilerPluginRegistrar() {
         val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val enable = configuration.get(RandomizerModifierCommandLineProcessor.argEnable,false)
 
-        IrGenerationExtension.registerExtension(RDIrGenerationExtension(messageCollector,enable))
+//        IrGenerationExtension.registerExtension(RDIrGenerationExtension(messageCollector,enable))
         FirExtensionRegistrarAdapter.registerExtension(RDFirExtensionRegistrar())
+        IrGenerationExtension.registerExtension(RDIrGenerationExtension(enable))
+
     }
 }
 

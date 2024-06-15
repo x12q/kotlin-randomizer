@@ -7,12 +7,10 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 
 
 fun FirClassSymbol<*>.getRandomizable(session: FirSession): FirAnnotation? {
-    val annotation = annotations.firstOrNull { an->
-         an.fqName(session)?.toString()?.contains("Randomizable") ?: false
+    val annotation = annotations.firstOrNull { annotation->
+         annotation.fqName(session)?.toString()?.contains("Randomizable") ?: false
     }
     return annotation
-//    val rt = this.getAnnotationByClassId(BaseObjects.randomizableClassId, session)
-//    return rt
 }
 
 fun FirClassSymbol<*>.isAnnotatedRandomizable(session: FirSession): Boolean {

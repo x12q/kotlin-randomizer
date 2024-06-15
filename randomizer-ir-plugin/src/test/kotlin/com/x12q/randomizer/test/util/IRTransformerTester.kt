@@ -2,35 +2,34 @@ package com.x12q.randomizer.test.util
 
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.name.FqName
 
-class VisitFunctionAccessTestTransformer(
-    private val randomizableTransformer: IrElementTransformerVoidWithContext,
+class IRTransformerTester(
+    private val candidateTransformer: IrElementTransformerVoidWithContext,
     private val testBefore: (expression: IrExpression) -> Unit = {},
-    private val testAfter: (expression: IrFunctionAccessExpression) -> Unit,
+    private val testAfter: (expression: IrFunctionAccessExpression) -> Unit = {},
+    private val testVisitClassNewBefore: (IrClass) -> Unit = {},
+    private val testVisitClassNewAfter: (IrClass, IrStatement) -> Unit = {_,_->},
 ) : IrElementTransformerVoidWithContext() {
 
-    private val randomFunctionName = FqName("com.x12q.randomizer.sample_app.makeRandomInstance")
 
     override fun visitCall(expression: IrCall): IrExpression {
         testBefore(expression)
         return super.visitCall(expression)
     }
 
+    override fun visitClassNew(declaration: IrClass): IrStatement {
+        testVisitClassNewBefore(declaration)
+        val trans = candidateTransformer.visitClassNew(declaration)
+        testVisitClassNewAfter(declaration, trans)
+        return trans
+    }
+
     override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
-
-        if (expression.symbol.owner.fqNameWhenAvailable == randomFunctionName) {
-//            testBefore(expression)
-        }
-
-        val rt = randomizableTransformer.visitFunctionAccess(expression)
-
-        if (expression.symbol.owner.fqNameWhenAvailable == randomFunctionName) {
-            testAfter(expression)
-        }
+        testBefore(expression)
+        val rt = candidateTransformer.visitFunctionAccess(expression)
+        testAfter(expression)
         return rt
     }
 
