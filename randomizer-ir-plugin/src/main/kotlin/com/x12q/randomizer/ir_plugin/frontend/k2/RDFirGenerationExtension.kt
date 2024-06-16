@@ -51,6 +51,7 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         /**
          * Must register a predicate to detect @Randomizable, so that such annotations are resolve on COMPILER_REQUIRED_ANNOTATIONS.
          * Otherwise, the annotation won´t be available for generator to use.
+         * Important: predicate can only resolve top-level annotation. Annotation to nested class, or function will not be recognized.
          */
         register(RDPredicates.annotatedRandomizable)
     }
