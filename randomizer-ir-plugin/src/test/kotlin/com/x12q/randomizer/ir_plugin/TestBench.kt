@@ -6,6 +6,7 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import com.x12q.randomizer.test.util.assertions.codeGenAssertions
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.MetaSerializable
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.util.companionObject
@@ -13,7 +14,6 @@ import org.jetbrains.kotlin.ir.util.functions
 import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
-@Randomizable
 class TestBench {
     @Test
     fun testGenCode() {

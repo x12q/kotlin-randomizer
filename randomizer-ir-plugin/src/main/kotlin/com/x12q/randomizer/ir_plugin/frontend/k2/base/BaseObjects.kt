@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 internal object BaseObjects {
-    val RANDOMIZABLE_NAME = Randomizable::class.qualifiedName ?: "com.x12q.randomizer.annotations.Randomizable"
+    val RANDOMIZABLE_NAME =/* Randomizable::class.qualifiedName ?:*/ "com.x12q.randomizer.annotations.Randomizable"
     val randomizableFqName = FqName(RANDOMIZABLE_NAME)
     val randomizableName = Name.identifier(RANDOMIZABLE_NAME)
     val randomizableClassId = ClassId.topLevel(randomizableFqName)

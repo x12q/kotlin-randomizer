@@ -5,6 +5,7 @@ plugins {
     kotlin("kapt")
 //    alias(libs.plugins.anvil)
     alias(libs.plugins.buildConfig)
+    kotlin("plugin.serialization")
 }
 
 group = libs.versions.groupId.get()
@@ -37,6 +38,7 @@ dependencies {
     kapt(libs.dagger.compiler)
     implementation(libs.dagger)
 
+
     kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.coroutine)
@@ -44,6 +46,7 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.compile.test)
     testImplementation(libs.kotlin.compiler.embeddable)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 tasks.test {

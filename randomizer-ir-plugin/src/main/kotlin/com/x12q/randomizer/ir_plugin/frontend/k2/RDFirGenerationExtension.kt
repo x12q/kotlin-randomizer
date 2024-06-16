@@ -47,12 +47,16 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
     }
 
-//    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
-//        register(RDPredicates.annotatedRandomizable)
-//    }
+    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
+        /**
+         * Must register a predicate to detect @Randomizable, so that such annotations are resolve on COMPILER_REQUIRED_ANNOTATIONS.
+         * Otherwise, the annotation won´t be available for generator to use.
+         */
+        register(RDPredicates.annotatedRandomizable)
+    }
 
     private fun FirClassSymbol<*>.needCompanionObj(): Boolean {
-        val rt = this.isAnnotatedRandomizable(session) || this.name.toString().contains("Q123")
+        val rt = this.isAnnotatedRandomizable(session) // || this.name.toString().contains("Q123")
         return rt
     }
 
