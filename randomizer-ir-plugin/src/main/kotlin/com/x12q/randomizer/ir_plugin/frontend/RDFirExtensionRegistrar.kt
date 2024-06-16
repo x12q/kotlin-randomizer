@@ -7,6 +7,6 @@ import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
 class RDFirExtensionRegistrar : FirExtensionRegistrar() {
     override fun ExtensionRegistrarContext.configurePlugin() {
         +::RDFirGenerationExtension
-//        +::RDCheckersExtension
+        +::RDCheckersExtension
     }
 }

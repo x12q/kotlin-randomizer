@@ -18,8 +18,8 @@ dagger = { module = "com.google.dagger:dagger", version.ref = "dagger2Version" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger2Version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
-#kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version = "0.4.1"}
 kotlin-compile-test = {module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version = "1.6.0"}
+kotlin-compiler-embeddable = {module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin"}
 
 
 [plugins]

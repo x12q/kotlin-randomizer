@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.annotations.Randomizer
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.*
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -127,10 +127,10 @@ class RandomGenerator_on_param_abstract_class {
     }
 
 
-    @Randomizer(randomizer = E3.E3Randomizer3::class)
+    @Randomizable(randomizer = E3.E3Randomizer3::class)
     interface E
 
-    @Randomizer(randomizer = D1.D1Randomizer3::class) //level3
+    @Randomizable(randomizer = D1.D1Randomizer3::class) //level3
     interface D
 
     class D1(val d: String) : D {
@@ -212,13 +212,13 @@ class RandomGenerator_on_param_abstract_class {
 
 
     class B4(
-        @Randomizer(randomizer = E2.E2Randomizer2::class)
+        @Randomizable(randomizer = E2.E2Randomizer2::class)
         val e: E,
     )
 
     class B3(
         val d: D,
-        @Randomizer(randomizer = E2.E2Randomizer2::class)
+        @Randomizable(randomizer = E2.E2Randomizer2::class)
         val e: E,
     )
 
@@ -227,14 +227,14 @@ class RandomGenerator_on_param_abstract_class {
     )
 
     data class B1(
-        @Randomizer(randomizer = A1.ParamRandomizer2::class)
+        @Randomizable(randomizer = A1.ParamRandomizer2::class)
         val A: A,
     )
 
     abstract class A
 
 
-    @Randomizer(randomizer = A1.Randomizer3::class)
+    @Randomizable(randomizer = A1.Randomizer3::class)
     data class A1(val s: String) : A() {
 
         companion object {

@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.annotations.Randomizer
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +21,7 @@ class RandomizeGenerator_Pick_Constructor {
     }
 
     class A(val i: Int, val str: String, val l: List<Float>) {
-        @Randomizer
+        @Randomizable
         constructor(i: Int) : this(i, "str${i}", emptyList())
         constructor(str: String) : this(0, str, listOf(str.length.toFloat()))
     }
@@ -46,7 +46,7 @@ class RandomizeGenerator_Pick_Constructor {
 
 
     class C(val i: Int, val str: String, val b: Boolean) {
-        @Randomizer
+        @Randomizable
         constructor(i:Int):this(i,"str1",false)
         constructor(str:String):this(100,str,true)
     }
@@ -59,7 +59,7 @@ class RandomizeGenerator_Pick_Constructor {
         }
     }
 
-    class C2 @Randomizer constructor(val i: Int, val str: String, val b: Boolean) {
+    class C2 @Randomizable constructor(val i: Int, val str: String, val b: Boolean) {
         constructor(i:Int):this(i,"str1",false)
         constructor(str:String):this(100,str,true)
     }
@@ -72,7 +72,7 @@ class RandomizeGenerator_Pick_Constructor {
         }
     }
 
-    class C3 @Randomizer(randomizer = R1::class) constructor(val i: Int, val str: String, val b: Boolean) {
+    class C3 @Randomizable(randomizer = R1::class) constructor(val i: Int, val str: String, val b: Boolean) {
         constructor(i:Int):this(i,"str1",false)
         constructor(str:String):this(100,str,true)
     }
@@ -86,7 +86,7 @@ class RandomizeGenerator_Pick_Constructor {
 
     class C4 constructor(val i: Int, val str: String, val b: Boolean) {
         constructor(i:Int):this(i,"str1",false)
-        @Randomizer(randomizer = R1::class)
+        @Randomizable(randomizer = R1::class)
         constructor(str:String):this(100,str,true)
     }
 

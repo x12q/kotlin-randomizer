@@ -65,8 +65,8 @@ data class RDClassData(
                     /**
                      * Match provide type names with receive arguments.
                      */
-                    val type =
-                        receivedTypes?.get(argIndex)?.type // the cast here is because only care about received KClass, ignore everything else
+                    val type = receivedTypes?.get(argIndex)?.type
+                    // the cast here is because only care about received KClass, ignore everything else
                     val clzz = type?.classifier as? KClass<*>
                     if (type != null && clzz != null) {
                         Pair(name, RDClassData(clzz, type))
@@ -146,19 +146,6 @@ data class RDClassData(
                 kClass = T::class,
                 kType = typeOf<T>(),
             )
-        }
-
-        fun <T> RDClassData.ifIsInt(makeRandomizer:()->T?, exception:(()->Exception)?):T?{
-            if(this.kClass == Int::class){
-                return makeRandomizer()
-            }else{
-                val exc = exception?.invoke()
-                if(exc!=null){
-                    throw exc
-                }else{
-                    return null
-                }
-            }
         }
     }
 }

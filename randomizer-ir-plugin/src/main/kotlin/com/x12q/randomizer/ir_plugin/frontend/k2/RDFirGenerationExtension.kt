@@ -5,6 +5,7 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
+import org.jetbrains.kotlin.fir.declarations.utils.isAbstract
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
@@ -45,14 +46,14 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
          */
         val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
     }
+
 //    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
 //        register(RDPredicates.annotatedRandomizable)
 //    }
 
-
-    fun FirClassSymbol<*>.needCompanionObj(): Boolean {
-        return this.name.identifier.contains("Q123") // || this.isAnnotatedRandomizable(session)
-//        return this.isAnnotatedRandomizable(session)
+    private fun FirClassSymbol<*>.needCompanionObj(): Boolean {
+        val rt = this.isAnnotatedRandomizable(session) || this.name.toString().contains("Q123")
+        return rt
     }
 
     override fun getNestedClassifiersNames(

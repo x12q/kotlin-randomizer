@@ -2,7 +2,7 @@ package com.x12q.randomizer.randomizer_checker
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.x12q.randomizer.annotations.Randomizer
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.CommonRandomizer
@@ -19,7 +19,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
 
     @Test
     fun testOnRealAnnotation_right() {
-        val annotation = Target_1::class.findAnnotations(Randomizer::class).firstOrNull()!!
+        val annotation = Target_1::class.findAnnotations(Randomizable::class).firstOrNull()!!
         val processor = RandomizerChecker()
 
         val clazz = annotation.randomizer as KClass<out ClassRandomizer<*>>
@@ -35,7 +35,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
 
     @Test
     fun testOnRealAnnotation_wrong() {
-        val annotation = Target_3_WronglyAnnotated::class.findAnnotations(Randomizer::class).firstOrNull()!!
+        val annotation = Target_3_WronglyAnnotated::class.findAnnotations(Randomizable::class).firstOrNull()!!
         val processor = RandomizerChecker()
         val clazz = annotation.randomizer as KClass<out ClassRandomizer<*>>
         processor.checkValidClassRandomizer(
@@ -49,12 +49,12 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
 
     @Test
     fun testOnRealAnnotation_default() {
-        val annotation = Target_2::class.findAnnotations(Randomizer::class).firstOrNull()!!
+        val annotation = Target_2::class.findAnnotations(Randomizable::class).firstOrNull()!!
         annotation.randomizer shouldBe CommonRandomizer.__DefaultRandomizer::class
     }
 
 
-    @Randomizer(
+    @Randomizable(
         randomizer = Randomizer_1::class
     )
     data class Target_1(
@@ -69,7 +69,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
         }
     }
 
-    @Randomizer
+    @Randomizable
     data class Target_2(
         val num: Float
     ) {
@@ -78,7 +78,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
         }
     }
 
-    @Randomizer(
+    @Randomizable(
         randomizer = Randomizer_2::class
     )
     data class Target_3_WronglyAnnotated(

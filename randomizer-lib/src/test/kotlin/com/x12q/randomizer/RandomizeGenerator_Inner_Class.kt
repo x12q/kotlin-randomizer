@@ -1,6 +1,6 @@
 package com.x12q.randomizer
 
-import com.x12q.randomizer.annotations.Randomizer
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.test_util.TestSamples
 import io.kotest.matchers.shouldBe
@@ -30,7 +30,7 @@ class RandomizeGenerator_Inner_Class {
 
     class Q2{
         inner class I1(val i: Int,){
-            @Randomizer
+            @Randomizable
             constructor():this(5)
 
         }
@@ -50,12 +50,12 @@ class RandomizeGenerator_Inner_Class {
     }
 
     class Q3{
-        @Randomizer(randomizer = Q3I1Randomizer::class)
+        @Randomizable(randomizer = Q3I1Randomizer::class)
         inner class I1(val i: Int)
 
         inner class I2<T>(val i:T)
 
-        @Randomizer(randomizer = Q3I3Randomizer::class)
+        @Randomizable(randomizer = Q3I3Randomizer::class)
         inner class I3<T>(val i:T)
     }
 

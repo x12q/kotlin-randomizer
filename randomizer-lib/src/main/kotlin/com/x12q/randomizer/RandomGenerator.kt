@@ -1,9 +1,9 @@
 package com.x12q.randomizer
 
 import com.github.michaelbull.result.*
-import com.x12q.randomizer.annotations.Randomizer
-import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOnlyRs
-import com.x12q.randomizer.annotations.Randomizer.Companion.getClassRandomizerOrParamRandomizerRs
+import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.annotations.Randomizable.Companion.getClassRandomizerOnlyRs
+import com.x12q.randomizer.annotations.Randomizable.Companion.getClassRandomizerOrParamRandomizerRs
 import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed
 import com.x12q.randomizer.annotations.number._double.RandomDoubleFixed.Companion.makeClassRandomizer
 import com.x12q.randomizer.annotations.number._double.RandomDoubleOneOf
@@ -183,8 +183,8 @@ data class RandomGenerator @Inject constructor(
      * This function create a random instance of some class represented by [classData].
      * To do that, this function goes through multiple randomizer options, from lv1 to lv4.
      * - lv1 randomizers are those provided directly by users via [lv1RandomizerCollection]
-     * - lv2 randomizers are those provided by the annotation [Randomizer] at parameters in constructor
-     * - lv3 randomizers are those provided by the annotation [Randomizer] at class
+     * - lv2 randomizers are those provided by the annotation [Randomizable] at parameters in constructor
+     * - lv3 randomizers are those provided by the annotation [Randomizable] at class
      * - lv4 is the default recursive randomizer baked into the logic of the function of this class.
      * Note:
      * There will not be any out type check on [lv2RandomizerLz] because at this point its out type was already erased.
@@ -229,7 +229,7 @@ data class RandomGenerator @Inject constructor(
 
         if (targetClass.isAbstract) {
             randomFunction(classData, typeMap)
-            throw IllegalArgumentException("can't randomized abstract class ${targetClass.simpleName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizer::class.simpleName} or via the random function")
+            throw IllegalArgumentException("can't randomized abstract class ${targetClass.simpleName}. The only way to generate random instances of abstract class is either provide a randomizer via @${Randomizable::class.simpleName} or via the random function")
         } else if (targetClass.isSealed) {
 
             return randomSealClass(classData, typeMap)
@@ -739,7 +739,7 @@ data class RandomGenerator @Inject constructor(
     ): ClassRandomizer<Any?>? {
         val lv2paramClassOrParamRandomizer: Pair<KClass<out ClassRandomizer<*>>?, KClass<out ParameterRandomizer<*>>?>? =
             param
-                .findAnnotations(Randomizer::class).firstOrNull()
+                .findAnnotations(Randomizable::class).firstOrNull()
                 ?.getClassRandomizerOrParamRandomizerRs()
                 ?.getOrElse { err ->
                     throw err.toException()
@@ -798,7 +798,7 @@ data class RandomGenerator @Inject constructor(
         kTypeParam: KTypeParameter,
     ): ClassRandomizer<Any?>? {
         val lv2paramClassOrParamRandomizer = param
-            .findAnnotations(Randomizer::class).firstOrNull()
+            .findAnnotations(Randomizable::class).firstOrNull()
             ?.getClassRandomizerOrParamRandomizerRs()
             ?.getOrElse { err ->
                 throw err.toException()
@@ -1163,8 +1163,8 @@ data class RandomGenerator @Inject constructor(
      * The order of priority is:
      * - richly annotated constructor > poorly annotated constructor > primary constructor > other constructors
      *
-     * A richly annotated constructor is one that annotated with [Randomizer] and with a valid randomizer
-     * A poor annotated constructor is one that annotated with [Randomizer] and without any randomizer
+     * A richly annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
+     * A poor annotated constructor is one that annotated with [Randomizable] and without any randomizer
      *
      */
     internal fun pickConstructor(targetClass: KClass<*>): PickConstructorResult? {
@@ -1172,12 +1172,12 @@ data class RandomGenerator @Inject constructor(
         val constructors: Collection<KFunction<Any>> = targetClass.constructors
 
         /**
-         * A rich annotated constructor is one that annotated with [Randomizer] and with a valid randomizer
+         * A rich annotated constructor is one that annotated with [Randomizable] and with a valid randomizer
          */
         val richConstructors: MutableList<PickConstructorResult> = mutableListOf()
 
         /**
-         * A poor annotated constructor is one that annotated with [Randomizer] and without any randomizer
+         * A poor annotated constructor is one that annotated with [Randomizable] and without any randomizer
          */
         val poorConstructors: MutableList<KFunction<Any>> = mutableListOf()
 
@@ -1185,7 +1185,7 @@ data class RandomGenerator @Inject constructor(
 
         for (con in constructors) {
 
-            val annotationList = con.findAnnotations<Randomizer>()
+            val annotationList = con.findAnnotations<Randomizable>()
 
             if (annotationList.isNotEmpty()) {
                 for (annotation in annotationList) {
@@ -1230,12 +1230,12 @@ data class RandomGenerator @Inject constructor(
     }
 
     /**
-     * Pick a random constructor among constructors annotated with [Randomizer] in [targetClass].
+     * Pick a random constructor among constructors annotated with [Randomizable] in [targetClass].
      * If none is found, return the primary constructor.
      */
     private fun pickConstructorButIgnoreAnnotationContent(targetClass: KClass<*>): KFunction<Any>? {
         val annotatedConstructors = targetClass.constructors.filter {
-            it.findAnnotations<Randomizer>().firstOrNull() != null
+            it.findAnnotations<Randomizable>().firstOrNull() != null
         }
         if (annotatedConstructors.isNotEmpty()) {
             /**
@@ -1264,9 +1264,9 @@ data class RandomGenerator @Inject constructor(
     @Throws(Throwable::class)
     internal fun getLv3Randomizer(targetClass: KClass<*>): ClassRandomizer<*>? {
         /**
-         * First, extract the randomizer class in the [Randomizer] on the class
+         * First, extract the randomizer class in the [Randomizable] on the class
          */
-        val classRdmRs = targetClass.findAnnotations(Randomizer::class)
+        val classRdmRs = targetClass.findAnnotations(Randomizable::class)
             .firstOrNull()
             ?.getClassRandomizerOnlyRs(targetClass)
 
