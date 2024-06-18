@@ -2,11 +2,11 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
+import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
 import com.x12q.randomizer.ir_plugin.frontend.k2.RDFirGenerationExtension
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
 import com.x12q.randomizer.test.util.testGeneratedCode
 import org.intellij.lang.annotations.Language
-import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.fir.FirSession
@@ -21,7 +21,7 @@ import java.util.*
 fun testGeneratedCodeUsingStandardPlugin(
     @Language("kotlin")
     kotlinSource: String,
-    backendTransformerFactory: (IrPluginContext) -> IrElementTransformerVoidWithContext = { pluginContext ->
+    backendTransformerFactory: (IrPluginContext) -> RDBackendTransformer = { pluginContext ->
         val comp = DaggerP7Component
             .builder()
             .setIRPluginContext(pluginContext)
@@ -34,16 +34,18 @@ fun testGeneratedCodeUsingStandardPlugin(
     ),
     fileName: String = "kt_file_${UUID.randomUUID()}.kt",
     outputStream: OutputStream = System.out,
-    assertionsFactory: GeneratedCodeAssertionBuilder.()-> Unit,
+    configAssertionBuilder: GeneratedCodeAssertionBuilder.() -> Unit,
 ): KotlinCompilation.Result {
     val builder = GeneratedCodeAssertionBuilder()
-    assertionsFactory(builder)
     return testGeneratedCode(
         kotlinSource = kotlinSource,
-        assertions = builder.build(),
-        backendTransformerFactory = backendTransformerFactory,
-        frontEndTransformerFactories = frontEndTransformerFactories,
+        makeAssertions = {
+            builder.configAssertionBuilder()
+            builder.build()
+        },
+        makeBackendTransformer = backendTransformerFactory,
+        frontEndTransformerFactoryFunctions = frontEndTransformerFactories,
         fileName = fileName,
-        outputStream = outputStream
+        outputStream = outputStream,
     )
 }

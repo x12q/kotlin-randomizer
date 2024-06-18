@@ -2,7 +2,6 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable
 
 import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
-import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrElement
@@ -15,8 +14,8 @@ import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
 class RandomizableIRTransformer2 @Inject constructor(
-    private val pluginContext: IrPluginContext,
-) : IrElementTransformerVoidWithContext() {
+    override val pluginContext: IrPluginContext,
+) : RDBackendTransformer() {
 
     private val dumpBuilder: StringBuilder = StringBuilder()
 

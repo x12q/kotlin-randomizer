@@ -1,6 +1,7 @@
 package com.x12q.randomizer.test.util.assertions
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -12,10 +13,10 @@ class GeneratedCodeAssertionBuilder(
     baseAssertions: GeneratedCodeAssertions = GeneratedCodeAssertions.empty(),
 ){
     var testCompilation: (KotlinCompilation.Result) -> Unit = baseAssertions.testCompilation
-    var beforeVisitCall: (expression: IrCall) -> Unit = baseAssertions.beforeVisitCall
-    var afterVisitCall: (input: IrCall, output: IrExpression) -> Unit = baseAssertions.afterVisitCall
-    var beforeVisitClassNew: (IrClass) -> Unit = baseAssertions.beforeVisitClassNew
-    var afterVisitClassNew: (input: IrClass, output: IrStatement) -> Unit = baseAssertions.afterVisitClassNew
+    var beforeVisitCall: (expression: IrCall, IrPluginContext) -> Unit = baseAssertions.beforeVisitCall
+    var afterVisitCall: (input: IrCall, output: IrExpression, IrPluginContext) -> Unit = baseAssertions.afterVisitCall
+    var beforeVisitClassNew: (IrClass, IrPluginContext) -> Unit = baseAssertions.beforeVisitClassNew
+    var afterVisitClassNew: (input: IrClass, output: IrStatement, IrPluginContext) -> Unit = baseAssertions.afterVisitClassNew
 
     fun build(): GeneratedCodeAssertions {
         return GeneratedCodeAssertions(

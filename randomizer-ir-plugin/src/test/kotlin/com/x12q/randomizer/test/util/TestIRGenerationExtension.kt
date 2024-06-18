@@ -6,10 +6,10 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 
 class TestIRGenerationExtension(
-    val transformers:(pluginContext:IrPluginContext)->List<IrElementTransformerVoidWithContext>
+    val makeTransformers:(pluginContext:IrPluginContext)->List<IrElementTransformerVoidWithContext>
 ) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        for (transformer in transformers(pluginContext)){
+        for (transformer in makeTransformers(pluginContext)){
             moduleFragment.transform(transformer, null)
         }
     }
