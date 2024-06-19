@@ -4,9 +4,11 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrType
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
+import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.companionObject
 import org.jetbrains.kotlin.ir.util.functions
 import kotlin.test.Test
@@ -17,14 +19,14 @@ class TopLevelConcreteClass {
     fun `empty class`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                package com.x12q.randomizer.sample_app
+                package somepackage.abc
                 import com.x12q.randomizer.annotations.Randomizable
                 fun main(){
                     println(Q123.random())
                 }
                 @Randomizable
                 class Q123
-            """.trimIndent(),
+            """,
         ) {
             afterVisitClassNew = { irClass, statement, irPluginContext ->
                 if (irClass.name.toString().contains("Q123")) {
@@ -36,7 +38,9 @@ class TopLevelConcreteClass {
                     }
 
                     randomFunction.shouldNotBeNull()
-                    randomFunction.returnType shouldBe irPluginContext.irBuiltIns.intType
+//                    randomFunction.returnType shouldBe irPluginContext.irBuiltIns.intType
+                    randomFunction.returnType.classFqName.toString() shouldBe "somepackage.abc.Q123"
+                    randomFunction.body.shouldNotBeNull()
                 }
             }
             testCompilation = {

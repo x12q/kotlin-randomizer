@@ -3,7 +3,7 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
 import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
-import com.x12q.randomizer.ir_plugin.frontend.k2.RDFirGenerationExtension
+import com.x12q.randomizer.ir_plugin.frontend.k2.RDFrontEndGenerationExtension
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
 import com.x12q.randomizer.test.util.testGeneratedCode
 import org.intellij.lang.annotations.Language
@@ -30,7 +30,7 @@ fun testGeneratedCodeUsingStandardPlugin(
         transformer
     },
     frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(
-        ::RDFirGenerationExtension,
+        ::RDFrontEndGenerationExtension,
     ),
     fileName: String = "kt_file_${UUID.randomUUID()}.kt",
     outputStream: OutputStream = System.out,
@@ -38,7 +38,7 @@ fun testGeneratedCodeUsingStandardPlugin(
 ): KotlinCompilation.Result {
     val builder = GeneratedCodeAssertionBuilder()
     return testGeneratedCode(
-        kotlinSource = kotlinSource,
+        kotlinSource = kotlinSource.trimIndent(),
         makeAssertions = {
             builder.configAssertionBuilder()
             builder.build()

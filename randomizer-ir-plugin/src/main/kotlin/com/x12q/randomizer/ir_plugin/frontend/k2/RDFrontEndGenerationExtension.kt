@@ -5,15 +5,20 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.utils.isAbstract
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
+import org.jetbrains.kotlin.fir.getOwnerLookupTag
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
 import org.jetbrains.kotlin.fir.plugin.createDefaultPrivateConstructor
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
-import org.jetbrains.kotlin.fir.symbols.SymbolInternals
+import org.jetbrains.kotlin.fir.resolve.toFirRegularClassSymbol
+import org.jetbrains.kotlin.fir.resolve.toSymbol
+import org.jetbrains.kotlin.fir.resolve.*
+import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.impl.*
+import org.jetbrains.kotlin.fir.types.ConeTypeProjection
 import org.jetbrains.kotlin.fir.types.coneType
+import org.jetbrains.kotlin.fir.types.constructType
 import org.jetbrains.kotlin.name.*
 
 /**
@@ -27,7 +32,7 @@ import org.jetbrains.kotlin.name.*
  * There's no need to generate function body or property initializer, that will be handled by the backend IR generator
  *
  */
-class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
+class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerationExtension(session) {
 
     /**
      * Predicate provider is used to create predicate that allow quick access to declarations that meet certain requirement.
@@ -112,8 +117,8 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         val rt = mutableSetOf<Name>()
         val origin = classSymbol.origin as? FirDeclarationOrigin.Plugin
         if (origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion) {
-            rt += SpecialNames.INIT
-            rt += BaseObjects.randomFunctionName
+            rt += SpecialNames.INIT // to generate constructor for companion obj
+            rt += BaseObjects.randomFunctionName // to generate random() function declaration
         }
         return rt
     }
@@ -131,22 +136,31 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
 
     /**
      * generate function for companion obj here.
-     * remember to set origin of the generated function to: BaseObjects.firDeclarationOrigin
      */
     override fun generateFunctions(
         callableId: CallableId,
         context: MemberGenerationContext?
     ): List<FirNamedFunctionSymbol> {
-        val owner = context?.owner
-        val origin = owner?.origin as? FirDeclarationOrigin.Plugin
-        if(origin?.key == BaseObjects.Fir.randomizableDeclarationKey && owner.isCompanion){
+        val classSymbol = context?.owner
+        val origin = classSymbol?.origin as? FirDeclarationOrigin.Plugin
+        if(origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion){
             if(callableId.callableName == BaseObjects.randomFunctionName){
                 val functionSymbol = createMemberFunction(
-                    owner = owner,
+                    owner = classSymbol,
                     key = BaseObjects.Fir.randomizableDeclarationKey,
                     name = callableId.callableName,
-                    returnTypeProvider = {
-                        session.builtinTypes.intType.coneType
+                    returnTypeProvider = { typeParameters->
+
+                        val enclosingClass = classSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
+                        val returnType = if(enclosingClass!=null){
+                            val parametersAsArguments = typeParameters.map { it.toConeType() }.toTypedArray<ConeTypeProjection>()
+                            enclosingClass.constructType(parametersAsArguments,false)
+                        }else{
+                            throw IllegalStateException("Companion object $classSymbol is without an enclosing class")
+                        }
+                        returnType
+//                        session.builtinTypes.intType.coneType
+
                     }
                 ).symbol
                 return listOf(functionSymbol)
@@ -165,8 +179,8 @@ class RDFirGenerationExtension(session: FirSession) : FirDeclarationGenerationEx
         if (owner.companionObjectSymbol != null) {
             return null
         } else {
-            val companion = createCompanionObject(owner, BaseObjects.Fir.randomizableDeclarationKey)
-            val rt = companion.symbol
+            val companionClass = createCompanionObject(owner, BaseObjects.Fir.randomizableDeclarationKey)
+            val rt = companionClass.symbol
             return rt
         }
     }
