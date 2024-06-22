@@ -2,7 +2,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.di
 
 import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.BenchTransformer
 //import com.squareup.anvil.annotations.MergeComponent
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableIRTransformer2
+import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableBackendTransformer
 import dagger.BindsInstance
 import dagger.Component
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -17,7 +17,7 @@ import javax.inject.Singleton
 interface P7Component {
 
     fun randomizableTransformer(): BenchTransformer
-    fun randomizableTransformer2(): RandomizableIRTransformer2
+    fun randomizableTransformer2(): RandomizableBackendTransformer
 
     @Component.Builder
     interface Builder {

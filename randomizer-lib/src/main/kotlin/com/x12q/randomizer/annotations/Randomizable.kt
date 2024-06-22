@@ -3,6 +3,8 @@ package com.x12q.randomizer.annotations
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.err.ErrorReport
 import com.x12q.randomizer.err.RandomizerErrors
 import com.x12q.randomizer.randomizer.ClassRandomizer
@@ -19,7 +21,8 @@ import kotlin.reflect.full.isSubclassOf
 @Target(CLASS, VALUE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)
 annotation class Randomizable(
-    val randomizer: KClass<out CommonRandomizer<*>> = CommonRandomizer.__DefaultRandomizer::class
+    val randomizer: KClass<out CommonRandomizer<*>> = CommonRandomizer.__DefaultRandomizer::class,
+    val randomConfig:KClass<out RandomConfig> = DefaultRandomConfig::class
 ) {
     companion object {
 

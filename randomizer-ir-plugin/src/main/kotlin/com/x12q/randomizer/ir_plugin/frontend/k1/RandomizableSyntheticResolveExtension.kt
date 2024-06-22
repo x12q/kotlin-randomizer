@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.frontend.k1
 
-import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.isRandomizable
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.name.Name

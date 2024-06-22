@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.frontend.k2
 
-import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
@@ -12,14 +12,14 @@ import org.jetbrains.kotlin.fir.plugin.createCompanionObject
 import org.jetbrains.kotlin.fir.plugin.createDefaultPrivateConstructor
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
 import org.jetbrains.kotlin.fir.resolve.toFirRegularClassSymbol
-import org.jetbrains.kotlin.fir.resolve.toSymbol
 import org.jetbrains.kotlin.fir.resolve.*
 import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.ConeTypeProjection
-import org.jetbrains.kotlin.fir.types.coneType
+import org.jetbrains.kotlin.fir.types.constructClassLikeType
 import org.jetbrains.kotlin.fir.types.constructType
 import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 
 /**
  * For generating new declaration (new functions, new classes, properties)
@@ -52,7 +52,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
     }
 
-    override fun FirDeclarationPredicateRegistrar.registerPredicates(){
+    override fun FirDeclarationPredicateRegistrar.registerPredicates() {
         /**
          * Must register a predicate to detect @Randomizable, so that such annotations are resolve on COMPILER_REQUIRED_ANNOTATIONS.
          * Otherwise, the annotation won´t be available for generator to use.
@@ -98,7 +98,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         if (owner is FirRegularClassSymbol) {
             when (name) {
                 SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT -> {
-                    val companionSymbol = generateCompanionObjDeclaration(owner)
+                    val companionSymbol = createCompanionObjDeclaration(owner)
                     return companionSymbol
                 }
 
@@ -119,6 +119,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         if (origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion) {
             rt += SpecialNames.INIT // to generate constructor for companion obj
             rt += BaseObjects.randomFunctionName // to generate random() function declaration
+            rt += BaseObjects.randomFunctionName2
         }
         return rt
     }
@@ -143,39 +144,70 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
     ): List<FirNamedFunctionSymbol> {
         val classSymbol = context?.owner
         val origin = classSymbol?.origin as? FirDeclarationOrigin.Plugin
-        if(origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion){
-            if(callableId.callableName == BaseObjects.randomFunctionName){
-                val functionSymbol = createMemberFunction(
-                    owner = classSymbol,
-                    key = BaseObjects.Fir.randomizableDeclarationKey,
-                    name = callableId.callableName,
-                    returnTypeProvider = { typeParameters->
+        if (origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion) {
+            when(callableId.callableName){
+                BaseObjects.randomFunctionName -> {
+                    val functionSymbol = createMemberFunction(
+                        owner = classSymbol,
+                        key = BaseObjects.Fir.randomizableDeclarationKey,
+                        name = callableId.callableName,
+                        returnTypeProvider = { typeParameters ->
+                            val enclosingClass = classSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
+                            val returnType = if (enclosingClass != null) {
 
-                        val enclosingClass = classSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
-                        val returnType = if(enclosingClass!=null){
-                            val parametersAsArguments = typeParameters.map { it.toConeType() }.toTypedArray<ConeTypeProjection>()
-                            enclosingClass.constructType(parametersAsArguments,false)
-                        }else{
-                            throw IllegalStateException("Companion object $classSymbol is without an enclosing class")
+                                val typeParamAsArguments = typeParameters
+                                    .map { it.toConeType() }
+                                    .toTypedArray<ConeTypeProjection>()
+
+                                enclosingClass.constructType(typeParamAsArguments, false)
+                            } else {
+                                throw IllegalStateException("Companion object $classSymbol is without an enclosing class")
+                            }
+                            returnType
                         }
-                        returnType
-//                        session.builtinTypes.intType.coneType
+                    ).symbol
 
-                    }
-                ).symbol
-                return listOf(functionSymbol)
+                    return listOf(functionSymbol)
+                }
+                BaseObjects.randomFunctionName2 -> {
+                    val function2 = createMemberFunction(
+                        owner = classSymbol,
+                        key = BaseObjects.Fir.randomizableDeclarationKey,
+                        name = callableId.callableName,
+                        returnTypeProvider = { typeParameters ->
+
+                            val enclosingClass = classSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
+
+                            val returnType = if (enclosingClass != null) {
+                                val parametersAsArguments =
+                                    typeParameters.map { it.toConeType() }.toTypedArray<ConeTypeProjection>()
+                                enclosingClass.constructType(parametersAsArguments, false)
+                            } else {
+                                throw IllegalStateException("Companion object $classSymbol is without an enclosing class")
+                            }
+
+                            returnType
+                        }
+                    ) {
+                        val buildingContext = this
+                        buildingContext.valueParameter(
+                            name = BaseObjects.randomConfigParamName,
+                            type = BaseObjects.Fir.randomConfigClassId.constructClassLikeType(typeArguments = emptyArray(),isNullable = false),
+                        )
+                    }.symbol
+                    return listOf(function2)
+                }
             }
-        }else{
+        } else {
             return emptyList()
         }
         return super.generateFunctions(callableId, context)
     }
 
-
     /**
      * Create companion object if there isn't one already. Return that companion object.
      */
-    private fun generateCompanionObjDeclaration(owner: FirRegularClassSymbol): FirRegularClassSymbol? {
+    private fun createCompanionObjDeclaration(owner: FirRegularClassSymbol): FirRegularClassSymbol? {
         if (owner.companionObjectSymbol != null) {
             return null
         } else {

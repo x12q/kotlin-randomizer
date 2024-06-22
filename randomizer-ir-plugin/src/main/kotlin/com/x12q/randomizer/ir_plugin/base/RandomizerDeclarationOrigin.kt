@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.frontend.k2.base
+package com.x12q.randomizer.ir_plugin.base
 
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 

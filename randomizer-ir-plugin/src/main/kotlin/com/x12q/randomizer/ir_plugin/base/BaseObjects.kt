@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.frontend.k2.base
+package com.x12q.randomizer.ir_plugin.base
 
 import com.x12q.randomizer.annotations.Randomizable
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
@@ -7,7 +7,9 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 internal object BaseObjects {
+
     val RANDOMIZABLE_NAME =/* Randomizable::class.qualifiedName ?:*/ "com.x12q.randomizer.annotations.Randomizable"
+    val packageName = "com.x12q.randomizer"
     val randomizableFqName = FqName(RANDOMIZABLE_NAME)
     val randomizableName = Name.identifier(RANDOMIZABLE_NAME)
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
@@ -16,9 +18,12 @@ internal object BaseObjects {
     val randomizableDeclarationKey = RandomizableDeclarationKey
 
     val randomFunctionName = Name.identifier("random")
+    val randomFunctionName2 = Name.identifier("random2")
+    val randomConfigParamName= Name.identifier("randomConfig")
 
     object Fir {
         val randomizableDeclarationKey = BaseObjects.randomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
+        val randomConfigClassId = ClassId(FqName(packageName), Name.identifier("RandomConfig"))
     }
 }

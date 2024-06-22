@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend
 
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableIRTransformer2
+import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableBackendTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
@@ -23,7 +23,7 @@ class RDIrGenerationExtension(
                 .builder()
                 .setIRPluginContext(pluginContext)
                 .build()
-            val randomizableTransformer2: RandomizableIRTransformer2 = comp.randomizableTransformer2()
+            val randomizableTransformer2: RandomizableBackendTransformer = comp.randomizableTransformer2()
             moduleFragment.transform(randomizableTransformer2, null)
         }
     }
