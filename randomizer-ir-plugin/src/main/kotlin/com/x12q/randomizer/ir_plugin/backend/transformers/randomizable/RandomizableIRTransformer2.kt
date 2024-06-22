@@ -4,11 +4,13 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.types.getPrimitiveType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
@@ -26,7 +28,7 @@ class RandomizableIRTransformer2 @Inject constructor(
             val irClass = declaration
             val companionObj = irClass.companionObject()
             if (companionObj != null) {
-                completeRandomFunction(companionObj)
+                completeRandomFunction(companionObj, declaration)
             }
         }
         return super.visitClassNew(declaration)
@@ -35,45 +37,62 @@ class RandomizableIRTransformer2 @Inject constructor(
     /**
      * complete random() function to [companionObj]
      */
-    fun completeRandomFunction(companionObj: IrClass) {
-        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f->
+    fun completeRandomFunction(companionObj: IrClass, target: IrClass) {
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f ->
             f.name == BaseObjects.randomFunctionName
         }
 
-        if(randomFunction!=null){
+        if (randomFunction != null) {
             val builder = DeclarationIrBuilder(
                 generatorContext = pluginContext,
                 symbol = randomFunction.symbol,
             )
 
-            randomFunction.body = builder.irBlockBody {
-                + builder.irReturn(
-                    builder.irInt(123)
-                )
+
+            val constructor = target.primaryConstructor
+            if (constructor != null) {
+
+                val paramExpressions = constructor.valueParameters.map { param ->
+                    randomPrimitiveParam(param, builder)
+                }
+
+                val constructorCall =
+                    builder.irCallConstructor(constructor.symbol, constructor.valueParameters.map { it.type }).apply {
+                        paramExpressions.withIndex().forEach { (index, paramExp) ->
+                            putValueArgument(index, paramExp)
+                        }
+                    }
+
+                randomFunction.body = builder.irBlockBody {
+                    +builder.irReturn(
+                        constructorCall
+                    )
+                }
+            } else {
+                throw IllegalArgumentException("$target does not have a constructor")
             }
         }
+    }
 
-//        companionObj.addFunction {
-//            val builder = this
-//            builder.name = BaseObjects.randomFunctionName
-//            builder.origin = BaseObjects.irDeclarationOrigin
-//            builder.visibility = DescriptorVisibilities.PUBLIC
-//            builder.returnType = pluginContext.irBuiltIns.unitType
-//            builder.modality = Modality.FINAL
-//            builder.isSuspend = false
-//        }.apply {
-//            val func = this
-//            val builder = DeclarationIrBuilder(
-//                generatorContext = pluginContext,
-//                symbol = this.symbol,
-//            )
-//            body = builder.irBlockBody {
-//                +printDumpCall(
-//                    pluginContext, func, this
-//                )
-//            }
-//        }
-
+    fun randomPrimitiveParam(param: IrValueParameter, builder: DeclarationIrBuilder): IrExpression {
+        val type = param.type
+        val b: Byte = 123
+        val q = 123.toByte()
+        val primType = type.getPrimitiveType()
+        val rt = when (primType) {
+            PrimitiveType.BOOLEAN -> builder.irBoolean(true)
+            PrimitiveType.CHAR -> builder.irChar('z')
+            PrimitiveType.BYTE -> 1.toByte().toIrConst(pluginContext.irBuiltIns.byteType)
+            PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
+            PrimitiveType.INT -> builder.irInt(-123)
+            PrimitiveType.FLOAT -> 333f.toIrConst(pluginContext.irBuiltIns.floatType)
+            PrimitiveType.LONG -> builder.irLong(123L)
+            PrimitiveType.DOUBLE -> 999.0.toIrConst(pluginContext.irBuiltIns.doubleType)
+            else -> {
+                TODO()
+            }
+        }
+        return rt
     }
 
     fun IrElement.dumpToDump() {

@@ -38,7 +38,6 @@ class TopLevelConcreteClass {
                     }
 
                     randomFunction.shouldNotBeNull()
-//                    randomFunction.returnType shouldBe irPluginContext.irBuiltIns.intType
                     randomFunction.returnType.classFqName.toString() shouldBe "somepackage.abc.Q123"
                     randomFunction.body.shouldNotBeNull()
                 }

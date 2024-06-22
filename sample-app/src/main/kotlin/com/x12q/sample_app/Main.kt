@@ -10,8 +10,10 @@ fun main(){
     println("zbc")
 //    someFunction()
 }
-//@Randomizable
-class Q123
+@Randomizable
+data class Q123(
+    val i:Int
+)
 
 //fun someFunction() {
 //

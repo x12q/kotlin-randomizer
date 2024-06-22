@@ -32,7 +32,7 @@ import javax.inject.Inject
  *  - scan for special function call, and change the lambda of that function.
  *
  */
-class RandomizableTransformer @Inject constructor(
+class BenchTransformer @Inject constructor(
     private val pluginContext: IrPluginContext,
 ) : IrElementTransformerVoidWithContext() {
 
