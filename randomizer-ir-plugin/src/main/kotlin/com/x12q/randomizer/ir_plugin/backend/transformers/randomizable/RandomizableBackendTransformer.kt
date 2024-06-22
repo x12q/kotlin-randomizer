@@ -4,7 +4,6 @@ import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
@@ -35,8 +34,8 @@ class RandomizableBackendTransformer @Inject constructor(
             val irClass = declaration
             val companionObj = irClass.companionObject()
             if (companionObj != null) {
-
                 completeRandomFunction1(companionObj, declaration)
+                completeRandomFunction2(companionObj, declaration)
             }
         }
         return super.visitClassNew(declaration)
@@ -96,15 +95,15 @@ class RandomizableBackendTransformer @Inject constructor(
                 symbol = randomFunction.symbol,
             )
 
-            val param1 = randomFunction.valueParameters.firstOrNull {
+            val randomConfigParam = randomFunction.valueParameters.firstOrNull {
                 it.name == BaseObjects.randomConfigParamName
-            }
+            }!!
 
             val constructor = target.primaryConstructor
             if (constructor != null) {
 
                 val paramExpressions = constructor.valueParameters.map { param ->
-                    randomPrimitiveParam(param, builder)
+                    randomPrimitiveParam2(param, builder,randomConfigParam)
                 }
 
                 val constructorCall =
