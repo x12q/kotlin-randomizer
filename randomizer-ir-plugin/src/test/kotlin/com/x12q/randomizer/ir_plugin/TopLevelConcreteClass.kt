@@ -29,7 +29,8 @@ class TopLevelConcreteClass {
                 import com.x12q.randomizer.DefaultRandomConfig
 
                 fun main(){
-                    println(Q123.random2(DefaultRandomConfig))
+                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random())
                 }
 
                 @Randomizable
@@ -43,7 +44,7 @@ class TopLevelConcreteClass {
                     companionObj.shouldNotBeNull()
 
                     val randomFunction = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName
+                        it.name == BaseObjects.randomFunctionName && it.valueParameters.isEmpty()
                     }
 
                     randomFunction.shouldNotBeNull()
@@ -52,7 +53,7 @@ class TopLevelConcreteClass {
 
 
                     val randomFunction2 = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName2
+                        it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==1
                     }
                     randomFunction2.shouldNotBeNull()
 

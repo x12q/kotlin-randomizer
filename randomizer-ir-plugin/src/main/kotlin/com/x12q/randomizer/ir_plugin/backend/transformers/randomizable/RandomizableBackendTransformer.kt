@@ -34,8 +34,9 @@ class RandomizableBackendTransformer @Inject constructor(
             val irClass = declaration
             val companionObj = irClass.companionObject()
             if (companionObj != null) {
-                completeRandomFunction1(companionObj, declaration)
                 completeRandomFunction2(companionObj, declaration)
+                completeRandomFunction1(companionObj, declaration)
+
             }
         }
         return super.visitClassNew(declaration)
@@ -44,9 +45,9 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * complete random() function to [companionObj]
      */
-    fun completeRandomFunction1(companionObj: IrClass, target: IrClass) {
+    private fun completeRandomFunction1(companionObj: IrClass, target: IrClass) {
         val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f ->
-            f.name == BaseObjects.randomFunctionName
+            f.name == BaseObjects.randomFunctionName && f.valueParameters.isEmpty()
         }
 
         if (randomFunction != null) {
@@ -81,9 +82,9 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    fun completeRandomFunction2(companionObj: IrClass, target: IrClass) {
+    private fun completeRandomFunction2(companionObj: IrClass, target: IrClass) {
         val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f ->
-            f.name == BaseObjects.randomFunctionName2
+            f.name == BaseObjects.randomFunctionName &&  f.valueParameters.size==1
         }
 
         if (randomFunction != null) {
@@ -138,7 +139,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 }
 
                 val nextIntFunction = getRandomObj.symbol.owner.returnType.classOrNull!!.functions.firstOrNull {functionSym->
-                    functionSym.owner.name == Name.identifier("nextInt") && functionSym.owner.valueParameters.size == 0
+                    functionSym.owner.name == Name.identifier("nextInt") && functionSym.owner.valueParameters.isEmpty()
                 }!!
 
                 val nextIntCall = builder.irCall(nextIntFunction).apply {

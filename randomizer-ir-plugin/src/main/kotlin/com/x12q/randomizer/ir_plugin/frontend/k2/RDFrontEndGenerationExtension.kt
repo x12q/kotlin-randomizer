@@ -119,7 +119,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         if (origin?.key == BaseObjects.Fir.randomizableDeclarationKey && classSymbol.isCompanion) {
             rt += SpecialNames.INIT // to generate constructor for companion obj
             rt += BaseObjects.randomFunctionName // to generate random() function declaration
-            rt += BaseObjects.randomFunctionName2
+//            rt += BaseObjects.randomFunctionName2
         }
         return rt
     }
@@ -167,9 +167,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                         }
                     ).symbol
 
-                    return listOf(functionSymbol)
-                }
-                BaseObjects.randomFunctionName2 -> {
                     val function2 = createMemberFunction(
                         owner = classSymbol,
                         key = BaseObjects.Fir.randomizableDeclarationKey,
@@ -195,8 +192,13 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                             type = BaseObjects.Fir.randomConfigClassId.constructClassLikeType(typeArguments = emptyArray(),isNullable = false),
                         )
                     }.symbol
-                    return listOf(function2)
+
+                    return listOf(functionSymbol,function2)
                 }
+//                BaseObjects.randomFunctionName2 -> {
+//
+//                    return listOf(function2)
+//                }
             }
         } else {
             return emptyList()
