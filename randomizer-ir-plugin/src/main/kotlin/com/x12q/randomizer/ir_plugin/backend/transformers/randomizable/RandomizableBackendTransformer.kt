@@ -126,14 +126,12 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomConfig: IrValueParameter
     ): IrExpression {
-//        val randomConfigClass = randomConfig.symbol.owner.type.classOrNull
+
         val randomArg = builder.irGet(randomConfig)
         val randomConfigClass = randomArg.type.classOrNull
 
         if (randomConfigClass != null) {
-//            if (randomConfigClass.owner.isObject) {
 
-                // randomConfig.random.nextInt()
                 val getRandomConfig = builder.irGet(randomConfig)
                 val getRandomObj = builder.irCall(randomConfigClass.getPropertyGetter("random")!!).apply {
                     dispatchReceiver = getRandomConfig
@@ -156,7 +154,6 @@ class RandomizableBackendTransformer @Inject constructor(
                     PrimitiveType.CHAR -> builder.irChar('z')
                     PrimitiveType.BYTE -> 1.toByte().toIrConst(pluginContext.irBuiltIns.byteType)
                     PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
-//                    PrimitiveType.INT -> builder.irInt(888)
                     PrimitiveType.INT -> nextIntCall
                     PrimitiveType.FLOAT -> 333f.toIrConst(pluginContext.irBuiltIns.floatType)
                     PrimitiveType.LONG -> builder.irLong(123L)
@@ -166,9 +163,6 @@ class RandomizableBackendTransformer @Inject constructor(
                     }
                 }
                 return rt
-//            } else {
-//                throw TODO("not support init default config right now")
-//            }
         }
         TODO()
     }

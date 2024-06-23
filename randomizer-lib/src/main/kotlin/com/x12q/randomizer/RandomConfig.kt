@@ -4,12 +4,8 @@ import kotlin.random.Random
 
 interface RandomConfig{
     var random:Random
+    var collectionSizeRange:IntRange
+    fun nextString():String
 }
 
 
-object DefaultRandomConfig : RandomConfig {
-    override var random:Random = Random
-    fun nextInt():Int{
-        return random.nextInt()
-    }
-}
