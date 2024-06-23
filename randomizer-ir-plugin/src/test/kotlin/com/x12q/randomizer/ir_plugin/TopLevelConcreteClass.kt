@@ -1,7 +1,9 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -20,30 +22,33 @@ import kotlin.test.fail
 class TopLevelConcreteClass {
     @Test
     fun `empty class`() {
+
         testGeneratedCodeUsingStandardPlugin(
             """
-                package somepackage.abc
                 import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.DefaultRandomConfig
+
                 fun main(){
-                    println(Q123.random())
+                    println(Q123.random2(DefaultRandomConfig))
                 }
+
                 @Randomizable
                 data class Q123(val i:Int)
             """,
-            fileName = "MainKt.kt"
+            fileName = "main.kt"
         ) {
             afterVisitClassNew = { irClass, statement, irPluginContext ->
-                if (irClass.name.toString().contains("Q123")) {
+                if (irClass.name.toString() == "Q123") {
                     val companionObj = irClass.companionObject()
                     companionObj.shouldNotBeNull()
 
-//                    val randomFunction = companionObj.functions.firstOrNull {
-//                        it.name == BaseObjects.randomFunctionName
-//                    }
-//
-//                    randomFunction.shouldNotBeNull()
-//                    randomFunction.returnType.classFqName.toString() shouldBe "somepackage.abc.Q123"
-//                    randomFunction.body.shouldNotBeNull()
+                    val randomFunction = companionObj.functions.firstOrNull {
+                        it.name == BaseObjects.randomFunctionName
+                    }
+
+                    randomFunction.shouldNotBeNull()
+                    randomFunction.returnType.classFqName.toString() shouldBe "Q123"
+                    randomFunction.body.shouldNotBeNull()
 
 
                     val randomFunction2 = companionObj.functions.firstOrNull {
@@ -55,22 +60,11 @@ class TopLevelConcreteClass {
             }
             testCompilation = { result->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val kClazz = result.classLoader.loadClass("MainKt")
-                val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-                try {
-                    try {
-                        main.invoke(null)
-                    } catch (t: InvocationTargetException) {
-                        throw t.cause!!
-                    }
-                    fail("should have thrown assertion")
-                } catch (t: Throwable) {
-                }
+                result.runMain()
             }
         }
-
-
-
     }
 }
+
+
 
