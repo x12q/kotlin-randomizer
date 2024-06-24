@@ -18,7 +18,6 @@ internal object BaseObjects {
     val randomizableDeclarationKey = RandomizableDeclarationKey
 
     val randomFunctionName = Name.identifier("random")
-    val randomFunctionName2 = Name.identifier("random2")
     val randomConfigParamName= Name.identifier("randomConfig")
 
     object Fir {

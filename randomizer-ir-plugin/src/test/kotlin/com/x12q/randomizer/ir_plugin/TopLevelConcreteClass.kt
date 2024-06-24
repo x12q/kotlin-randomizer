@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.DefaultRandomConfig
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.nulls.shouldNotBeNull

@@ -24,8 +24,13 @@ annotation class Randomizable(
     val randomizer: KClass<out CommonRandomizer<*>> = CommonRandomizer.__DefaultRandomizer::class,
     val randomConfig:KClass<out RandomConfig> = DefaultRandomConfig::class
 ) {
+
     companion object {
 
+        fun q(){
+            val randomConfig:KClass<out RandomConfig> = DefaultRandomConfig::class
+            randomConfig.objectInstance
+        }
         /**
          * try to cast [randomizer] as [ClassRandomizer].
          * Return an error only when [randomizer] is a [ParameterRandomizer], otherwise return the cast obj, or a null if there's any other error.
