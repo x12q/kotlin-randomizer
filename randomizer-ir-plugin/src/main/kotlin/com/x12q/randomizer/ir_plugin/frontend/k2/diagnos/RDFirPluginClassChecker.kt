@@ -2,11 +2,12 @@ package com.x12q.randomizer.ir_plugin.frontend.k2.diagnos
 
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporter
 import org.jetbrains.kotlin.diagnostics.reportOn
+import org.jetbrains.kotlin.fir.analysis.checkers.MppCheckerKind
 import org.jetbrains.kotlin.fir.analysis.checkers.context.CheckerContext
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.FirClassChecker
 import org.jetbrains.kotlin.fir.declarations.FirClass
 
-object RDFirPluginClassChecker : FirClassChecker() {
+class RDFirPluginClassChecker(mppKind: MppCheckerKind) : FirClassChecker(mppKind) {
     /**
      * Checker can check class, and report error/warning using [reporter].
      * This allows reporting errors to IDEs.

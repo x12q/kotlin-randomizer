@@ -10,15 +10,17 @@ import org.jetbrains.kotlin.fir.types.FirResolvedTypeRef
  * Allows adding additional super types to classes and interfaces.
  */
 class SuperGenExtension(session:FirSession) : FirSupertypeGenerationExtension(session) {
+    override fun computeAdditionalSupertypes(
+        classLikeDeclaration: FirClassLikeDeclaration,
+        resolvedSupertypes: List<FirResolvedTypeRef>,
+        typeResolver: TypeResolveService
+    ): List<FirResolvedTypeRef> {
+        TODO("Not yet implemented")
+    }
+
     override fun needTransformSupertypes(declaration: FirClassLikeDeclaration): Boolean{
         TODO()
     }
 
-    override fun computeAdditionalSupertypes(
-        classLikeDeclaration: FirClassLikeDeclaration,
-        resolvedSupertypes: List<FirResolvedTypeRef>
-    ): List<FirResolvedTypeRef>{
-        TODO()
-    }
 }
 

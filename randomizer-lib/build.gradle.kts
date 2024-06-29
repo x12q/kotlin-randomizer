@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     kotlin("plugin.serialization")
-    alias(libs.plugins.anvil)
+//    alias(libs.plugins.anvil)
 //    alias(libs.plugins.vanniktech.mavenPublish)
     `maven-publish`
 }
@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.dagger)
     kapt(libs.dagger.compiler)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))

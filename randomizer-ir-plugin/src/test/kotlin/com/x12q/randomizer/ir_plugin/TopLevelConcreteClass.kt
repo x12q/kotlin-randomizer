@@ -30,8 +30,8 @@ class TopLevelConcreteClass {
                 import com.x12q.randomizer.DefaultRandomConfig
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig))
-                    println(Q123.random())
+//                    println(Q123.random(DefaultRandomConfig))
+//                    println(Q123.random())
                 }
 
                 @Randomizable

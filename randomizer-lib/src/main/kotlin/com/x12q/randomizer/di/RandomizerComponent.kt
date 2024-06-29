@@ -10,6 +10,9 @@ import kotlin.random.Random
 @Singleton
 @Component(
 //    scope = RandomizerAnvilScope::class,
+    modules = [
+        RandomizerModule::class
+    ]
 )
 interface RandomizerComponent {
     fun random():Random
