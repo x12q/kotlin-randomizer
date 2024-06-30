@@ -14,8 +14,6 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.getPrimitiveType
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
@@ -38,8 +36,8 @@ class RandomizableBackendTransformer @Inject constructor(
             val irClass = declaration
             val companionObj = irClass.companionObject()
             if (companionObj != null) {
-                completeRandomFunction2(companionObj, declaration)
-                completeRandomFunction1(companionObj, declaration)
+                completeRandomFunctionWithRandomConfig(companionObj, declaration)
+                completeRandomFunction(companionObj, declaration)
 
             }
         }
@@ -47,41 +45,42 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create an IR expression that returns a random config instance
+     * Create an IR expression that returns a random config instance from @Randomizable annotation
      */
-    private fun makeRandomConfigExpression(annotation: IrConstructorCall, builder: DeclarationIrBuilder): IrExpression {
-        val randomConfigArgumentParamData =
-            annotation.getAllArgumentsWithIr().firstOrNull { (irParam, irExpr) ->
+    private fun makeRandomConfigExpressionFromAnnotation(annotation: IrConstructorCall, builder: DeclarationIrBuilder): IrExpression {
+
+        val randomConfigArgumentParamData = annotation
+            .getAllArgumentsWithIr()
+            .firstOrNull { (irParam, irExpr) ->
                 irParam.name == BaseObjects.randomConfigParamName
             }
 
         val providedArgument = randomConfigArgumentParamData?.second
 
         if (providedArgument != null) {
-            // TODO this can be used by builder to make an IR that get the obj
+
             val providedArgumentClassSymbol = (providedArgument as? IrClassReference)?.classType?.classOrNull
 
             if (providedArgumentClassSymbol != null) {
-
                 val providedArgumentIrClass = providedArgumentClassSymbol.owner
-
                 if (providedArgumentIrClass.isObject) {
                     return builder.irGetObject(providedArgumentClassSymbol)
-
                 } else if (providedArgumentIrClass.isClass) {
                     val constructor = providedArgumentIrClass.primaryConstructor
-                    if(constructor!=null){
-                        if(constructor.valueParameters.isEmpty()){
+                    if (constructor != null) {
+                        if (constructor.valueParameters.isEmpty()) {
                             return builder.irCall(constructor)
-                        }else{
+                        } else {
                             throw IllegalArgumentException("${providedArgumentIrClass.name}: RandomConfig class primary constructor must have zero parameter")
                         }
-                    }else{
+                    } else {
                         throw IllegalArgumentException("${providedArgumentIrClass.name}: RandomConfig class must have a primary constructor")
                     }
+                } else {
+                    throw IllegalArgumentException("${providedArgumentIrClass.name} must either be a class or an object")
                 }
             } else {
-                throw IllegalArgumentException("must be KClass")
+                throw IllegalArgumentException("$providedArgument must be a KClass")
             }
         } else {
             // TODO improve this, so it uses the actual information in the default IR expression instead of a shortcut like this
@@ -91,20 +90,19 @@ class RandomizableBackendTransformer @Inject constructor(
                 if (defaultRandomConfigClass != null) {
                     return builder.irGetObject(defaultRandomConfigClass)
                 } else {
-                    throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a bug")
+                    throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
                 }
             } else {
-                throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a bug")
+                throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
             }
         }
-        TODO()
     }
 
     /**
      * complete random() function in [companionObj].
      * This function use the random config in annotation.
      */
-    private fun completeRandomFunction1(companionObj: IrClass, target: IrClass) {
+    private fun completeRandomFunction(companionObj: IrClass, target: IrClass) {
         val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
             function.name == BaseObjects.randomFunctionName && function.valueParameters.isEmpty()
         }
@@ -117,34 +115,30 @@ class RandomizableBackendTransformer @Inject constructor(
                     generatorContext = pluginContext,
                     symbol = randomFunction.symbol,
                 )
-                val randomConfigExpression = makeRandomConfigExpression(annotation, builder)
-                if (randomConfigExpression != null) {
+                val randomConfigExpression = makeRandomConfigExpressionFromAnnotation(annotation, builder)
 
-                    val constructor = target.primaryConstructor
-                    if (constructor != null) {
-                        val paramExpressions = constructor.valueParameters.map { param ->
-                            randomPrimitiveParam3_exp(param, builder, randomConfigExpression)
-//                            randomPrimitiveParam2(param, builder, randomConfigParam)
-//                                randomPrimitiveParam(param, builder)
-                        }
-
-                        val constructorCall =
-                            builder.irCallConstructor(
-                                constructor.symbol,
-                                constructor.valueParameters.map { it.type }).apply {
-                                paramExpressions.withIndex().forEach { (index, paramExp) ->
-                                    putValueArgument(index, paramExp)
-                                }
-                            }
-
-                        randomFunction.body = builder.irBlockBody {
-                            +builder.irReturn(
-                                constructorCall
-                            )
-                        }
-                    } else {
-                        throw IllegalArgumentException("$target does not have a constructor")
+                val constructor = target.primaryConstructor
+                if (constructor != null) {
+                    val paramExpressions = constructor.valueParameters.map { param ->
+                        randomPrimitiveParam3(param, builder, randomConfigExpression)
                     }
+
+                    val constructorCall =
+                        builder.irCallConstructor(
+                            constructor.symbol,
+                            constructor.valueParameters.map { it.type }).apply {
+                            paramExpressions.withIndex().forEach { (index, paramExp) ->
+                                putValueArgument(index, paramExp)
+                            }
+                        }
+
+                    randomFunction.body = builder.irBlockBody {
+                        +builder.irReturn(
+                            constructorCall
+                        )
+                    }
+                } else {
+                    throw IllegalArgumentException("$target does not have a constructor")
                 }
             }
         }
@@ -153,9 +147,9 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Complete random(randomConfig) function
      */
-    private fun completeRandomFunction2(companionObj: IrClass, target: IrClass) {
-        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { f ->
-            f.name == BaseObjects.randomFunctionName && f.valueParameters.size == 1
+    private fun completeRandomFunctionWithRandomConfig(companionObj: IrClass, target: IrClass) {
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
+            function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 1
         }
 
         if (randomFunction != null) {
@@ -193,45 +187,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    /**
-     * randomize a parameter while taking random config into consideration
-     */
     private fun randomPrimitiveParam3(
-        param: IrValueParameter,
-        builder: DeclarationIrBuilder,
-        getRandomConfig: IrCall
-    ): IrExpression {
-
-        val randomConfigClass = getRandomConfig.symbol.owner.returnType.classOrNull
-        val nextIntFunctionSymbol = randomConfigClass!!.functions.firstOrNull { functionSym ->
-            functionSym.owner.name == Name.identifier("nextInt") && functionSym.owner.valueParameters.isEmpty()
-        }
-
-        val nextIntCall = builder.irCall(nextIntFunctionSymbol!!).apply {
-            dispatchReceiver = getRandomConfig
-        }
-
-        val paramType = param.type
-        val primType = paramType.getPrimitiveType()
-
-        val rt = when (primType) {
-            PrimitiveType.BOOLEAN -> builder.irBoolean(true)
-            PrimitiveType.CHAR -> builder.irChar('z')
-            PrimitiveType.BYTE -> 1.toByte().toIrConst(pluginContext.irBuiltIns.byteType)
-            PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
-            PrimitiveType.INT -> nextIntCall
-            PrimitiveType.FLOAT -> 333f.toIrConst(pluginContext.irBuiltIns.floatType)
-            PrimitiveType.LONG -> builder.irLong(123L)
-            PrimitiveType.DOUBLE -> 999.0.toIrConst(pluginContext.irBuiltIns.doubleType)
-            else -> {
-                TODO()
-            }
-        }
-        return rt
-
-    }
-
-    private fun randomPrimitiveParam3_exp(
         param: IrValueParameter,
         builder: DeclarationIrBuilder,
         getRandomConfig: IrExpression
@@ -265,7 +221,6 @@ class RandomizableBackendTransformer @Inject constructor(
         return rt
 
     }
-
 
     private fun randomPrimitiveParam2(
         param: IrValueParameter,
