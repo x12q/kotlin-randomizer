@@ -1,5 +1,6 @@
 package com.x12q.randomizer.test.util.assertions
 
+import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -11,7 +12,7 @@ import kotlin.test.fail
  * main function must not be in any package.
  */
 @OptIn(ExperimentalCompilerApi::class)
-fun KotlinCompilation.Result.runMain(packageName:String? = null) {
+fun JvmCompilationResult.runMain(packageName:String? = null) {
     val result = this
 
     /**

@@ -18,6 +18,7 @@ internal object BaseObjects {
 
     val randomFunctionName = Name.identifier("random")
     val randomConfigParamName= Name.identifier("randomConfig")
+    val randomizerParamName= Name.identifier("randomizer")
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
 

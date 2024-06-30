@@ -8,6 +8,6 @@ import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtensi
 
 class RDCheckersExtension(session: FirSession) : FirAdditionalCheckersExtension(session){
     override val declarationCheckers: DeclarationCheckers = object : DeclarationCheckers() {
-        override val classCheckers: Set<FirClassChecker> = setOf(RDFirPluginClassChecker(MppCheckerKind.Platform) /*TODO reconsider this*/)
+        override val classCheckers: Set<FirClassChecker> = setOf(RDFirPluginClassChecker)
     }
 }

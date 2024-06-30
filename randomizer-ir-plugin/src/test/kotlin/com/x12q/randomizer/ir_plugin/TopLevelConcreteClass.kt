@@ -8,6 +8,7 @@ import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import kotlinx.serialization.Serializable
 import org.jetbrains.kotlin.backend.common.serialization.proto.IrType
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
@@ -19,22 +20,25 @@ import java.lang.reflect.InvocationTargetException
 import kotlin.test.Test
 import kotlin.test.fail
 
+
 @OptIn(ExperimentalCompilerApi::class)
 class TopLevelConcreteClass {
     @Test
     fun `empty class`() {
 
+        DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.annotations.Randomizable
                 import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-//                    println(Q123.random(DefaultRandomConfig))
-//                    println(Q123.random())
+                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random())
                 }
-
-                @Randomizable
+                @Randomizable(
+                    randomConfig = DefaultRandomConfig::class
+                )
                 data class Q123(val i:Int)
             """,
             fileName = "main.kt"
@@ -45,7 +49,7 @@ class TopLevelConcreteClass {
                     companionObj.shouldNotBeNull()
 
                     val randomFunction = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName && it.valueParameters.isEmpty()
+                        it.name == BaseObjects.randomFunctionName && it.valueParameters.size==1
                     }
 
                     randomFunction.shouldNotBeNull()
@@ -67,6 +71,3 @@ class TopLevelConcreteClass {
         }
     }
 }
-
-
-

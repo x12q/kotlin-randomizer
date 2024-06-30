@@ -1,5 +1,6 @@
 package com.x12q.randomizer.test.util
 
+import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
@@ -8,6 +9,7 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import java.io.OutputStream
 
@@ -20,11 +22,11 @@ fun testGeneratedCode(
     kotlinSource: String,
     makeBackendTransformer: (IrPluginContext) -> RDBackendTransformer,
     frontEndTransformerFactoryFunctions: List<(FirSession) -> FirDeclarationGenerationExtension>,
+    frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension>,
     makeAssertions:()->GeneratedCodeAssertions,
-
     fileName: String,
     outputStream: OutputStream = System.out,
-): KotlinCompilation.Result {
+): JvmCompilationResult {
 
     val ktFile = SourceFile.kotlin(
         name = fileName,
@@ -47,7 +49,7 @@ fun testGeneratedCode(
                         )
                     }
                 ),
-                frontEndExtensionRegistrar = FrontEndTestExtensionRegistrar(frontEndTransformerFactoryFunctions),
+                frontEndExtensionRegistrar = FrontEndTestExtensionRegistrar(frontEndTransformerFactoryFunctions,frontEndCheckerExtensionFactoryFunctions),
             )
         )
 
@@ -58,9 +60,9 @@ fun testGeneratedCode(
         inheritClassPath = true
 
         // enable fir
-        useK2 = true
+//        useK2 = true
     }.compile()
-    val testCompilation:(KotlinCompilation.Result) -> Unit = assertions.testCompilation
+    val testCompilation:(JvmCompilationResult) -> Unit = assertions.testCompilation
     testCompilation(compileResult)
     return compileResult
 }

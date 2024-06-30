@@ -9,4 +9,8 @@ object DefaultRandomConfig : RandomConfig {
     override fun nextString(): String {
         return randomUUIDStr()
     }
+
+    override fun nextInt(): Int {
+        return random.nextInt()
+    }
 }

@@ -6,8 +6,6 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.getRandomizableAnnotation
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.findArgumentByName
-import org.jetbrains.kotlin.fir.declarations.getAnnotationByClassId
 import org.jetbrains.kotlin.fir.declarations.getKClassArgument
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
@@ -52,14 +50,15 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         /**
          * Find all symbol annotated with randomizable annotation
          */
-        val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
+//        val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
     }
+    //FirExtension.registerPredicates
+
 
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
         /**
          * Must register a predicate to detect @Randomizable, so that such annotations are resolve on COMPILER_REQUIRED_ANNOTATIONS.
          * Otherwise, the annotation won´t be available for generator to use.
-         * Important: predicate can only resolve top-level annotation. Annotation to nested class, or function will not be recognized.
          */
         register(RDPredicates.annotatedRandomizable)
     }
@@ -96,7 +95,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         name: Name,
         context: NestedClassGenerationContext,
     ): FirClassLikeSymbol<*>? {
-
+        if (!session.predicateBasedProvider.matches(RDPredicates.annotatedRandomizable, owner)) return null
         if (owner is FirRegularClassSymbol) {
             when (name) {
                 SpecialNames.DEFAULT_NAME_FOR_COMPANION_OBJECT -> {
@@ -151,10 +150,12 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 companionObjectSymbol.isCompanion && origin?.key == BaseObjects.Fir.randomizableDeclarationKey
             if (ownerClassIsGeneratedCompanion) {
                 val twoRandomFunctions = generate2RandomFunctions(companionObjectSymbol, callableId)
-                    val randomConfigGetterFunctions =
-                    createRandomConfigGetterFunction(context, companionObjectSymbol, callableId)
-                val rt = listOfNotNull(twoRandomFunctions, randomConfigGetterFunctions).flatten()
-                return rt
+//                    val randomConfigGetterFunctions =
+//                    createRandomConfigGetterFunction(context, companionObjectSymbol, callableId)
+//                val rt = listOfNotNull(twoRandomFunctions, randomConfigGetterFunctions).flatten()
+//                return rt
+                return twoRandomFunctions ?: emptyList()
+
             }
         }
         return super.generateFunctions(callableId, context)
@@ -172,8 +173,17 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 session = session,
             )
             if (randomizableAnnotation != null) {
-                val q = randomizableAnnotation.getKClassArgument(BaseObjects.randomConfigParamName,session)
-                println(q)
+                /**
+                 * TODO this is only not null if an explicit value is provided, I need to read the default value too
+                 */
+                val explicitRandomConfig = randomizableAnnotation.getKClassArgument(BaseObjects.randomConfigParamName,session)
+//                if(explicitRandomConfig!=null){
+//                    explicitRandomConfig
+//                }else{
+//                    val defaultRandomConfig = randomizableAnnotation.
+//                }
+
+
             }
         }
         return null
@@ -189,7 +199,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         callableId: CallableId,
     ): List<FirNamedFunctionSymbol>? {
         if (callableId.callableName == BaseObjects.randomFunctionName) {
-            val functionSymbol = createMemberFunction(
+            val randomFunction = createMemberFunction(
                 owner = companionObjectSymbol,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
                 name = callableId.callableName,
@@ -209,7 +219,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 }
             ).symbol
 
-            val function2 = createMemberFunction(
+            val randomFunctionWithRandomConfig = createMemberFunction(
                 owner = companionObjectSymbol,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
                 name = callableId.callableName,
@@ -237,7 +247,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     ),
                 )
             }.symbol
-            return listOf(functionSymbol, function2)
+            return listOf(randomFunction, randomFunctionWithRandomConfig)
         } else {
             return null
         }

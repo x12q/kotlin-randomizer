@@ -12,14 +12,21 @@ import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
  */
 
 /**
+ * Check if a class is annotated with @Randomizable
+ */
+fun FirClassSymbol<*>.isAnnotatedRandomizable(session: FirSession): Boolean {
+    return getRandomizableAnnotation(false, session) != null
+}
+
+/**
  * Extract @Randomizable annotation from a class
  */
 fun FirClassSymbol<*>.getRandomizableAnnotation(needArguments: Boolean, session: FirSession): FirAnnotation? {
 
     val annotations = if (needArguments) {
-        this.resolvedAnnotationsWithArguments
+        resolvedAnnotationsWithArguments
     } else {
-        this.resolvedCompilerAnnotationsWithClassIds
+        resolvedCompilerAnnotationsWithClassIds
     }
     val rt = annotations.getAnnotationByClassId(BaseObjects.randomizableClassId, session)
 
@@ -27,9 +34,3 @@ fun FirClassSymbol<*>.getRandomizableAnnotation(needArguments: Boolean, session:
 }
 
 
-/**
- * Check if a class is annotated with @Randomizable
- */
-fun FirClassSymbol<*>.isAnnotatedRandomizable(session: FirSession): Boolean {
-    return getRandomizableAnnotation(false, session) != null
-}

@@ -1,15 +1,17 @@
 package com.x12q.randomizer.ir_plugin
 
-import com.tschuchort.compiletesting.KotlinCompilation
+import com.tschuchort.compiletesting.JvmCompilationResult
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
 import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
 import com.x12q.randomizer.ir_plugin.frontend.k2.RDFrontEndGenerationExtension
+import com.x12q.randomizer.ir_plugin.frontend.k2.diagnos.RDCheckersExtension
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
 import com.x12q.randomizer.test.util.testGeneratedCode
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import java.io.OutputStream
 import java.util.*
@@ -32,10 +34,13 @@ fun testGeneratedCodeUsingStandardPlugin(
     frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(
         ::RDFrontEndGenerationExtension,
     ),
+    frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension> = listOf(
+        ::RDCheckersExtension
+    ),
     fileName: String = "kt_file_${UUID.randomUUID()}.kt",
     outputStream: OutputStream = System.out,
     configAssertionBuilder: GeneratedCodeAssertionBuilder.() -> Unit,
-): KotlinCompilation.Result {
+): JvmCompilationResult {
     val builder = GeneratedCodeAssertionBuilder()
     return testGeneratedCode(
         kotlinSource = kotlinSource.trimIndent(),
@@ -45,6 +50,7 @@ fun testGeneratedCodeUsingStandardPlugin(
         },
         makeBackendTransformer = backendTransformerFactory,
         frontEndTransformerFactoryFunctions = frontEndTransformerFactories,
+        frontEndCheckerExtensionFactoryFunctions =  frontEndCheckerExtensionFactoryFunctions,
         fileName = fileName,
         outputStream = outputStream,
     )
