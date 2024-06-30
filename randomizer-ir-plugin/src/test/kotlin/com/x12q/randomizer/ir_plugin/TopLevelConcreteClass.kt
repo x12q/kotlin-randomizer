@@ -2,40 +2,31 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.DefaultRandomConfig
-import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import kotlinx.serialization.Serializable
-import org.jetbrains.kotlin.backend.common.serialization.proto.IrType
+import io.kotest.matchers.shouldNotBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.companionObject
 import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.resolve.scopes.LexicalScope
-import java.lang.reflect.InvocationTargetException
 import kotlin.test.Test
-import kotlin.test.fail
-
 
 @OptIn(ExperimentalCompilerApi::class)
 class TopLevelConcreteClass {
     @Test
-    fun `empty class`() {
+    fun `random functions exist`() {
 
-        DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
                 import com.x12q.randomizer.DefaultRandomConfig
                 import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig))
-                    println(Q123.random())
                 }
+
                 @Randomizable(
                     randomConfig = DefaultRandomConfig::class
                 )
@@ -57,10 +48,10 @@ class TopLevelConcreteClass {
                     randomFunction.body.shouldNotBeNull()
 
 
-                    val randomFunction2 = companionObj.functions.firstOrNull {
+                    val randomFunctionWithRandomConfig = companionObj.functions.firstOrNull {
                         it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==1
                     }
-                    randomFunction2.shouldNotBeNull()
+                    randomFunctionWithRandomConfig.shouldNotBeNull()
 
                 }
             }
@@ -69,5 +60,150 @@ class TopLevelConcreteClass {
                 result.runMain()
             }
         }
+    }
+
+    @Test
+    fun `empty class with a defined RandomConfig object`() {
+
+        DefaultRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random())
+                }
+                @Randomizable(
+                    randomConfig = DefaultRandomConfig::class
+                )
+                data class Q123(val i:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            afterVisitClassNew = { irClass, statement, irPluginContext ->
+                if (irClass.name.toString() == "Q123") {
+
+                }
+            }
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+    @Test
+    fun `empty class with default RandomConfig`() {
+
+        DefaultRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random())
+                }
+                @Randomizable
+                data class Q123(val i:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+
+
+    @Test
+    fun `empty class with custom legal random config class`() {
+
+        DefaultRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.LegalRandomConfig
+
+                fun main(){
+                    println(Q123.random(LegalRandomConfig()))
+                    println(Q123.random())
+                }
+                @Randomizable(randomConfig = LegalRandomConfig::class)
+                data class Q123(val i:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+    @Test
+    fun `empty class with custom legal random config object`() {
+
+        DefaultRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.LegalRandomConfigObject
+
+                fun main(){
+                    println(Q123.random(LegalRandomConfigObject))
+                    println(Q123.random())
+                }
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class Q123(val i:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+
+    @Test
+    fun `empty class with custom illegal random config`() {
+
+        DefaultRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.IllegalRandomConfig
+
+                fun main(){
+                    println(Q123.random())
+                }
+                @Randomizable(randomConfig = IllegalRandomConfig::class)
+                data class Q123(val i:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+        }
+    }
+
+
+
+    @Test
+    fun qwe(){
+        val z = DefaultRandomConfig::class
+        val z2 = RandomConfig::class
+        z2.objectInstance shouldBe null
     }
 }

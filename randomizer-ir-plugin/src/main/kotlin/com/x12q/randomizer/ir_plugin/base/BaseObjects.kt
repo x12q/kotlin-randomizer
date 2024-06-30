@@ -21,6 +21,7 @@ internal object BaseObjects {
     val randomizerParamName= Name.identifier("randomizer")
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
+    val defaultRandomConfigClassId = ClassId(FqName("com.x12q.randomizer"), topLevelName = Name.identifier("DefaultRandomConfig"))
 
     object Fir {
         val randomizableDeclarationKey = BaseObjects.randomizableDeclarationKey
