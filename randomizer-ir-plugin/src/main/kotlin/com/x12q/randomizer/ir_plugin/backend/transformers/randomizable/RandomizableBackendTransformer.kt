@@ -109,8 +109,6 @@ class RandomizableBackendTransformer @Inject constructor(
         if (randomFunction != null) {
             val annotation = target.getAnnotation(BaseObjects.randomizableFqName)
             if (annotation != null) {
-
-
                 val builder = DeclarationIrBuilder(
                     generatorContext = pluginContext,
                     symbol = randomFunction.symbol,
@@ -118,6 +116,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 val randomConfigExpression = makeRandomConfigExpressionFromAnnotation(annotation, builder)
 
                 val constructor = target.primaryConstructor
+
                 if (constructor != null) {
                     val paramExpressions = constructor.valueParameters.map { param ->
                         randomPrimitiveParam3(param, builder, randomConfigExpression)
