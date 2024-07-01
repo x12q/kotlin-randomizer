@@ -203,7 +203,6 @@ class TopLevelConcreteClass {
     @Test
     fun qwe(){
         val z = DefaultRandomConfig::class
-        val z2 = RandomConfig::class
-        z2.objectInstance shouldBe null
+        z.objectInstance shouldBe null
     }
 }

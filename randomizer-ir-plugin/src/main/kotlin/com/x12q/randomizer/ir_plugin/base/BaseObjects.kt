@@ -22,11 +22,12 @@ internal object BaseObjects {
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
     val defaultRandomConfigClassId = ClassId(FqName("com.x12q.randomizer"), topLevelName = Name.identifier("DefaultRandomConfig"))
+    val randomConfigClassId = ClassId(FqName(packageName), Name.identifier("RandomConfig"))
 
     object Fir {
         val randomizableDeclarationKey = BaseObjects.randomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
-        val randomConfigClassId = ClassId(FqName(packageName), Name.identifier("RandomConfig"))
+        val randomConfigClassId = BaseObjects.randomConfigClassId
 
     }
 }

@@ -4,18 +4,29 @@ import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.jvm.fieldByName
 import org.jetbrains.kotlin.builtins.PrimitiveType
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.getPrimitiveType
+import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.name.SpecialNames
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 class RandomizableBackendTransformer @Inject constructor(
@@ -33,12 +44,10 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val annotation = declaration.getAnnotation(BaseObjects.randomizableFqName)
         if (annotation != null) {
-            val irClass = declaration
-            val companionObj = irClass.companionObject()
+            val companionObj = declaration.companionObject()
             if (companionObj != null) {
-                completeRandomFunctionWithRandomConfig(companionObj, declaration)
                 completeRandomFunction(companionObj, declaration)
-
+                completeRandomFunctionWithRandomConfig(companionObj, declaration)
             }
         }
         return super.visitClassNew(declaration)
@@ -83,17 +92,44 @@ class RandomizableBackendTransformer @Inject constructor(
                 throw IllegalArgumentException("$providedArgument must be a KClass")
             }
         } else {
-            // TODO improve this, so it uses the actual information in the default IR expression instead of a shortcut like this
+
             val randomConfigParam: IrValueParameter? = randomConfigArgumentParamData?.first
-            if (randomConfigParam?.hasDefaultValue() == true) {
-                val defaultRandomConfigClass = pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)
-                if (defaultRandomConfigClass != null) {
-                    return builder.irGetObject(defaultRandomConfigClass)
+
+
+            if(false){
+
+                val default = randomConfigParam!!.defaultValue
+                if(default!=null){
+
+                    val randomConfigClassSymbol = pluginContext.referenceClass(BaseObjects.randomConfigClassId)!!
+
+                    builder.irBlockBody {
+                        val kClassId = ClassId(FqName("kotlin.reflect"),Name.identifier("KClass"))
+                        val kClassSymbol=pluginContext.referenceClass(kClassId)!!
+                        val field = kClassSymbol.getPropertyGetter("objectInstance")
+
+                        +builder.irReturn(
+                            builder.irCall(field!!).apply {
+                                dispatchReceiver = default.expression
+                            }
+                        )
+                    }
+                }else{
+                    TODO()
+                }
+                TODO("improve this, so it uses the actual information in the default IR expression instead of a shortcut like this")
+            }else{
+                if (randomConfigParam?.hasDefaultValue() == true) {
+                    val defaultRandomConfigClass = pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)
+                    if (defaultRandomConfigClass != null) {
+                        return builder.irGetObject(defaultRandomConfigClass)
+                    } else {
+                        throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
+                    }
                 } else {
                     throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
                 }
-            } else {
-                throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
+
             }
         }
     }
@@ -192,7 +228,12 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfig: IrExpression
     ): IrExpression {
 
-        val randomConfigClass = getRandomConfig.type.classOrNull
+        val randomConfigClass = pluginContext.referenceClass(BaseObjects.randomConfigClassId)!!
+//        val randomConfigClass = getRandomConfig.type.classOrNull
+
+        val getRandom = randomConfigClass.getPropertyGetter("random")
+
+
         val nextIntFunctionSymbol = randomConfigClass!!.functions.firstOrNull { functionSym ->
             functionSym.owner.name == Name.identifier("nextInt") && functionSym.owner.valueParameters.isEmpty()
         }
