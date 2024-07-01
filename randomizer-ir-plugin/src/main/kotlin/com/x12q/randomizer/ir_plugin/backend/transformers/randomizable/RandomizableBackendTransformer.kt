@@ -117,7 +117,10 @@ class RandomizableBackendTransformer @Inject constructor(
                 }else{
                     TODO()
                 }
-                TODO("improve this, so it uses the actual information in the default IR expression instead of a shortcut like this")
+                TODO("" +
+                        "improve this, so it uses the actual information in the default IR expression instead of a shortcut like this"+
+                    "May write some code like KClass.objectStance, then dump it to study the structure of the call"
+                )
             }else{
                 if (randomConfigParam?.hasDefaultValue() == true) {
                     val defaultRandomConfigClass = pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)
