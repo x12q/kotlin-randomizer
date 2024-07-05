@@ -4,7 +4,6 @@ import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomConfigAccessor
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.dotCall
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -39,7 +38,7 @@ class RandomizableBackendTransformer @Inject constructor(
         clzz
     }
 
-    private val randomAccessor by lazy { RandomAccessor(kotlinRandomClass) }
+    private val randomAccessor by lazy { RandomAccessor(kotlinRandomClass,pluginContext) }
 
     private val randomConfigClass by lazy {
         val clzz = pluginContext.referenceClass(BaseObjects.randomConfigClassId)
@@ -243,28 +242,21 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfig: IrExpression
     ): IrExpression? {
 
-        val getRandom = getRandomConfig
-            .dotCall {
-                randomConfigAccessor.random(builder)
-            }
-
-
+        val getRandom = getRandomConfig.dotCall(randomConfigAccessor.random(builder))
         val paramType = param.type
         val primType = paramType.getPrimitiveType()
+
         if (primType != null) {
             val rt = when (primType) {
-                PrimitiveType.BOOLEAN -> builder.irBoolean(true)
-                PrimitiveType.CHAR -> builder.irChar('z')
-                PrimitiveType.BYTE -> 1.toByte().toIrConst(pluginContext.irBuiltIns.byteType)
+                PrimitiveType.BOOLEAN -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
+//                PrimitiveType.CHAR -> builder.irChar('z')
+                PrimitiveType.CHAR -> getRandomConfig.dotCall (randomConfigAccessor.nextChar(builder))
+                PrimitiveType.BYTE -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
                 PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
-                PrimitiveType.INT -> getRandom.dotCall {
-                    randomAccessor.nextInt(builder)
-                }
-                PrimitiveType.FLOAT -> 333f.toIrConst(pluginContext.irBuiltIns.floatType)
-                PrimitiveType.LONG -> getRandom.dotCall {
-                    randomAccessor.nextLong(builder)
-                }
-                PrimitiveType.DOUBLE -> 999.0.toIrConst(pluginContext.irBuiltIns.doubleType)
+                PrimitiveType.INT -> getRandom.dotCall(randomAccessor.nextInt(builder))
+                PrimitiveType.FLOAT -> getRandom.dotCall(randomAccessor.nextFloat(builder))
+                PrimitiveType.LONG -> getRandom.dotCall(randomAccessor.nextLong(builder))
+                PrimitiveType.DOUBLE -> getRandom.dotCall(randomAccessor.nextDouble(builder))
                 else -> {
                     throw IllegalArgumentException("not support primitive type $primType")
                 }
@@ -322,7 +314,7 @@ class RandomizableBackendTransformer @Inject constructor(
         targetFunction: IrFunction,
         irBuilder: IrBuilderWithScope,
     ): IrCall {
-        val printlnCallId = Standards.printlnCallId
+        val printlnCallId = BaseObjects.Std.printlnCallId
         val strIR = irBuilder.irString(
             dumpBuilder.toString()
         )

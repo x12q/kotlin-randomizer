@@ -12,10 +12,6 @@ class RandomConfigAccessor(
     private val randomConfigClass: IrClassSymbol
 ) : ClassAccessor(randomConfigClass) {
 
-    val nextInt by lazy {
-        zeroAgrFunction("nextInt")
-    }
-
     val random by lazy {
         randomConfigClass.getPropertyGetter("random")!!
     }
@@ -24,8 +20,20 @@ class RandomConfigAccessor(
         return builder.irCall(random)
     }
 
-    fun DeclarationIrBuilder.random2():IrCall{
-        return this.irCall(random)
+    val nextByte by lazy {
+        randomConfigClass.zeroAgrFunction("nextByte")
+    }
+
+    fun nextByte(builder: DeclarationIrBuilder):IrCall{
+        return builder.irCall(nextByte)
+    }
+
+    val nextChar by lazy {
+        randomConfigClass.zeroAgrFunction("nextChar")
+    }
+
+    fun nextChar(builder: DeclarationIrBuilder):IrCall{
+        return builder.irCall(nextChar)
     }
 
 }

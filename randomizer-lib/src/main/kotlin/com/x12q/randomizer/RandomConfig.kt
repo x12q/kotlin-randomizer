@@ -5,16 +5,22 @@ import kotlin.random.Random
 
 interface RandomConfig {
 
-    val random: Random get() = Random
+    val random: Random
 
-    val collectionSizeRange: IntRange get() = 5..5
-
-    fun nextString(): String {
-        return randomUUIDStr()
-    }
+    val collectionSizeRange: IntRange
 
     fun nextInt(): Int {
         return random.nextInt()
+    }
+
+    fun nextByte():Byte{
+        return random.nextBytes(1)[0]
+    }
+
+    val charRange:CharRange
+
+    fun nextChar():Char{
+        return charRange.random(this.random)
     }
 }
 

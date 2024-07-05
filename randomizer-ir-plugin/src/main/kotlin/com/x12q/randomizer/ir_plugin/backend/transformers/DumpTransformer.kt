@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.Standards
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -102,7 +102,7 @@ class DumpTransformer(
         irBuilder: IrBuilderWithScope,
     ): IrCall {
 //        val printlnCallId = CallableId(FqName("kotlin.io"),Name.identifier("println"))
-        val printlnCallId = Standards.printlnCallId
+        val printlnCallId = BaseObjects.Std.printlnCallId
         val strIR = irBuilder.irString(
 //            targetFunction.dump()
             classDataBuilder.toString()

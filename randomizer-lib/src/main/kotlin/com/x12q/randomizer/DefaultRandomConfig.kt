@@ -6,4 +6,5 @@ import kotlin.random.Random
 object DefaultRandomConfig : RandomConfig {
     override var random: Random = Random
     override var collectionSizeRange: IntRange = 5 .. 5
+    override val charRange = 'A'..'z'
 }
