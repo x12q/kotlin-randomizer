@@ -10,11 +10,12 @@ import org.jetbrains.kotlin.name.Name
 import kotlin.random.Random
 
 internal object BaseObjects {
-    val printlnCallId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
-    val RANDOMIZABLE_NAME = Randomizable::class.qualifiedName!!
+
     val packageName = "com.x12q.randomizer"
-    val randomizableFqName = FqName(RANDOMIZABLE_NAME)
-    val randomizableName = Name.identifier(RANDOMIZABLE_NAME)
+
+    val printlnCallId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
+    val randomizableAnnotationName = Randomizable::class.qualifiedName!!
+    val randomizableFqName = FqName(randomizableAnnotationName)
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
 
     val declarationOrigin = RandomizerDeclarationOrigin
@@ -22,10 +23,11 @@ internal object BaseObjects {
 
     val randomFunctionName = Name.identifier("random")
     val randomConfigParamName= Name.identifier("randomConfig")
-    val randomizerParamName= Name.identifier("randomizer")
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
-    val defaultRandomConfigClassId = ClassId(FqName("com.x12q.randomizer"), topLevelName = Name.identifier("DefaultRandomConfig"))
+
+    val defaultConfigClassName = "DefaultRandomConfig"
+    val defaultRandomConfigClassId = ClassId(FqName("com.x12q.randomizer"), topLevelName = Name.identifier(defaultConfigClassName))
 
     val randomConfigClassId = ClassId.topLevel(FqName(RandomConfig::class.qualifiedName!!))
     val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))

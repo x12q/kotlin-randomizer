@@ -3,8 +3,13 @@ package com.x12q.randomizer
 import com.x12q.randomizer.util.randomUUIDStr
 import kotlin.random.Random
 
-object DefaultRandomConfig : RandomConfig {
-    override var random: Random = Random
-    override var collectionSizeRange: IntRange = 5 .. 5
-    override val charRange = 'A'..'z'
+class DefaultRandomConfig(
+    override val random: Random,
+    override val collectionSizeRange: IntRange,
+    override val charRange: CharRange
+) : RandomConfig {
+
+    companion object{
+        val default = DefaultRandomConfig(Random,5 .. 5, 'A' .. 'z')
+    }
 }

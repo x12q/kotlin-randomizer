@@ -13,6 +13,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomPrimitive {
+
     @Test
     fun `randomize primitive parameter with default RandomConfig`() {
 

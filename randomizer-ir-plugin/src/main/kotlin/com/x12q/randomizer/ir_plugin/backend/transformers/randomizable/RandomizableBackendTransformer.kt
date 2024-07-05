@@ -52,12 +52,26 @@ class RandomizableBackendTransformer @Inject constructor(
         RandomConfigAccessor(randomConfigClass)
     }
 
-    private val defaultRandomConfig by lazy {
-        val clzz = pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)
-        requireNotNull(clzz) {
-            "impossible, a RandomConfig class must be provided in @Randomizable, this is a mistake by the developer"
+    private val defaultRandomConfigClass by lazy {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)) {
+            "impossible, DefaultRandomConfig class must exist in the class path"
         }
-        clzz
+    }
+
+    private val defaultRandomConfigCompanion by lazy {
+        requireNotNull(defaultRandomConfigClass.owner.companionObject()){
+            "impossible, ${BaseObjects.defaultConfigClassName}.Companion must exist"
+        }
+    }
+
+    private val getDefaultRandomConfigInstance by lazy {
+        if(defaultRandomConfigCompanion.isObject){
+            requireNotNull(defaultRandomConfigCompanion.getPropertyGetter("default")){
+                "Impossible, ${BaseObjects.defaultConfigClassName}.Companion must contain a \"default\" variable"
+            }
+        }else{
+            throw IllegalArgumentException("Impossible, ${BaseObjects.defaultConfigClassName}.CompanionObject must be an object")
+        }
     }
 
     val irFactory = pluginContext.irFactory
@@ -119,21 +133,14 @@ class RandomizableBackendTransformer @Inject constructor(
         } else {
 
             val randomConfigParam: IrValueParameter? = randomConfigArgumentParamData?.first
+            if (randomConfigParam?.hasDefaultValue() == true) {
+                /**
+                 * This is DefaultConfig.Companion.default
+                 */
+                return builder.irGetObject(defaultRandomConfigCompanion.symbol).dotCall(builder.irCall(getDefaultRandomConfigInstance))
 
-
-            if (false) {
-                TODO(
-                    "" +
-                            "improve this, so it uses the actual information in the default IR expression instead of a shortcut like this" +
-                            "May write some code like KClass.objectStance, then dump it to study the structure of the call"
-                )
             } else {
-                if (randomConfigParam?.hasDefaultValue() == true) {
-                    return builder.irGetObject(defaultRandomConfig)
-                } else {
-                    throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
-                }
-
+                throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
             }
         }
     }
@@ -249,7 +256,6 @@ class RandomizableBackendTransformer @Inject constructor(
         if (primType != null) {
             val rt = when (primType) {
                 PrimitiveType.BOOLEAN -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
-//                PrimitiveType.CHAR -> builder.irChar('z')
                 PrimitiveType.CHAR -> getRandomConfig.dotCall (randomConfigAccessor.nextChar(builder))
                 PrimitiveType.BYTE -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
                 PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
@@ -285,7 +291,6 @@ class RandomizableBackendTransformer @Inject constructor(
             val declarationBuilder = DeclarationIrBuilder(
                 generatorContext = pluginContext, symbol = declaration.symbol
             )
-
 
             val newBody = declarationBuilder.irBlockBody {
                 // create and add the print dump call in the new function body
