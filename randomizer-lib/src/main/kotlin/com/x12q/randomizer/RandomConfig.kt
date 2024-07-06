@@ -22,6 +22,29 @@ interface RandomConfig {
     fun nextChar():Char{
         return charRange.random(this.random)
     }
+
+    fun nextShort():Short{
+        return random.nextInt().toShort()
+    }
+
+    fun nextStringUUID():String{
+        return randomUUIDStr()
+    }
+
+    fun nextUnit():Unit{
+        return Unit
+    }
+
+    fun nextNumber():Number{
+        return listOf(
+            random.nextInt(),
+            random.nextLong(),
+            random.nextFloat(),
+            random.nextDouble(),
+            nextShort(),
+            nextByte(),
+        ).random()
+    }
 }
 
 

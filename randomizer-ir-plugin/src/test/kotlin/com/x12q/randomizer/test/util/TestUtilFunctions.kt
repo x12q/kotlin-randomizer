@@ -3,7 +3,7 @@ package com.x12q.randomizer.test.util
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
+import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertions
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

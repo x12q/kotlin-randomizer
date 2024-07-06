@@ -23,7 +23,7 @@ class TestPassingRandomConfig{
                 import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random(DefaultRandomConfig.default))
                     println(Q123.random())
                 }
                 @Randomizable(
@@ -55,7 +55,7 @@ class TestPassingRandomConfig{
                 import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig))
+                    println(Q123.random(DefaultRandomConfig.default))
                     println(Q123.random())
                 }
                 @Randomizable

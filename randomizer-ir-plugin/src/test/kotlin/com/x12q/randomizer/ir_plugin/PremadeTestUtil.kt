@@ -2,7 +2,7 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RDBackendTransformer
+import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
 import com.x12q.randomizer.ir_plugin.frontend.k2.RDFrontEndGenerationExtension
 import com.x12q.randomizer.ir_plugin.frontend.k2.diagnos.RDCheckersExtension
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder

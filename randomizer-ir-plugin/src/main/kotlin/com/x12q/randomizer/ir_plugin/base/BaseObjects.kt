@@ -1,5 +1,6 @@
 package com.x12q.randomizer.ir_plugin.base
 
+import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.annotations.Randomizable
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
@@ -26,8 +27,10 @@ internal object BaseObjects {
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
 
-    val defaultConfigClassName = "DefaultRandomConfig"
-    val defaultRandomConfigClassId = ClassId(FqName("com.x12q.randomizer"), topLevelName = Name.identifier(defaultConfigClassName))
+
+    val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
+    val defaultConfigClassShortName = defaultConfigClassFqName.shortName()
+    val defaultRandomConfigClassId = ClassId.topLevel(defaultConfigClassFqName)
 
     val randomConfigClassId = ClassId.topLevel(FqName(RandomConfig::class.qualifiedName!!))
     val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))

@@ -1,8 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.di
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.BenchTransformer
-//import com.squareup.anvil.annotations.MergeComponent
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableBackendTransformer
+import com.x12q.randomizer.ir_plugin.backend.transformers.BenchTransformer
+import com.x12q.randomizer.ir_plugin.backend.transformers.RandomizableBackendTransformer
 import dagger.BindsInstance
 import dagger.Component
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -10,9 +9,6 @@ import javax.inject.Singleton
 
 
 @Singleton
-//@MergeComponent(
-//    scope = P7AnvilScope::class,
-//)
 @Component
 interface P7Component {
 

@@ -28,6 +28,7 @@ buildConfig{
 dependencies {
 
     implementation(project(":randomizer-lib"))
+//    implementation(project(":randomizer-common"))
     implementation(libs.michaelbull.kotlinResult)
 
     compileOnly(libs.kotlin.compiler.embeddable)

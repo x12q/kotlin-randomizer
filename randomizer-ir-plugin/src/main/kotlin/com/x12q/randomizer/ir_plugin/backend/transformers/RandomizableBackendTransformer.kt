@@ -1,13 +1,15 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable
+package com.x12q.randomizer.ir_plugin.backend.transformers
 
+import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomConfigAccessor
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.backend.transformers.utils.dotCall
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.builtins.PrimitiveType
+import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
@@ -15,7 +17,6 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.getPrimitiveType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
@@ -23,6 +24,8 @@ import javax.inject.Inject
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 class RandomizableBackendTransformer @Inject constructor(
     override val pluginContext: IrPluginContext,
+    private val randomAccessFactory: RandomAccessor.Factory,
+    private val randomConfigAccessorFactory: RandomConfigAccessor.Factory,
 ) : RDBackendTransformer() {
 
     val globalConfigName = "com.x12q.randomizer.GlobalRandomConfig"
@@ -38,7 +41,7 @@ class RandomizableBackendTransformer @Inject constructor(
         clzz
     }
 
-    private val randomAccessor by lazy { RandomAccessor(kotlinRandomClass,pluginContext) }
+    private val randomAccessor by lazy { randomAccessFactory.create(kotlinRandomClass) }
 
     private val randomConfigClass by lazy {
         val clzz = pluginContext.referenceClass(BaseObjects.randomConfigClassId)
@@ -49,7 +52,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private val randomConfigAccessor by lazy {
-        RandomConfigAccessor(randomConfigClass)
+        randomConfigAccessorFactory.create(randomConfigClass)
     }
 
     private val defaultRandomConfigClass by lazy {
@@ -58,19 +61,19 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    private val defaultRandomConfigCompanion by lazy {
-        requireNotNull(defaultRandomConfigClass.owner.companionObject()){
-            "impossible, ${BaseObjects.defaultConfigClassName}.Companion must exist"
+    private val defaultRandomConfigCompanionObject by lazy {
+        requireNotNull(defaultRandomConfigClass.owner.companionObject()) {
+            "impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must exist"
         }
     }
 
     private val getDefaultRandomConfigInstance by lazy {
-        if(defaultRandomConfigCompanion.isObject){
-            requireNotNull(defaultRandomConfigCompanion.getPropertyGetter("default")){
-                "Impossible, ${BaseObjects.defaultConfigClassName}.Companion must contain a \"default\" variable"
+        if (defaultRandomConfigCompanionObject.isObject) {
+            requireNotNull(defaultRandomConfigCompanionObject.getPropertyGetter("default")) {
+                "Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must contain a \"default\" variable"
             }
-        }else{
-            throw IllegalArgumentException("Impossible, ${BaseObjects.defaultConfigClassName}.CompanionObject must be an object")
+        } else {
+            throw IllegalArgumentException("Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must be an object")
         }
     }
 
@@ -90,7 +93,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create an IR expression that returns a [RandomConfig] instance from @Randomizable annotation
+     * Create an IR expression that returns a [RandomConfig] instance from [Randomizable] annotation
      */
     private fun makeRandomConfigExpressionFromAnnotation(
         annotation: IrConstructorCall,
@@ -107,42 +110,71 @@ class RandomizableBackendTransformer @Inject constructor(
 
         if (providedArgument != null) {
 
-            val providedArgumentClassSymbol = (providedArgument as? IrClassReference)?.classType?.classOrNull
+            val providedArgumentClassSymbol =
+                requireNotNull((providedArgument as? IrClassReference)?.classType?.classOrNull) {
+                    "$providedArgument must be a KClass"
+                }
 
-            if (providedArgumentClassSymbol != null) {
+            val providedClassIsDefaultRandomConfigClass =
+                providedArgumentClassSymbol.owner.classId == BaseObjects.defaultRandomConfigClassId
+
+            if (providedClassIsDefaultRandomConfigClass) {
+                return getDefaultRandomConfigInstance(builder)
+            } else {
                 val providedArgumentIrClass = providedArgumentClassSymbol.owner
+
                 if (providedArgumentIrClass.isObject) {
                     return builder.irGetObject(providedArgumentClassSymbol)
                 } else if (providedArgumentIrClass.isClass) {
-                    val constructor = providedArgumentIrClass.primaryConstructor
-                    if (constructor != null) {
-                        if (constructor.valueParameters.isEmpty()) {
-                            return builder.irCall(constructor)
-                        } else {
-                            throw IllegalArgumentException("${providedArgumentIrClass.name}: RandomConfig class primary constructor must have zero parameter")
+
+                    when (providedArgumentIrClass.modality) {
+                        ABSTRACT,
+                        SEALED -> {
+                            throw IllegalArgumentException("${providedArgumentIrClass.name} must NOT be abstract")
                         }
-                    } else {
-                        throw IllegalArgumentException("${providedArgumentIrClass.name}: RandomConfig class must have a primary constructor")
+
+                        OPEN,
+                        FINAL -> {
+
+                            /**
+                             * There's a custom [RandomConfig] class, proceed to create an instance of it.
+                             * Constructor must be zero-arg in case that is a class, otherwise throw exception
+                             */
+
+                            val primaryConstructor = providedArgumentIrClass.primaryConstructor.takeIf {
+                                it != null && it.valueParameters.isEmpty()
+                            }
+
+                            val constructor = primaryConstructor ?: providedArgumentIrClass.constructors.firstOrNull {
+                                it.valueParameters.isEmpty()
+                            }
+                            if (constructor != null) {
+                                return builder.irCall(constructor)
+                            } else {
+                                throw IllegalArgumentException("${providedArgumentIrClass.name}: must have a zero-arg constructor")
+                            }
+                        }
                     }
+
                 } else {
                     throw IllegalArgumentException("${providedArgumentIrClass.name} must either be a class or an object")
                 }
-            } else {
-                throw IllegalArgumentException("$providedArgument must be a KClass")
             }
         } else {
-
             val randomConfigParam: IrValueParameter? = randomConfigArgumentParamData?.first
-            if (randomConfigParam?.hasDefaultValue() == true) {
-                /**
-                 * This is DefaultConfig.Companion.default
-                 */
-                return builder.irGetObject(defaultRandomConfigCompanion.symbol).dotCall(builder.irCall(getDefaultRandomConfigInstance))
-
-            } else {
-                throw IllegalArgumentException("impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer")
+            require(randomConfigParam?.hasDefaultValue() == true) {
+                "impossible, a default class or object must be provided for @Randomizable, this is a mistake by the developer"
             }
+            return getDefaultRandomConfigInstance(builder)
         }
+    }
+
+    /**
+     * Construct an IrCall to access [DefaultRandomConfig.Companion.default]
+     */
+    private fun getDefaultRandomConfigInstance(builder: DeclarationIrBuilder): IrCall {
+        return builder.irGetObject(defaultRandomConfigCompanionObject.symbol)
+            .dotCall(builder.irCall(getDefaultRandomConfigInstance))
     }
 
     /**
@@ -251,25 +283,22 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val getRandom = getRandomConfig.dotCall(randomConfigAccessor.random(builder))
         val paramType = param.type
-        val primType = paramType.getPrimitiveType()
+        val builtInTypes = pluginContext.irBuiltIns
 
-        if (primType != null) {
-            val rt = when (primType) {
-                PrimitiveType.BOOLEAN -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
-                PrimitiveType.CHAR -> getRandomConfig.dotCall (randomConfigAccessor.nextChar(builder))
-                PrimitiveType.BYTE -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
-                PrimitiveType.SHORT -> 123.toShort().toIrConst(pluginContext.irBuiltIns.shortType)
-                PrimitiveType.INT -> getRandom.dotCall(randomAccessor.nextInt(builder))
-                PrimitiveType.FLOAT -> getRandom.dotCall(randomAccessor.nextFloat(builder))
-                PrimitiveType.LONG -> getRandom.dotCall(randomAccessor.nextLong(builder))
-                PrimitiveType.DOUBLE -> getRandom.dotCall(randomAccessor.nextDouble(builder))
-                else -> {
-                    throw IllegalArgumentException("not support primitive type $primType")
-                }
-            }
-            return rt
-        } else {
-            return null
+        return when (paramType) {
+            builtInTypes.booleanType -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
+            builtInTypes.intType -> getRandom.dotCall(randomAccessor.nextInt(builder))
+            builtInTypes.floatType -> getRandom.dotCall(randomAccessor.nextFloat(builder))
+            builtInTypes.longType -> getRandom.dotCall(randomAccessor.nextLong(builder))
+            builtInTypes.doubleType -> getRandom.dotCall(randomAccessor.nextDouble(builder))
+
+            builtInTypes.charType -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
+            builtInTypes.byteType -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
+            builtInTypes.shortType -> getRandomConfig.dotCall { randomConfigAccessor.nextShort(builder) }
+            builtInTypes.stringType -> getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) }
+            builtInTypes.unitType -> getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
+            builtInTypes.numberType -> getRandomConfig.dotCall { randomConfigAccessor.nextNumber(builder) }
+            else -> null
         }
     }
 

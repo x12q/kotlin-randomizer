@@ -28,12 +28,15 @@ class TestRandomPrimitive {
 
                 @Randomizable
                 data class Q123(
-                    val i:Int,
-                    val l:Long,
-                    val f:Float,
-                    val d:Double,
+                    val int:Int,
+                    val long:Long,
+                    val float:Float,
+                    val double:Double,
                     val byte:Byte,
-                    val c:Char,
+                    val char:Char,
+                    val short: Short,
+                    val string:String,
+                    val number:Number,
                 )
             """,
             fileName = "main.kt"

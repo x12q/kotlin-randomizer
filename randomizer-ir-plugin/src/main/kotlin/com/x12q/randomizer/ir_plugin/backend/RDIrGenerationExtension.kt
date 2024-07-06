@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend
 
+import com.x12q.randomizer.ir_plugin.backend.transformers.RandomizableBackendTransformer
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
-import com.x12q.randomizer.ir_plugin.backend.transformers.randomizable.RandomizableBackendTransformer
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment

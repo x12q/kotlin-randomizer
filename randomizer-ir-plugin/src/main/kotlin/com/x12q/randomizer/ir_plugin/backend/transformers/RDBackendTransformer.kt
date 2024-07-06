@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.randomizable
+package com.x12q.randomizer.ir_plugin.backend.transformers
 
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
