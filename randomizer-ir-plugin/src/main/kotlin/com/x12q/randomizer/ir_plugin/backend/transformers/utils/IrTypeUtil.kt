@@ -109,6 +109,38 @@ internal fun IrType.isInt2(nullable:Boolean):Boolean{
     }
 }
 
+internal fun IrType.isUInt2(nullable:Boolean):Boolean{
+    if(nullable){
+        return this.isNullableClassType2(IdSignatureValues.uInt)
+    }else{
+        return this.isUInt()
+    }
+}
+
+internal fun IrType.isULong2(nullable:Boolean):Boolean{
+    if(nullable){
+        return this.isNullableClassType2(IdSignatureValues.uLong)
+    }else{
+        return this.isULong()
+    }
+}
+
+internal fun IrType.isUShort2(nullable:Boolean):Boolean{
+    if(nullable){
+        return this.isNullableClassType2(IdSignatureValues.uShort)
+    }else{
+        return this.isUShort()
+    }
+}
+
+internal fun IrType.isUByte2(nullable:Boolean):Boolean{
+    if(nullable){
+        return this.isNullableClassType2(IdSignatureValues.uByte)
+    }else{
+        return this.isUByte()
+    }
+}
+
 
 internal fun IrType.isNullableClassType2(signature: IdSignature.CommonSignature) = isClassType2(signature, nullable = true)
 

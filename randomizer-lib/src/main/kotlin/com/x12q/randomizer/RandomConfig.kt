@@ -2,6 +2,9 @@ package com.x12q.randomizer
 
 import com.x12q.randomizer.util.randomUUIDStr
 import kotlin.random.Random
+import kotlin.random.nextUBytes
+import kotlin.random.nextUInt
+import kotlin.random.nextULong
 
 interface RandomConfig {
 
@@ -11,6 +14,14 @@ interface RandomConfig {
 
     fun nextInt(): Int {
         return random.nextInt()
+    }
+
+    fun nextUInt():UInt{
+        return random.nextInt().toUInt()
+    }
+
+    fun nextUIntOrNull():UInt?{
+        return nextUInt().orNull()
     }
 
     fun nextIntOrNull(): Int? {
@@ -23,6 +34,14 @@ interface RandomConfig {
 
     fun nextFloatOrNull(): Float? {
         return random.nextFloat().orNull()
+    }
+
+    fun nextULong():ULong{
+        return random.nextULong()
+    }
+
+    fun nextULongOrNull():ULong?{
+        return nextULong().orNull()
     }
 
     fun nextLongOrNull(): Long? {
@@ -41,6 +60,15 @@ interface RandomConfig {
         return nextByte().orNull()
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun nextUByte():UByte{
+        return random.nextUBytes(1).first()
+    }
+
+    fun nextUByteOrNull():UByte?{
+        return nextUByte().orNull()
+    }
+
     val charRange: CharRange
 
     fun nextChar(): Char {
@@ -54,8 +82,17 @@ interface RandomConfig {
     fun nextShort(): Short {
         return random.nextInt().toShort()
     }
+
     fun nextShortOrNull(): Short? {
         return nextShort().orNull()
+    }
+
+    fun nextUShort():UShort{
+        return nextShort().toUShort()
+    }
+
+    fun nextUShortOrNull():UShort?{
+        return nextUShort().orNull()
     }
 
     fun nextStringUUID(): String {
@@ -69,6 +106,7 @@ interface RandomConfig {
     fun nextUnit(): Unit {
         return Unit
     }
+
     fun nextUnitOrNull(): Unit? {
         return Unit.orNull()
     }

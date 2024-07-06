@@ -15,6 +15,13 @@ import kotlin.test.Test
 class TestRandomPrimitive {
 
     @Test
+    fun qwe(){
+        val u = 123
+        val z = u.toUInt()
+
+    }
+
+    @Test
     fun `randomize primitive parameter with default RandomConfig`() {
 
         testGeneratedCodeUsingStandardPlugin(
@@ -51,6 +58,37 @@ class TestRandomPrimitive {
             }
         }
     }
+
+    @Test
+    fun `randomize primitive U parameter with default RandomConfig`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random())
+                    println(Q123.random(DefaultRandomConfig.default))
+                }
+
+                @Randomizable
+                data class Q123(
+                    val uint:UInt?,
+//                    val ulong:ULong,
+//                    val ubyte:UByte,
+//                    val ushort: UShort,
+                )
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
 
     @Test
     fun `randomize nullable primitive parameter with default RandomConfig`() {
