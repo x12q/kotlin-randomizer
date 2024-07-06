@@ -13,29 +13,67 @@ interface RandomConfig {
         return random.nextInt()
     }
 
-    fun nextByte():Byte{
+    fun nextIntOrNull(): Int? {
+        return random.nextInt().orNull()
+    }
+
+    fun nextBoolOrNull(): Boolean? {
+        return random.nextBoolean().orNull()
+    }
+
+    fun nextFloatOrNull(): Float? {
+        return random.nextFloat().orNull()
+    }
+
+    fun nextLongOrNull(): Long? {
+        return random.nextLong().orNull()
+    }
+
+    fun nextDoubleOrNull(): Double? {
+        return random.nextDouble().orNull()
+    }
+
+    fun nextByte(): Byte {
         return random.nextBytes(1)[0]
     }
 
-    val charRange:CharRange
+    fun nextByteOrNull():Byte?{
+        return nextByte().orNull()
+    }
 
-    fun nextChar():Char{
+    val charRange: CharRange
+
+    fun nextChar(): Char {
         return charRange.random(this.random)
     }
 
-    fun nextShort():Short{
-        return random.nextInt().toShort()
+    fun nextCharOrNull():Char?{
+        return nextChar().orNull()
     }
 
-    fun nextStringUUID():String{
+    fun nextShort(): Short {
+        return random.nextInt().toShort()
+    }
+    fun nextShortOrNull(): Short? {
+        return nextShort().orNull()
+    }
+
+    fun nextStringUUID(): String {
         return randomUUIDStr()
     }
 
-    fun nextUnit():Unit{
-        return Unit
+    fun nextStringUUIDOrNull(): String? {
+        return nextStringUUID().orNull()
     }
 
-    fun nextNumber():Number{
+    fun nextUnit(): Unit {
+        return Unit
+    }
+    fun nextUnitOrNull(): Unit? {
+        return Unit.orNull()
+    }
+
+    fun nextNumber(): Number {
         return listOf(
             random.nextInt(),
             random.nextLong(),
@@ -43,7 +81,19 @@ interface RandomConfig {
             random.nextDouble(),
             nextShort(),
             nextByte(),
-        ).random()
+        ).random(random)
+    }
+
+    fun nextNumberOrNull():Number?{
+        return nextNumber().orNull()
+    }
+
+    private fun <T> T.orNull():T?{
+        return if(random.nextBoolean()){
+            this
+        }else{
+            null
+        }
     }
 }
 

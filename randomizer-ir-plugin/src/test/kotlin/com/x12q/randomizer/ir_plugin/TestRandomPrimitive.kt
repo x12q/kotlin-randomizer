@@ -24,10 +24,12 @@ class TestRandomPrimitive {
 
                 fun main(){
                     println(Q123.random())
+                    println(Q123.random(DefaultRandomConfig.default))
                 }
 
                 @Randomizable
                 data class Q123(
+                    val boolean: Boolean,
                     val int:Int,
                     val long:Long,
                     val float:Float,
@@ -37,36 +39,112 @@ class TestRandomPrimitive {
                     val short: Short,
                     val string:String,
                     val number:Number,
+                    val unit:Unit,
+                    val any:Any,
                 )
             """,
             fileName = "main.kt"
         ) {
-            afterVisitClassNew = { irClass, statement, irPluginContext ->
-                if (irClass.name.toString() == "Q123") {
-                    val companionObj = irClass.companionObject()
-                    companionObj.shouldNotBeNull()
-
-                    val randomFunction = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName && it.valueParameters.size==1
-                    }
-
-                    randomFunction.shouldNotBeNull()
-                    randomFunction.returnType.classFqName.toString() shouldBe "Q123"
-                    randomFunction.body.shouldNotBeNull()
-
-
-                    val randomFunctionWithRandomConfig = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==1
-                    }
-                    randomFunctionWithRandomConfig.shouldNotBeNull()
-
-                }
-            }
             testCompilation = { result->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
         }
     }
+
+    @Test
+    fun `randomize nullable primitive parameter with default RandomConfig`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
+
+                fun main(){
+                    for(x in 1 .. 10){
+                        println(Q123.random())
+                        println(Q123.random(RandomConfigForTest))                    
+                        println(Q123.random(RandomConfigForTest))
+                    }
+                }
+
+                @Randomizable
+                data class Q123(
+                    val int:Int?,
+                    val boolean: Boolean?,
+                    val long:Long?,
+                    val float:Float?,
+                    val double:Double?,
+                    val byte:Byte?,
+                    val char:Char?,
+                    val short: Short?,
+                    val string:String?,
+                    val number:Number?,
+                    val unit:Unit?,
+                    val any:Any?,
+                )
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+
+    @Test
+    fun `randomize primitive Nothing`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random())
+                    println(Q123.random(DefaultRandomConfig.default))
+                }
+
+                @Randomizable
+                data class Q123(
+                    val nt:Nothing,
+                )
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
+            }
+        }
+    }
+    @Test
+    fun `randomize primitive Nothing nullable`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random())
+                    println(Q123.random(DefaultRandomConfig.default))
+                }
+
+                @Randomizable
+                data class Q123(
+                    val nt:Nothing?,
+                )
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
+            }
+        }
+    }
+
 
 }

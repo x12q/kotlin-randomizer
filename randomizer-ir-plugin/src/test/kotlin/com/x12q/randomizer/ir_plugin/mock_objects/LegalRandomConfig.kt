@@ -13,3 +13,4 @@ class LegalRandomConfig : RandomConfig{
 
     override val charRange: CharRange = 'A' .. 'z'
 }
+

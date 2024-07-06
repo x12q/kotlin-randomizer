@@ -11,17 +11,17 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import javax.inject.Inject
 import kotlin.random.Random
 
 /**
  * Provide convenient access to kotlin.random.Random member function symbols
  */
-class RandomAccessor @AssistedInject constructor(
-    @Assisted
-    private val randomClass:IrClassSymbol,
-    val pluginContext: IrPluginContext,
-):ClassAccessor(randomClass) {
+class RandomAccessor @Inject constructor(
+    private val basicClassAccessor:BasicClassAccessor,
+):ClassAccessor() {
 
+    override val clzz: IrClassSymbol = basicClassAccessor.kotlinRandomClass
 
     private val nextIntFunction:IrSimpleFunctionSymbol by lazy {
         zeroAgrFunction("nextInt")
@@ -44,7 +44,6 @@ class RandomAccessor @AssistedInject constructor(
     fun nextLong(builder: DeclarationIrBuilder):IrCall{
         return builder.irCall(nextLongFunction)
     }
-
 
     val nextDoubleFunction:IrSimpleFunctionSymbol by lazy {
         zeroAgrFunction("nextDouble")
@@ -84,10 +83,5 @@ class RandomAccessor @AssistedInject constructor(
      */
     fun nextBoolean(builder: DeclarationIrBuilder):IrCall{
         return builder.irCall(nextBooleanFunction)
-    }
-
-    @AssistedFactory
-    interface Factory{
-        fun create(randomClass:IrClassSymbol):RandomAccessor
     }
 }

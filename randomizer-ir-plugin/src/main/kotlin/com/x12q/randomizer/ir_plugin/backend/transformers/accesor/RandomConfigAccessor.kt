@@ -10,15 +10,16 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
+import javax.inject.Inject
 import kotlin.random.Random
 
-class RandomConfigAccessor @AssistedInject constructor(
-    @Assisted
-    private val randomConfigClass: IrClassSymbol
-) : ClassAccessor(randomConfigClass) {
+class RandomConfigAccessor @Inject constructor(
+    private val baseClassAccessor: BasicClassAccessor,
+) : ClassAccessor() {
+    override val clzz: IrClassSymbol = baseClassAccessor.randomConfigClass
 
-    val randomProperty by lazy {
-        requireNotNull(randomConfigClass.getPropertyGetter("random")){
+    private val randomProperty by lazy {
+        requireNotNull(clzz.getPropertyGetter("random")){
             "impossible, ${BaseObjects.randomConfigClassId.shortClassName} must provide a ${BaseObjects.randomClassId} instance"
         }
     }
@@ -42,7 +43,6 @@ class RandomConfigAccessor @AssistedInject constructor(
     fun nextChar(builder: DeclarationIrBuilder):IrCall{
         return builder.zeroAgrFunctionCall("nextChar")
     }
-
 
     /**
      * Construct an [IrCall] to access [RandomConfig.nextShort]
@@ -68,10 +68,48 @@ class RandomConfigAccessor @AssistedInject constructor(
         return builder.zeroAgrFunctionCall("nextNumber")
     }
 
-    @AssistedFactory
-    interface Factory {
-        fun create(randomConfigClass: IrClassSymbol):RandomConfigAccessor
+    fun nextIntOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextIntOrNull")
     }
 
+    fun nextBoolOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextBoolOrNull")
+    }
+
+    fun nextFloatOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextFloatOrNull")
+    }
+
+    fun nextLongOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextLongOrNull")
+    }
+
+    fun nextDoubleOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextDoubleOrNull")
+    }
+
+    fun nextCharOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextCharOrNull")
+    }
+
+    fun nextByteOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextByteOrNull")
+    }
+
+    fun nextShortOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextShortOrNull")
+    }
+
+    fun nextStringUUIDOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextStringUUIDOrNull")
+    }
+
+    fun nextUnitOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextUnitOrNull")
+    }
+
+    fun nextNumberOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextNumberOrNull")
+    }
 }
 

@@ -3,81 +3,30 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicClassAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomConfigAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.dotCall
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.Modality.*
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 class RandomizableBackendTransformer @Inject constructor(
     override val pluginContext: IrPluginContext,
-    private val randomAccessFactory: RandomAccessor.Factory,
-    private val randomConfigAccessorFactory: RandomConfigAccessor.Factory,
+    private val randomAccessor: RandomAccessor,
+    private val randomConfigAccessor: RandomConfigAccessor,
+    private val basicClassAccessor: BasicClassAccessor
 ) : RDBackendTransformer() {
-
-    val globalConfigName = "com.x12q.randomizer.GlobalRandomConfig"
-    val configAnnotation = "com.x12q.randomizer.annotations.RandomizerConfig"
-
-    private val dumpBuilder: StringBuilder = StringBuilder()
-
-    private val kotlinRandomClass by lazy {
-        val clzz = pluginContext.referenceClass(BaseObjects.randomClassId)
-        requireNotNull(clzz) {
-            "kotlin.random.Random class is not in the class path."
-        }
-        clzz
-    }
-
-    private val randomAccessor by lazy { randomAccessFactory.create(kotlinRandomClass) }
-
-    private val randomConfigClass by lazy {
-        val clzz = pluginContext.referenceClass(BaseObjects.randomConfigClassId)
-        requireNotNull(clzz) {
-            "RandomConfig interface is not in the class path."
-        }
-        clzz
-    }
-
-    private val randomConfigAccessor by lazy {
-        randomConfigAccessorFactory.create(randomConfigClass)
-    }
-
-    private val defaultRandomConfigClass by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)) {
-            "impossible, DefaultRandomConfig class must exist in the class path"
-        }
-    }
-
-    private val defaultRandomConfigCompanionObject by lazy {
-        requireNotNull(defaultRandomConfigClass.owner.companionObject()) {
-            "impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must exist"
-        }
-    }
-
-    private val getDefaultRandomConfigInstance by lazy {
-        if (defaultRandomConfigCompanionObject.isObject) {
-            requireNotNull(defaultRandomConfigCompanionObject.getPropertyGetter("default")) {
-                "Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must contain a \"default\" variable"
-            }
-        } else {
-            throw IllegalArgumentException("Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must be an object")
-        }
-    }
-
-    val irFactory = pluginContext.irFactory
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
 
@@ -130,7 +79,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     when (providedArgumentIrClass.modality) {
                         ABSTRACT,
                         SEALED -> {
-                            throw IllegalArgumentException("${providedArgumentIrClass.name} must NOT be abstract")
+                            throw IllegalArgumentException("${providedArgumentIrClass.name} must not be abstract")
                         }
 
                         OPEN,
@@ -148,6 +97,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             val constructor = primaryConstructor ?: providedArgumentIrClass.constructors.firstOrNull {
                                 it.valueParameters.isEmpty()
                             }
+
                             if (constructor != null) {
                                 return builder.irCall(constructor)
                             } else {
@@ -173,8 +123,8 @@ class RandomizableBackendTransformer @Inject constructor(
      * Construct an IrCall to access [DefaultRandomConfig.Companion.default]
      */
     private fun getDefaultRandomConfigInstance(builder: DeclarationIrBuilder): IrCall {
-        return builder.irGetObject(defaultRandomConfigCompanionObject.symbol)
-            .dotCall(builder.irCall(getDefaultRandomConfigInstance))
+        return builder.irGetObject(basicClassAccessor.defaultRandomConfigCompanionObject.symbol)
+            .dotCall(builder.irCall(basicClassAccessor.getDefaultRandomConfigInstance))
     }
 
     /**
@@ -285,84 +235,70 @@ class RandomizableBackendTransformer @Inject constructor(
         val paramType = param.type
         val builtInTypes = pluginContext.irBuiltIns
 
-        return when (paramType) {
-            builtInTypes.booleanType -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
-            builtInTypes.intType -> getRandom.dotCall(randomAccessor.nextInt(builder))
-            builtInTypes.floatType -> getRandom.dotCall(randomAccessor.nextFloat(builder))
-            builtInTypes.longType -> getRandom.dotCall(randomAccessor.nextLong(builder))
-            builtInTypes.doubleType -> getRandom.dotCall(randomAccessor.nextDouble(builder))
+        if (paramType.isNullable()) {
+            return when {
+                paramType.isInt2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextIntOrNull(builder))
+                paramType.isBoolean2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolOrNull(builder))
+                paramType.isFloat2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloatOrNull(builder))
+                paramType.isLong2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextLongOrNull(builder))
+                paramType.isDouble2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextDoubleOrNull(builder))
+                paramType.isLong2(true) -> getRandom.dotCall(randomConfigAccessor.nextLongOrNull(builder))
 
-            builtInTypes.charType -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
-            builtInTypes.byteType -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
-            builtInTypes.shortType -> getRandomConfig.dotCall { randomConfigAccessor.nextShort(builder) }
-            builtInTypes.stringType -> getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) }
-            builtInTypes.unitType -> getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
-            builtInTypes.numberType -> getRandomConfig.dotCall { randomConfigAccessor.nextNumber(builder) }
-            else -> null
-        }
-    }
+                paramType.isChar2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextCharOrNull(builder))
+                paramType.isByte2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextByteOrNull(builder))
+                paramType.isShort2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextShortOrNull(builder))
+                paramType.isString2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder))
+                paramType.isUnit2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnitOrNull(builder))
+                paramType.isNumber2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumberOrNull(builder))
+//
+                paramType.isAny2(true) -> listOf(
+                    getRandomConfig.dotCall(randomConfigAccessor.nextIntOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextBoolOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextFloatOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextLongOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextDoubleOrNull(builder)),
 
-    fun IrElement.dumpToDump() {
-        dumpBuilder.appendLine(
-            this.dump()
-        )
-    }
+                    getRandomConfig.dotCall(randomConfigAccessor.nextCharOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextByteOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextUnitOrNull(builder))
+                ).random()
 
+                paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
 
-    /**
-     * Alter the body of [declaration], so that a println statement that prints out the dump of the function itself is added at the beginning of the function body.
-     */
-    override fun visitFunctionNew(declaration: IrFunction): IrStatement {
-
-        val oldBody = declaration.body
-
-        if (oldBody != null && isSomeFunction(declaration)) {
-            val declarationBuilder = DeclarationIrBuilder(
-                generatorContext = pluginContext, symbol = declaration.symbol
-            )
-
-            val newBody = declarationBuilder.irBlockBody {
-                // create and add the print dump call in the new function body
-                +printDumpCall(
-                    pluginContext, declaration, this
-                )
-                // preserve the statements in the old function body
-                for (statement in oldBody.statements) {
-                    +statement
-                }
+                else -> null
             }
+        } else {
+            return when (paramType) {
+                builtInTypes.booleanType -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
+                builtInTypes.intType -> getRandom.dotCall(randomAccessor.nextInt(builder))
+                builtInTypes.floatType -> getRandom.dotCall(randomAccessor.nextFloat(builder))
+                builtInTypes.longType -> getRandom.dotCall(randomAccessor.nextLong(builder))
+                builtInTypes.doubleType -> getRandom.dotCall(randomAccessor.nextDouble(builder))
 
-            declaration.body = newBody
+                builtInTypes.charType -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
+                builtInTypes.byteType -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
+                builtInTypes.shortType -> getRandomConfig.dotCall { randomConfigAccessor.nextShort(builder) }
+                builtInTypes.stringType -> getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) }
+                builtInTypes.unitType -> getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
+                builtInTypes.numberType -> getRandomConfig.dotCall { randomConfigAccessor.nextNumber(builder) }
+
+                builtInTypes.anyType -> listOf(
+                    getRandom.dotCall(randomAccessor.nextBoolean(builder)),
+                    getRandom.dotCall(randomAccessor.nextInt(builder)),
+                    getRandom.dotCall(randomAccessor.nextFloat(builder)),
+                    getRandom.dotCall(randomAccessor.nextLong(builder)),
+                    getRandom.dotCall(randomAccessor.nextDouble(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder)),
+                    getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) },
+                    getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
+                ).random()
+
+                builtInTypes.nothingType -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
+
+                else -> null
+            }
         }
-
-        return super.visitFunctionNew(declaration)
-    }
-
-    private fun isSomeFunction(irFun: IrFunction): Boolean {
-        val funName = irFun.name
-        return funName == Name.identifier("someFunction")
-    }
-
-    private fun printDumpCall(
-        pluginContext: IrPluginContext,
-        targetFunction: IrFunction,
-        irBuilder: IrBuilderWithScope,
-    ): IrCall {
-        val printlnCallId = BaseObjects.Std.printlnCallId
-        val strIR = irBuilder.irString(
-            dumpBuilder.toString()
-        )
-        val anyNullableType = pluginContext.irBuiltIns.anyNType
-        val funPrintln = pluginContext.referenceFunctions(printlnCallId).first { funSymbol ->
-            val parameters = funSymbol.owner.valueParameters
-            parameters.size == 1 && parameters[0].type == anyNullableType
-        }
-
-        val call = irBuilder.irCall(funPrintln)
-
-        call.putValueArgument(0, strIR)
-
-        return call
-
     }
 }

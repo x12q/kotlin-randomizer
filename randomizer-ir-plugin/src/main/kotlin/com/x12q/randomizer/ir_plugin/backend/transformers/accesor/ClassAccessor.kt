@@ -11,9 +11,9 @@ import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.irCall
 
-abstract class ClassAccessor(
-    private val clzz: IrClassSymbol
-){
+abstract class ClassAccessor{
+    protected abstract val clzz: IrClassSymbol
+
     protected fun zeroAgrFunction(name:String): IrSimpleFunctionSymbol {
         return clzz.zeroAgrFunction(name)
     }
