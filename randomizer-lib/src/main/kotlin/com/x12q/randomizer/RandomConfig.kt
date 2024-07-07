@@ -3,7 +3,6 @@ package com.x12q.randomizer
 import com.x12q.randomizer.util.randomUUIDStr
 import kotlin.random.Random
 import kotlin.random.nextUBytes
-import kotlin.random.nextUInt
 import kotlin.random.nextULong
 
 interface RandomConfig {
@@ -12,8 +11,24 @@ interface RandomConfig {
 
     val collectionSizeRange: IntRange
 
+    fun nextFloat():Float{
+        return random.nextFloat()
+    }
+
+    fun nextDouble():Double{
+        return random.nextDouble()
+    }
+
+    fun nextBoolean():Boolean{
+        return random.nextBoolean()
+    }
+
     fun nextInt(): Int {
         return random.nextInt()
+    }
+
+    fun nextLong(): Long {
+        return random.nextLong()
     }
 
     fun nextUInt():UInt{

@@ -9,6 +9,10 @@ import com.x12q.randomizer.randomizer.clazz.BaseClassRandomizer
 import com.x12q.randomizer.randomizer.clazz.classRandomizer
 import com.x12q.randomizer.randomizer.param.BaseParameterRandomizer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import kotlin.jvm.functions.FunctionN
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -16,7 +20,7 @@ import kotlin.reflect.jvm.internal.impl.builtins.functions.FunctionTypeKind
 import kotlin.reflect.jvm.reflect
 
 @Serializable
-class AX1(val i:Int)
+class AX1(val i:UInt)
 
 fun qwewqe(){
     AX1.serializer()
@@ -96,6 +100,11 @@ class QWE_Randomizer:BaseParameterRandomizer<QWE>(){
         TODO()
     }
 }
+
+@Serializable
+data class BN(
+    val uInt: UInt
+)
 /**
  * Function0 -> 22: synthetic interface
  * KFunction2 : synthetic interface, it extends KFunction
@@ -105,15 +114,20 @@ class QWE_Randomizer:BaseParameterRandomizer<QWE>(){
  */
 fun main() {
 
+    Json.encodeToString(BN(123.toUInt())).also {
+        val q = Json.decodeFromString<BN>(it)
+        println(q)
 
-    println(random<B2>(
-        randomizers = randomizers {
+    }
 
-        },
-        paramRandomizers = paramRandomizers{
-
-        }
-    ))
+//    println(random<B2>(
+//        randomizers = randomizers {
+//
+//        },
+//        paramRandomizers = paramRandomizers{
+//
+//        }
+//    ))
 
 //    println(q.kType?.classifier)
 

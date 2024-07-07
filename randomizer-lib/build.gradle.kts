@@ -36,7 +36,8 @@ kotlin {
     val javaVersion = libs.versions.jvmVersion.get().toInt()
     jvmToolchain(javaVersion)
 }
-
+val v = libs.versions.version.get()
+val g = libs.versions.groupId.get()
 //mavenPublishing {
 //
 //    group = libs.versions.groupId.get()
@@ -81,16 +82,16 @@ kotlin {
 
 
 
-//publishing {
-//    /**
-//     * This is for local publishing
-//     */
-//    publications {
-//        create<MavenPublication>("maven") {
-//            groupId = group.toString()
-//            artifactId = id
-//            version = version
-//            from(components["java"])
-//        }
-//    }
-//}
+publishing {
+    /**
+     * This is for local publishing
+     */
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = g
+            artifactId = "randomizer-lib"
+            version = v
+            from(components["java"])
+        }
+    }
+}

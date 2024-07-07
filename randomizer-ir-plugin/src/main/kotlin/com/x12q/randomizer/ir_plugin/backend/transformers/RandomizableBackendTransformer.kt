@@ -151,14 +151,19 @@ class RandomizableBackendTransformer @Inject constructor(
                         generatePrimitiveRandomParam(param, builder, randomConfigExpression)
                     }
 
-                    val constructorCall =
-                        builder.irCallConstructor(
-                            constructor.symbol,
-                            constructor.valueParameters.map { it.type }).apply {
-                            paramExpressions.withIndex().forEach { (index, paramExp) ->
-                                putValueArgument(index, paramExp)
-                            }
+
+                    val constructorCall = builder.irCallConstructor(
+                        callee = constructor.symbol,
+                        /**
+                         * TODO need to be dealt with this when work with generic
+                         */
+                        typeArguments = emptyList()
+                    ).apply {
+                        paramExpressions.withIndex().forEach { (index, paramExp) ->
+                            putValueArgument(index, paramExp)
                         }
+
+                    }
 
                     randomFunction.body = builder.irBlockBody {
                         +builder.irReturn(
@@ -190,16 +195,23 @@ class RandomizableBackendTransformer @Inject constructor(
                 it.name == BaseObjects.randomConfigParamName
             }!!
 
+            val getRandomConfigExpr = builder.irGet(randomConfigParam)
+
             val constructor = target.primaryConstructor
             if (constructor != null) {
 
                 val paramExpressions = constructor.valueParameters.map { param ->
-                    val getRandomConfigExpr = builder.irGet(randomConfigParam)
                     generatePrimitiveRandomParam(param, builder, getRandomConfigExpr)
                 }
 
                 val constructorCall =
-                    builder.irCallConstructor(constructor.symbol, constructor.valueParameters.map { it.type }).apply {
+                    builder.irCallConstructor(
+                        callee = constructor.symbol,
+                        /**
+                         * TODO need to be dealt with this when work with generic
+                         */
+                        typeArguments = emptyList()
+                    ).apply {
                         paramExpressions.withIndex().forEach { (index, paramExp) ->
                             putValueArgument(index, paramExp)
                         }
@@ -238,17 +250,13 @@ class RandomizableBackendTransformer @Inject constructor(
         if (paramType.isNullable()) {
             return when {
                 paramType.isInt2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextIntOrNull(builder))
-                paramType.isUInt2(true)-> getRandomConfig.dotCall(randomConfigAccessor.nextUIntOrNull(builder))
-
+                paramType.isUInt2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUIntOrNull(builder))
                 paramType.isLong2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextLongOrNull(builder))
                 paramType.isULong2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextULongOrNull(builder))
-
                 paramType.isByte2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextByteOrNull(builder))
                 paramType.isUByte2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUByteOrNull(builder))
-
                 paramType.isShort2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextShortOrNull(builder))
                 paramType.isUShort2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUShortOrNull(builder))
-
                 paramType.isBoolean2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolOrNull(builder))
                 paramType.isFloat2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloatOrNull(builder))
                 paramType.isDouble2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextDoubleOrNull(builder))
@@ -276,21 +284,19 @@ class RandomizableBackendTransformer @Inject constructor(
             }
         } else {
             val rt = when {
-                paramType.isInt2(false) -> getRandom.dotCall(randomAccessor.nextInt(builder))
+                paramType.isInt2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextInt(builder))
                 paramType.isUInt2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUInt(builder))
-
-                paramType.isLong2(false) -> getRandom.dotCall(randomAccessor.nextLong(builder))
+                paramType.isLong2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextLong(builder))
                 paramType.isULong2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextULong(builder))
-
                 paramType.isByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
                 paramType.isUByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUByte(builder))
-
                 paramType.isShort2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextShort(builder) }
                 paramType.isUShort2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextUShort(builder) }
 
-                paramType.isBoolean2(false) -> getRandom.dotCall(randomAccessor.nextBoolean(builder))
-                paramType.isFloat2(false) -> getRandom.dotCall(randomAccessor.nextFloat(builder))
-                paramType.isDouble2(false) -> getRandom.dotCall(randomAccessor.nextDouble(builder))
+                paramType.isBoolean2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolean(builder))
+                paramType.isFloat2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloat(builder))
+                paramType.isDouble2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextDouble(builder))
+
                 paramType.isChar2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
                 paramType.isString2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) }
                 paramType.isUnit2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
@@ -312,7 +318,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
                 else -> null
             }
-            println(rt?.dump())
 
             return rt
 

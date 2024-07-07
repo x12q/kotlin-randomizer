@@ -30,6 +30,18 @@ class RandomConfigAccessor @Inject constructor(
         return builder.irCall(randomProperty)
     }
 
+    fun nextBoolean(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextBoolean")
+    }
+
+    fun nextFloat(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextFloat")
+    }
+
+    fun nextDouble(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextDouble")
+    }
+
     /**
      * Construct an [IrCall] to access [RandomConfig.nextByte]
      */
@@ -98,7 +110,13 @@ class RandomConfigAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("nextNumber")
     }
 
+    fun nextInt(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextInt")
+    }
 
+    fun nextLong(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextLong")
+    }
 
     fun nextIntOrNull(builder: DeclarationIrBuilder):IrCall{
         return builder.zeroAgrFunctionCall("nextIntOrNull")

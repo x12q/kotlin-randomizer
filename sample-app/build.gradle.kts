@@ -12,11 +12,13 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     testImplementation(kotlin("test"))
+    implementation("com.x12q:randomizer-lib:1.0.0-alpha.7")
 }
 //kotlin{
 //    compilerOptions { verbose=true }
