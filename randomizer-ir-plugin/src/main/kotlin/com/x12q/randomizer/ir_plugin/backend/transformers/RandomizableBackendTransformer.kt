@@ -232,9 +232,6 @@ class RandomizableBackendTransformer @Inject constructor(
      * Generate an [IrExpression] that will return a random value for a parameter ([param])
      */
     private fun generatePrimitiveRandomParam(
-        /**
-         * parameter IR
-         */
         param: IrValueParameter,
         builder: DeclarationIrBuilder,
         /**
@@ -290,17 +287,15 @@ class RandomizableBackendTransformer @Inject constructor(
                 paramType.isULong2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextULong(builder))
                 paramType.isByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
                 paramType.isUByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUByte(builder))
-                paramType.isShort2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextShort(builder) }
-                paramType.isUShort2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextUShort(builder) }
-
+                paramType.isShort2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextShort(builder))
+                paramType.isUShort2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUShort(builder))
                 paramType.isBoolean2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolean(builder))
                 paramType.isFloat2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloat(builder))
                 paramType.isDouble2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextDouble(builder))
-
                 paramType.isChar2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
-                paramType.isString2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) }
-                paramType.isUnit2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
-                paramType.isNumber2(false) -> getRandomConfig.dotCall { randomConfigAccessor.nextNumber(builder) }
+                paramType.isString2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUID(builder))
+                paramType.isUnit2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnit(builder))
+                paramType.isNumber2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumber(builder))
 
                 paramType.isAny2(false) -> listOf(
                     getRandom.dotCall(randomAccessor.nextBoolean(builder)),
@@ -310,8 +305,8 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandom.dotCall(randomAccessor.nextDouble(builder)),
                     getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder)),
                     getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder)),
-                    getRandomConfig.dotCall { randomConfigAccessor.nextStringUUID(builder) },
-                    getRandomConfig.dotCall { randomConfigAccessor.nextUnit(builder) }
+                    getRandomConfig.dotCall(randomConfigAccessor.nextStringUUID(builder)),
+                    getRandomConfig.dotCall(randomConfigAccessor.nextUnit(builder))
                 ).random()
 
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
