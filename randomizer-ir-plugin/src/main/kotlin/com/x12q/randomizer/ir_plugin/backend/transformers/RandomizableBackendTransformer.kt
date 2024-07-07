@@ -254,9 +254,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfig: IrExpression
     ): IrExpression? {
 
-        val getRandom = getRandomConfig.dotCall(randomConfigAccessor.random(builder))
         val paramType = param.type
-        val builtInTypes = pluginContext.irBuiltIns
 
         if (paramType.isNullable()) {
             return when {
