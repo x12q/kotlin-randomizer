@@ -148,9 +148,8 @@ class RandomizableBackendTransformer @Inject constructor(
 
                 if (constructor != null) {
                     val paramExpressions = constructor.valueParameters.map { param ->
-                        generatePrimitiveRandomParam(param, builder, randomConfigExpression)
+                        generateRandomParam(param, builder, randomConfigExpression)
                     }
-
 
                     val constructorCall = builder.irCallConstructor(
                         callee = constructor.symbol,
@@ -201,7 +200,7 @@ class RandomizableBackendTransformer @Inject constructor(
             if (constructor != null) {
 
                 val paramExpressions = constructor.valueParameters.map { param ->
-                    generatePrimitiveRandomParam(param, builder, getRandomConfigExpr)
+                    generateRandomParam(param, builder, getRandomConfigExpr)
                 }
 
                 val constructorCall =
@@ -226,6 +225,17 @@ class RandomizableBackendTransformer @Inject constructor(
                 throw IllegalArgumentException("$target does not have a constructor")
             }
         }
+    }
+
+    private fun generateRandomParam(
+        param: IrValueParameter,
+        builder: DeclarationIrBuilder,
+        /**
+         * An expression that return a [RandomConfig]
+         */
+        getRandomConfig: IrExpression
+    ): IrExpression? {
+        return generatePrimitiveRandomParam(param, builder, getRandomConfig)
     }
 
     /**
