@@ -3,11 +3,15 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.annotations.Randomizable
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicClassAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomConfigAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.*
+import com.x12q.randomizer.ir_plugin.backend.utils.*
+import com.x12q.randomizer.ir_plugin.backend.utils.isDouble2
+import com.x12q.randomizer.ir_plugin.backend.utils.isFloat2
+import com.x12q.randomizer.ir_plugin.backend.utils.isLong2
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.Modality.*
@@ -25,7 +29,7 @@ class RandomizableBackendTransformer @Inject constructor(
     override val pluginContext: IrPluginContext,
     private val randomAccessor: RandomAccessor,
     private val randomConfigAccessor: RandomConfigAccessor,
-    private val basicClassAccessor: BasicClassAccessor
+    private val basicAccessor: BasicAccessor
 ) : RDBackendTransformer() {
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
@@ -123,8 +127,8 @@ class RandomizableBackendTransformer @Inject constructor(
      * Construct an IrCall to access [DefaultRandomConfig.Companion.default]
      */
     private fun getDefaultRandomConfigInstance(builder: DeclarationIrBuilder): IrCall {
-        return builder.irGetObject(basicClassAccessor.defaultRandomConfigCompanionObject.symbol)
-            .dotCall(builder.irCall(basicClassAccessor.getDefaultRandomConfigInstance))
+        return builder.irGetObject(basicAccessor.defaultRandomConfigCompanionObject.symbol)
+            .dotCall(builder.irCall(basicAccessor.getDefaultRandomConfigInstance))
     }
 
     /**
@@ -143,34 +147,15 @@ class RandomizableBackendTransformer @Inject constructor(
                     symbol = randomFunction.symbol,
                 )
                 val randomConfigExpression = makeRandomConfigExpressionFromAnnotation(annotation, builder)
-
-                val constructor = target.primaryConstructor
-
-                if (constructor != null) {
-                    val paramExpressions = constructor.valueParameters.map { param ->
-                        generateRandomParam(param, builder, randomConfigExpression)
-                    }
-
-                    val constructorCall = builder.irCallConstructor(
-                        callee = constructor.symbol,
-                        /**
-                         * TODO need to be dealt with this when work with generic
-                         */
-                        typeArguments = emptyList()
-                    ).apply {
-                        paramExpressions.forEachIndexed { index, paramExp ->
-                            putValueArgument(index, paramExp)
-                        }
-
-                    }
-
+                val constructorCall = generateRandomClassInstance(target, randomConfigExpression, builder)
+                if (constructorCall != null) {
                     randomFunction.body = builder.irBlockBody {
                         +builder.irReturn(
                             constructorCall
                         )
                     }
                 } else {
-                    throw IllegalArgumentException("$target does not have a constructor")
+                    throw IllegalArgumentException("unable generate constructor call")
                 }
             }
         }
@@ -195,36 +180,145 @@ class RandomizableBackendTransformer @Inject constructor(
             }!!
 
             val getRandomConfigExpr = builder.irGet(randomConfigParam)
-
-            val constructor = target.primaryConstructor
-            if (constructor != null) {
-
-                val paramExpressions = constructor.valueParameters.map { param ->
-                    generateRandomParam(param, builder, getRandomConfigExpr)
-                }
-
-                val constructorCall = builder.irCallConstructor(
-                    callee = constructor.symbol,
-                    /**
-                     * TODO need to be dealt with this when work with generic
-                     */
-                    typeArguments = emptyList()
-                ).apply {
-                    paramExpressions.forEachIndexed { index, paramExp ->
-                        putValueArgument(index, paramExp)
-                    }
-                }
-
+            val constructorCall = generateRandomClassInstance(target, getRandomConfigExpr, builder)
+            if (constructorCall != null) {
                 randomFunction.body = builder.irBlockBody {
-                    +builder.irReturn(
-                        constructorCall
-                    )
+                    +builder.irReturn(constructorCall)
                 }
             } else {
-                throw IllegalArgumentException("$target does not have a constructor")
+                throw IllegalArgumentException("unable to generate constructor call")
             }
         }
     }
+
+    /**
+     * Generate an [IrExpression] that can return a random instance of [irClass]
+     */
+    private fun generateRandomClassInstance(
+        irClass: IrClass,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        val rt = stopAtFirstNotNullResult(
+            { generateRandomObj(irClass, builder) },
+            { generateRandomEnum(irClass, getRandomConfigExpr, builder) },
+            { generateRandomConcreteClass(irClass, getRandomConfigExpr, builder) },
+            { generateRandomInstanceSealClass(irClass, getRandomConfigExpr, builder) },
+            { generateRandomInstanceAbstractClass(irClass, getRandomConfigExpr, builder) }
+        )
+        return rt
+    }
+
+    private fun generateRandomObj(
+        irClass: IrClass,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (irClass.isObject) {
+            return builder.irGetObject(irClass.symbol)
+        } else {
+            return null
+        }
+    }
+
+    private fun generateRandomEnum(
+        irClass: IrClass,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (irClass.isEnumClass) {
+            val getRandom = getRandomConfigExpr.dotCall(randomConfigAccessor.random(builder))
+
+            if(irClass.hasEnumEntries){
+                val irEntries = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "entries"} as? IrProperty
+
+                val randomFunction = basicAccessor.randomFunctionOnCollectionOneArg
+                // make an IR to access "entries"
+
+                // then call randomFunction on "entries" accessor ir
+                builder.irCall(randomFunction)
+
+            }else{
+                val irValues = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "values"} as? IrFunction
+            }
+
+            val irValues = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "values"} as? IrFunction
+
+            val randomFunction = basicAccessor.randomFunctionOnArrayOneArg
+            // make an IR to access "entries"
+
+            // then call randomFunction on "entries" accessor ir
+            val rt = builder.irCall(randomFunction).apply {
+                extensionReceiver = builder.irCall(irValues!!)
+                putValueArgument(0,getRandom)
+            }
+            println(rt.dump())
+
+            return rt
+        } else {
+            return null
+        }
+    }
+
+    /**
+     * Concrete class is final or open class that is:
+     * - not abstract
+     * - not enum
+     * - not object
+     */
+    private fun generateRandomConcreteClass(
+        irClass: IrClass,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (irClass.isFinalOrOpenConcrete() && !irClass.isObject && !irClass.isEnumClass) {
+            val constructor = getConstructor(irClass)
+
+            val paramExpressions = constructor.valueParameters.map { param ->
+                generateRandomParam(param, builder, getRandomConfigExpr)
+            }
+
+            val constructorCall = builder.irCallConstructor(
+                callee = constructor.symbol,
+                /**
+                 * TODO need to be dealt with this when work with generic
+                 */
+                typeArguments = emptyList()
+            ).apply {
+                paramExpressions.forEachIndexed { index, paramExp ->
+                    putValueArgument(index, paramExp)
+                }
+            }
+            return constructorCall
+        } else {
+            return null
+        }
+    }
+
+    private fun generateRandomInstanceAbstractClass(
+        irClass: IrClass,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (irClass.isAbstract() && !irClass.isSealed()) {
+            TODO()
+        } else {
+            return null
+        }
+    }
+
+
+    private fun generateRandomInstanceSealClass(
+        irClass: IrClass,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression? {
+        if (irClass.isSealed()) {
+            TODO()
+        } else {
+            return null
+        }
+    }
+
 
     private fun generateRandomParam(
         param: IrValueParameter,
@@ -233,14 +327,41 @@ class RandomizableBackendTransformer @Inject constructor(
          * An expression that return a [RandomConfig]
          */
         getRandomConfig: IrExpression
-    ): IrExpression {
+    ): IrExpression? {
         val primitive = generatePrimitiveRandomParam(param, builder, getRandomConfig)
         if (primitive != null) {
             return primitive
         } else {
-            TODO()
+            if (param.type.isNullable()) {
+                TODO("handle nullable param")
+            } else {
+                val nestedClass = param.type.classOrNull?.owner
+                if (nestedClass != null) {
+                    val rt = generateRandomClassInstance(
+                        nestedClass, getRandomConfig, builder
+                    )
+                    return rt
+                } else {
+                    TODO("may need to handle generic here")
+                }
+            }
         }
     }
+
+    /**
+     * TODO add logic to pick a constructor:
+     *  - prioritize annotated constructors
+     *  - pick randomly
+     */
+    private fun getConstructor(targetClass: IrClass): IrConstructor {
+        val primary = targetClass.primaryConstructor
+        if (primary != null) {
+            return primary
+        } else {
+            throw IllegalArgumentException("${targetClass.name} does not have a constructor")
+        }
+    }
+
 
     /**
      * Generate an [IrExpression] that will return a random value for a parameter ([param])

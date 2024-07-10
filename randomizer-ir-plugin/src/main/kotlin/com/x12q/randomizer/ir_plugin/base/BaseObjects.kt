@@ -35,6 +35,8 @@ internal object BaseObjects {
     val randomConfigClassId = ClassId.topLevel(FqName(RandomConfig::class.qualifiedName!!))
     val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
 
+
+
     object Std{
         val printlnCallId = CallableId(FqName("kotlin.io"), Name.identifier("println"))
         val ByteArrayClassId = ClassId.topLevel(FqName(ByteArray::class.qualifiedName!!))

@@ -1,8 +1,8 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.oneAgrFunction
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.twoAgrFunction
-import com.x12q.randomizer.ir_plugin.backend.transformers.utils.zeroAgrFunction
+import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
+import com.x12q.randomizer.ir_plugin.backend.utils.twoAgrFunction
+import com.x12q.randomizer.ir_plugin.backend.utils.zeroAgrFunction
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall

@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.utils
+package com.x12q.randomizer.ir_plugin.backend.utils
 
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol

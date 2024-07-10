@@ -13,14 +13,6 @@ import kotlin.test.Test
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomPrimitive {
 
-    data class A(
-        val uInt: UInt
-    )
-    @Test
-    fun qwe(){
-        println(A(123.toUInt()))
-    }
-
     @Test
     fun `randomize primitive parameter with default RandomConfig`() {
 

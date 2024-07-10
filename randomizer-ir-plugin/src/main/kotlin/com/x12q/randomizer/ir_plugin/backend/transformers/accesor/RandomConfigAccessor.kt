@@ -2,19 +2,15 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import javax.inject.Inject
-import kotlin.random.Random
 
 class RandomConfigAccessor @Inject constructor(
-    private val baseClassAccessor: BasicClassAccessor,
+    private val baseClassAccessor: BasicAccessor,
 ) : ClassAccessor() {
     override val clzz: IrClassSymbol = baseClassAccessor.randomConfigClass
 

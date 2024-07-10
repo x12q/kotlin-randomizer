@@ -1,16 +1,11 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
 
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -18,10 +13,10 @@ import kotlin.random.Random
  * Provide convenient access to kotlin.random.Random member function symbols
  */
 class RandomAccessor @Inject constructor(
-    private val basicClassAccessor:BasicClassAccessor,
+    private val basicAccessor:BasicAccessor,
 ):ClassAccessor() {
 
-    override val clzz: IrClassSymbol = basicClassAccessor.kotlinRandomClass
+    override val clzz: IrClassSymbol = basicAccessor.kotlinRandomClass
 
     private val nextIntFunction:IrSimpleFunctionSymbol by lazy {
         zeroAgrFunction("nextInt")
