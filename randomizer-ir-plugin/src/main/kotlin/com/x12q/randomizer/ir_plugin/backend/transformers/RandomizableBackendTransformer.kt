@@ -228,32 +228,38 @@ class RandomizableBackendTransformer @Inject constructor(
         if (irClass.isEnumClass) {
             val getRandom = getRandomConfigExpr.dotCall(randomConfigAccessor.random(builder))
 
-            if(irClass.hasEnumEntries){
-                val irEntries = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "entries"} as? IrProperty
-
-                val randomFunction = basicAccessor.randomFunctionOnCollectionOneArg
+            if (irClass.hasEnumEntries) {
                 // make an IR to access "entries"
+                val irEntriesFunction = run {
+                    val irEntries = irClass.declarations.firstOrNull {
+                        it.getNameWithAssert().toString() == "entries"
+                    } as? IrProperty
+                    requireNotNull(irEntries?.getter) {
+                        "enum ${irClass.name} does not have \"entries\" field"
+                    }
+                }
 
                 // then call randomFunction on "entries" accessor ir
-                builder.irCall(randomFunction)
+                val rt = builder.irCall(irEntriesFunction)
+                    .extensionDotCall(builder.irCall(basicAccessor.randomFunctionOnCollectionOneArg))
+                    .args(getRandom)
 
-            }else{
-                val irValues = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "values"} as? IrFunction
+                return rt
             }
 
-            val irValues = irClass.declarations.firstOrNull{it.getNameWithAssert().toString() == "values"} as? IrFunction
+            val irValues =
+                irClass.declarations.firstOrNull { it.getNameWithAssert().toString() == "values" } as? IrFunction
 
-            val randomFunction = basicAccessor.randomFunctionOnArrayOneArg
-            // make an IR to access "entries"
-
-            // then call randomFunction on "entries" accessor ir
-            val rt = builder.irCall(randomFunction).apply {
-                extensionReceiver = builder.irCall(irValues!!)
-                putValueArgument(0,getRandom)
+            if (irValues != null) {
+                val randomFunction = basicAccessor.randomFunctionOnArrayOneArg
+                val rt = builder.irCall(irValues)
+                    .extensionDotCall(builder.irCall(randomFunction))
+                    .args(getRandom)
+                return rt
             }
-            println(rt.dump())
 
-            return rt
+            throw IllegalArgumentException("Enum ${irClass.name} does not have entries or values()")
+
         } else {
             return null
         }
