@@ -6,6 +6,7 @@ import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.randomizer.ClassRandomizer
 import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.CommonRandomizer
+import com.x12q.randomizer.randomizer.__DefaultRandomizer
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldNotBeInstanceOf
@@ -50,7 +51,7 @@ class TestAnnotationOnRealAnnotation_ClassRandomGenerator {
     @Test
     fun testOnRealAnnotation_default() {
         val annotation = Target_2::class.findAnnotations(Randomizable::class).firstOrNull()!!
-        annotation.randomizer shouldBe CommonRandomizer.__DefaultRandomizer::class
+        annotation.randomizer shouldBe __DefaultRandomizer::class
     }
 
 

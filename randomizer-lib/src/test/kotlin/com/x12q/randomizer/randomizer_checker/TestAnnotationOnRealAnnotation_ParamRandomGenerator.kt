@@ -7,6 +7,7 @@ import com.x12q.randomizer.randomizer.ParamInfo
 import com.x12q.randomizer.randomizer.ParameterRandomizer
 import com.x12q.randomizer.RDClassData
 import com.x12q.randomizer.randomizer.CommonRandomizer
+import com.x12q.randomizer.randomizer.__DefaultRandomizer
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -80,7 +81,7 @@ class TestAnnotationOnRealAnnotation_ParamRandomGenerator {
     fun testOnRealAnnotation_default() {
         val param = Class_2::class.primaryConstructor!!.parameters.get(0)
         val annotation = param.findAnnotations<Randomizable>().first()
-        annotation.randomizer shouldBe CommonRandomizer.__DefaultRandomizer::class
+        annotation.randomizer shouldBe __DefaultRandomizer::class
     }
 
     class Class_1(

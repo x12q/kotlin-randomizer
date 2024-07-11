@@ -317,7 +317,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
     ): IrExpression? {
         if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWith(BaseObjects.randomizableFqName)) {
-            TODO()
+            TODO("not supported yet")
         } else {
             return null
         }
