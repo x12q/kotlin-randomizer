@@ -203,8 +203,8 @@ class RandomizableBackendTransformer @Inject constructor(
             { generateRandomObj(irClass, builder) },
             { generateRandomEnum(irClass, getRandomConfigExpr, builder) },
             { generateRandomConcreteClass(irClass, getRandomConfigExpr, builder) },
-            { generateRandomInstanceSealClass(irClass, getRandomConfigExpr, builder) },
-            { generateRandomInstanceAbstractClass(irClass, getRandomConfigExpr, builder) }
+            { generateRandomSealClass(irClass, getRandomConfigExpr, builder) },
+            { generateRandomAbstractClass(irClass, getRandomConfigExpr, builder) }
         )
         return rt
     }
@@ -227,7 +227,6 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         if (irClass.isEnumClass) {
             val getRandom = getRandomConfigExpr.dotCall(randomConfigAccessor.random(builder))
-
             if (irClass.hasEnumEntries) {
                 // make an IR to access "entries"
                 val irEntriesFunction = run {
@@ -245,20 +244,20 @@ class RandomizableBackendTransformer @Inject constructor(
                     .args(getRandom)
 
                 return rt
+            }else{
+                val irValues =
+                    irClass.declarations.firstOrNull { it.getNameWithAssert().toString() == "values" } as? IrFunction
+
+                if (irValues != null) {
+                    val randomFunction = basicAccessor.randomFunctionOnArrayOneArg
+                    val rt = builder.irCall(irValues)
+                        .extensionDotCall(builder.irCall(randomFunction))
+                        .args(getRandom)
+                    return rt
+                }
             }
 
-            val irValues =
-                irClass.declarations.firstOrNull { it.getNameWithAssert().toString() == "values" } as? IrFunction
-
-            if (irValues != null) {
-                val randomFunction = basicAccessor.randomFunctionOnArrayOneArg
-                val rt = builder.irCall(irValues)
-                    .extensionDotCall(builder.irCall(randomFunction))
-                    .args(getRandom)
-                return rt
-            }
-
-            throw IllegalArgumentException("Enum ${irClass.name} does not have entries or values()")
+            throw IllegalArgumentException("Impossible - Enum ${irClass.name} does not have entries or values()")
 
         } else {
             return null
@@ -300,25 +299,24 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    private fun generateRandomInstanceAbstractClass(
+    private fun generateRandomSealClass(
         irClass: IrClass,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
     ): IrExpression? {
-        if (irClass.isAbstract() && !irClass.isSealed()) {
+        if (irClass.isSealed()) {
             TODO()
         } else {
             return null
         }
     }
 
-
-    private fun generateRandomInstanceSealClass(
+    private fun generateRandomAbstractClass(
         irClass: IrClass,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
     ): IrExpression? {
-        if (irClass.isSealed()) {
+        if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWith(BaseObjects.randomizableFqName)) {
             TODO()
         } else {
             return null

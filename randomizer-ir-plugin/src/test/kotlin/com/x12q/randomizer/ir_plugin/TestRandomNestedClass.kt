@@ -87,7 +87,38 @@ class TestRandomNestedClass {
         }
     }
 
+    @Test
+    fun `randomize nested concrete class`() {
 
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+
+                fun main(){
+                    println(Q123.random())
+                    println(Q123.random())
+                    println(Q123.random())
+                }
+
+                @Randomizable
+                data class Q123(
+                    val a:AA
+                )
+
+                data class AA(val int:Int, val bb:BB, val c:CC)
+                data class BB(val str:String,val cc:CC)
+                data class CC(val aa:Float)
+
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
 
 
 

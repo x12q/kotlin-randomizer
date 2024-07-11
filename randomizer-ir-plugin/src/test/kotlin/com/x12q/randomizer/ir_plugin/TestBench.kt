@@ -1,5 +1,10 @@
 package com.x12q.randomizer.ir_plugin
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlin.random.Random
 
 //fun main(){
@@ -16,12 +21,16 @@ data class B(
     val q:List<E1>,
 )
 
+@Serializable
+data class Q<T>(
+    val x:Int,
+//    val t:T
+)
+
 fun main(){
-    E2.values().forEach {
-        println(it)
-    }
-    E2.entries.random(Random)
-    E2.entries.forEach {
-        println(it)
-    }
+//    val str = Json.encodeToString(Q(1,2))
+//    val q = Json.decodeFromString<Q<Int>>(str)
+//    Q.serializer()
+    println()
+    val serializer = Q.serializer(Float.serializer())
 }
