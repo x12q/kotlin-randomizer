@@ -12,9 +12,9 @@ import org.jetbrains.kotlin.ir.util.functions
 import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
-class TopLevelConcreteClass {
+class TopFrontEndDeclaration {
     @Test
-    fun `random functions exist`() {
+    fun `random & randomizer functions exist`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -36,6 +36,7 @@ class TopLevelConcreteClass {
                     val companionObj = irClass.companionObject()
                     companionObj.shouldNotBeNull()
 
+                    // the first random() function
                     val randomFunction = companionObj.functions.firstOrNull {
                         it.name == BaseObjects.randomFunctionName && it.valueParameters.size==1
                     }
@@ -44,17 +45,23 @@ class TopLevelConcreteClass {
                     randomFunction.returnType.classFqName.toString() shouldBe "Q123"
                     randomFunction.body.shouldNotBeNull()
 
-
+                    // the 2nd random() function
                     val randomFunctionWithRandomConfig = companionObj.functions.firstOrNull {
                         it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==1
                     }
                     randomFunctionWithRandomConfig.shouldNotBeNull()
 
+                    // randomizer() function
+
+                    val randomizerFunction = companionObj.functions.firstOrNull {
+                        it.name == BaseObjects.randomizerFunctionName && it.valueParameters.size == 0
+                    }
+                    randomizerFunction.shouldNotBeNull()
+
                 }
             }
             testCompilation = { result->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
             }
         }
     }

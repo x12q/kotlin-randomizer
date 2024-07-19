@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin.base
 
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.randomizer.CommonRandomizer
 import com.x12q.randomizer.annotations.Randomizable
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.name.CallableId
@@ -11,6 +12,10 @@ import org.jetbrains.kotlin.name.Name
 import kotlin.random.Random
 
 internal object BaseObjects {
+    /**
+     * TODO:
+     *  - add more descriptive err message when name is null, and provide suggestion (such as adding required libraries)
+     */
 
     val packageName = "com.x12q.randomizer"
 
@@ -26,13 +31,20 @@ internal object BaseObjects {
     val randomConfigParamName= Name.identifier("randomConfig")
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
+    val randomizerFunctionName = Name.identifier("randomizer")
+
+    val randomizerId = ClassId.topLevel(FqName(requireNotNull(CommonRandomizer::class.qualifiedName){
+        "${packageName}.Randomizer interface does not exist in the class path"
+    }))
 
 
     val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
     val defaultConfigClassShortName = defaultConfigClassFqName.shortName()
     val defaultRandomConfigClassId = ClassId.topLevel(defaultConfigClassFqName)
 
-    val randomConfigClassId = ClassId.topLevel(FqName(RandomConfig::class.qualifiedName!!))
+    val randomConfigClassId = ClassId.topLevel(FqName(requireNotNull(RandomConfig::class.qualifiedName){
+        "RandomConfig interface does not exist in the class path."
+    }))
     val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
 
 

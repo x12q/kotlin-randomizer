@@ -9,7 +9,9 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-
+/**
+ * Test randomizing List
+ */
 class RandomizeGenerator_OnCollection_abstract {
 
     lateinit var rdm: RandomGenerator

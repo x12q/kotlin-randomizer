@@ -40,15 +40,102 @@ class RandomizableBackendTransformer @Inject constructor(
             if (companionObj != null) {
                 completeRandomFunction(companionObj, declaration)
                 completeRandomFunctionWithRandomConfig(companionObj, declaration)
+                completeRandomizerFunction(companionObj,declaration)
             }
         }
         return super.visitClassNew(declaration)
     }
 
+    private fun completeRandomizerFunction(companionObj: IrClass, target: IrClass){
+        val randomizerFunction = companionObj.findDeclaration<IrSimpleFunction> { function->
+            function.name == BaseObjects.randomizerFunctionName
+        }
+
+        if(randomizerFunction!=null){
+            val annotation = target.getAnnotation(BaseObjects.randomizableFqName)
+            if (annotation != null) {
+                val builder = DeclarationIrBuilder(
+                    generatorContext = pluginContext,
+                    symbol = randomizerFunction.symbol,
+                )
+                val randomConfigExpression = makeGetRandomConfigExpressionFromAnnotation(annotation, builder)
+                val createRandomizerExpression = generateRandomClassInstance(target, randomConfigExpression, builder)
+                if (createRandomizerExpression != null) {
+                    randomizerFunction.body = builder.irBlockBody {
+                        //return a new instance of randomizer
+                    }
+                } else {
+                    throw IllegalArgumentException("unable generate constructor call")
+                }
+            }
+        }
+    }
+
+
+
+    /**
+     * complete random() function in [companionObj].
+     * This function use the random config in annotation.
+     */
+    private fun completeRandomFunction(companionObj: IrClass, target: IrClass) {
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
+            function.name == BaseObjects.randomFunctionName && function.valueParameters.isEmpty()
+        }
+        if (randomFunction != null) {
+            val annotation = target.getAnnotation(BaseObjects.randomizableFqName)
+            if (annotation != null) {
+                val builder = DeclarationIrBuilder(
+                    generatorContext = pluginContext,
+                    symbol = randomFunction.symbol,
+                )
+                val randomConfigExpression = makeGetRandomConfigExpressionFromAnnotation(annotation, builder)
+                val constructorCall = generateRandomClassInstance(target, randomConfigExpression, builder)
+                if (constructorCall != null) {
+                    randomFunction.body = builder.irBlockBody {
+                        +builder.irReturn(
+                            constructorCall
+                        )
+                    }
+                } else {
+                    throw IllegalArgumentException("unable generate constructor call")
+                }
+            }
+        }
+    }
+
+    /**
+     * Complete random(randomConfig) function
+     */
+    private fun completeRandomFunctionWithRandomConfig(companionObj: IrClass, target: IrClass) {
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
+            function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 1
+        }
+
+        if (randomFunction != null) {
+            val builder = DeclarationIrBuilder(
+                generatorContext = pluginContext,
+                symbol = randomFunction.symbol,
+            )
+
+            val randomConfigParam = randomFunction.valueParameters.firstOrNull {
+                it.name == BaseObjects.randomConfigParamName
+            }!!
+
+            val getRandomConfigExpr = builder.irGet(randomConfigParam)
+            val constructorCall = generateRandomClassInstance(target, getRandomConfigExpr, builder)
+            if (constructorCall != null) {
+                randomFunction.body = builder.irBlockBody {
+                    +builder.irReturn(constructorCall)
+                }
+            } else {
+                throw IllegalArgumentException("unable to generate constructor call")
+            }
+        }
+    }
     /**
      * Create an IR expression that returns a [RandomConfig] instance from [Randomizable] annotation
      */
-    private fun makeRandomConfigExpressionFromAnnotation(
+    private fun makeGetRandomConfigExpressionFromAnnotation(
         annotation: IrConstructorCall,
         builder: DeclarationIrBuilder
     ): IrExpression {
@@ -131,65 +218,7 @@ class RandomizableBackendTransformer @Inject constructor(
             .dotCall(builder.irCall(basicAccessor.getDefaultRandomConfigInstance))
     }
 
-    /**
-     * complete random() function in [companionObj].
-     * This function use the random config in annotation.
-     */
-    private fun completeRandomFunction(companionObj: IrClass, target: IrClass) {
-        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
-            function.name == BaseObjects.randomFunctionName && function.valueParameters.isEmpty()
-        }
-        if (randomFunction != null) {
-            val annotation = target.getAnnotation(BaseObjects.randomizableFqName)
-            if (annotation != null) {
-                val builder = DeclarationIrBuilder(
-                    generatorContext = pluginContext,
-                    symbol = randomFunction.symbol,
-                )
-                val randomConfigExpression = makeRandomConfigExpressionFromAnnotation(annotation, builder)
-                val constructorCall = generateRandomClassInstance(target, randomConfigExpression, builder)
-                if (constructorCall != null) {
-                    randomFunction.body = builder.irBlockBody {
-                        +builder.irReturn(
-                            constructorCall
-                        )
-                    }
-                } else {
-                    throw IllegalArgumentException("unable generate constructor call")
-                }
-            }
-        }
-    }
 
-    /**
-     * Complete random(randomConfig) function
-     */
-    private fun completeRandomFunctionWithRandomConfig(companionObj: IrClass, target: IrClass) {
-        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
-            function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 1
-        }
-
-        if (randomFunction != null) {
-            val builder = DeclarationIrBuilder(
-                generatorContext = pluginContext,
-                symbol = randomFunction.symbol,
-            )
-
-            val randomConfigParam = randomFunction.valueParameters.firstOrNull {
-                it.name == BaseObjects.randomConfigParamName
-            }!!
-
-            val getRandomConfigExpr = builder.irGet(randomConfigParam)
-            val constructorCall = generateRandomClassInstance(target, getRandomConfigExpr, builder)
-            if (constructorCall != null) {
-                randomFunction.body = builder.irBlockBody {
-                    +builder.irReturn(constructorCall)
-                }
-            } else {
-                throw IllegalArgumentException("unable to generate constructor call")
-            }
-        }
-    }
 
     /**
      * Generate an [IrExpression] that can return a random instance of [irClass]

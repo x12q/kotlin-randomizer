@@ -27,6 +27,9 @@ data class Q<T>(
 //    val t:T
 )
 
+@Serializable
+data class MMM(val i:Int)
+
 fun main(){
 //    val str = Json.encodeToString(Q(1,2))
 //    val q = Json.decodeFromString<Q<Int>>(str)

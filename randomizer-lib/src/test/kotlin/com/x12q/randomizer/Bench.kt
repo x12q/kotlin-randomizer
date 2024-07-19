@@ -13,6 +13,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import java.util.Date
 import kotlin.jvm.functions.FunctionN
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -106,6 +107,18 @@ data class BN<T>(
     val uInt: Int,
     val t:T,
 )
-fun main() {
 
+data class LK(
+    val l:List<Date>
+){
+
+}
+fun main() {
+    println(random<LK>(
+        randomizers = randomizers{
+            classRandomizer {
+                Date(123)
+            }
+        }
+    ))
 }
