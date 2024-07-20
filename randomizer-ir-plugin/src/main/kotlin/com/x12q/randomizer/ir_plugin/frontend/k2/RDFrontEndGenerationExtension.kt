@@ -2,11 +2,9 @@ package com.x12q.randomizer.ir_plugin.frontend.k2
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
-import com.x12q.randomizer.ir_plugin.frontend.k2.util.getRandomizableAnnotation
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.getKClassArgument
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.getOwnerLookupTag
@@ -20,8 +18,8 @@ import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.ConeTypeProjection
 import org.jetbrains.kotlin.fir.types.constructClassLikeType
 import org.jetbrains.kotlin.fir.types.constructType
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.name.*
-import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 
 /**
  * For generating new declaration (new functions, new classes, properties)
@@ -152,60 +150,43 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 // TODO reconsider this, may only need to check if it is a companion obj
                 companionObjectSymbol.isCompanion && origin?.key == BaseObjects.Fir.randomizableDeclarationKey
             if (ownerClassIsGeneratedCompanion) {
-                val twoRandomFunctions = generate2RandomFunctions(companionObjectSymbol, callableId)
-                val randomizerFunction = generateRandomizerFunction(companionObjectSymbol, callableId)
-                val rt = ((twoRandomFunctions ?: emptyList()) + listOf(randomizerFunction)).filterNotNull()
+                val rt = generate2RandomFunctions(companionObjectSymbol, callableId)
                 return rt
-
             }
         }
         return super.generateFunctions(callableId, context)
     }
 
-    private fun generateRandomizerFunction(
-        companionObjectSymbol: FirClassSymbol<*>,
-        callableId: CallableId,
-    ):FirNamedFunctionSymbol?{
-        val functionName = callableId.callableName
-        if(functionName == BaseObjects.randomizerFunctionName){
-            val randomizerFunction = createMemberFunction(
-                owner = companionObjectSymbol,
-                key =  BaseObjects.Fir.randomizableDeclarationKey,
-                name = functionName,
-                returnTypeProvider = { typeParameters->
-                    val enclosingClass = companionObjectSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
-                    val returnType = if (enclosingClass != null) {
-                        val parametersAsArguments = typeParameters.map { it.toConeType() }.toTypedArray<ConeTypeProjection>()
-
-                        BaseObjects.randomizerId.constructClassLikeType(
-                            arrayOf(enclosingClass.constructType(parametersAsArguments, false)),
-                            isNullable = false
-                        )
-
-                    } else {
-                        throw IllegalStateException("Companion object $companionObjectSymbol is without an enclosing class")
-                    }
-                    returnType
-
-                }
-            ).symbol
-            return randomizerFunction
-        }else{
-            return null
-        }
-    }
-
     /**
      * Generate 2 random functions:
-     * - random()
-     * - random(randomConfig)
+     * - random<Type,Type,...>()
+     * - random<Type,Type,...>(randomConfig)
      */
     private fun generate2RandomFunctions(
         companionObjectSymbol: FirClassSymbol<*>,
-        callableId: CallableId,
-    ): List<FirNamedFunctionSymbol>? {
-        val functionName = callableId.callableName
+        functionCallableId: CallableId,
+    ): List<FirNamedFunctionSymbol> {
+        val random1 = generateRandom1(companionObjectSymbol, functionCallableId)
+        val random2 = generateRandom2(companionObjectSymbol, functionCallableId)
+        return listOfNotNull(random1,random2)
+    }
+
+    /**
+     * generate random<Type,Type,...>()
+     */
+    private fun generateRandom1(
+        /**
+         * companion object that contains the random function
+         */
+        companionObjectSymbol: FirClassSymbol<*>,
+        /**
+         * name of the target function
+         */
+        functionCallableId: CallableId,
+    ):FirNamedFunctionSymbol?{
+        val functionName = functionCallableId.callableName
         if (functionName == BaseObjects.randomFunctionName) {
+
             val randomFunction = createMemberFunction(
                 owner = companionObjectSymbol,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
@@ -225,6 +206,27 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     returnType
                 }
             ).symbol
+            return randomFunction
+        } else {
+            return null
+        }
+    }
+
+    /**
+     * generate random<Type,Type,...>(randomConfig)
+     */
+    private fun generateRandom2(
+        /**
+         * companion object that contains the random function
+         */
+        companionObjectSymbol: FirClassSymbol<*>,
+        /**
+         * name of the target function
+         */
+        functionCallableId: CallableId,
+    ): FirNamedFunctionSymbol? {
+        val functionName = functionCallableId.callableName
+        if (functionName == BaseObjects.randomFunctionName) {
 
             val randomFunctionWithRandomConfig = createMemberFunction(
                 owner = companionObjectSymbol,
@@ -254,7 +256,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     ),
                 )
             }.symbol
-            return listOf(randomFunction, randomFunctionWithRandomConfig)
+            return  randomFunctionWithRandomConfig
         } else {
             return null
         }

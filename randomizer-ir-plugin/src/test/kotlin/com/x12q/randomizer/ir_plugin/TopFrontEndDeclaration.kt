@@ -14,7 +14,7 @@ import kotlin.test.Test
 @OptIn(ExperimentalCompilerApi::class)
 class TopFrontEndDeclaration {
     @Test
-    fun `random & randomizer functions exist`() {
+    fun `random functions exist`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -50,13 +50,6 @@ class TopFrontEndDeclaration {
                         it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==1
                     }
                     randomFunctionWithRandomConfig.shouldNotBeNull()
-
-                    // randomizer() function
-
-                    val randomizerFunction = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomizerFunctionName && it.valueParameters.size == 0
-                    }
-                    randomizerFunction.shouldNotBeNull()
 
                 }
             }
