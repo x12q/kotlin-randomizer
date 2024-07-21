@@ -5,12 +5,15 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
+import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
+import org.jetbrains.kotlin.fir.declarations.FirValueParameter
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
 import org.jetbrains.kotlin.fir.declarations.origin
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.getOwnerLookupTag
 import org.jetbrains.kotlin.fir.moduleData
+import org.jetbrains.kotlin.fir.plugin.SimpleFunctionBuildingContext
 import org.jetbrains.kotlin.fir.plugin.createCompanionObject
 import org.jetbrains.kotlin.fir.plugin.createDefaultPrivateConstructor
 import org.jetbrains.kotlin.fir.plugin.createMemberFunction
@@ -169,7 +172,14 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
     }
 
     /**
-     * generate random<Type,Type,...>()
+     * generate declaration for this:
+     * ```
+     * random<Type,Type,...>(
+     *    randomT1: (RandomConfig)->T1,
+     *    randomT2: (RandomConfig)->T2,
+     *    ...
+     * )
+     * ```
      */
     private fun generateRandom1(
         /**
@@ -202,47 +212,17 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     returnType
                 },
                 config = {
-                    val functionBuildingContext = this
-
-                    enclosingClass.typeParameterSymbols.forEach { targetClassTypeParam ->
-                    // this one add new <T1,T2,...> to the random() function
-                    functionBuildingContext.typeParameter(
-                        name = targetClassTypeParam.name,
-                        variance = targetClassTypeParam.variance,
-                        isReified = false,
-                        key = BaseObjects.Fir.randomizableDeclarationKey,
+                    /**
+                     * Port type params from the enclosing class to the random() function
+                     */
+                    mirrorTypeParamFromEnclosingClassToFunction(
+                        enclosingClass = enclosingClass,
+                        functionBuildingContext = this
                     )
-                    }
                 }
             )
-            val newValueParam = run {
-
-                randomFunction.typeParameters.map { typeParam ->
-                    // randomT1 : ()->T1
-                    // randomT2 : ()->T2
-
-
-                    val randomLambda = BaseObjects.function1Name.constructClassLikeType(
-                        typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
-                        isNullable = false
-                    )
-                    val paramName = Name.identifier("random${typeParam.name}")
-
-                    buildValueParameter {
-                        name = paramName
-                        moduleData = session.moduleData
-                        origin = BaseObjects.Fir.randomizableDeclarationKey.origin
-                        symbol = FirValueParameterSymbol(paramName)
-                        returnTypeRef = randomLambda.toFirResolvedTypeRef()
-                        containingFunctionSymbol = randomFunction.symbol
-                        isCrossinline = false
-                        isNoinline = true
-                        isVararg = false
-                    }
-                }
-            }
-
-            randomFunction.replaceValueParameters(newValueParam)
+            val randomLambdasParam = makeGenericRandomLambdasParam(randomFunction)
+            randomFunction.replaceValueParameters(randomLambdasParam)
 
             val rt = randomFunction.symbol
             return rt
@@ -252,7 +232,15 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
     }
 
     /**
-     * generate random<Type,Type,...>(randomConfig)
+     * generate declaration for this:
+     * ```
+     * random<Type,Type,...>(
+     *    randomConfig:RandomConfig,
+     *    randomT1: (RandomConfig)->T1,
+     *    randomT2: (RandomConfig)->T2,
+     *    ...
+     * )
+     * ```
      */
     private fun generateRandom2(
         /**
@@ -295,47 +283,23 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                             isNullable = false
                         ),
                     )
-
-                    enclosingClass.typeParameterSymbols.forEach { targetClassTypeParam ->
-
-                        functionBuildingContext.typeParameter(
-                            name = targetClassTypeParam.name,
-                            variance = targetClassTypeParam.variance,
-                            isReified = false,
-                            key = BaseObjects.Fir.randomizableDeclarationKey,
-                        )
-                    }
+                    /**
+                     * Port type params from the enclosing class to the random() function
+                     */
+                    mirrorTypeParamFromEnclosingClassToFunction(
+                        enclosingClass = enclosingClass,
+                        functionBuildingContext = functionBuildingContext
+                    )
                 }
             )
             val newValueParam = run {
-
                 /**
-                 * Current value params include the random config param, this one must be kept
+                 * The current value params include the [RandomConfig] param, this one must be kept
                  */
                 val currentValueParams = randomFunctionWithRandomConfig.valueParameters
 
-                val valueParams = currentValueParams + randomFunctionWithRandomConfig.typeParameters.map { typeParam ->
-                    // randomT1 : ()->T1
-                    // randomT2 : ()->T2
-                    val randomLambda = BaseObjects.function1Name.constructClassLikeType(
-                        typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
-                        isNullable = false
-                    )
-                    val paramName = Name.identifier("random${typeParam.name}")
-
-                    buildValueParameter {
-                        name = paramName
-                        moduleData = session.moduleData
-                        origin = BaseObjects.Fir.randomizableDeclarationKey.origin
-                        symbol = FirValueParameterSymbol(paramName)
-                        returnTypeRef = randomLambda.toFirResolvedTypeRef()
-                        containingFunctionSymbol = randomFunctionWithRandomConfig.symbol
-                        isCrossinline = false
-                        isNoinline = true
-                        isVararg = false
-                    }
-                }
-                valueParams
+                val randomLambdaParam = currentValueParams + makeGenericRandomLambdasParam(randomFunctionWithRandomConfig)
+                randomLambdaParam
             }
 
             randomFunctionWithRandomConfig.replaceValueParameters(newValueParam)
@@ -343,6 +307,67 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         } else {
             return null
         }
+    }
+
+    /**
+     * For each type param of [enclosingClass], create a mirror type param in a function represented by [functionBuildingContext].
+     * This is used in generating declaration for random() functions.
+     */
+    private fun mirrorTypeParamFromEnclosingClassToFunction(enclosingClass:FirRegularClassSymbol, functionBuildingContext:SimpleFunctionBuildingContext){
+        enclosingClass.typeParameterSymbols.forEach { targetClassTypeParam ->
+            functionBuildingContext.typeParameter(
+                name = targetClassTypeParam.name,
+                variance = targetClassTypeParam.variance,
+                isReified = false,
+                key = BaseObjects.Fir.randomizableDeclarationKey,
+            )
+        }
+    }
+
+
+    /**
+     * Create a generic random function for each type parameter of a [randomFunction].
+     *
+     * They are the parameter in this:
+     * ```
+     * fun <T1,T2> random(
+     *    randomT1:(RandomConfig)->T1, // <~~ this
+     *    randomT2:(RandomConfig)->T2, // <~~ this
+     *    ...
+     * )
+     * ```
+     */
+    private fun makeGenericRandomLambdasParam(
+        randomFunction:FirSimpleFunction
+    ): List<FirValueParameter> {
+
+        val rt = randomFunction.typeParameters.map { typeParam ->
+            /**
+             * For each type param of [randomFunction], create a generic random function, such as:
+             * - randomT1 : (RandomConfig)->T1
+             * - randomT2 : (RandomConfig)->T2
+             */
+            val randomLambda = BaseObjects.function1Name.constructClassLikeType(
+                typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
+                isNullable = false
+            )
+            val paramName = Name.identifier("random${typeParam.name}")
+
+            buildValueParameter {
+                name = paramName
+                moduleData = session.moduleData
+                origin = BaseObjects.Fir.randomizableDeclarationKey.origin
+                symbol = FirValueParameterSymbol(paramName)
+                returnTypeRef = randomLambda.toFirResolvedTypeRef()
+                containingFunctionSymbol = randomFunction.symbol
+                isCrossinline = false
+                isNoinline = true
+                isVararg = false
+            }
+        }
+
+        return rt
+
     }
 
 

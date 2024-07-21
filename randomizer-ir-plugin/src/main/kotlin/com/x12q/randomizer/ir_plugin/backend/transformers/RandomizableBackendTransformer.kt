@@ -438,7 +438,6 @@ class RandomizableBackendTransformer @Inject constructor(
                     this.putValueArgument(0,getRandomConfig)
                 }
 
-//                return irGetLambda.dotCall(function0Accessor.invokeFunction(builder))
             } else {
                 if (paramType.isNullable()) {
                     TODO("handle nullable param")
