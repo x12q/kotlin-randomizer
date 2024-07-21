@@ -14,3 +14,8 @@ Step1: generate it in the FIR layer first
 See: 
 - SerializationFirResolveExtension.getNestedClassifiersNames for name SerialEntityNames.SERIALIZER_CLASS_NAME
 - SerializationFirResolveExtension.generateNestedClassLikeDeclaration for name SerialEntityNames.SERIALIZER_CLASS_NAME
+## Generate something new in FIR
+When generate something new in fir, and I don't know how to do that, I can:
+- write what I want down manually, and use the debugger to see what it looks like in the FIR tree (class, type, etc)
+- then check around (kotlin source code) to see how it is created if possible.
+- just look around, inspect objects, etc

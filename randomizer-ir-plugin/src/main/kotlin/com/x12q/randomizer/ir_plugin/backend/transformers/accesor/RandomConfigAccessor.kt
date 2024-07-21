@@ -12,7 +12,7 @@ import javax.inject.Inject
 class RandomConfigAccessor @Inject constructor(
     private val baseClassAccessor: BasicAccessor,
 ) : ClassAccessor() {
-    override val clzz: IrClassSymbol = baseClassAccessor.randomConfigClass
+    override val clzz: IrClassSymbol by lazy {baseClassAccessor.randomConfigClass}
 
     private val randomProperty by lazy {
         requireNotNull(clzz.getPropertyGetter("random")){

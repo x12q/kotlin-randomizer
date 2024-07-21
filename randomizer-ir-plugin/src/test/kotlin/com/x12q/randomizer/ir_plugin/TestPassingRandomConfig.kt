@@ -9,12 +9,12 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
 /**
- * Test the random config
+ * Test passing random config directly via random() function and indirectly via @Randomizable annotation
  */
 @OptIn(ExperimentalCompilerApi::class)
 class TestPassingRandomConfig{
     @Test
-    fun `empty class with a defined RandomConfig object`() {
+    fun `class with a RandomConfig object via annotation`() {
 
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
@@ -46,7 +46,7 @@ class TestPassingRandomConfig{
     }
 
     @Test
-    fun `empty class with default RandomConfig`() {
+    fun `class with no RandomConfig`() {
 
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
@@ -73,7 +73,7 @@ class TestPassingRandomConfig{
 
 
     @Test
-    fun `empty class with custom legal random config class`() {
+    fun `class with legal custom random config class via annotation`() {
 
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
@@ -99,7 +99,7 @@ class TestPassingRandomConfig{
     }
 
     @Test
-    fun `empty class with custom legal random config object`() {
+    fun `class with legal custom random config object via annotation`() {
 
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
@@ -126,7 +126,7 @@ class TestPassingRandomConfig{
 
 
     @Test
-    fun `empty class with custom illegal random config`() {
+    fun `class with illegal random config via annotation`() {
 
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(

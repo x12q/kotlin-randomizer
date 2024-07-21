@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.util.companionObject
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.ir.util.isObject
 import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
@@ -70,6 +71,12 @@ class BasicAccessor @Inject constructor(
             "random function from std library does not exist"
         }
 
+    }
+
+    val function0Class by lazy {
+        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Function0::class.qualifiedName!!)))) {
+            "kotlin.Function0 class is not in the class path."
+        }
     }
 
     val kotlinRandomClass by lazy {

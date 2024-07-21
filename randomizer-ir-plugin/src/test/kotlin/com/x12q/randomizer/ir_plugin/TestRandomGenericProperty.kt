@@ -1,20 +1,41 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
-
-
-
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomNestedClass {
+class TestRandomGenericProperty {
 
     @Test
-    fun `randomize nested object`() {
+    fun `class with generic property + legal random config object in annotation`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+                fun main(){
+                    println(Qx.random<Int>(randomT1={123}))
+                    println(Qx.random<Int>(LegalRandomConfigObject,randomT1={123}))
+                }
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class Qx<T1>(val i:T1)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+
+    @Test
+    fun `randomize 3 generic property`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -22,28 +43,10 @@ class TestRandomNestedClass {
                 import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-                    println(Q123.random())
-                    println(Q123.random(DefaultRandomConfig.default))
-
-                    val q = Q123.random()
-                    println(q.b1.i.toString())
-                    println(q.c2.c.toString())
+                    println(Qx.random<Int,String,Double>(randomT1={123}, randomT2={"abc"}, randomT3 = {1.23}))
                 }
-
                 @Randomizable
-                data class Q123(
-                    val boolean: Boolean,
-                    val b1:B1,
-                    val c2:C2,
-                )
-
-                data object B1{
-                    val i = 123
-                }
-
-                object C2{
-                    val c = "ccc"
-                }
+                data class Qx<T1,T2,T3>(val i1:T1,val i2:T2, val i3:T3)
             """,
             fileName = "main.kt"
         ) {
@@ -55,7 +58,7 @@ class TestRandomNestedClass {
     }
 
     @Test
-    fun `randomize nested enum`() {
+    fun `randomize 1 generic property`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -63,53 +66,17 @@ class TestRandomNestedClass {
                 import com.x12q.randomizer.annotations.Randomizable
 
                 fun main(){
-                    println(Q123.random())
-                    println(Q123.random())
-                    println(Q123.random())
+                    println(Qx.randomSample<Int>({123}))
+                    println(Qx.random<Int>(randomT1={123}))
                 }
-
                 @Randomizable
-                data class Q123(
-                    val boolean: Boolean,
-                    val enum:MyEnumClass,
-                )
-
-                enum class MyEnumClass{
-                    V1,V2,V3,V4,V5,V6
+                data class Qx<T1>(val i:T1){
+                    companion object{
+                        fun <Tx>randomSample(randomTx:()->Tx):Qx<Tx>{
+                            return Qx(randomTx())
+                        }
+                    }
                 }
-            """,
-            fileName = "main.kt"
-        ) {
-            testCompilation = { result->
-                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
-            }
-        }
-    }
-
-    @Test
-    fun `randomize nested concrete class`() {
-
-        testGeneratedCodeUsingStandardPlugin(
-            """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-
-                fun main(){
-                    println(Q123.random())
-                    println(Q123.random())
-                    println(Q123.random())
-                }
-
-                @Randomizable
-                data class Q123(
-                    val a:AA
-                )
-
-                data class AA(val int:Int, val bb:BB, val c:CC)
-                data class BB(val str:String,val cc:CC)
-                data class CC(val aa:Float)
-
             """,
             fileName = "main.kt"
         ) {
@@ -120,5 +87,3 @@ class TestRandomNestedClass {
         }
     }
 }
-
-
