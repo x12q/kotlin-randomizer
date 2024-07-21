@@ -22,7 +22,6 @@ import kotlin.reflect.full.isSubclassOf
 @Retention(RUNTIME)
 annotation class Randomizable(
     val randomizer: KClass<out CommonRandomizer<*>> = __DefaultCommonRandomizer::class,
-    val randomizer2:KClass<out Randomizer<*>> = __DefaultRandomizer::class,
     val randomConfig:KClass<out RandomConfig> = __DefaultRandomConfig::class,
 ) {
 

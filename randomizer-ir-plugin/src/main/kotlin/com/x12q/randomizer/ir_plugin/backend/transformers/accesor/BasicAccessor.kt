@@ -79,6 +79,12 @@ class BasicAccessor @Inject constructor(
         }
     }
 
+    val function1Class by lazy {
+        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))) {
+            "kotlin.Function1 class is not in the class path."
+        }
+    }
+
     val kotlinRandomClass by lazy {
         requireNotNull(pluginContext.referenceClass(BaseObjects.randomClassId)) {
             "kotlin.random.Random class is not in the class path."

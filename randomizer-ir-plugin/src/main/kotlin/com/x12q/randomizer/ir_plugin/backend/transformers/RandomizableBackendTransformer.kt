@@ -3,10 +3,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.annotations.Randomizable
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.Function0Accessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.RandomConfigAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.backend.utils.isDouble2
 import com.x12q.randomizer.ir_plugin.backend.utils.isFloat2
@@ -32,7 +29,8 @@ class RandomizableBackendTransformer @Inject constructor(
     private val randomAccessor: RandomAccessor,
     private val randomConfigAccessor: RandomConfigAccessor,
     private val basicAccessor: BasicAccessor,
-    private val function0Accessor: Function0Accessor
+    private val function0Accessor: Function0Accessor,
+    private val function1Accessor: Function1Accessor,
 ) : RDBackendTransformer() {
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
@@ -435,7 +433,12 @@ class RandomizableBackendTransformer @Inject constructor(
                 // call the factory function to generate random generic
                 val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
                 val irGetLambda = builder.irGet(valueParamsOfRandomFunction[paramTypeIndex])
-                return irGetLambda.dotCall(function0Accessor.invokeFunction(builder))
+
+                return irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
+                    this.putValueArgument(0,getRandomConfig)
+                }
+
+//                return irGetLambda.dotCall(function0Accessor.invokeFunction(builder))
             } else {
                 if (paramType.isNullable()) {
                     TODO("handle nullable param")

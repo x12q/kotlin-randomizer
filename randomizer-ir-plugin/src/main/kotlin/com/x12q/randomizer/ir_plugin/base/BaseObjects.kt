@@ -46,7 +46,8 @@ internal object BaseObjects {
         "RandomConfig interface does not exist in the class path."
     }))
     val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
-
+    val function0Name = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
+    val function1Name = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function1"))
 
 
     object Std{

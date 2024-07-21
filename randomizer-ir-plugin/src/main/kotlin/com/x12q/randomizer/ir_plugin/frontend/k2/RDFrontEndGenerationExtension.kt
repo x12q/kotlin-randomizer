@@ -3,10 +3,8 @@ package com.x12q.randomizer.ir_plugin.frontend.k2
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
-import com.x12q.randomizer.random
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.builder.buildTypeParameter
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
 import org.jetbrains.kotlin.fir.declarations.origin
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
@@ -22,8 +20,6 @@ import org.jetbrains.kotlin.fir.scopes.impl.toConeType
 import org.jetbrains.kotlin.fir.symbols.impl.*
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.name.*
-import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.extractTypeParameters
-import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.typeConstructor
 
 /**
  * For generating new declaration (new functions, new classes, properties)
@@ -48,7 +44,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * Important: predicate can only resolve top-level annotation. Annotation to nested class, or function will not be recognized.
      */
     val predicateProvider = session.predicateBasedProvider
-
+    val randomConfigTypeArgument = BaseObjects.randomConfigClassId.constructClassLikeType()
     val strBuilder = StringBuilder()
 
     fun example_use_predicate() {
@@ -186,10 +182,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         functionCallableId: CallableId,
     ): FirNamedFunctionSymbol? {
         val functionName = functionCallableId.callableName
-        val sampleFunction = companionObjectSymbol.declarationSymbols.getOrNull(1)
-        val function0Name =
-            ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
-
         if (functionName == BaseObjects.randomFunctionName) {
 
             val enclosingClass = companionObjectSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
@@ -224,11 +216,14 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 }
             )
             val newValueParam = run {
+
                 randomFunction.typeParameters.map { typeParam ->
                     // randomT1 : ()->T1
                     // randomT2 : ()->T2
-                    val randomLambda = function0Name.constructClassLikeType(
-                        typeArguments = arrayOf(typeParam.toConeType()),
+
+
+                    val randomLambda = BaseObjects.function1Name.constructClassLikeType(
+                        typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
                         isNullable = false
                     )
                     val paramName = Name.identifier("random${typeParam.name}")
@@ -270,8 +265,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         functionCallableId: CallableId,
     ): FirNamedFunctionSymbol? {
         val functionName = functionCallableId.callableName
-        val function0Name =
-            ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
+
         if (functionName == BaseObjects.randomFunctionName) {
 
             val enclosingClass = companionObjectSymbol.getOwnerLookupTag()?.toFirRegularClassSymbol(session)
@@ -320,11 +314,11 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                  */
                 val currentValueParams = randomFunctionWithRandomConfig.valueParameters
 
-                val rt = currentValueParams + randomFunctionWithRandomConfig.typeParameters.map { typeParam ->
+                val valueParams = currentValueParams + randomFunctionWithRandomConfig.typeParameters.map { typeParam ->
                     // randomT1 : ()->T1
                     // randomT2 : ()->T2
-                    val randomLambda = function0Name.constructClassLikeType(
-                        typeArguments = arrayOf(typeParam.toConeType()),
+                    val randomLambda = BaseObjects.function1Name.constructClassLikeType(
+                        typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
                         isNullable = false
                     )
                     val paramName = Name.identifier("random${typeParam.name}")
@@ -341,7 +335,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                         isVararg = false
                     }
                 }
-                rt
+                valueParams
             }
 
             randomFunctionWithRandomConfig.replaceValueParameters(newValueParam)
