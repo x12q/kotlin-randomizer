@@ -97,7 +97,7 @@ class TopFrontEndDeclaration {
                         val signatureOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 1
                         if(signatureOk){
                             val valueParametersAreCorrect = run {
-                                it.valueParameters[0].type.classFqName.toString() == kotlin.Function0::class.qualifiedName
+                                it.valueParameters[0].type.classFqName.toString() == kotlin.Function1::class.qualifiedName
                             }
                             valueParametersAreCorrect
                         }else{
@@ -117,7 +117,7 @@ class TopFrontEndDeclaration {
                         if(signatureIsOk){
                             val valueParamsAreCorrect = run {
                                 val param1IsCorrect = it.valueParameters[0].type.classFqName.toString() == RandomConfig::class.qualifiedName
-                                val param2IsCorrect = it.valueParameters[1].type.classFqName.toString() == kotlin.Function0::class.qualifiedName
+                                val param2IsCorrect = it.valueParameters[1].type.classFqName.toString() == kotlin.Function1::class.qualifiedName
                                 param1IsCorrect && param2IsCorrect
                             }
                             valueParamsAreCorrect
