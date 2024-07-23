@@ -44,7 +44,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -77,7 +77,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -120,7 +120,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -148,7 +148,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
             }
         }
@@ -173,7 +173,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
             }
         }
@@ -202,7 +202,7 @@ class TestRandomPrimitive {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }

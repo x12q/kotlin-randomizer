@@ -8,10 +8,12 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import java.io.OutputStream
 
 @OptIn(ExperimentalCompilerApi::class)
 class GeneratedCodeAssertions(
-    val testCompilation: (JvmCompilationResult) -> Unit = {},
+    val testCompilation: (JvmCompilationResult,TestOutputStream) -> Unit = {_,_->},
+    val testOutputStream:(TestOutputStream) -> Unit = {},
     val beforeVisitCall: (expression: IrCall, irPluginContext: IrPluginContext) -> Unit = { _, _ -> },
     val afterVisitCall: (input: IrCall, output: IrExpression, irPluginContext: IrPluginContext) -> Unit = { _, _, _ -> },
     val beforeVisitClassNew: (IrClass, irPluginContext: IrPluginContext) -> Unit = { _, _ -> },

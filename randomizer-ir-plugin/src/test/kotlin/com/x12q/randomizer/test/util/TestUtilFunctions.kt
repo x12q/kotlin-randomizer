@@ -1,16 +1,17 @@
 package com.x12q.randomizer.test.util
 
-import com.tschuchort.compiletesting.JvmCompilationResult
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertions
+import com.x12q.randomizer.test.util.assertions.TestOutputStream
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
+import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 /**
@@ -25,8 +26,9 @@ fun testGeneratedCode(
     frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension>,
     makeAssertions:()->GeneratedCodeAssertions,
     fileName: String,
-    outputStream: OutputStream = System.out,
-): JvmCompilationResult {
+    outputStream: OutputStream,
+    testOutputStream: TestOutputStream,
+) {
 
     val ktFile = SourceFile.kotlin(
         name = fileName,
@@ -54,16 +56,12 @@ fun testGeneratedCode(
         )
 
         commandLineProcessors = listOf(DummyCommandLineProcessor())
-        messageOutputStream = outputStream
+        messageOutputStream = ManyOutputStream(outputStream,testOutputStream)
 
         // this allows the subject code to access the dependencies of the project
         inheritClassPath = true
-
-        // enable fir
-//        useK2 = true
     }.compile()
-    val testCompilation:(JvmCompilationResult) -> Unit = assertions.testCompilation
-    testCompilation(compileResult)
-    return compileResult
+    assertions.testCompilation(compileResult,testOutputStream)
+    assertions.testOutputStream(testOutputStream)
 }
 

@@ -2,6 +2,8 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.DefaultRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+import com.x12q.randomizer.test.util.ManyOutputStream
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -12,6 +14,83 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomNestedClass {
+
+    @Test
+    fun `randomize nullable nested object - always not null`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+                fun main(){
+                    println(Q123.random(AlwaysTrueRandomConfig))
+                }
+
+                @Randomizable
+                data class Q123(
+                    val b1:B1?,
+                    val c2:C2?,
+                    val d2:D2?,   
+                )
+
+                data object B1{
+                    val i = 123
+                }
+
+                object C2{
+                    val c = "ccc"
+                }
+                data class D2(val x:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result,_->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
+
+    @Test
+    fun `randomize nullable nested object - always null`() {
+        AlwaysTrueRandomConfig
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                import com.x12q.randomizer.DefaultRandomConfig
+                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
+
+                fun main(){
+                    println(Q123.random(AlwaysFalseRandomConfig))
+                }
+
+                @Randomizable
+                data class Q123(
+                    val b1:B1?,
+                    val c2:C2?,
+                    val d2:D2?,
+                )
+
+                data object B1{
+                    val i = 123
+                }
+
+                object C2{
+                    val c = "ccc"
+                }
+
+                data class D2(val x:Int)
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result,_->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
+            }
+        }
+    }
+
 
     @Test
     fun `randomize nested object`() {
@@ -47,7 +126,7 @@ class TestRandomNestedClass {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -80,7 +159,7 @@ class TestRandomNestedClass {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -113,7 +192,7 @@ class TestRandomNestedClass {
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result->
+            testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }

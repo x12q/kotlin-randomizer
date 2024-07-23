@@ -33,12 +33,7 @@ class TestPassingRandomConfig{
             """,
             fileName = "main.kt"
         ) {
-            afterVisitClassNew = { irClass, statement, irPluginContext ->
-                if (irClass.name.toString() == "Q123") {
-
-                }
-            }
-            testCompilation = { result ->
+            testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -63,7 +58,7 @@ class TestPassingRandomConfig{
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result ->
+            testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -91,7 +86,7 @@ class TestPassingRandomConfig{
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result ->
+            testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -117,7 +112,7 @@ class TestPassingRandomConfig{
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result ->
+            testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runMain()
             }
@@ -143,7 +138,7 @@ class TestPassingRandomConfig{
             """,
             fileName = "main.kt"
         ) {
-            testCompilation = { result ->
+            testCompilation = { result,_ ->
                 result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
             }
         }

@@ -8,12 +8,14 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import java.io.OutputStream
 
 @OptIn(ExperimentalCompilerApi::class)
 class GeneratedCodeAssertionBuilder(
     baseAssertions: GeneratedCodeAssertions = GeneratedCodeAssertions.empty(),
 ){
-    var testCompilation: (JvmCompilationResult) -> Unit = baseAssertions.testCompilation
+    var testCompilation: (JvmCompilationResult,TestOutputStream) -> Unit = baseAssertions.testCompilation
+    var testOutputStream:(TestOutputStream) -> Unit = baseAssertions.testOutputStream
     var beforeVisitCall: (expression: IrCall, IrPluginContext) -> Unit = baseAssertions.beforeVisitCall
     var afterVisitCall: (input: IrCall, output: IrExpression, IrPluginContext) -> Unit = baseAssertions.afterVisitCall
     var beforeVisitClassNew: (IrClass, IrPluginContext) -> Unit = baseAssertions.beforeVisitClassNew
@@ -25,7 +27,8 @@ class GeneratedCodeAssertionBuilder(
             beforeVisitCall = beforeVisitCall,
             afterVisitCall = afterVisitCall,
             beforeVisitClassNew = beforeVisitClassNew,
-            afterVisitClassNew = afterVisitClassNew
+            afterVisitClassNew = afterVisitClassNew,
+            testOutputStream = testOutputStream,
         )
     }
 }

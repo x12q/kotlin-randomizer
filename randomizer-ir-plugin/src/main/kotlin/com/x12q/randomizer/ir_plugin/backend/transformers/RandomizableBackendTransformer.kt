@@ -364,15 +364,14 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val paramExpressions = constructor.valueParameters.map { param ->
                 generateRandomParam(
-                    param,
-                    builder,
-                    getRandomConfigExpr,
-                    typeParamOfRandomFunction,
-                    valueParamsOfRandomFunction
+                    param = param,
+                    builder = builder,
+                    getRandomConfig = getRandomConfigExpr,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                    valueParamsOfRandomFunction = valueParamsOfRandomFunction
                 )
             }
 
-            val x = typeParamOfRandomFunction.map { it.defaultType }
             val constructorCall = builder.irCallConstructor(
                 callee = constructor.symbol,
                 typeArguments = emptyList()
@@ -397,7 +396,19 @@ class RandomizableBackendTransformer @Inject constructor(
      * }
      * ```
      */
-    private fun randomIfElse(builder: DeclarationIrBuilder, getRandomConfigExpr: IrExpression, type: IrType,truePart:IrExpression, elseExpr:IrExpression):IrExpression{
+    private fun randomIfElse(
+        builder: DeclarationIrBuilder,
+        /**
+         * An expr to get a [RandomConfig]
+         */
+        getRandomConfigExpr: IrExpression,
+        /**
+         * this is the return type of the if-else expr
+         */
+        type: IrType,
+        truePart: IrExpression,
+        elseExpr: IrExpression
+    ):IrExpression{
         val conditionExpr = getRandomConfigExpr.dotCall(randomConfigAccessor.nextBoolean(builder))
         return builder.irIfThenElse(
             type = type,
@@ -456,27 +467,46 @@ class RandomizableBackendTransformer @Inject constructor(
                 val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
                 val irGetLambda = builder.irGet(valueParamsOfRandomFunction[paramTypeIndex])
 
-                return irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
+                val nonNullExpr=irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
                     this.putValueArgument(0,getRandomConfig)
                 }
-
+                if(paramType.isNullable()){
+                    return randomIfElse(
+                        builder,getRandomConfig,paramType,nonNullExpr,builder.irNull()
+                    )
+                }else{
+                    return nonNullExpr
+                }
             } else {
-                if (paramType.isNullable()) {
-                    TODO("handle nullable param")
-                } else {
-                    val nestedClass = paramType.classOrNull?.owner
-                    if (nestedClass != null) {
-                        val rt = generateRandomClassInstance(
-                            nestedClass,
-                            getRandomConfig,
-                            builder,
-                            typeParamOfRandomFunction,
-                            valueParamsOfRandomFunction
-                        )
-                        return rt
-                    } else {
-                        TODO("may need to handle generic here")
+
+                val paramClass = paramType.classOrNull?.owner
+
+                if (paramClass != null) {
+                    /**
+                     * non-null expression will result in a non-null instance of the class of [param]
+                     */
+                    val nonNullExpr = generateRandomClassInstance(
+                        paramClass,
+                        getRandomConfig,
+                        builder,
+                        typeParamOfRandomFunction,
+                        valueParamsOfRandomFunction
+                    )
+                    if(nonNullExpr!=null){
+                        if (paramType.isNullable()) {
+                            return randomIfElse(
+                                builder,getRandomConfig,paramType,
+                                truePart = nonNullExpr,
+                                elseExpr = builder.irNull(),
+                            )
+                        } else {
+                            return nonNullExpr
+                        }
+                    }else{
+                        throw  IllegalArgumentException("unable to construct an expression to generate a random instance for $param")
                     }
+                } else {
+                    throw IllegalArgumentException("$param does not belong to a class :| ")
                 }
             }
         }

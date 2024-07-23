@@ -1,34 +1,61 @@
 package com.x12q.randomizer.test.util.assertions
 
 import com.tschuchort.compiletesting.JvmCompilationResult
-import com.tschuchort.compiletesting.KotlinCompilation
-import io.kotest.matchers.shouldBe
+import com.x12q.randomizer.test.util.TestOutput
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import java.io.PrintStream
 import java.lang.reflect.InvocationTargetException
-import kotlin.test.fail
 
 /**
  * Simply search for main function in a compilation result, then run it.
- * main function must not be in any package.
  */
 @OptIn(ExperimentalCompilerApi::class)
-fun JvmCompilationResult.runMain(packageName:String? = null) {
-    val result = this
+fun JvmCompilationResult.runMain(packageName:String? = null, testOutputStream: TestOutputStream?=null) {
+    val kClazz = findMainClass(packageName)
+    val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
 
+    val oldStream = System.out
+
+    if(testOutputStream!=null){
+        val newPrintStream = PrintStream(testOutputStream.getByteArrayOutputStream())
+        System.setOut(newPrintStream)
+    }
+
+    try {
+        main.invoke(null)
+
+        if(testOutputStream!=null){
+            System.setOut(oldStream)
+        }
+    } catch (t: InvocationTargetException) {
+        throw t.cause!!
+    }
+}
+
+/**
+ * Simply search for main2 function in a compilation result, then run it.
+ */
+@OptIn(ExperimentalCompilerApi::class)
+fun JvmCompilationResult.runMain2(packageName:String? = null):TestOutput {
+    val kClazz = findMainClass(packageName)
+    val main = kClazz.declaredMethods.single { it.name == "main2" && it.parameterCount == 0 }
+    try {
+        return main.invoke(null) as TestOutput
+    } catch (t: InvocationTargetException) {
+        throw t.cause!!
+    }
+}
+@OptIn(ExperimentalCompilerApi::class)
+fun JvmCompilationResult.findMainClass(packageName:String? = null):Class<*> {
+    val result = this
     /**
      * package name = "[packageName]." or ""
      */
     val pk=packageName?.let {
         "$it."
     }?:""
-    val mainClass = "${pk}MainKt"
+    val mainClassName = "${pk}MainKt"
 
-    val kClazz = result.classLoader.loadClass(mainClass)
-    val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
-    try {
-        main.invoke(null)
-    } catch (t: InvocationTargetException) {
-        throw t.cause!!
-    }
+    val mainClass = result.classLoader.loadClass(mainClassName)
+    return mainClass
 }
-
