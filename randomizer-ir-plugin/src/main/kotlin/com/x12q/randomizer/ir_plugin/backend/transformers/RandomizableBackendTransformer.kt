@@ -33,6 +33,8 @@ class RandomizableBackendTransformer @Inject constructor(
     private val function1Accessor: Function1Accessor,
 ) : RDBackendTransformer() {
 
+    val origin = BaseObjects.declarationOrigin
+
     override fun visitClassNew(declaration: IrClass): IrStatement {
 
         val annotation = declaration.getAnnotation(BaseObjects.randomizableFqName)
@@ -383,6 +385,26 @@ class RandomizableBackendTransformer @Inject constructor(
         } else {
             return null
         }
+    }
+
+    /**
+     * Construct an if-else expression using `RandomConfig.nextBool` as condition. Like this
+     * ```
+     * if(randomConfig.nextBool()){
+     *    [truePart]
+     * }else{
+     *    [elsePart]
+     * }
+     * ```
+     */
+    private fun randomIfElse(builder: DeclarationIrBuilder, getRandomConfigExpr: IrExpression, type: IrType,truePart:IrExpression, elseExpr:IrExpression):IrExpression{
+        val conditionExpr = getRandomConfigExpr.dotCall(randomConfigAccessor.nextBoolean(builder))
+        return builder.irIfThenElse(
+            type = type,
+            condition = conditionExpr,
+            thenPart = truePart,
+            elsePart = elseExpr
+        )
     }
 
     private fun generateRandomSealClass(

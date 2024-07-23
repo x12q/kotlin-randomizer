@@ -5,6 +5,7 @@ import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.randomizer.CommonRandomizer
 import com.x12q.randomizer.annotations.Randomizable
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
+import org.jetbrains.kotlin.fir.declarations.origin
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -25,7 +26,6 @@ internal object BaseObjects {
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
 
     val declarationOrigin = RandomizerDeclarationOrigin
-    val randomizableDeclarationKey = RandomizableDeclarationKey
 
     val randomFunctionName = Name.identifier("random")
     val randomConfigParamName= Name.identifier("randomConfig")
@@ -57,7 +57,7 @@ internal object BaseObjects {
 
 
     object Fir {
-        val randomizableDeclarationKey = BaseObjects.randomizableDeclarationKey
+        val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
         val randomConfigClassId = BaseObjects.randomConfigClassId
     }
