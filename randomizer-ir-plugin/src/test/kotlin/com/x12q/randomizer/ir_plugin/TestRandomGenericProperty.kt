@@ -44,7 +44,6 @@ class TestRandomGenericProperty {
                 @Randomizable
                 data class QxC<T1>(override val data:Qx<T1>):WithData
             """,
-            fileName = "main.kt",
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
@@ -79,7 +78,6 @@ class TestRandomGenericProperty {
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1>(override val data:Qx2<T1>):WithData
             """,
-            fileName = "main.kt"
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
@@ -125,7 +123,6 @@ class TestRandomGenericProperty {
                 @Randomizable(randomConfig = RandomConfigForTest::class)
                 data class QxC<T1,T2,T3>(override val data:Qx3<T1,T2,T3>):WithData
             """,
-            fileName = "main.kt"
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
@@ -159,7 +156,6 @@ class TestRandomGenericProperty {
                 @Randomizable(randomConfig = RandomConfigForTest::class)
                 data class QxC<T1>(override val data:Qx<T1>):WithData
             """,
-            fileName = "main.kt"
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK

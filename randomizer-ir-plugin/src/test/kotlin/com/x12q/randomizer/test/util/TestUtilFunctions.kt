@@ -25,6 +25,11 @@ fun testGeneratedCode(
     frontEndTransformerFactoryFunctions: List<(FirSession) -> FirDeclarationGenerationExtension>,
     frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension>,
     makeAssertions:()->GeneratedCodeAssertions,
+    /**
+     * name for the file that will contain [kotlinSource].
+     * This is not a name for a real file, but the name for the virtual file that will be created by this test.
+     * This name can be anything.
+     */
     fileName: String,
     outputStream: OutputStream,
     testOutputStream: TestOutputStream,

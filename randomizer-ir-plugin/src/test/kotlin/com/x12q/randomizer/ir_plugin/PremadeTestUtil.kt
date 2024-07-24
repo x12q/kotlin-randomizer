@@ -39,7 +39,7 @@ fun testGeneratedCodeUsingStandardPlugin(
     frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension> = listOf(
         ::RDCheckersExtension
     ),
-    fileName: String = "kt_file_${UUID.randomUUID()}.kt",
+    fileName: String = "main.kt",
     outputStream: OutputStream = System.out,
     testOutputStream:TestOutputStream = StringTestOutputStream(),
     configAssertionBuilder: GeneratedCodeAssertionBuilder.() -> Unit,
