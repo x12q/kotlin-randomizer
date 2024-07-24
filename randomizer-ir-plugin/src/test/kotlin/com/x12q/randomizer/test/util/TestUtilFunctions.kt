@@ -5,6 +5,7 @@ import com.tschuchort.compiletesting.SourceFile
 import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertions
 import com.x12q.randomizer.test.util.assertions.TestOutputStream
+import com.x12q.randomizer.test.util.assertions.findMainClass
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi

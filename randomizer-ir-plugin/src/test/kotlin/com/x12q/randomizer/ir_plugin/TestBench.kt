@@ -1,39 +1,74 @@
 package com.x12q.randomizer.ir_plugin
 
+import com.x12q.randomizer.RandomConfig
+import io.kotest.matchers.types.shouldBeSameInstanceAs
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.random.Random
+import kotlin.reflect.KClass
 
-//fun main(){
-//    println(Q123.random())
-//}
-//@Randomizable
-//class Q123
 
-enum class E1
-enum class E2{
-    v1,v2
+interface ClassRandomizer<T : Any> {
+    fun random(): T
+    val returnType: KClass<out T>
 }
-data class B(
-    val q:List<E1>,
-)
 
-@Serializable
-data class Q<T>(
-    val x:Int,
-//    val t:T
-)
+class ConstantRandomizerG<T:Any>(val i: T) : ClassRandomizer<T> {
+    override val returnType: KClass<out T> = i::class
+    override fun random(): T {
+        return i
+    }
+}
 
-@Serializable
-data class MMM(val i:Int)
+class VLRandomizer<T : Any>(val rd: () -> T, override val returnType: KClass<out T>) : ClassRandomizer<T> {
+    override fun random(): T {
+        return rd()
+    }
+}
 
-fun main(){
-//    val str = Json.encodeToString(Q(1,2))
-//    val q = Json.decodeFromString<Q<Int>>(str)
-//    Q.serializer()
-    println()
-    val serializer = Q.serializer(Float.serializer())
+interface ClassRandomizerCollection {
+    val randomizers: List<ClassRandomizer<*>>
+    fun <T> getRandomizerFor(): ClassRandomizer<*>?
+}
+
+class ClassRandomizerCollectionImp(
+    override val randomizers: List<ClassRandomizer<*>>
+) : ClassRandomizerCollection {
+    override fun <T> getRandomizerFor(): ClassRandomizer<*>? {
+        TODO()
+    }
+}
+
+inline fun <reified T:Any> List<ClassRandomizer<*>>.getFor(): ClassRandomizer<T>? {
+    val rt = this.firstOrNull {
+        it.returnType == T::class
+    }
+    return rt?.let { it as? ClassRandomizer<T> }
+}
+
+class AB(val i: Int) {
+    val c = Int
+
+    companion object {
+        fun random(randomConfig: RandomConfig, randomizers: List<ClassRandomizer<*>>) {
+            TODO()
+        }
+    }
+}
+
+
+fun main() {
+    val int = ConstantRandomizerG(19)
+    val float = ConstantRandomizerG(132.2f)
+    val  l = listOf(
+        int, float,VLRandomizer({"abc"},String::class)
+    )
+
+    println(l.getFor<Int>()?.random())
+    println(l.getFor<Float>()?.random())
+    println(l.getFor<String>()?.random())
 }
