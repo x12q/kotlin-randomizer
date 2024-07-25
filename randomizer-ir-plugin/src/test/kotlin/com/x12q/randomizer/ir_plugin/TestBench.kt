@@ -1,13 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
+import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
-import io.kotest.matchers.types.shouldBeSameInstanceAs
-import io.kotest.matchers.types.shouldBeTypeOf
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import kotlin.random.Random
 import kotlin.reflect.KClass
 
@@ -32,43 +26,49 @@ class VLRandomizer<T : Any>(val rd: () -> T, override val returnType: KClass<out
 
 interface ClassRandomizerCollection {
     val randomizers: List<ClassRandomizer<*>>
-    fun <T> getRandomizerFor(): ClassRandomizer<*>?
 }
 
-class ClassRandomizerCollectionImp(
-    override val randomizers: List<ClassRandomizer<*>>
-) : ClassRandomizerCollection {
-    override fun <T> getRandomizerFor(): ClassRandomizer<*>? {
-        TODO()
-    }
-}
-
-inline fun <reified T:Any> List<ClassRandomizer<*>>.getFor(): ClassRandomizer<T>? {
+inline fun <reified T:Any> List<ClassRandomizer<*>>.getRandomizer(): ClassRandomizer<T>? {
     val rt = this.firstOrNull {
         it.returnType == T::class
     }
     return rt?.let { it as? ClassRandomizer<T> }
 }
 
-class AB(val i: Int) {
+inline fun <reified T:Any> ClassRandomizerCollection.getRandomizer():ClassRandomizer<T>?{
+    return this.randomizers.getRandomizer<T>()
+}
+
+class ClassRandomizerCollectionImp(
+    override val randomizers: List<ClassRandomizer<*>>
+) : ClassRandomizerCollection
+
+data class AB(val i: Int, val x:Double, val s:String) {
     val c = Int
 
     companion object {
-        fun random(randomConfig: RandomConfig, randomizers: List<ClassRandomizer<*>>) {
-            TODO()
+        fun random(randomConfig: RandomConfig, randomizers:ClassRandomizerCollection): AB {
+            val iRdm = randomizers.getRandomizer<Int>()
+            val i = if(iRdm!=null){
+                iRdm.random()
+            }else{
+                randomConfig.nextInt()
+            }
+
+            val x = randomizers.getRandomizer<Double>()?.random() ?: randomConfig.nextDouble()
+            val s = randomizers.getRandomizer<String>()?.random() ?: randomConfig.nextStringUUID()
+
+            return AB(i=i,x=x,s)
         }
     }
 }
 
 
 fun main() {
-    val int = ConstantRandomizerG(19)
-    val float = ConstantRandomizerG(132.2f)
+    val int = ConstantRandomizerG(1)
+    val float = ConstantRandomizerG(2f)
     val  l = listOf(
         int, float,VLRandomizer({"abc"},String::class)
     )
-
-    println(l.getFor<Int>()?.random())
-    println(l.getFor<Float>()?.random())
-    println(l.getFor<String>()?.random())
+    println(AB.random(DefaultRandomConfig.default,ClassRandomizerCollectionImp(l)))
 }
