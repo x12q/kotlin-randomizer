@@ -3,7 +3,6 @@ package com.x12q.randomizer.ir_plugin.frontend.k2
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
-import org.jetbrains.kotlin.builtins.functions.FunctionTypeKind
 import org.jetbrains.kotlin.contracts.description.EventOccurrencesRange
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
@@ -258,8 +257,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             )
 
             val randomLambdasParam = makeGenericRandomLambdasParam(randomFunction)
-            val randomizersParam = listOf(makeRandomizersFunctionalParam(randomFunction))
-            randomFunction.replaceValueParameters(randomLambdasParam+randomizersParam)
+            val randomizersBuilderConfig = listOf(makeRandomizersBuilderConfigFunctionParam(randomFunction))
+            randomFunction.replaceValueParameters(randomLambdasParam+randomizersBuilderConfig)
 
             val rt = randomFunction.symbol
             return rt
@@ -272,12 +271,13 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * Generate this parameter:
      * ```randomizers: Function1<ClassRandomizerCollectionBuilder,Unit> ClassRandomizerCollectionBuilder.()->Unit = {}```
      */
-    private fun makeRandomizersFunctionalParam(
+    private fun makeRandomizersBuilderConfigFunctionParam(
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
         val builderType = BaseObjects.ClassRandomizerCollectionBuilder_ClassId.constructClassLikeType()
-        val randomizersLambda = ConeClassLikeTypeImpl(
+
+        val randomizerConfigLambda = ConeClassLikeTypeImpl(
             ConeClassLikeLookupTagImpl(ClassId(FqName("kotlin"), Name.identifier("Function1"))),
             typeArguments = arrayOf(builderType, unitConeType),
             isNullable = false
@@ -295,7 +295,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 isLambda = true
                 hasExplicitParameterList = false
                 typeRef = buildResolvedTypeRef {
-                    type = randomizersLambda
+                    type = randomizerConfigLambda
                 }
 
                 body = buildBlock {
@@ -321,13 +321,12 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             }
         }
 
-
         val rt = buildValueParameter {
             name = paramName
             moduleData = session.moduleData
             origin = BaseObjects.Fir.randomizableDeclarationKey.origin
             symbol = FirValueParameterSymbol(paramName)
-            returnTypeRef = randomizersLambda.toFirResolvedTypeRef()
+            returnTypeRef = randomizerConfigLambda.toFirResolvedTypeRef()
             containingFunctionSymbol = randomFunction.symbol
             isCrossinline = false
             isNoinline = true

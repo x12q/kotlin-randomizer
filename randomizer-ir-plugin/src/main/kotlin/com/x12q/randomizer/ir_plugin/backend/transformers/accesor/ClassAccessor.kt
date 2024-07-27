@@ -8,11 +8,15 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.types.IrType
+import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.irCall
 
 abstract class ClassAccessor{
     protected abstract val clzz: IrClassSymbol
+
+    val irType: IrType by lazy { clzz.defaultType }
 
     protected fun zeroAgrFunction(name:String): IrSimpleFunctionSymbol {
         return clzz.zeroAgrFunction(name)

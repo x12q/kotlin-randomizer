@@ -4,6 +4,8 @@ import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.mock_objects.*
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
+import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
+import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.withTestOutput
@@ -82,12 +84,15 @@ data class ImportData(
     }
 
     override fun toString(): String {
+
         return importCode
     }
 
     companion object {
         val stdImport = ImportData(
             classList = listOf(
+                FactoryClassRandomizer::class,
+                ConstantClassRandomizer::class,
                 ClassRandomizerCollectionBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,

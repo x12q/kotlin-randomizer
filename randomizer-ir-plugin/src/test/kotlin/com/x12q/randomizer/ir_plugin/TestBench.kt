@@ -3,6 +3,10 @@ package com.x12q.randomizer.ir_plugin
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.lib.randomizer.*
+import com.x12q.randomizer.test.util.TestOutput
+import com.x12q.randomizer.test.util.WithData
+import com.x12q.randomizer.test.util.withTestOutput
+import io.kotest.inspectors.runTest
 
 
 data class AB(val i: Int, val x: Double, val s: String) {
@@ -42,13 +46,18 @@ data class AB(val i: Int, val x: Double, val s: String) {
 
 
 fun main() {
-    val int = ConstantClassRandomizer(100)
-    val float = ConstantClassRandomizer(2f)
-    val l = listOf(
-        int, float, FactoryClassRandomizer({ "abc" }, String::class)
-    )
-    println(AB.random{
-        add(int)
-        add(float)
-    })
+    runTest()
+}
+
+
+class X(override val data: AB) :WithData
+
+fun runTest(): TestOutput {
+    return withTestOutput{
+        putData(X(
+            AB.random{
+                println(this)
+            }
+        ))
+    }
 }

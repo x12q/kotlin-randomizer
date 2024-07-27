@@ -17,8 +17,13 @@ import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 import kotlin.random.Random
 
+/**
+ * Contain declaration to access basic classes that are relevant to the randomizer plugin. Including:
+ * - class from standard kotlin library
+ * - class from support libraries of randomizer plugin
+ */
 class BasicAccessor @Inject constructor(
-    pluginContext: IrPluginContext
+    val pluginContext: IrPluginContext
 ) {
     /**
      * Name for the family of random functions in the standard library that can be call on collections, arrays, etc
@@ -35,7 +40,7 @@ class BasicAccessor @Inject constructor(
             val irFunction = functionSymbol.owner
             if(irFunction.valueParameters.size==1){
                 val firstParam = irFunction.valueParameters.first()
-                if(firstParam.type.classOrNull == kotlinRandomClass && irFunction.extensionReceiverParameter?.type?.isCollection() == true){
+                if(firstParam.type.classOrNull == kotlinRandom_Class && irFunction.extensionReceiverParameter?.type?.isCollection() == true){
                     true
                 }else{
                     false
@@ -59,7 +64,7 @@ class BasicAccessor @Inject constructor(
             val irFunction = functionSymbol.owner
             if(irFunction.valueParameters.size==1){
                 val firstParam = irFunction.valueParameters.first()
-                if(firstParam.type.classOrNull == kotlinRandomClass && irFunction.extensionReceiverParameter?.type?.isArray() == true){
+                if(firstParam.type.classOrNull == kotlinRandom_Class && irFunction.extensionReceiverParameter?.type?.isArray() == true){
                     true
                 }else{
                     false
@@ -70,39 +75,56 @@ class BasicAccessor @Inject constructor(
         }){
             "random function from std library does not exist"
         }
-
     }
 
-    val function0Class by lazy {
+    val ClassRandomizerCollection_Class  by lazy {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.ClassRandomizerCollection_ClassId)) {
+            "ClassRandomizerCollection class is not in the class path."
+        }
+    }
+
+    val ClassRandomizerCollectionBuilder_Interface by lazy {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.ClassRandomizerCollectionBuilder_ClassId)) {
+            "RandomizerCollectionBuilder interface is not in the class path."
+        }
+    }
+
+    val ClassRandomizerCollectionBuilderImp_Class by lazy {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.ClassRandomizerCollectionBuilderImp_ClassId)) {
+            "RandomizerCollectionBuilderImp class is not in the class path."
+        }
+    }
+
+    val Function0_Class by lazy {
         requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Function0::class.qualifiedName!!)))) {
             "kotlin.Function0 class is not in the class path."
         }
     }
 
-    val function1Class by lazy {
+    val Function1_Class by lazy {
         requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))) {
             "kotlin.Function1 class is not in the class path."
         }
     }
 
-    val kotlinRandomClass by lazy {
+    val kotlinRandom_Class by lazy {
         requireNotNull(pluginContext.referenceClass(BaseObjects.Random_ClassId)) {
             "kotlin.random.Random class is not in the class path."
         }
     }
-    val randomConfigClass by lazy {
+    val RandomConfig_Class by lazy {
         requireNotNull(pluginContext.referenceClass(BaseObjects.RandomConfig_ClassId)) {
             "RandomConfig interface is not in the class path."
         }
     }
-    val defaultRandomConfigClass by lazy {
+    val DefaultRandomConfig_Class by lazy {
         requireNotNull(pluginContext.referenceClass(BaseObjects.DefaultRandomConfig_ClassId)) {
             "impossible, DefaultRandomConfig class must exist in the class path"
         }
     }
 
     val defaultRandomConfigCompanionObject by lazy {
-        requireNotNull(defaultRandomConfigClass.owner.companionObject()) {
+        requireNotNull(DefaultRandomConfig_Class.owner.companionObject()) {
             "impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must exist"
         }
     }

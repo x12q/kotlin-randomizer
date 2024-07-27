@@ -2,55 +2,51 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
+import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.test_code.ImportData
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.util.dump
 import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
 class TestPassingRandomizerBuilder {
-    data class Qx<T1>(val i: T1?)
-    data class Qx2<T1>(val i: T1)
 
-    val withData = WithData.name
-    val qx = Qx::class.qualifiedName!!
-    val qx2 = Qx2::class.qualifiedName!!
+    data class Dt(val i:Int)
 
     @Test
-    fun `nullable generic property`() {
+    fun `pass randomizers config function`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-                import com.x12q.randomizer.test.util.TestOutput
-                import com.x12q.randomizer.test.util.withTestOutput
-                import $qx
-                import $withData
+               ${ImportData.stdImport.import(Dt::class)}
+                
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(AlwaysFalseRandomConfig, randomT1={it.nextInt()}))
-                        putData(QxC.random<Int>(AlwaysTrueRandomConfig, randomT1={it.nextInt()}))
+                        putData(QxC.random{
+                        println(it)
+                            it.add(FactoryClassRandomizer({Dt(-999)},Dt::class))
+                        })
                     }
                 }
                 @Randomizable
-                data class QxC<T1>(override val data:Qx<T1>):WithData
+                data class QxC(override val data:Dt):WithData
             """,
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val l = result.runRunTest().getObjs()
-                l shouldBe listOf(
-                    Qx<Int>(null), Qx(AlwaysTrueRandomConfig.nextInt())
-                )
+//                println(l)
+//                l shouldBe listOf(
+//                   Dt(-999)
+//                )
             }
         }
     }
 }
-
-

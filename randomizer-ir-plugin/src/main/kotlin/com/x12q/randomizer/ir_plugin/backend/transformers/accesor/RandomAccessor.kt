@@ -16,7 +16,7 @@ class RandomAccessor @Inject constructor(
     private val basicAccessor:BasicAccessor,
 ):ClassAccessor() {
 
-    override val clzz: IrClassSymbol by lazy { basicAccessor.kotlinRandomClass }
+    override val clzz: IrClassSymbol by lazy { basicAccessor.kotlinRandom_Class }
 
     private val nextIntFunction:IrSimpleFunctionSymbol by lazy {
         zeroAgrFunction("nextInt")
