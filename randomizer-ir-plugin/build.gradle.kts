@@ -26,7 +26,7 @@ buildConfig{
 }
 
 dependencies {
-
+    implementation(project(":randomizer-ir-lib"))
     implementation(project(":randomizer-lib"))
 //    implementation(project(":randomizer-common"))
     implementation(libs.michaelbull.kotlinResult)

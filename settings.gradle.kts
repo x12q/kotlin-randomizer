@@ -12,3 +12,4 @@ rootProject.name = "randomizer"
 include("randomizer-lib")
 include("randomizer-ir-gradle-plugin")
 include("randomizer-ir-plugin")
+include("randomizer-ir-lib")
