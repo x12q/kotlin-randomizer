@@ -3,6 +3,7 @@ package com.x12q.randomizer.test.util.test_code
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.mock_objects.*
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.withTestOutput
@@ -87,6 +88,7 @@ data class ImportData(
     companion object {
         val stdImport = ImportData(
             classList = listOf(
+                ClassRandomizerCollectionBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,
                 RandomConfigForTest::class,

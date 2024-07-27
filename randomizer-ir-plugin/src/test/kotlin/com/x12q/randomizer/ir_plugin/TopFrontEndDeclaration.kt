@@ -3,8 +3,10 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
 import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.test.util.test_code.ImportData
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -26,9 +28,7 @@ class TopFrontEndDeclaration {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import  com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
+                ${ImportData.stdImport}
 
                 fun main(){
                     println(Q123.random())
@@ -38,13 +38,7 @@ class TopFrontEndDeclaration {
                 @Randomizable(
                     randomConfig = DefaultRandomConfig::class
                 )
-                data class Q123(val i:Int){
-//                    companion object{
-//                        fun x2(ldm: ClassRandomizerCollectionBuilder.()->Unit = {}):Q123{
-//                            return Q123(123)
-//                        }
-//                    }
-                }
+                data class Q123(val i:Int)
             """,
             fileName = "main.kt"
         ) {
@@ -93,8 +87,7 @@ class TopFrontEndDeclaration {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                ${ImportData.stdImport}
 
                 fun main(){
                 }
