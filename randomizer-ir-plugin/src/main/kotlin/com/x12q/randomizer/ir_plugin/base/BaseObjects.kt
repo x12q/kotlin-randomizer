@@ -4,8 +4,10 @@ import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.randomizer.CommonRandomizer
 import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilderImp
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.fir.declarations.origin
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -38,16 +40,42 @@ internal object BaseObjects {
     }))
 
 
-    val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
+    private val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
     val defaultConfigClassShortName = defaultConfigClassFqName.shortName()
-    val defaultRandomConfigClassId = ClassId.topLevel(defaultConfigClassFqName)
+    val DefaultRandomConfig_ClassId = ClassId.topLevel(defaultConfigClassFqName)
 
-    val randomConfigClassId = ClassId.topLevel(FqName(requireNotNull(RandomConfig::class.qualifiedName){
+    val RandomConfig_ClassId = ClassId.topLevel(FqName(requireNotNull(RandomConfig::class.qualifiedName){
         "RandomConfig interface does not exist in the class path."
     }))
-    val randomClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
-    val function0Name = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
-    val function1Name = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function1"))
+    val Random_ClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
+    val Function0_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
+//    val Function1_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function1"))
+    val Function1_ClassId = ClassId.topLevel(FqName(Function1::class.qualifiedName!!))
+    val ClassRandomizerCollection_ClassId = ClassId.topLevel(
+        FqName(
+            requireNotNull(ClassRandomizerCollection::class.qualifiedName){
+                "ClassRandomizerCollection interface does not exist in the class path"
+            }
+        )
+    )
+
+    val ClassRandomizerCollectionBuilder_ClassId = ClassId.topLevel(
+        FqName(
+            requireNotNull(ClassRandomizerCollectionBuilder::class.qualifiedName){
+                "ClassRandomizerCollectionBuilder interface does not exist in the class path"
+            }
+        )
+    )
+
+    val ClassRandomizerCollectionBuilderImp_ClassId = ClassId.topLevel(
+        FqName(
+            requireNotNull(ClassRandomizerCollectionBuilderImp::class.qualifiedName){
+                "ClassRandomizerCollectionBuilder interface does not exist in the class path"
+            }
+        )
+    )
+
+    val randomizersBuilderParamName = Name.identifier("randomizers")
 
 
     object Std{
@@ -59,6 +87,6 @@ internal object BaseObjects {
     object Fir {
         val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
-        val randomConfigClassId = BaseObjects.randomConfigClassId
+        val randomConfigClassId = BaseObjects.RandomConfig_ClassId
     }
 }

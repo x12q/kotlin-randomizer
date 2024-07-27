@@ -9,6 +9,14 @@ open class DefaultTestRandomConfig: RandomConfig {
     override val collectionSizeRange: IntRange = 5 .. 5
     override val charRange: CharRange = 'A' .. 'z'
 
+    override fun nextAny(): Any {
+        return "any"
+    }
+
+    override fun nextAnyOrNull(): Any? {
+        return "any or null"
+    }
+
     override fun nextFloat(): Float {
         return 1f
     }

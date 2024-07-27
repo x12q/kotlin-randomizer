@@ -149,7 +149,7 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>({config->println(config);config.nextInt()}))
-                        putData(QxC.random<Int>({123}))
+                        putData(QxC.random<Int>(randomT1={123}))
                         putData(QxC.random<Int>(randomT1={123}))
                     }
                 }

@@ -86,17 +86,17 @@ class BasicAccessor @Inject constructor(
     }
 
     val kotlinRandomClass by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.randomClassId)) {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.Random_ClassId)) {
             "kotlin.random.Random class is not in the class path."
         }
     }
     val randomConfigClass by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.randomConfigClassId)) {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomConfig_ClassId)) {
             "RandomConfig interface is not in the class path."
         }
     }
     val defaultRandomConfigClass by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.defaultRandomConfigClassId)) {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.DefaultRandomConfig_ClassId)) {
             "impossible, DefaultRandomConfig class must exist in the class path"
         }
     }

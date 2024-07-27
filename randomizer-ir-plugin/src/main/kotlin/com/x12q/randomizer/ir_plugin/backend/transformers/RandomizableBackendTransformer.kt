@@ -10,17 +10,23 @@ import com.x12q.randomizer.ir_plugin.backend.utils.isFloat2
 import com.x12q.randomizer.ir_plugin.backend.utils.isLong2
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
+import com.x12q.randomizer.random
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.builtins.PrimitiveType
+import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
+import org.jetbrains.kotlin.name.SpecialNames
 import javax.inject.Inject
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -42,7 +48,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val companionObj = declaration.companionObject()
             if (companionObj != null) {
                 completeRandomFunction(companionObj, declaration)
-                completeRandomFunctionWithRandomConfig(companionObj, declaration)
+                completeRandomFunctionWithRandomConfig_2_1(companionObj, declaration)
                 completeRandomizerFunction(companionObj, declaration)
             }
         }
@@ -86,10 +92,20 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * complete random() function in [companionObj].
      * This function use the random config in annotation.
+     *
+     * ```
+     *      fun random(randomizers:ClassRandomizerCollectionBuilder.()->Unit = {})
+     * ```
+     *
      */
     private fun completeRandomFunction(companionObj: IrClass, target: IrClass) {
         val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
-            function.name == BaseObjects.randomFunctionName && function.valueParameters.size == target.typeParameters.size
+            val con1 = function.name == BaseObjects.randomFunctionName
+            val con2 = function.valueParameters.size == target.typeParameters.size + 1
+            val con3 = function.valueParameters.lastOrNull()?.let { firstParam ->
+                firstParam.name == BaseObjects.randomizersBuilderParamName
+            } ?: false
+            con1 && con2 && con3
         }
         if (randomFunction != null) {
             val annotation = target.getAnnotation(BaseObjects.randomizableFqName)
@@ -99,9 +115,9 @@ class RandomizableBackendTransformer @Inject constructor(
                     symbol = randomFunction.symbol,
                 )
                 val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunction.typeParameters
-                val valueParamsOfRandomFunction: List<IrValueParameter> = randomFunction.valueParameters
-
+                val valueParamsOfRandomFunction: List<IrValueParameter> = randomFunction.valueParameters.dropLast(1)
                 val randomConfigExpression = makeGetRandomConfigExpressionFromAnnotation(annotation, builder)
+
                 val constructorCall = generateRandomClassInstance(
                     target,
                     randomConfigExpression,
@@ -125,9 +141,15 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Complete random(randomConfig) function
      */
-    private fun completeRandomFunctionWithRandomConfig(companionObj: IrClass, target: IrClass) {
+    private fun completeRandomFunctionWithRandomConfig_2_1(companionObj: IrClass, target: IrClass) {
         val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
-            function.name == BaseObjects.randomFunctionName && function.valueParameters.size == target.typeParameters.size + 1
+            val con1 =
+                function.name == BaseObjects.randomFunctionName && function.valueParameters.size == target.typeParameters.size + 1
+            val con2 = function.valueParameters.firstOrNull()?.let { firstParam ->
+                firstParam.name == BaseObjects.randomConfigParamName
+            } ?: false
+
+            con1 && con2
         }
 
         if (randomFunction != null) {
@@ -142,7 +164,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 }
             val getRandomConfigExpr = builder.irGet(randomConfigParam)
             val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunction.typeParameters
-            val valueParamsOfRandomFunction: List<IrValueParameter> = randomFunction.valueParameters.drop(1) //drop 1 because randomConfig is not relevant
+            val valueParamsOfRandomFunction: List<IrValueParameter> =
+                randomFunction.valueParameters.drop(1) //drop 1 because randomConfig is not relevant
             val constructorCall = generateRandomClassInstance(
                 target,
                 getRandomConfigExpr,
@@ -184,7 +207,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 }
 
             val providedClassIsDefaultRandomConfigClass =
-                providedArgumentClassSymbol.owner.classId == BaseObjects.defaultRandomConfigClassId
+                providedArgumentClassSymbol.owner.classId == BaseObjects.DefaultRandomConfig_ClassId
 
             if (providedClassIsDefaultRandomConfigClass) {
                 return getDefaultRandomConfigInstance(builder)
@@ -262,11 +285,11 @@ class RandomizableBackendTransformer @Inject constructor(
             { generateRandomEnum(irClass, getRandomConfigExpr, builder) },
             {
                 generateRandomConcreteClass(
-                    irClass,
-                    getRandomConfigExpr,
-                    builder,
-                    typeParamOfRandomFunction,
-                    valueParamsOfRandomFunction
+                    irClass = irClass,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                    valueParamsOfRandomFunction = valueParamsOfRandomFunction
                 )
             },
             {
@@ -408,7 +431,7 @@ class RandomizableBackendTransformer @Inject constructor(
         type: IrType,
         truePart: IrExpression,
         elseExpr: IrExpression
-    ):IrExpression{
+    ): IrExpression {
         val conditionExpr = getRandomConfigExpr.dotCall(randomConfigAccessor.nextBoolean(builder))
         return builder.irIfThenElse(
             type = type,
@@ -467,14 +490,14 @@ class RandomizableBackendTransformer @Inject constructor(
                 val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
                 val irGetLambda = builder.irGet(valueParamsOfRandomFunction[paramTypeIndex])
 
-                val nonNullExpr=irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
-                    this.putValueArgument(0,getRandomConfig)
+                val nonNullExpr = irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
+                    this.putValueArgument(0, getRandomConfig)
                 }
-                if(paramType.isNullable()){
+                if (paramType.isNullable()) {
                     return randomIfElse(
-                        builder,getRandomConfig,paramType,nonNullExpr,builder.irNull()
+                        builder, getRandomConfig, paramType, nonNullExpr, builder.irNull()
                     )
-                }else{
+                } else {
                     return nonNullExpr
                 }
             } else {
@@ -492,18 +515,18 @@ class RandomizableBackendTransformer @Inject constructor(
                         typeParamOfRandomFunction,
                         valueParamsOfRandomFunction
                     )
-                    if(nonNullExpr!=null){
+                    if (nonNullExpr != null) {
                         if (paramType.isNullable()) {
                             return randomIfElse(
-                                builder,getRandomConfig,paramType,
+                                builder, getRandomConfig, paramType,
                                 truePart = nonNullExpr,
                                 elseExpr = builder.irNull(),
                             )
                         } else {
                             return nonNullExpr
                         }
-                    }else{
-                        throw  IllegalArgumentException("unable to construct an expression to generate a random instance for $param")
+                    } else {
+                        throw IllegalArgumentException("unable to construct an expression to generate a random instance for $param")
                     }
                 } else {
                     throw IllegalArgumentException("$param does not belong to a class :| ")
@@ -558,18 +581,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 paramType.isString2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder))
                 paramType.isUnit2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnitOrNull(builder))
                 paramType.isNumber2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumberOrNull(builder))
-                paramType.isAny2(true) -> listOf(
-                    getRandomConfig.dotCall(randomConfigAccessor.nextIntOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextBoolOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextFloatOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextLongOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextDoubleOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextCharOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextByteOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextUnitOrNull(builder)),
-                ).random()
-
+                paramType.isAny2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextAnyOrNull(builder))
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
 
                 else -> null
@@ -591,18 +603,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 paramType.isString2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUID(builder))
                 paramType.isUnit2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnit(builder))
                 paramType.isNumber2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumber(builder))
-                paramType.isAny2(false) -> listOf(
-                    getRandomConfig.dotCall(randomConfigAccessor.nextBoolean(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextInt(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextFloat(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextLong(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextDouble(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextStringUUID(builder)),
-                    getRandomConfig.dotCall(randomConfigAccessor.nextUnit(builder)),
-                ).random()
-
+                paramType.isAny2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextAny(builder))
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
 
                 else -> null

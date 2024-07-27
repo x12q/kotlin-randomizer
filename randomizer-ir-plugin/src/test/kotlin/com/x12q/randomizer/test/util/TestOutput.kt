@@ -5,6 +5,7 @@ interface TestOutput{
     fun putObject(any:Any?)
     fun putData(data:WithData)
     fun getObjs():List<Any?>
+    fun getWithData():List<WithData>
     fun getStr():String
 }
 

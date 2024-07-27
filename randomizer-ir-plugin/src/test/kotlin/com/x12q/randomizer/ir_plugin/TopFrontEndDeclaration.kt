@@ -3,6 +3,7 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -27,14 +28,23 @@ class TopFrontEndDeclaration {
             """
                 import com.x12q.randomizer.DefaultRandomConfig
                 import com.x12q.randomizer.annotations.Randomizable
+                import  com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
 
                 fun main(){
+                    println(Q123.random())
+                    println(Q123.random{})
                 }
 
                 @Randomizable(
                     randomConfig = DefaultRandomConfig::class
                 )
-                data class Q123(val i:Int)
+                data class Q123(val i:Int){
+//                    companion object{
+//                        fun x2(ldm: ClassRandomizerCollectionBuilder.()->Unit = {}):Q123{
+//                            return Q123(123)
+//                        }
+//                    }
+                }
             """,
             fileName = "main.kt"
         ) {
@@ -44,15 +54,20 @@ class TopFrontEndDeclaration {
                     companionObj.shouldNotBeNull()
 
                     /**
-                     * test the existence of the first random() function
+                     * test the existence of the first family of random() function
                      */
-                    val randomFunction = companionObj.functions.firstOrNull {
-                        it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 1
+                    val randomFunction = companionObj.functions.firstOrNull { function->
+                        val nameAndParamCountCondition = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 1
+                        val firstParamIsCorrect = function.valueParameters.getOrNull(0)?.let { param->
+                            param.isInstanceOf(Function1::class)
+                        } ?: false
+                        nameAndParamCountCondition && firstParamIsCorrect
                     }
 
                     randomFunction.shouldNotBeNull()
                     randomFunction.returnType.classFqName.toString() shouldBe "Q123"
                     randomFunction.body.shouldNotBeNull()
+
 
                     /**
                      * Test the existence of the 2nd random(randomConfig) function
@@ -66,9 +81,12 @@ class TopFrontEndDeclaration {
             }
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runMain()
             }
         }
     }
+
+
 
     @Test
     fun `random functions with generics exist`() {
@@ -96,16 +114,18 @@ class TopFrontEndDeclaration {
                     /**
                      * test the existence of the first random(randomT:()->T, ...) function
                      */
-                    val randomFunction = companionObj.functions.firstOrNull {
-                        val signatureOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 1
-                        if(signatureOk){
-                            val valueParametersAreCorrect = run {
-                                it.valueParameters[0].type.classFqName.toString() == kotlin.Function1::class.qualifiedName
-                            }
-                            valueParametersAreCorrect
-                        }else{
-                            false
+                    val randomFunction = companionObj.functions.firstOrNull { function->
+                        val signatureOk = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 2
+                        val params=function.valueParameters
+                        val genericFunctionalParamsAreCorrect = params[0].let { param0->
+                            param0.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
+                                    && param0.name.toString() == "randomT"
                         }
+                        val randomizersBuilderFunctionIsCorrect = params[1].let {param1->
+                            param1.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
+                                    && param1.name == BaseObjects.randomizersBuilderParamName
+                        }
+                        signatureOk && genericFunctionalParamsAreCorrect && randomizersBuilderFunctionIsCorrect
                     }
 
                     randomFunction.shouldNotBeNull()

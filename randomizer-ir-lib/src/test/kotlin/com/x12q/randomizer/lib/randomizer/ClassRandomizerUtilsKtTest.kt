@@ -18,13 +18,6 @@ class ClassRandomizerUtilsKtTest {
 
     @Test
     fun getRandomizer() {
-
-        l.getRandomizer<Int>() shouldBe intRdm
-        l.getRandomizer<Float>() shouldBe floatRdm
-        l.getRandomizer<String>() shouldBe strRdm
-        l.getRandomizer<ABC>() shouldBe abcRdm
-        l.getRandomizer<DDD>() shouldBe dddRdm
-
         col.getRandomizer<Int>() shouldBe intRdm
         col.getRandomizer<Float>() shouldBe floatRdm
         col.getRandomizer<String>() shouldBe strRdm

@@ -36,11 +36,13 @@ fun JvmCompilationResult.runMain(packageName:String? = null, testOutputStream: T
  * Simply search for `runTest` function in a compilation result, then run it.
  */
 @OptIn(ExperimentalCompilerApi::class)
-fun JvmCompilationResult.runRunTest(packageName:String? = null):TestOutput {
+fun JvmCompilationResult.runRunTest(packageName:String? = null, onTestOutput:(TestOutput)->Unit={} ):TestOutput {
     val kClazz = findMainClass(packageName)
     val main = kClazz.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
     try {
-        return main.invoke(null) as TestOutput
+        val rt = main.invoke(null) as TestOutput
+        onTestOutput(rt)
+        return rt
     } catch (t: InvocationTargetException) {
         throw t.cause!!
     }

@@ -6,18 +6,24 @@ class TestOutputImp: TestOutput {
         strBuilder.appendLine(any)
     }
 
-
     private val objs = mutableListOf<Any?>()
+    private val withDataList = mutableListOf<WithData>()
+
     override fun putObject(any: Any?) {
         objs.add(any)
     }
 
     override fun putData(data: WithData) {
         objs.add(data.data)
+        withDataList.add(data)
     }
 
     override fun getObjs(): List<Any?> {
         return objs
+    }
+
+    override fun getWithData(): List<WithData> {
+        return withDataList
     }
 
     override fun getStr():String{

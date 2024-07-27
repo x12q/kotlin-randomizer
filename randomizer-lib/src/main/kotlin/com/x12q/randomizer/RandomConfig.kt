@@ -11,6 +11,16 @@ interface RandomConfig {
 
     val collectionSizeRange: IntRange
 
+    fun nextAny():Any{
+        return listOf(
+            nextInt(),nextBoolean(),nextFloat(),nextLong(),nextDouble(),nextChar(),nextByte(),nextStringUUID(),nextUnit()
+        ).random(random)
+    }
+
+    fun nextAnyOrNull():Any?{
+        return listOf(null,nextAny()).random(random)
+    }
+
     fun nextFloat():Float{
         return random.nextFloat()
     }

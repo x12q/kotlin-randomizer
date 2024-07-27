@@ -16,9 +16,18 @@ class RandomConfigAccessor @Inject constructor(
 
     private val randomProperty by lazy {
         requireNotNull(clzz.getPropertyGetter("random")){
-            "impossible, ${BaseObjects.randomConfigClassId.shortClassName} must provide a ${BaseObjects.randomClassId} instance"
+            "impossible, ${BaseObjects.RandomConfig_ClassId.shortClassName} must provide a ${BaseObjects.Random_ClassId} instance"
         }
     }
+
+    fun nextAny(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextAny")
+    }
+
+    fun nextAnyOrNull(builder: DeclarationIrBuilder):IrCall{
+        return builder.zeroAgrFunctionCall("nextAnyOrNull")
+    }
+
     /**
      * Construct an [IrCall] to access [RandomConfig.random]
      */
