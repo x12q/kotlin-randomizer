@@ -125,7 +125,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             rt += SpecialNames.INIT // to generate constructor for companion obj
             rt += BaseObjects.randomFunctionName // to generate random() function declaration
 //            rt += BaseObjects.getRandomConfigFromAnnotationFunctionName // to generate getRandomConfig() function declaration
-            rt += BaseObjects.randomizerFunctionName // to generate randomizer() function declaration
+//            rt += BaseObjects.randomizerFunctionName // to generate randomizer() function declaration
         }
         return rt
     }
