@@ -1,8 +1,10 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionImp
 import com.x12q.randomizer.lib.randomizer.random
+import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -13,16 +15,19 @@ import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
 class ClassRandomizerCollectionAccessor @Inject constructor(
-    private val basicAccessor: BasicAccessor
+    private val pluginContext: IrPluginContext
 ):ClassAccessor() {
+
     override val clzz: IrClassSymbol by lazy {
-        basicAccessor.ClassRandomizerCollection_Class
+        requireNotNull(pluginContext.referenceClass(BaseObjects.ClassRandomizerCollection_ClassId)) {
+            "ClassRandomizerCollection class is not in the class path."
+        }
     }
 
     private val randomFunctionCallId = CallableId(packageName = FqName("com.x12q.randomizer.lib.randomizer"), callableName = Name.identifier("random"))
 
     fun randomFunction(builder: DeclarationIrBuilder):IrCall{
-        val function = requireNotNull(basicAccessor.pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()){
+        val function = requireNotNull(pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()){
             "com.x12q.randomizer.lib.randomizer.random on ${ClassRandomizerCollection::class.simpleName} does not exist. This is a bug by the developer."
         }
         return builder.irCall(function)

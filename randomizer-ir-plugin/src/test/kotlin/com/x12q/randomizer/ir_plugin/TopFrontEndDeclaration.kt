@@ -38,7 +38,13 @@ class TopFrontEndDeclaration {
                 @Randomizable(
                     randomConfig = DefaultRandomConfig::class
                 )
-                data class Q123(val i:Int)
+                data class Q123(val i:Int){
+                    companion object{
+                          fun x12(randomizers: ClassRandomizerCollectionBuilder.() -> Unit = {}): Int {
+                            return 123
+                        }
+                    }
+                }
             """,
             fileName = "main.kt"
         ) {
@@ -129,7 +135,7 @@ class TopFrontEndDeclaration {
                      * Test the existence of the 2nd random(randomConfig,randomT:()->T, ...) function
                      */
                     val randomFunctionWithRandomConfig = companionObj.functions.firstOrNull {
-                        val signatureIsOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size ==2
+                        val signatureIsOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 3
                         if(signatureIsOk){
                             val valueParamsAreCorrect = run {
                                 val param1IsCorrect = it.valueParameters[0].type.classFqName.toString() == RandomConfig::class.qualifiedName

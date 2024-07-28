@@ -30,8 +30,8 @@ class TestPassingRandomizerBuilder {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                        println(it)
-                            it.add(FactoryClassRandomizer({Dt(-999)},Dt::class))
+                            println(this)
+                            add(FactoryClassRandomizer({Dt(-999)},Dt::class))
                         })
                     }
                 }

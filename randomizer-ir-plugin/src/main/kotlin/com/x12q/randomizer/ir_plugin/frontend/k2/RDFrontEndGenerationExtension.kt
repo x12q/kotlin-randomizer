@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.contracts.description.EventOccurrencesRange
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.buildAnonymousFunction
+import org.jetbrains.kotlin.fir.declarations.builder.buildReceiverParameter
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
 import org.jetbrains.kotlin.fir.expressions.builder.*
@@ -257,8 +258,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             )
 
             val randomLambdasParam = makeGenericRandomLambdasParam(randomFunction)
-            val randomizersBuilderConfig = listOf(makeRandomizersBuilderConfigFunctionParam(randomFunction))
-            randomFunction.replaceValueParameters(randomLambdasParam+randomizersBuilderConfig)
+            val randomizersBuilderConfigLambda = listOf(makeRdmBuilderConfigFunctionParam(randomFunction))
+            randomFunction.replaceValueParameters(randomLambdasParam+randomizersBuilderConfigLambda)
 
             val rt = randomFunction.symbol
             return rt
@@ -268,23 +269,33 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
     }
 
     /**
-     * Generate this parameter:
+     * Generate this parameter (randomizer build config function) for random() function
      * ```randomizers: Function1<ClassRandomizerCollectionBuilder,Unit> ClassRandomizerCollectionBuilder.()->Unit = {}```
      */
-    private fun makeRandomizersBuilderConfigFunctionParam(
+    private fun makeRdmBuilderConfigFunctionParam(
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
-        val builderType = BaseObjects.ClassRandomizerCollectionBuilder_ClassId.constructClassLikeType()
+        val rdmBuilderType = BaseObjects.ClassRandomizerCollectionBuilder_ClassId.constructClassLikeType()
 
-        val randomizerConfigLambda = ConeClassLikeTypeImpl(
-            ConeClassLikeLookupTagImpl(ClassId(FqName("kotlin"), Name.identifier("Function1"))),
-            typeArguments = arrayOf(builderType, unitConeType),
-            isNullable = false
+        /**
+         * Build this type: ClassRandomizerCollectionBuilder.()->Unit
+         * in other form, it is: @ExtensionFunctionType Function1<ClassRandomizerCollectionBuilder,Unit>
+         */
+        val rdmBuilderConfigFunctionType = ConeClassLikeTypeImpl(
+            ConeClassLikeLookupTagImpl(BaseObjects.Function1_ClassId),
+            typeArguments = arrayOf(rdmBuilderType, unitConeType),
+            isNullable = false,
+            /**
+             * This attribute turn ```Function1``` into ```ClassRandomizerCollectionBuilder.()->Unit``` by adding @ExtensionFunctionType in the background.
+             */
+            attributes = ConeAttributes.WithExtensionFunctionType
         )
 
-        val paramName = BaseObjects.randomizersBuilderParamName
-
+        /**
+         * Build the default argument, a blank lambda, for the rdmBuilderConfigFunction parameter.
+         * It is like this: {}
+         */
         val default = buildAnonymousFunctionExpression {
             val functionSymbol = FirAnonymousFunctionSymbol()
             anonymousFunction = buildAnonymousFunction {
@@ -295,38 +306,37 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 isLambda = true
                 hasExplicitParameterList = false
                 typeRef = buildResolvedTypeRef {
-                    type = randomizerConfigLambda
+                    type = rdmBuilderConfigFunctionType
                 }
 
                 body = buildBlock {
-                    coneTypeOrNull = unitConeType
+                    // empty body
+                    // coneTypeOrNull = unitConeType
                 }
                 invocationKind = EventOccurrencesRange.EXACTLY_ONCE
                 inlineStatus = InlineStatus.NoInline
-                val itName = Name.identifier("it")
-                val parameterSymbol = FirValueParameterSymbol(itName)
-                valueParameters += buildValueParameter {
-                    moduleData = session.moduleData
-                    origin = BaseObjects.Fir.firDeclarationOrigin
-                    returnTypeRef = buildResolvedTypeRef {
-                        type = builderType
+
+                /**
+                 * "this" argument
+                 */
+                receiverParameter = buildReceiverParameter {
+                    typeRef = buildResolvedTypeRef {
+                        type = rdmBuilderType
                     }
-                    name = itName
-                    this.symbol = parameterSymbol
-                    containingFunctionSymbol = functionSymbol
-                    isCrossinline = false
-                    isNoinline = false
-                    isVararg = false
                 }
             }
         }
+        val paramName = BaseObjects.randomizersBuilderParamName
 
+        /**
+         * Construct the parameter to store the randomizer builder config lambda function.
+         */
         val rt = buildValueParameter {
             name = paramName
             moduleData = session.moduleData
-            origin = BaseObjects.Fir.randomizableDeclarationKey.origin
+            origin = BaseObjects.Fir.firDeclarationOrigin
             symbol = FirValueParameterSymbol(paramName)
-            returnTypeRef = randomizerConfigLambda.toFirResolvedTypeRef()
+            returnTypeRef = rdmBuilderConfigFunctionType.toFirResolvedTypeRef()
             containingFunctionSymbol = randomFunction.symbol
             isCrossinline = false
             isNoinline = true
@@ -503,9 +513,22 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                  */
                 val currentValueParams = randomFunctionWithRandomConfig.valueParameters
 
-                val randomLambdaParam =
-                    currentValueParams + makeGenericRandomLambdasParam(randomFunctionWithRandomConfig)
-                randomLambdaParam
+                /**
+                 * This is a list of lambda function to generate random for each generic type param in the target class
+                 */
+                val genericFactoryLambdaParams = makeGenericRandomLambdasParam(randomFunctionWithRandomConfig)
+
+                /**
+                 * This is a lambda that will be used to config randomizer collection builder.
+                 */
+                val randomizerBuilderConfigLambda = makeRdmBuilderConfigFunctionParam(randomFunctionWithRandomConfig)
+
+                val params =
+                    currentValueParams +
+                    genericFactoryLambdaParams +
+                    randomizerBuilderConfigLambda
+
+                params
             }
 
             randomFunctionWithRandomConfig.replaceValueParameters(newValueParam)

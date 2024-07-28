@@ -67,14 +67,6 @@ internal object BaseObjects {
         )
     )
 
-    val ClassRandomizerCollectionBuilderImp_ClassId = ClassId.topLevel(
-        FqName(
-            requireNotNull(ClassRandomizerCollectionBuilderImp::class.qualifiedName){
-                "ClassRandomizerCollectionBuilder interface does not exist in the class path"
-            }
-        )
-    )
-
     val randomizersBuilderParamName = Name.identifier("randomizers")
 
 

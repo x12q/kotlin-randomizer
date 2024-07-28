@@ -43,7 +43,7 @@ class TestRandomPrimitive {
                 }
 
                 @Randomizable
-                data class Q123Data(override val data:Q123):WithData
+                data class Q123Data(override val data:Primitives):WithData
             """
             ,
             fileName = "main.kt"
