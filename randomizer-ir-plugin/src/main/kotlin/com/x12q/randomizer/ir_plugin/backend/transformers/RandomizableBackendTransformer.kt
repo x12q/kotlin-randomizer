@@ -534,7 +534,26 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    private fun ifNotNullElse(
+        type: IrType,
+        canditate: IrExpression,
+        onCandidateNotNull: IrExpression,
+        onCandidateNull: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression {
+        return builder.irIfNull(type, canditate, onCandidateNull, onCandidateNotNull)
+    }
 
+    /**
+     * Construct an if-else expression using `RandomConfig.nextBool` as condition. Like this
+     * ```
+     * if(randomConfig.nextBool()){
+     *    [truePart]
+     * }else{
+     *    null << always return null on else
+     * }
+     * ```
+     */
     private fun randomIfElseNull(
         builder: DeclarationIrBuilder,
         /**
@@ -631,39 +650,76 @@ class RandomizableBackendTransformer @Inject constructor(
             val paramType = param.type
             if (paramType.isTypeParameter()) {
 
-                val randomFromCollection =
-                    getRandomizerCollection.dotCall(classRandomizerCollectionAccessor.randomFunction(builder))
+                /**
+                 * Generate random for generic param under this order of priority:
+                 * random collection > generic factory function
+                 */
+
+                /**
+                 * random instance from random collection
+                 */
+                val randomFromCollection = run {
+                    getRandomizerCollection
+                        .dotCall(classRandomizerCollectionAccessor.randomFunction(builder))
                         .apply {
-                            this.putTypeArgument(0, paramType)
+                            putTypeArgument(0, paramType)
                         }
-
-
-                // call the factory function to generate random generic
-                val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
-                val irGetLambda = builder.irGet(genericRandomFunctionParamList[paramTypeIndex])
-
-                val nonNullExpr = irGetLambda.dotCall(function1Accessor.invokeFunction(builder)).apply {
-                    this.putValueArgument(0, getRandomConfig)
                 }
-                if (paramType.isNullable()) {
-                    return randomIfElseNull(
+
+                /**
+                 * random from generic function
+                 */
+                val randomFromGenericFactoryFunction = run {
+                    val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
+                    val irGetLambda = builder.irGet(genericRandomFunctionParamList[paramTypeIndex])
+                    irGetLambda
+                        .dotCall(function1Accessor.invokeFunction(builder))
+                        .apply {
+                            putValueArgument(0, getRandomConfig)
+                        }
+                }
+
+                val nonNullRandom = builder.irIfNull(
+                    type = paramType,
+                    subject = randomFromCollection,
+                    thenPart = randomFromGenericFactoryFunction,
+                    elsePart = randomFromCollection
+                )
+
+                val rt = if (paramType.isNullable()) {
+                    randomIfElseNull(
                         builder = builder,
                         getRandomConfigExpr = getRandomConfig,
                         type = paramType,
-                        truePart = nonNullExpr,
+                        truePart = randomFromGenericFactoryFunction,
                     )
                 } else {
-                    return nonNullExpr
+                    randomFromGenericFactoryFunction
                 }
+
+                return rt
             } else {
 
                 val paramClass = paramType.classOrNull?.owner
 
                 if (paramClass != null) {
+
+
                     /**
-                     * non-null expression will result in a non-null instance of the class of [param]
+                     * random instance from random collection
                      */
-                    val nonNullExpr = generateRandomClassInstance(
+                    val randomFromCollection = run {
+                        getRandomizerCollection
+                            .dotCall(classRandomizerCollectionAccessor.randomFunction(builder))
+                            .apply {
+                                putTypeArgument(0, paramType)
+                            }
+                    }
+
+                    /**
+                     * random instance from randomizer level 0
+                     */
+                    val randomFromLevel0 = generateRandomClassInstance(
                         paramClass,
                         getRandomConfig,
                         builder,
@@ -671,15 +727,24 @@ class RandomizableBackendTransformer @Inject constructor(
                         genericRandomFunctionParamList,
                         getRandomizerCollection
                     )
-                    if (nonNullExpr != null) {
+
+                    if (randomFromLevel0 != null) {
+
+                        val trueNonnull = builder.irIfNull(
+                            type = paramType,
+                            subject = randomFromCollection,
+                            thenPart = randomFromLevel0,
+                            elsePart = randomFromCollection
+                        )
+
                         if (paramType.isNullable()) {
                             return randomIfElse(
                                 builder, getRandomConfig, paramType,
-                                truePart = nonNullExpr,
+                                truePart = randomFromLevel0,
                                 elsePart = builder.irNull(),
                             )
                         } else {
-                            return nonNullExpr
+                            return randomFromLevel0
                         }
                     } else {
                         throw IllegalArgumentException("unable to construct an expression to generate a random instance for $param")

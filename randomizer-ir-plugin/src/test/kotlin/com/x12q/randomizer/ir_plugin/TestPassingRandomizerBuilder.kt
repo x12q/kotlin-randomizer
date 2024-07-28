@@ -23,6 +23,7 @@ class TestPassingRandomizerBuilder {
     @Test
     fun `pass randomizers config function`() {
 
+
         testGeneratedCodeUsingStandardPlugin(
             """
                ${ImportData.stdImport.import(Dt::class)}
@@ -30,8 +31,7 @@ class TestPassingRandomizerBuilder {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                            println(this)
-                            add(FactoryClassRandomizer({Dt(-999)},Dt::class))
+                            add(FactoryClassRandomizer<Dt>({Dt(-999)},Dt::class))
                         })
                     }
                 }
@@ -43,9 +43,9 @@ class TestPassingRandomizerBuilder {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val l = result.runRunTest().getObjs()
 //                println(l)
-//                l shouldBe listOf(
-//                   Dt(-999)
-//                )
+                l shouldBe listOf(
+                   Dt(-999)
+                )
             }
         }
     }

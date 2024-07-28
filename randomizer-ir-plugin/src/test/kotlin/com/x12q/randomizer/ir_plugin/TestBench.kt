@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin
 
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.ir_plugin.TestPassingRandomizerBuilder.Dt
 import com.x12q.randomizer.lib.randomizer.*
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
@@ -17,16 +18,12 @@ data class AB(val i: Int, val x: Double, val s: String) {
         /**
          * R1
          */
-        fun random(randomizers: ClassRandomizerCollectionBuilder.() -> Unit = {}): AB {
+        fun random(randomizers: ClassRandomizerCollectionBuilder.() -> Unit = {}): ClassRandomizerCollectionBuilder {
             println("random1_2")
             val builder = ClassRandomizerCollectionBuilderImp()
             randomizers(builder)
             val collection = builder.build()
-            return AB(
-                i = collection.random<Int>() ?: 1,
-                x = collection.random<Double>() ?: 2.0,
-                s = collection.random<String>() ?: "zzz",
-            )
+            return builder
         }
 
         /**
@@ -46,18 +43,12 @@ data class AB(val i: Int, val x: Double, val s: String) {
 
 
 fun main() {
-    runTest()
+    val builder = AB.random{
+        add(FactoryClassRandomizer<Dt>({ Dt(-999) }, Dt::class))
+    }
+
+    println(builder.build().random<Dt>())
 }
 
 
 class X(override val data: AB) :WithData
-
-fun runTest(): TestOutput {
-    return withTestOutput{
-        putData(X(
-            AB.random{
-                println(this)
-            }
-        ))
-    }
-}
