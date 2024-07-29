@@ -8,6 +8,8 @@ import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilderImp
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.IrStatementOriginImpl
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -80,5 +82,9 @@ internal object BaseObjects {
         val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
         val randomConfigClassId = BaseObjects.RandomConfig_ClassId
+    }
+
+    object Ir{
+        val statementOrigin = IrStatementOriginImpl("GENERATED_BY_RANDOMIZER_BACKEND")
     }
 }

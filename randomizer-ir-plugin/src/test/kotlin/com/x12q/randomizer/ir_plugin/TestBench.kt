@@ -1,13 +1,9 @@
 package com.x12q.randomizer.ir_plugin
 
-import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.TestPassingRandomizerBuilder.Dt
 import com.x12q.randomizer.lib.randomizer.*
-import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
-import com.x12q.randomizer.test.util.withTestOutput
-import io.kotest.inspectors.runTest
 
 
 data class AB(val i: Int, val x: Double, val s: String) {
@@ -42,12 +38,25 @@ data class AB(val i: Int, val x: Double, val s: String) {
 }
 
 
+data class B2(
+    val i:Int
+)
+
+data class M2(
+    val b2:B2,
+)
+
 fun main() {
     val builder = AB.random{
         add(FactoryClassRandomizer<Dt>({ Dt(-999) }, Dt::class))
     }
+    val collection = builder.build()
 
-    println(builder.build().random<Dt>())
+    M2(
+        b2 = collection.random<B2>() ?: B2(i = collection.random<Int>() ?: 123),
+    )
+
+
 }
 
 

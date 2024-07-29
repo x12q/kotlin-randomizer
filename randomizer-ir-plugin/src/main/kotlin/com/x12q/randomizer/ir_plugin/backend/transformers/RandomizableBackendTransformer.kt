@@ -7,6 +7,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
+import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
 import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -15,10 +16,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrClassReference
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
-import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrType
@@ -154,6 +152,44 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    private fun makeRandomizerCollectionCodes2(
+        builder: DeclarationIrBuilder,
+        randomizersBuilderConfigFunctionParam: IrValueParameter
+    ): IrContainerExpression {
+
+        val block = builder.irBlock(resultType = classRandomizerCollectionAccessor.irType, origin = BaseObjects.Ir.statementOrigin) {
+
+            val randomizersBuilderVar = irTemporary(
+                classRandomizerCollectionBuilderImpAccessor.constructorFunction(builder)
+            )
+
+            + randomizersBuilderVar
+
+            val configRandomizerBuilderExpr = makeExprToConfigRandomizersBuilder(
+                getRandomizersBuilderExpr = builder.irGet(randomizersBuilderVar),
+                randomizerBuilderConfigFunctionAsParam = randomizersBuilderConfigFunctionParam,
+                builder = builder
+            )
+
+            +configRandomizerBuilderExpr
+
+            val randomizerCollectionVar = irTemporary(
+                buildRandomizersExpr(
+                    builder = builder,
+                    getRandomizersBuilderExpr = builder.irGet(randomizersBuilderVar),
+                )
+            )
+
+            + builder.irReturn(
+                builder.irGet(
+                    randomizerCollectionVar
+                )
+            )
+        }
+        return block
+    }
+
+
     private fun makeRandomizerCollectionCodes(
         randomFunction: IrFunction,
         builder: DeclarationIrBuilder,
@@ -200,6 +236,9 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Create an expression that build a [ClassRandomizerCollection] from a [ClassRandomizerCollectionBuilder] expression ([getRandomizersBuilderExpr])
+     */
     private fun buildRandomizersExpr(
         builder: DeclarationIrBuilder,
         getRandomizersBuilderExpr: IrExpression,
