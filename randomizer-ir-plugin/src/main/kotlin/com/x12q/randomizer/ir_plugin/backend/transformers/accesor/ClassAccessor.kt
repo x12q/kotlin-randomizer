@@ -4,6 +4,8 @@ import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
 import com.x12q.randomizer.ir_plugin.backend.utils.twoAgrFunction
 import com.x12q.randomizer.ir_plugin.backend.utils.zeroAgrFunction
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -22,7 +24,7 @@ abstract class ClassAccessor{
         return clzz.zeroAgrFunction(name)
     }
 
-    protected fun DeclarationIrBuilder.zeroAgrFunctionCall(name:String): IrCall {
+    protected fun IrBuilderWithScope.zeroAgrFunctionCall(name:String): IrCall {
         return irCall(clzz.zeroAgrFunction(name))
     }
 
@@ -30,7 +32,7 @@ abstract class ClassAccessor{
         return clzz.oneAgrFunction(name)
     }
 
-    protected fun DeclarationIrBuilder.oneAgrFunctionCall(name:String): IrCall {
+    protected fun IrBuilderWithScope.oneAgrFunctionCall(name:String): IrCall {
         return irCall(clzz.oneAgrFunction(name))
     }
 
@@ -39,7 +41,7 @@ abstract class ClassAccessor{
     }
 
 
-    protected fun DeclarationIrBuilder.twoArgFunctionCall(name:String): IrCall {
+    protected fun IrBuilderWithScope.twoArgFunctionCall(name:String): IrCall {
         return irCall(clzz.twoAgrFunction(name))
     }
 }

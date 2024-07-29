@@ -4,6 +4,11 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 
+fun IrExpression.dotCallExtensionFunction(irCall: IrCall): IrCall {
+    irCall.extensionReceiver = this
+    return irCall
+}
+
 
 fun IrExpression.dotCall(irCall: IrCall): IrCall {
     irCall.dispatchReceiver = this
