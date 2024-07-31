@@ -145,6 +145,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         +getRandomizerCollection
                         +builder.irReturn(constructorCall)
                     }
+                    println(randomFunction.dumpKotlinLike())
                 } else {
                     throw IllegalArgumentException("unable generate constructor call")
                 }

@@ -5,11 +5,13 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.contracts.description.EventOccurrencesRange
 import org.jetbrains.kotlin.fir.FirSession
+import org.jetbrains.kotlin.fir.analysis.checkers.isInlineOnly
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.buildAnonymousFunction
 import org.jetbrains.kotlin.fir.declarations.builder.buildReceiverParameter
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
+import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.fir.expressions.builder.*
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.getOwnerLookupTag
@@ -247,6 +249,11 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     returnType
                 },
                 config = {
+//                    if(false){
+                        this.status {
+                            isInline = true
+                        }
+//                    }
                     /**
                      * Port type params (aka generic types) from the enclosing class to the random() function
                      */
@@ -254,7 +261,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                         enclosingClass = enclosingClass,
                         functionBuildingContext = this
                     )
-
                 }
             )
 
@@ -499,6 +505,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                             isNullable = false
                         ),
                     )
+                    this.status {
+                        isInline = true
+                    }
                     /**
                      * Port type params from the enclosing class to the random() function
                      */

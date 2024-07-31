@@ -154,11 +154,13 @@ class TestRandomGenericProperty {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest().getObjs() shouldBe listOf(
+                val o = result.runRunTest().getObjs()
+                o shouldBe listOf(
                     Qx(i = RandomConfigForTest.nextInt()),
                     Qx(i = 123),
                     Qx(i = 123),
                 )
+                println(o)
             }
         }
     }

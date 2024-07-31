@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.lib.randomizer.*
 import com.x12q.randomizer.test.util.WithData
 
@@ -37,23 +38,24 @@ data class AB(val i: Int, val x: Double, val s: String) {
 }
 
 
-data class CD<T1,T2>(val t1:T1, val t2:T2){
-    companion object{
+data class CD<T1, T2>(val t1: T1, val t2: T2) {
+    companion object {
         // is this a good design?
         /**
          * When there are generic, I want user to explicitly
          */
-        inline fun<reified T1:Any, reified T2:Any> random(
-            noinline randomT1: () -> T1?={null},
-            noinline randomT2: () -> T2?={null},
+        inline fun <reified T1:Any, reified T2:Any> random(
+            randomT1: RandomizerCollection.(RandomConfig) -> T1,
+            randomT2: RandomizerCollection.(RandomConfig) -> T2,
             randomizers: RandomizerCollectionBuilder.() -> Unit = {}
-        ):CD<T1,T2>{
+        ): CD<T1, T2> {
             val builder = RandomizerCollectionBuilderImp()
             randomizers(builder)
             val collection = builder.build()
+            val config = RandomConfigForTest
             return CD(
-                t1 = (collection.random<T1>() ?: randomT1?.invoke()) ?: throw IllegalArgumentException("T1"),
-                t2=(collection.random<T2>() ?: randomT2?.invoke()) ?: throw IllegalArgumentException("T2"),
+                t1 = collection.random<T1>() ?: collection.randomT1(config),
+                t2 = collection.random<T2>() ?: collection.randomT2(config)
             )
         }
     }
@@ -61,34 +63,28 @@ data class CD<T1,T2>(val t1:T1, val t2:T2){
 
 
 data class B2(
-    val i:Int
+    val i: Int
 )
 
 data class M2(
-    val b2:B2,
+    val b2: B2,
 )
 
 fun main() {
 
-//    println(
-//        CD.random<Int,String>(
-//            randomT2 = {
-//                "abczxc"
-//            }
-//        ){
-//            add(ConstantClassRandomizer<Int>(123))
-//        }
-//    )
-
     println(
         CD.random<Int,String>(
+            randomT1 = {
+                random<Int>()!!
+            },
             randomT2 = {
                 "abczxc"
             }
         ){
-            add(ConstantClassRandomizer<Int>(123))
+            add(ConstantClassRandomizer<Int>(-123))
         }
     )
+
 
 
 //    val builder = AB.random{
@@ -102,4 +98,4 @@ fun main() {
 }
 
 
-class X(override val data: AB) :WithData
+class X(override val data: AB) : WithData
