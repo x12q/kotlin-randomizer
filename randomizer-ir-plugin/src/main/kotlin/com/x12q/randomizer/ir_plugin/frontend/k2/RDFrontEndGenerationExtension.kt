@@ -560,7 +560,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             functionBuildingContext.typeParameter(
                 name = targetClassTypeParam.name,
                 variance = targetClassTypeParam.variance,
-                isReified = false,
+                isReified = true,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
             )
         }
