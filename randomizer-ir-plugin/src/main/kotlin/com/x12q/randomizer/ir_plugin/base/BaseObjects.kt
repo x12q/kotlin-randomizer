@@ -49,8 +49,10 @@ internal object BaseObjects {
     }))
     val Random_ClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
     val Function0_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
-//    val Function1_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function1"))
+
     val Function1_ClassId = ClassId.topLevel(FqName(Function1::class.qualifiedName!!))
+    val Function2_ClassId = ClassId.topLevel(FqName(Function2::class.qualifiedName!!))
+
     val RandomizerCollection_Id = ClassId.topLevel(
         FqName(
             requireNotNull(RandomizerCollection::class.qualifiedName){

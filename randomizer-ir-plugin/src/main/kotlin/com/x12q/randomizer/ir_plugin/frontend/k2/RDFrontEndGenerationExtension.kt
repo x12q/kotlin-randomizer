@@ -563,8 +563,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * They are the parameter in this:
      * ```
      * fun <T1,T2> random(
-     *    randomT1:(RandomConfig)->T1, // <~~ this
-     *    randomT2:(RandomConfig)->T2, // <~~ this
+     *    randomT1:(RandomConfig, RandomizerCollection)->T1, // <~~ this
+     *    randomT2:(RandomConfig, RandomizerCollection)->T2, // <~~ this
      *    ...
      * )
      * ```
@@ -576,12 +576,12 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         val rt = randomFunction.typeParameters.map { typeParam ->
             /**
              * For each type param of [randomFunction], create a generic random function, such as:
-             * - randomT1 : Function1<RandomConfig,T1> (RandomConfig)->T1
-             * - randomT2 : Function1<RandomConfig,T2> (RandomConfig)->T2
+             * - randomT1 : Function2<RandomConfig, RandomizerCollection, T1> (RandomConfig)->T1
+             * - randomT2 : Function2<RandomConfig, RandomizerCollection, T2> (RandomConfig)->T2
              */
             val randomLambda = BaseObjects.Function1_ClassId.constructClassLikeType(
                 typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
-                isNullable = false
+                isNullable = false,
             )
             val paramName = Name.identifier("random${typeParam.name}")
 
