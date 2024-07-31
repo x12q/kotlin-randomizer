@@ -6,6 +6,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.test_code.ImportData
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -138,14 +139,8 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import com.x12q.randomizer.RandomConfig
-                import com.x12q.randomizer.test.util.TestOutput
-                import com.x12q.randomizer.test.util.withTestOutput
-                import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
-                import $qx
-                import $withData
+                ${ImportData.stdImport.import(Qx::class)}
+
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>({config->println(config);config.nextInt()}))

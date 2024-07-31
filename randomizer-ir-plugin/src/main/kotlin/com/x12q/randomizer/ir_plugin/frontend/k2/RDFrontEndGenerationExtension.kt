@@ -45,7 +45,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * Important: predicate can only resolve top-level annotation. Annotation to nested class, or function will not be recognized.
      */
     val predicateProvider = session.predicateBasedProvider
-    val randomConfigTypeArgument = BaseObjects.RandomConfig_ClassId.constructClassLikeType()
+    val randomConfigType = BaseObjects.RandomConfig_ClassId.constructClassLikeType()
+    val randomizerCollectionType = BaseObjects.RandomizerCollection_Id.constructClassLikeType()
     val unitConeType = session.builtinTypes.unitType.coneType
     val strBuilder = StringBuilder()
 
@@ -580,9 +581,13 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
              * - randomT2 : Function2<RandomConfig, RandomizerCollection, T2> (RandomConfig)->T2
              */
             val randomLambda = BaseObjects.Function1_ClassId.constructClassLikeType(
-                typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
+                typeArguments = arrayOf(randomConfigType, typeParam.toConeType()),
                 isNullable = false,
             )
+//            val randomLambda = BaseObjects.Function2_ClassId.constructClassLikeType(
+//                typeArguments = arrayOf(randomConfigType, randomizerCollectionType, typeParam.toConeType()),
+//                isNullable = false,
+//            )
             val paramName = Name.identifier("random${typeParam.name}")
 
             buildValueParameter {
