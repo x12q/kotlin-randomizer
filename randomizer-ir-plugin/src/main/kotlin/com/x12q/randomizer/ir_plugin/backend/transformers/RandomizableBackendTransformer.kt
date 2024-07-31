@@ -35,9 +35,9 @@ class RandomizableBackendTransformer @Inject constructor(
     private val defaultRandomConfigAccessor: DefaultRandomConfigAccessor,
     private val function0Accessor: Function0Accessor,
     private val function1Accessor: Function1Accessor,
-    private val classRandomizerCollectionBuilderAccessor: ClassRandomizerCollectionBuilderAccessor,
-    private val classRandomizerCollectionBuilderImpAccessor: ClassRandomizerCollectionBuilderImpAccessor,
-    private val classRandomizerCollectionAccessor: ClassRandomizerCollectionAccessor
+    private val randomizerCollectionBuilderAccessor: RandomizerCollectionBuilderAccessor,
+    private val randomizerCollectionBuilderImpAccessor: RandomizerCollectionBuilderImpAccessor,
+    private val randomizerCollectionAccessor: RandomizerCollectionAccessor
 ) : RDBackendTransformer() {
 
     val origin = BaseObjects.declarationOrigin
@@ -159,12 +159,12 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrVariable {
 
         val block = builder.irBlock(
-            resultType = classRandomizerCollectionAccessor.irType,
+            resultType = randomizerCollectionAccessor.irType,
             origin = BaseObjects.Ir.statementOrigin
         ) {
 
             val randomizersBuilderVar = irTemporary(
-                classRandomizerCollectionBuilderImpAccessor.constructorFunction(this),
+                randomizerCollectionBuilderImpAccessor.constructorFunction(this),
                 nameHint = "randomizerCollectionBuilderTempVar"
             )
 
@@ -197,7 +197,7 @@ class RandomizableBackendTransformer @Inject constructor(
             endOffset = randomFunction.endOffset,
             origin = IrDeclarationOrigin.DEFINED,
             name = Name.identifier("randomizerCollection"),
-            type = classRandomizerCollectionAccessor.irType
+            type = randomizerCollectionAccessor.irType
         ).withInit(block)
 
         return varRt
@@ -244,7 +244,7 @@ class RandomizableBackendTransformer @Inject constructor(
             endOffset = randomFunction.endOffset,
             origin = IrDeclarationOrigin.DEFINED,
             name = Name.identifier("randomizerCollection"),
-            type = classRandomizerCollectionAccessor.irType
+            type = randomizerCollectionAccessor.irType
         ).withInit(buildRandomizerCollectionExpr)
 
     }
@@ -256,7 +256,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: IrBuilderWithScope,
         getRandomizersBuilderExpr: IrExpression,
     ): IrExpression {
-        return getRandomizersBuilderExpr.dotCall(classRandomizerCollectionBuilderAccessor.buildFunction(builder))
+        return getRandomizersBuilderExpr.dotCall(randomizerCollectionBuilderAccessor.buildFunction(builder))
     }
 
     /**
@@ -286,8 +286,8 @@ class RandomizableBackendTransformer @Inject constructor(
             endOffset = randomFunction.endOffset,
             origin = IrDeclarationOrigin.DEFINED,
             name = Name.identifier("randomizersBuilder"),
-            type = classRandomizerCollectionBuilderAccessor.irType
-        ).withInit(classRandomizerCollectionBuilderImpAccessor.constructorFunction(builder))
+            type = randomizerCollectionBuilderAccessor.irType
+        ).withInit(randomizerCollectionBuilderImpAccessor.constructorFunction(builder))
 
         return randomizersBuilderVar
     }
@@ -716,7 +716,7 @@ class RandomizableBackendTransformer @Inject constructor(
                      */
 
                     val randomFromCollectionCall = getRandomizerCollection
-                        .extensionDotCall(classRandomizerCollectionAccessor.randomFunction(builder))
+                        .extensionDotCall(randomizerCollectionAccessor.randomFunction(builder))
                         .withTypeArgs(paramType)
 
                     val randomFromCollectionVar = irTemporary(randomFromCollectionCall,"randomFromCollectionVar")
@@ -770,7 +770,7 @@ class RandomizableBackendTransformer @Inject constructor(
                              * random instance from random collection
                              */
                             val randomFromCollectionCall = getRandomizerCollection
-                                .extensionDotCall(classRandomizerCollectionAccessor.randomFunction(builder))
+                                .extensionDotCall(randomizerCollectionAccessor.randomFunction(builder))
                                 .withTypeArgs(paramType)
 
                             val randomFromCollectionVar = irTemporary(randomFromCollectionCall,"randomFromCollectionVar")

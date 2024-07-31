@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
-class ClassRandomizerCollectionAccessor @Inject constructor(
+class RandomizerCollectionAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ):ClassAccessor() {
 

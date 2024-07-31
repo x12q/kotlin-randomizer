@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import javax.inject.Inject
 
-class ClassRandomizerCollectionBuilderAccessor @Inject constructor(
+class RandomizerCollectionBuilderAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ):ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {

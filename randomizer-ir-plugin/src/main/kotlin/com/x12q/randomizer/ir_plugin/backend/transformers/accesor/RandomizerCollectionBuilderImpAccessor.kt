@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import javax.inject.Inject
 
-class ClassRandomizerCollectionBuilderImpAccessor @Inject constructor(
+class RandomizerCollectionBuilderImpAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
