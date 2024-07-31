@@ -4,11 +4,9 @@ import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.randomizer.CommonRandomizer
 import com.x12q.randomizer.annotations.Randomizable
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilderImp
+import com.x12q.randomizer.lib.randomizer.RandomizerCollection
+import com.x12q.randomizer.lib.randomizer.RandomizerCollectionBuilder
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrStatementOriginImpl
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
@@ -53,17 +51,17 @@ internal object BaseObjects {
     val Function0_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
 //    val Function1_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function1"))
     val Function1_ClassId = ClassId.topLevel(FqName(Function1::class.qualifiedName!!))
-    val ClassRandomizerCollection_ClassId = ClassId.topLevel(
+    val RandomizerCollection_Id = ClassId.topLevel(
         FqName(
-            requireNotNull(ClassRandomizerCollection::class.qualifiedName){
+            requireNotNull(RandomizerCollection::class.qualifiedName){
                 "ClassRandomizerCollection interface does not exist in the class path"
             }
         )
     )
 
-    val ClassRandomizerCollectionBuilder_ClassId = ClassId.topLevel(
+    val RandomizerCollectionBuilder_Id = ClassId.topLevel(
         FqName(
-            requireNotNull(ClassRandomizerCollectionBuilder::class.qualifiedName){
+            requireNotNull(RandomizerCollectionBuilder::class.qualifiedName){
                 "ClassRandomizerCollectionBuilder interface does not exist in the class path"
             }
         )

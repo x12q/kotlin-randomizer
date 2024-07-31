@@ -276,7 +276,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
-        val rdmBuilderType = BaseObjects.ClassRandomizerCollectionBuilder_ClassId.constructClassLikeType()
+        val rdmBuilderType = BaseObjects.RandomizerCollectionBuilder_Id.constructClassLikeType()
 
         /**
          * Build this type: ClassRandomizerCollectionBuilder.()->Unit

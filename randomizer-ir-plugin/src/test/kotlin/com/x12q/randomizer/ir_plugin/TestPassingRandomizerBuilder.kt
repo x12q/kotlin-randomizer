@@ -1,17 +1,12 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
 import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
-import com.x12q.randomizer.test.util.WithData
+import com.x12q.randomizer.lib.randomizer.RandomizerCollectionImp
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.ImportData
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.util.dump
 import kotlin.test.Test
 
 
@@ -23,15 +18,15 @@ class TestPassingRandomizerBuilder {
     @Test
     fun `pass randomizers config function`() {
 
-
+        val imports = ImportData.stdImport.import(Dt::class)
         testGeneratedCodeUsingStandardPlugin(
             """
-               ${ImportData.stdImport.import(Dt::class)}
-                
+               $imports
+
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                            add(FactoryClassRandomizer<Dt>({Dt(-999)},Dt::class))
+                            add(${imports.nameOf(FactoryClassRandomizer::class)}<Dt>({Dt(-999)},Dt::class))
                         })
                     }
                 }
@@ -39,7 +34,7 @@ class TestPassingRandomizerBuilder {
                 data class QxC(override val data:Dt):WithData{
                     companion object{
                         fun m2():M2{
-                            val collection = ClassRandomizerCollectionImp(emptyList())                           
+                            val collection = ${imports.nameOf(RandomizerCollectionImp::class)}(emptyMap())                           
                             return M2(
                                 b2 = collection.random<B2>() ?: B2(i = collection.random<Int>() ?: 123),
                             )

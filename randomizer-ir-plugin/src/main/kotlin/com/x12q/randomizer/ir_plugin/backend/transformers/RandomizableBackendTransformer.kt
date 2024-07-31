@@ -7,8 +7,8 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollection
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
+import com.x12q.randomizer.lib.randomizer.RandomizerCollection
+import com.x12q.randomizer.lib.randomizer.RandomizerCollectionBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.Modality.*
@@ -250,7 +250,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create an expression that build a [ClassRandomizerCollection] from a [ClassRandomizerCollectionBuilder] expression ([getRandomizersBuilderExpr])
+     * Create an expression that build a [RandomizerCollection] from a [RandomizerCollectionBuilder] expression ([getRandomizersBuilderExpr])
      */
     private fun buildRandomizersExpr(
         builder: IrBuilderWithScope,
@@ -260,7 +260,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create an IrExpr to run a config function from [randomizerBuilderConfigFunctionAsParam]  on [ClassRandomizerCollectionBuilder] from [getRandomizersBuilderExpr]
+     * Create an IrExpr to run a config function from [randomizerBuilderConfigFunctionAsParam]  on [RandomizerCollectionBuilder] from [getRandomizersBuilderExpr]
      */
     private fun makeExprToConfigRandomizersBuilder(
         getRandomizersBuilderExpr: IrExpression,

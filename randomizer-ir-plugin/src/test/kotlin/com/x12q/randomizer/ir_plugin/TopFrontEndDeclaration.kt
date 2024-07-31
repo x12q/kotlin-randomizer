@@ -3,7 +3,7 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
+import com.x12q.randomizer.lib.randomizer.RandomizerCollection
 import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
 import com.x12q.randomizer.test.util.test_code.ImportData
@@ -26,9 +26,11 @@ class TopFrontEndDeclaration {
     @Test
     fun `random functions exist`() {
 
+        val imports = ImportData.stdImport
+
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport}
+                ${imports}
 
                 fun main(){
                     println(Q123.random())
@@ -40,7 +42,7 @@ class TopFrontEndDeclaration {
                 )
                 data class Q123(val i:Int){
                     companion object{
-                          fun x12(randomizers: ClassRandomizerCollectionBuilder.() -> Unit = {}): Int {
+                          fun x12(randomizers: ${imports.nameOf(RandomizerCollection::class)}.() -> Unit = {}): Int {
                             return 123
                         }
                     }

@@ -3,17 +3,14 @@ package com.x12q.randomizer.test.util.test_code
 import com.x12q.randomizer.DefaultRandomConfig
 import com.x12q.randomizer.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.mock_objects.*
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionBuilder
-import com.x12q.randomizer.lib.randomizer.ClassRandomizerCollectionImp
-import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
-import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
+import com.x12q.randomizer.lib.randomizer.*
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.withTestOutput
 import io.mockk.declaringKotlinFile
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import com.x12q.randomizer.lib.randomizer.random
+
 data class ImportData(
     val classList: List<KClass<*>>,
     val functionList: List<KFunction<*>>,
@@ -107,8 +104,9 @@ data class ImportData(
             classList = listOf(
                 FactoryClassRandomizer::class,
                 ConstantClassRandomizer::class,
-                ClassRandomizerCollectionImp::class,
-                ClassRandomizerCollectionBuilder::class,
+                RandomizerCollectionImp::class,
+                RandomizerCollection::class,
+                RandomizerCollectionBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,
                 RandomConfigForTest::class,

@@ -14,7 +14,7 @@ class ClassRandomizerUtilsKtTest {
     val abcRdm = FactoryClassRandomizer({ ABC(222) }, ABC::class)
     val dddRdm = FactoryClassRandomizer({ DDD(ABC(8888)) }, DDD::class)
     val l = listOf(intRdm, floatRdm, strRdm, abcRdm, dddRdm)
-    val col = ClassRandomizerCollectionImp(l)
+    val col = RandomizerCollectionImp(l)
 
     @Test
     fun getRandomizer() {
