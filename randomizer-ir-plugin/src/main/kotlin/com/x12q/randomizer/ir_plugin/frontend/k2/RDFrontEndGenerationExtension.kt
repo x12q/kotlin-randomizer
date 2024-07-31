@@ -562,6 +562,15 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 variance = targetClassTypeParam.variance,
                 isReified = true,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
+                config = {
+
+                    targetClassTypeParam.resolvedBounds.forEach {
+                        bound(it.type)
+                    }
+//                    bound {
+//                        session.builtinTypes.anyType.type
+//                    }
+                }
             )
         }
     }

@@ -164,4 +164,55 @@ class TestRandomGenericProperty {
             }
         }
     }
+
+//    data class QxC<T1:Number>(override val data:Qx<T1>):WithData
+
+    @Test
+    fun `randomize 1 generic property with bound - ok case`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${ImportData.stdImport.import(Qx::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1={-999}))
+                        putData(QxC.random<Float>(randomT1={-31f}))
+                    }
+                }
+                @Randomizable(randomConfig = RandomConfigForTest::class)
+                data class QxC<T1:Number>(override val data:Qx<T1>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val o = result.runRunTest().getObjs()
+                o shouldBe listOf(
+                    Qx(i = -999),
+                    Qx(i = -31f),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `randomize 1 generic property with bound - fail case`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${ImportData.stdImport.import(Qx::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<String>(randomT1={"zzzz"}))
+                    }
+                }
+                @Randomizable(randomConfig = RandomConfigForTest::class)
+                data class QxC<T1:Number>(override val data:Qx<T1>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+            }
+        }
+    }
+
 }
