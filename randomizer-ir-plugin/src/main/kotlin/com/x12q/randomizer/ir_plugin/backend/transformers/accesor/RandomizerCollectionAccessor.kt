@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.lib.randomizer.RandomizerCollection
+import com.x12q.randomizer.lib.RandomizerCollection
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -22,7 +22,7 @@ class RandomizerCollectionAccessor @Inject constructor(
         }
     }
 
-    private val randomFunctionCallId = CallableId(packageName = FqName("com.x12q.randomizer.lib.randomizer"), callableName = Name.identifier("random"))
+    private val randomFunctionCallId = CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("random"))
 
     fun randomFunction(builder: DeclarationIrBuilder):IrCall{
         val function = requireNotNull(pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()){

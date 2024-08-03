@@ -1,9 +1,9 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.RandomConfig
+import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.lib.randomizer.RandomizerCollection
+import com.x12q.randomizer.lib.RandomizerCollection
 import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
 import com.x12q.randomizer.test.util.test_code.ImportData

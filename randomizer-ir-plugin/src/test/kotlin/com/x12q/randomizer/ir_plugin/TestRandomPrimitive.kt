@@ -205,8 +205,8 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random())

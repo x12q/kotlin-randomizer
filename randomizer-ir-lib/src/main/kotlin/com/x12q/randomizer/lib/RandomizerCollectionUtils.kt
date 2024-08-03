@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 inline fun <reified T:Any> RandomizerCollection.getRandomizer(): ClassRandomizer<T>?{
     return randomizersMap[T::class] as? ClassRandomizer<T>

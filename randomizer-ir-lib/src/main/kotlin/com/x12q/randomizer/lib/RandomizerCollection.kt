@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 import kotlin.reflect.KClass
 
@@ -6,5 +6,5 @@ import kotlin.reflect.KClass
  * A collection of randomizers
  */
 interface RandomizerCollection {
-    val randomizersMap:Map<KClass<*>,ClassRandomizer<*>>
+    val randomizersMap:Map<KClass<*>, ClassRandomizer<*>>
 }

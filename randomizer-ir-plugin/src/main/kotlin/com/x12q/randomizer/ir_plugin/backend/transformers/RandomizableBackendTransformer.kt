@@ -1,14 +1,14 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers
 
-import com.x12q.randomizer.DefaultRandomConfig
-import com.x12q.randomizer.RandomConfig
-import com.x12q.randomizer.annotations.Randomizable
+import com.x12q.randomizer.lib.DefaultRandomConfig
+import com.x12q.randomizer.lib.RandomConfig
+import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
-import com.x12q.randomizer.lib.randomizer.RandomizerCollection
-import com.x12q.randomizer.lib.randomizer.RandomizerCollectionBuilder
+import com.x12q.randomizer.lib.RandomizerCollection
+import com.x12q.randomizer.lib.RandomizerCollectionBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.Modality.*

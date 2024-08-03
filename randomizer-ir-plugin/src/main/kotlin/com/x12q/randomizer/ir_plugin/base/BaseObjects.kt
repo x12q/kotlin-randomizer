@@ -1,11 +1,10 @@
 package com.x12q.randomizer.ir_plugin.base
 
-import com.x12q.randomizer.DefaultRandomConfig
-import com.x12q.randomizer.RandomConfig
-import com.x12q.randomizer.randomizer.CommonRandomizer
-import com.x12q.randomizer.annotations.Randomizable
-import com.x12q.randomizer.lib.randomizer.RandomizerCollection
-import com.x12q.randomizer.lib.randomizer.RandomizerCollectionBuilder
+import com.x12q.randomizer.lib.DefaultRandomConfig
+import com.x12q.randomizer.lib.RandomConfig
+import com.x12q.randomizer.lib.annotations.Randomizable
+import com.x12q.randomizer.lib.RandomizerCollection
+import com.x12q.randomizer.lib.RandomizerCollectionBuilder
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.ir.expressions.IrStatementOriginImpl
 import org.jetbrains.kotlin.name.CallableId
@@ -34,11 +33,6 @@ internal object BaseObjects {
 
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
     val randomizerFunctionName = Name.identifier("randomizer")
-
-    val randomizerId = ClassId.topLevel(FqName(requireNotNull(CommonRandomizer::class.qualifiedName){
-        "${packageName}.Randomizer interface does not exist in the class path"
-    }))
-
 
     private val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
     val defaultConfigClassShortName = defaultConfigClassFqName.shortName()

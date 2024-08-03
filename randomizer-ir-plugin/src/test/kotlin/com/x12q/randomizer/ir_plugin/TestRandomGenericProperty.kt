@@ -27,8 +27,8 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
                 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
                 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
@@ -62,8 +62,8 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
                 import com.x12q.randomizer.test.util.TestOutput
                 import com.x12q.randomizer.test.util.withTestOutput
@@ -100,8 +100,8 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.test.util.TestOutput
                 import com.x12q.randomizer.test.util.withTestOutput
                 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest

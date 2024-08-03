@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 import kotlin.reflect.KClass
 

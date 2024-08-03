@@ -1,8 +1,8 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
-import com.x12q.randomizer.lib.randomizer.RandomizerCollectionImp
+import com.x12q.randomizer.lib.FactoryClassRandomizer
+import com.x12q.randomizer.lib.RandomizerCollectionImp
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.ImportData
 import io.kotest.matchers.shouldBe

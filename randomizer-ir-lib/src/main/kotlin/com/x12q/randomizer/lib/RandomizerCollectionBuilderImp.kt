@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 class RandomizerCollectionBuilderImp: RandomizerCollectionBuilder {
     private val randomizers:MutableList<ClassRandomizer<*>> = mutableListOf()

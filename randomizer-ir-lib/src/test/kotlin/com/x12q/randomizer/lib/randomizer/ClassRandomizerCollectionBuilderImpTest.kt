@@ -1,5 +1,7 @@
 package com.x12q.randomizer.lib.randomizer
 
+import com.x12q.randomizer.lib.ConstantClassRandomizer
+import com.x12q.randomizer.lib.RandomizerCollectionBuilderImp
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
@@ -15,6 +17,6 @@ class ClassRandomizerCollectionBuilderImpTest{
         builder.add(intRdm)
         builder.add(floatRdm)
 
-        builder.build().randomizers shouldBe listOf(intRdm,floatRdm)
+        builder.build().randomizersMap shouldBe listOf(intRdm,floatRdm).associateBy { it.returnType }
     }
 }

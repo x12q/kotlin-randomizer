@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
-import com.x12q.randomizer.lib.randomizer.RandomizerCollectionBuilderImp
+import com.x12q.randomizer.lib.RandomizerCollectionBuilderImp
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCallConstructor

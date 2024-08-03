@@ -1,8 +1,8 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 
 interface RandomizerCollectionBuilder{
-    fun build():RandomizerCollection
+    fun build(): RandomizerCollection
     fun add(randomizer: ClassRandomizer<*>): RandomizerCollectionBuilder
 }
 

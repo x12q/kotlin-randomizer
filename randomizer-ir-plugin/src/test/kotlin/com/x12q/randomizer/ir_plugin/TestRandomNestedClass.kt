@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.DefaultRandomConfig
+import com.x12q.randomizer.lib.DefaultRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.test.util.ManyOutputStream
 import com.x12q.randomizer.test.util.assertions.runMain
@@ -19,8 +19,8 @@ class TestRandomNestedClass {
     fun `randomize nullable nested object - always not null`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
                 fun main(){
                     println(Q123.random(AlwaysTrueRandomConfig))
@@ -57,8 +57,8 @@ class TestRandomNestedClass {
         AlwaysTrueRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
 
                 fun main(){
@@ -97,8 +97,8 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random())
@@ -138,8 +138,8 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random())
@@ -171,8 +171,8 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random())

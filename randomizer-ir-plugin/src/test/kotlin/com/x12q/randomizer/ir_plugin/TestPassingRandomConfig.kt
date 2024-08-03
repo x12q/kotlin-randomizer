@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.DefaultRandomConfig
+import com.x12q.randomizer.lib.DefaultRandomConfig
 import com.x12q.randomizer.test.util.assertions.runMain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -19,8 +19,8 @@ class TestPassingRandomConfig{
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random(DefaultRandomConfig.default))
@@ -46,8 +46,8 @@ class TestPassingRandomConfig{
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
 
                 fun main(){
                     println(Q123.random(DefaultRandomConfig.default))
@@ -73,8 +73,8 @@ class TestPassingRandomConfig{
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 
                 fun main(){
@@ -99,8 +99,8 @@ class TestPassingRandomConfig{
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 
                 fun main(){
@@ -126,8 +126,8 @@ class TestPassingRandomConfig{
         DefaultRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                import com.x12q.randomizer.lib.DefaultRandomConfig
+                import com.x12q.randomizer.lib.annotations.Randomizable
                 import com.x12q.randomizer.ir_plugin.mock_objects.IllegalRandomConfig
 
                 fun main(){
