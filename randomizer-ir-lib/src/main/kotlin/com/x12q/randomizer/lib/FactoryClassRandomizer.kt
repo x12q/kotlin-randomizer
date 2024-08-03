@@ -7,7 +7,6 @@ import kotlin.reflect.KClass
  */
 class FactoryClassRandomizer<T : Any>(
     val makeRandom: () -> T,
-//    override val returnType: KClass<out T>
     override val returnType: KClass<T>
 ) :
     ClassRandomizer<T> {
