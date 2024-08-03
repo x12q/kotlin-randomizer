@@ -10,8 +10,8 @@ class ClassRandomizerCollectionBuilderImpTest{
 
     @Test
     fun build(){
-        val intRdm = ConstantClassRandomizer(1)
-        val floatRdm = ConstantClassRandomizer(2f)
+        val intRdm = ConstantClassRandomizer(1,Int::class)
+        val floatRdm = ConstantClassRandomizer(2f,Float::class)
         val builder = RandomizerCollectionBuilderImp()
 
         builder.add(intRdm)

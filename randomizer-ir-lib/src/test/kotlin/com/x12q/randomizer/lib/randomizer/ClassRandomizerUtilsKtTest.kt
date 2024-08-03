@@ -9,8 +9,8 @@ class ClassRandomizerUtilsKtTest {
     data class ABC(val i: Int)
     data class DDD(val abc: ABC)
 
-    val intRdm = ConstantClassRandomizer(1)
-    val floatRdm = ConstantClassRandomizer(2f)
+    val intRdm = ConstantClassRandomizer(1,Int::class)
+    val floatRdm = ConstantClassRandomizer(2f,Float::class)
     val strRdm = FactoryClassRandomizer({ "abc" }, String::class)
     val abcRdm = FactoryClassRandomizer({ ABC(222) }, ABC::class)
     val dddRdm = FactoryClassRandomizer({ DDD(ABC(8888)) }, DDD::class)
