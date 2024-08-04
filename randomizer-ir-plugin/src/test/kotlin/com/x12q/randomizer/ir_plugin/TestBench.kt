@@ -61,11 +61,21 @@ data class ABC<T1 : Number, T2, T3>(
     companion object {
         inline fun <reified T1 : Number, reified T2 : Any, reified T3 : Any> random(
             /**
-             * Type randomizer
+             * Type randomizer. Nullable or not.
+             * Nullable:
+             *  - encourage user to NOT provide them here
+             *  - users not provide -> can still compile.
+             * Non-null:
+             *  - enforce user to provide them, otherwise -> not compile.
+             *  - user have to provide it, no other way out. So, if they want to reused to randomizer from random config, they will have explicitly say so everytime. This is tedious.
+             * How about return a nullable
+             * - user can easily return a null if they don't want to specify the random logic, then that will be delegated to random config.
+             *
+             *
              */
-            noinline randomTypeT1: (RandomConfig.() -> T1)?=null,
-            noinline randomTypeT2: (RandomConfig.() -> T2)?=null,
-            noinline randomTypeT3: (RandomConfig.() -> T3)?=null,
+            noinline randomTypeT1: RandomConfig.() -> T1?,
+            noinline randomTypeT2: RandomConfig.() -> T2?,
+            noinline randomTypeT3: RandomConfig.() -> T3?,
 
             randomizers: RandomizerCollectionBuilder.() -> Unit = {},
             aboveCollection: RandomizerCollection? = null,
