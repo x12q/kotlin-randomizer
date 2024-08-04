@@ -1,8 +1,9 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.lib.DefaultRandomConfig
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -16,18 +17,17 @@ class TestPassingRandomConfig{
     @Test
     fun `class with a RandomConfig object via annotation`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig.default))
+                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
                     println(Q123.random())
                 }
                 @Randomizable(
-                    randomConfig = DefaultRandomConfig::class
+                    randomConfig = ${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}::class
                 )
                 data class Q123(val i:Int)
             """,
@@ -43,14 +43,13 @@ class TestPassingRandomConfig{
     @Test
     fun `class with no RandomConfig`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
-                    println(Q123.random(DefaultRandomConfig.default))
+                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
                     println(Q123.random())
                 }
                 @Randomizable
@@ -70,12 +69,10 @@ class TestPassingRandomConfig{
     @Test
     fun `class with legal custom random config class via annotation`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random(LegalRandomConfig()))
@@ -96,12 +93,10 @@ class TestPassingRandomConfig{
     @Test
     fun `class with legal custom random config object via annotation`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random(LegalRandomConfigObject))
@@ -123,7 +118,7 @@ class TestPassingRandomConfig{
     @Test
     fun `class with illegal random config via annotation`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
                 import com.x12q.randomizer.lib.DefaultRandomConfig

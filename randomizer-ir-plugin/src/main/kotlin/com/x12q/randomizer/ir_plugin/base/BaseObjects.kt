@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.base
 
-import com.x12q.randomizer.lib.DefaultRandomConfig
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.lib.RandomizerCollection
@@ -34,7 +34,7 @@ internal object BaseObjects {
     val getRandomConfigFromAnnotationFunctionName = Name.identifier("getRandomConfig")
     val randomizerFunctionName = Name.identifier("randomizer")
 
-    private val defaultConfigClassFqName = FqName(DefaultRandomConfig::class.qualifiedName!!)
+    private val defaultConfigClassFqName = FqName(RandomConfigImp::class.qualifiedName!!)
     val defaultConfigClassShortName = defaultConfigClassFqName.shortName()
     val DefaultRandomConfig_ClassId = ClassId.topLevel(defaultConfigClassFqName)
 

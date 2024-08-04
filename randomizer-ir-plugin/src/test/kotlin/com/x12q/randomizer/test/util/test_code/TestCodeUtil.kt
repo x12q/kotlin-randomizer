@@ -1,13 +1,5 @@
 package com.x12q.randomizer.test.util.test_code
 
-import com.x12q.randomizer.lib.DefaultRandomConfig
-import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
-import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-import com.x12q.randomizer.test.util.TestOutput
-import com.x12q.randomizer.test.util.WithData
-import com.x12q.randomizer.test.util.withTestOutput
 import org.intellij.lang.annotations.Language
 
 
@@ -43,13 +35,13 @@ fun testBlock(
 }
 
 fun testBlock(
-    importData: ImportData = ImportData.stdImport,
-    withTestOutputBody: (ImportData) -> String = { "" },
-    below: (ImportData) -> String = { "" }
+    testImportsBuilder: TestImportsBuilder = TestImportsBuilder.stdImport,
+    withTestOutputBody: (TestImportsBuilder) -> String = { "" },
+    below: (TestImportsBuilder) -> String = { "" }
 ): String {
     return testBlock(
-        importCode = importData.importCode,
-        withTestOutputBody = withTestOutputBody(importData),
-        below = below(importData),
+        importCode = testImportsBuilder.importCode,
+        withTestOutputBody = withTestOutputBody(testImportsBuilder),
+        below = below(testImportsBuilder),
     )
 }

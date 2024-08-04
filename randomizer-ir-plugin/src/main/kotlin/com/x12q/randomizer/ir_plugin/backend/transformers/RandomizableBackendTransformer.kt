@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers
 
-import com.x12q.randomizer.lib.DefaultRandomConfig
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
@@ -431,7 +431,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Construct an IrCall to access [DefaultRandomConfig.Companion.default]
+     * Construct an IrCall to access [RandomConfigImp.Companion.default]
      */
     private fun getDefaultRandomConfigInstance(builder: DeclarationIrBuilder): IrCall {
         return builder.irGetObject(defaultRandomConfigAccessor.defaultRandomConfigCompanionObject.symbol)

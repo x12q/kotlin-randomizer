@@ -1,10 +1,10 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.lib.DefaultRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-import com.x12q.randomizer.test.util.ManyOutputStream
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -19,9 +19,8 @@ class TestRandomNestedClass {
     fun `randomize nullable nested object - always not null`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+                ${TestImportsBuilder.stdImport}
+
                 fun main(){
                     println(Q123.random(AlwaysTrueRandomConfig))
                 }
@@ -57,9 +56,7 @@ class TestRandomNestedClass {
         AlwaysTrueRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random(AlwaysFalseRandomConfig))
@@ -97,12 +94,11 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())
-                    println(Q123.random(DefaultRandomConfig.default))
+                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
 
                     val q = Q123.random()
                     println(q.b1.i.toString())
@@ -138,8 +134,7 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())
@@ -171,8 +166,8 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
+                
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())

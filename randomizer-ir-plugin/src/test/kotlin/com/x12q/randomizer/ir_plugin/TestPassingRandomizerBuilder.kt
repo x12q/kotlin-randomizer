@@ -4,7 +4,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.lib.FactoryClassRandomizer
 import com.x12q.randomizer.lib.RandomizerCollectionImp
 import com.x12q.randomizer.test.util.assertions.runRunTest
-import com.x12q.randomizer.test.util.test_code.ImportData
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -18,7 +18,7 @@ class TestPassingRandomizerBuilder {
     @Test
     fun `pass randomizers config function`() {
 
-        val imports = ImportData.stdImport.import(Dt::class)
+        val imports = TestImportsBuilder.stdImport.import(Dt::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports

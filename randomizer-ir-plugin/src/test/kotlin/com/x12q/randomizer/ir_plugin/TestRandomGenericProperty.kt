@@ -6,7 +6,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.runRunTest
-import com.x12q.randomizer.test.util.test_code.ImportData
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -27,15 +27,14 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
-                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-                import com.x12q.randomizer.test.util.TestOutput
-                import com.x12q.randomizer.test.util.withTestOutput
-                import $qx
-                import $withData
+//                import com.x12q.randomizer.lib.DefaultRandomConfig
+//                import com.x12q.randomizer.lib.annotations.Randomizable
+//                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+//                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
+//                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+//                import com.x12q.randomizer.test.util.TestOutput
+//                import com.x12q.randomizer.test.util.withTestOutput
+                ${TestImportsBuilder.stdImport.import(Qx::class)}
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(AlwaysFalseRandomConfig, randomT1={it.nextInt()}))
@@ -62,13 +61,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-                import com.x12q.randomizer.test.util.TestOutput
-                import com.x12q.randomizer.test.util.withTestOutput
-                import $qx2
-                import $withData
+                ${TestImportsBuilder.stdImport.import(Qx2::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -100,13 +93,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.lib.DefaultRandomConfig
-                import com.x12q.randomizer.lib.annotations.Randomizable
-                import com.x12q.randomizer.test.util.TestOutput
-                import com.x12q.randomizer.test.util.withTestOutput
-                import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
-                import $qx3
-                import $withData
+                ${TestImportsBuilder.stdImport.import(Qx3::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -139,7 +126,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(Qx::class)}
+                ${TestImportsBuilder.stdImport.import(Qx::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -171,7 +158,7 @@ class TestRandomGenericProperty {
     fun `randomize 1 generic property with bound - ok case`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(Qx::class)}
+                ${TestImportsBuilder.stdImport.import(Qx::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -198,7 +185,7 @@ class TestRandomGenericProperty {
     fun `randomize 1 generic property with bound - fail case`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(Qx::class)}
+                ${TestImportsBuilder.stdImport.import(Qx::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{

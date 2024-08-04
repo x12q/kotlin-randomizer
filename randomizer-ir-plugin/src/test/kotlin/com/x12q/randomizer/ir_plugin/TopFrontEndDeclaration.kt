@@ -3,10 +3,11 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.lib.RandomizerCollection
 import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
-import com.x12q.randomizer.test.util.test_code.ImportData
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -26,7 +27,7 @@ class TopFrontEndDeclaration {
     @Test
     fun `random functions exist`() {
 
-        val imports = ImportData.stdImport
+        val imports = TestImportsBuilder.stdImport
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -38,7 +39,7 @@ class TopFrontEndDeclaration {
                 }
 
                 @Randomizable(
-                    randomConfig = DefaultRandomConfig::class
+                    randomConfig = ${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}::class
                 )
                 data class Q123(val i:Int){
                     companion object{
@@ -95,13 +96,13 @@ class TopFrontEndDeclaration {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport}
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                 }
 
                 @Randomizable(
-                    randomConfig = DefaultRandomConfig::class
+                    randomConfig = ${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}::class
                 )
                 data class Q123<T>(val i:Int,val t:T?)
             """,
