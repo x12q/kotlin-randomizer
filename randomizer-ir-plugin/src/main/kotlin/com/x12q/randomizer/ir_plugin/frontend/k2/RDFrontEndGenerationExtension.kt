@@ -249,11 +249,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     returnType
                 },
                 config = {
-//                    if(false){
-                        this.status {
-                            isInline = true
-                        }
-//                    }
+                    this.status {
+                        isInline = true
+                    }
                     /**
                      * Port type params (aka generic types) from the enclosing class to the random() function
                      */
@@ -290,7 +288,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
          * in other form, it is: @ExtensionFunctionType Function1<ClassRandomizerCollectionBuilder,Unit>
          */
         val rdmBuilderConfigFunctionType = ConeClassLikeTypeImpl(
-            ConeClassLikeLookupTagImpl(BaseObjects.Function1_ClassId),
+            lookupTag = ConeClassLikeLookupTagImpl(classId = BaseObjects.Function1_ClassId),
             typeArguments = arrayOf(rdmBuilderType, unitConeType),
             isNullable = false,
             /**
@@ -567,9 +565,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     targetClassTypeParam.resolvedBounds.forEach {
                         bound(it.type)
                     }
-//                    bound {
-//                        session.builtinTypes.anyType.type
-//                    }
                 }
             )
         }
@@ -601,11 +596,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             val randomLambda = BaseObjects.Function1_ClassId.constructClassLikeType(
                 typeArguments = arrayOf(randomConfigType, typeParam.toConeType()),
                 isNullable = false,
+                attributes = ConeAttributes.WithExtensionFunctionType
             )
-//            val randomLambda = BaseObjects.Function2_ClassId.constructClassLikeType(
-//                typeArguments = arrayOf(randomConfigType, randomizerCollectionType, typeParam.toConeType()),
-//                isNullable = false,
-//            )
             val paramName = Name.identifier("random${typeParam.name}")
 
             buildValueParameter {

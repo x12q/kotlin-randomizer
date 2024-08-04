@@ -27,18 +27,11 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-//                import com.x12q.randomizer.lib.DefaultRandomConfig
-//                import com.x12q.randomizer.lib.annotations.Randomizable
-//                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-//                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
-//                import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-//                import com.x12q.randomizer.test.util.TestOutput
-//                import com.x12q.randomizer.test.util.withTestOutput
                 ${TestImportsBuilder.stdImport.import(Qx::class)}
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(AlwaysFalseRandomConfig, randomT1={it.nextInt()}))
-                        putData(QxC.random<Int>(AlwaysTrueRandomConfig, randomT1={it.nextInt()}))
+                        putData(QxC.random<Int>(AlwaysFalseRandomConfig, randomT1={nextInt()}))
+                        putData(QxC.random<Int>(AlwaysTrueRandomConfig, randomT1={nextInt()}))
                     }
                 }
                 @Randomizable
@@ -65,8 +58,8 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomT1={it.nextInt()}))
-                        putData(QxC.random<Int>(LegalRandomConfigObject,randomT1={it.nextInt()}))
+                        putData(QxC.random<Int>(randomT1={nextInt()}))
+                        putData(QxC.random<Int>(LegalRandomConfigObject,randomT1={nextInt()}))
                     }
                 }
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
@@ -99,7 +92,8 @@ class TestRandomGenericProperty {
                     return withTestOutput{
                         putData(QxC.random<Int,String,Double>(
                                 randomT1={123}, 
-                                randomT2={config-> 
+                                randomT2={
+                                    val config = this
                                     val num=config.nextInt()
                                     "abc_"+num.toString()
                                 }, 
@@ -130,7 +124,7 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>({config->println(config);config.nextInt()}))
+                        putData(QxC.random<Int>({val config=this;println(config);config.nextInt()}))
                         putData(QxC.random<Int>(randomT1={123}))
                         putData(QxC.random<Int>(randomT1={123}))
                     }

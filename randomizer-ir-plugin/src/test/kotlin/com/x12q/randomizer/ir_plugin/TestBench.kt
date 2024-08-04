@@ -32,23 +32,14 @@ fun main() {
 
     println(
         ABC.random<Double, String, Float>(
-            randomTypeT1 = { _, _ ->
+            randomTypeT1 = {
                 33.33
             },
-            randomTypeT2 = { _, _ ->
+            randomTypeT2 = {
                 "T2"
             },
-            randomTypeT3 = { _, _ ->
+            randomTypeT3 = {
                 1.2f
-            },
-            t1Val1 = { _, _ ->
-                12.3
-            },
-            t2Val = { _, _ ->
-                "T2_t2"
-            },
-            absVal = { _, _ ->
-                ObjectQWE1
             },
             randomizers = {
                 add(makeConstantRandomizer(999))
@@ -72,26 +63,9 @@ data class ABC<T1 : Number, T2, T3>(
             /**
              * Type randomizer
              */
-            noinline randomTypeT1: ((RandomConfig, RandomizerCollection) -> T1)? = null,
-            noinline randomTypeT2: ((RandomConfig, RandomizerCollection) -> T2)? = null,
-            noinline randomTypeT3: (RandomConfig, RandomizerCollection) -> T3,
-
-            /**
-             * Generic param randomizer
-             */
-            noinline t1Val1: ((RandomConfig, RandomizerCollection) -> T1)? = null,
-            noinline t1Val2: ((RandomConfig, RandomizerCollection) -> T1)? = null,
-            noinline t2Val: ((RandomConfig, RandomizerCollection) -> T2)? = null,
-            /**
-             * Concrete param
-             */
-            noinline absVal: ((RandomConfig, RandomizerCollection) -> AbstractClassQWE)? = null,
-            noinline i2: (() -> Int)? = null,
-
-            /**
-             * derived generic param
-             */
-            noinline randomInnerClass: ((RandomConfig, RandomizerCollection) -> InnerClass<T3>)? = null,
+            noinline randomTypeT1: (RandomConfig.() -> T1)?=null,
+            noinline randomTypeT2: (RandomConfig.() -> T2)?=null,
+            noinline randomTypeT3: (RandomConfig.() -> T3)?=null,
 
             randomizers: RandomizerCollectionBuilder.() -> Unit = {},
             aboveCollection: RandomizerCollection? = null,
@@ -105,19 +79,18 @@ data class ABC<T1 : Number, T2, T3>(
 
             val randomConfig = RandomConfigForTest
 
-            val t1 = (t1Val1?.invoke(randomConfig, collection) ?: randomTypeT1?.invoke(randomConfig, collection))
+            val t1 = randomTypeT1?.invoke(randomConfig)
                 ?: collection.random<T1>() ?: defaultRandomizerCollection.random<T1>()
             val t1_2 =
-                (t1Val2?.invoke(randomConfig, collection) ?: randomTypeT1?.invoke(randomConfig, collection))
-                    ?: collection.random<T1>() ?: defaultRandomizerCollection.random<T1>()
+                randomTypeT1?.invoke(randomConfig) ?: collection.random<T1>() ?: defaultRandomizerCollection.random<T1>()
 
-            val t2 = (t2Val?.invoke(randomConfig, collection) ?: randomTypeT2?.invoke(randomConfig, collection))
+            val t2 = randomTypeT2?.invoke(randomConfig)
                 ?: collection.random<T2>() ?: defaultRandomizerCollection.random<T2>()
 
-            val _absVal = absVal?.invoke(randomConfig, collection) ?: collection.random<AbstractClassQWE>()
-            ?: defaultRandomizerCollection.random<AbstractClassQWE>()
+            val _absVal = collection.random<AbstractClassQWE>()
+                ?: defaultRandomizerCollection.random<AbstractClassQWE>()
 
-            val _i2 = (i2?.invoke() ?: collection.random<Int>()) ?: defaultRandomizerCollection.random<Int>()
+            val _i2 = collection.random<Int>() ?: defaultRandomizerCollection.random<Int>()
 
             return ABC(
                 t1Val1 = t1 ?: throw IllegalArgumentException("t1Val1"),
@@ -125,16 +98,11 @@ data class ABC<T1 : Number, T2, T3>(
                 t2Val = t2 ?: throw IllegalArgumentException("t2"),
                 absVal = _absVal ?: throw IllegalArgumentException("absVal"),
                 i2 = _i2 ?: throw IllegalArgumentException("i2"),
-                innerClass = randomInnerClass?.invoke(randomConfig, collection) ?: collection.random<InnerClass<T3>>()
-                ?: InnerClass.random(
-                    randomTypeT = randomTypeT3,
-                    randomTVal = randomTypeT3,
-                    randomI = { _, _ ->
-                        collection.random<Int>() ?: defaultRandomizerCollection.random<Int>()
-                        ?: throw IllegalArgumentException("randomI")
-                    },
-                    aboveCollection = collection
-                )
+                innerClass = collection.random<InnerClass<T3>>()
+                    ?: InnerClass(
+                        tVal = randomTypeT3?.invoke(randomConfig) ?: defaultRandomizerCollection.random<T3>() !!,
+                        i = 123
+                    )
             )
         }
     }
@@ -143,39 +111,7 @@ data class ABC<T1 : Number, T2, T3>(
 data class InnerClass<T>(
     val tVal: T,
     val i: Int
-) {
-    companion object {
-        inline fun <reified T : Any> random(
-            noinline randomTypeT: ((RandomConfig, RandomizerCollection) -> T)? = null,
-            noinline randomTVal: ((RandomConfig, RandomizerCollection) -> T)? = null,
-            noinline randomI: ((RandomConfig, RandomizerCollection) -> Int)? = null,
-            randomizers: RandomizerCollectionBuilder.() -> Unit = {},
-            aboveCollection: RandomizerCollection? = null,
-        ): InnerClass<T> {
-
-            val collection = run {
-                if(aboveCollection!=null){
-                    aboveCollection
-                }else{
-                    val builder = RandomizerCollectionBuilderImp()
-                    randomizers(builder)
-                    builder.build()
-                }
-            }
-            val randomConfig = RandomConfigForTest
-
-            val tVal = randomTVal?.invoke(randomConfig, collection) ?: randomTypeT?.invoke(randomConfig, collection)
-            ?: collection.random<T>() ?: defaultRandomizerCollection.random<T>()
-            val i = randomI?.invoke(randomConfig, collection) ?: collection.random<Int>()
-            ?: defaultRandomizerCollection.random<Int>() ?: defaultRandomizerCollection.random<Int>()
-
-            return InnerClass(
-                tVal = tVal ?: throw IllegalArgumentException("InnerClass.tVal"),
-                i = i ?: throw IllegalArgumentException("InnerClass.i")
-            )
-        }
-    }
-}
+)
 
 
 data class AB(val i: Int, val x: Double, val s: String) {
