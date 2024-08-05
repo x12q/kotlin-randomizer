@@ -125,7 +125,7 @@ class TopFrontEndDeclaration {
                         }
                         val randomizersBuilderFunctionIsCorrect = params[1].let {param1->
                             param1.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
-                                    && param1.name == BaseObjects.randomizersBuilderParamName
+                                    && param1.name == BaseObjects.randomContextBuilderConfigFunctionParamName
                         }
                         signatureOk && genericFunctionalParamsAreCorrect && randomizersBuilderFunctionIsCorrect
                     }

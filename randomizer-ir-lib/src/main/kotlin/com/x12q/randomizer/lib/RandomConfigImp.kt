@@ -6,8 +6,7 @@ class RandomConfigImp(
     override val random: Random,
     override val collectionSizeRange: IntRange,
     override val charRange: CharRange,
-    private val randomizerCollection: RandomizerCollection,
-) : RandomConfig, RandomizerCollection by randomizerCollection {
+) : RandomConfig {
 
     companion object{
         val default = default()
@@ -16,7 +15,7 @@ class RandomConfigImp(
             collectionSizeRange: IntRange = 0 .. 10,
             charRange: CharRange = 'A' .. 'z',
         ):RandomConfigImp{
-            return RandomConfigImp(random, collectionSizeRange, charRange, RandomizerCollectionImp(emptyMap()))
+            return RandomConfigImp(random, collectionSizeRange, charRange)
         }
     }
 }

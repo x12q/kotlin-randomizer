@@ -8,12 +8,12 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import javax.inject.Inject
 
-class RandomizerCollectionBuilderAccessor @Inject constructor(
+class RandomizerContextBuilderAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ):ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomizerCollectionBuilder_Id)) {
-            "RandomizerCollectionBuilder interface is not in the class path."
+        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomizerContextBuilder_Id)) {
+            "RandomizerContextBuilder interface is not in the class path."
         }
     }
 
@@ -21,7 +21,15 @@ class RandomizerCollectionBuilderAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("build")
     }
 
+    fun buildRandomConfigFunction(builder: IrBuilderWithScope): IrCall {
+        return builder.zeroAgrFunctionCall("buildContext")
+    }
+
     fun addFunction(builder: DeclarationIrBuilder):IrCall{
         return builder.oneAgrFunctionCall("add")
+    }
+
+    fun setRandomConfigFunction(builder: DeclarationIrBuilder):IrCall{
+        return builder.oneAgrFunctionCall("setRandomConfig")
     }
 }

@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestPassingRandomizerBuilder {
+class TestPassingRandomContextBuilder {
 
     data class Dt(val i:Int)
 
@@ -52,12 +52,43 @@ class TestPassingRandomizerBuilder {
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val l = result.runRunTest().getObjs()
-//                println(l)
-                l shouldBe listOf(
-                   Dt(-999)
-                )
+                result.runRunTest{
+                    it.getObjs() shouldBe listOf(
+                        Dt(-999)
+                    )
+                }
             }
         }
     }
+
+    @Test
+    fun `random context overriding default randomizer`() {
+
+        val imports = TestImportsBuilder.stdImport.import(Dt::class)
+        testGeneratedCodeUsingStandardPlugin(
+            """
+               $imports
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random{
+                            add(${imports.nameOf(FactoryClassRandomizer::class)}<Int>({222},Int::class))
+                        })
+                    }
+                }
+                @Randomizable
+                data class QxC(override val data:Dt):WithData
+            """,
+        ) {
+            testCompilation = { result, testStream ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest{
+                    it.getObjs() shouldBe listOf(
+                        Dt(222)
+                    )
+                }
+            }
+        }
+    }
+
 }

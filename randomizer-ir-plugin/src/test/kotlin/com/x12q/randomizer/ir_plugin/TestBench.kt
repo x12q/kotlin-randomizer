@@ -19,14 +19,13 @@ inline fun <reified T : Any> makeConstantRandomizer(i: T): ClassRandomizer<T> {
     }
 }
 
-val defaultRandomizerCollection = RandomizerCollectionBuilderImp().apply {
+val defaultRandomizerCollection = RandomizerContextBuilderImp().apply {
     add(makeConstantRandomizer(444))
     add(makeConstantRandomizer(33.33f))
     add(makeConstantRandomizer(666.66))
     add(makeConstantRandomizer("from default randomizer"))
     add(makeConstantRandomizer<AbstractClassQWE>(ObjectQWE2))
-
-}.build()
+}.buildContext()
 
 fun main() {
 
@@ -76,31 +75,29 @@ data class ABC<T1 : Number, T2, T3>(
             noinline randomTypeT1: RandomConfig.() -> T1?,
             noinline randomTypeT2: RandomConfig.() -> T2?,
             noinline randomTypeT3: RandomConfig.() -> T3?,
-
-            randomizers: RandomizerCollectionBuilder.() -> Unit = {},
-            aboveCollection: RandomizerCollection? = null,
+            randomizers: RandomizerContextBuilder.() -> Unit = {},
         ): ABC<T1, T2, T3> {
-
-            val collection = aboveCollection ?: run {
-                val builder = RandomizerCollectionBuilderImp()
-                randomizers(builder)
-                builder.build()
-            }
 
             val randomConfig = RandomConfigForTest
 
-            val t1 = randomTypeT1?.invoke(randomConfig)
-                ?: collection.random<T1>() ?: defaultRandomizerCollection.random<T1>()
-            val t1_2 =
-                randomTypeT1?.invoke(randomConfig) ?: collection.random<T1>() ?: defaultRandomizerCollection.random<T1>()
+            val confiz = run {
+                val builder = RandomizerContextBuilderImp()
+                randomizers(builder)
+                builder.setRandomConfig(randomConfig)
+                builder.buildContext()
+            }
 
-            val t2 = randomTypeT2?.invoke(randomConfig)
-                ?: collection.random<T2>() ?: defaultRandomizerCollection.random<T2>()
+            val t1 = randomTypeT1.invoke(randomConfig)
+                ?: confiz.random<T1>() ?: defaultRandomizerCollection.random<T1>()
+            val t1_2 = randomTypeT1.invoke(randomConfig) ?: confiz.random<T1>() ?: defaultRandomizerCollection.random<T1>()
 
-            val _absVal = collection.random<AbstractClassQWE>()
+            val t2 = randomTypeT2.invoke(randomConfig)
+                ?: confiz.random<T2>() ?: defaultRandomizerCollection.random<T2>()
+
+            val _absVal = confiz.random<AbstractClassQWE>()
                 ?: defaultRandomizerCollection.random<AbstractClassQWE>()
 
-            val _i2 = collection.random<Int>() ?: defaultRandomizerCollection.random<Int>()
+            val _i2 = confiz.random<Int>() ?: defaultRandomizerCollection.random<Int>()
 
             return ABC(
                 t1Val1 = t1 ?: throw IllegalArgumentException("t1Val1"),
@@ -108,7 +105,7 @@ data class ABC<T1 : Number, T2, T3>(
                 t2Val = t2 ?: throw IllegalArgumentException("t2"),
                 absVal = _absVal ?: throw IllegalArgumentException("absVal"),
                 i2 = _i2 ?: throw IllegalArgumentException("i2"),
-                innerClass = collection.random<InnerClass<T3>>()
+                innerClass = confiz.random<InnerClass<T3>>()
                     ?: InnerClass(
                         tVal = randomTypeT3?.invoke(randomConfig) ?: defaultRandomizerCollection.random<T3>() !!,
                         i = 123
@@ -132,21 +129,21 @@ data class AB(val i: Int, val x: Double, val s: String) {
         /**
          * R1
          */
-        fun random(randomizers: RandomizerCollectionBuilder.() -> Unit = {}): RandomizerCollectionBuilder {
+        fun random(randomizers: RandomizerContextBuilder.() -> Unit = {}): RandomizerContextBuilder {
             println("random1_2")
-            val builder = RandomizerCollectionBuilderImp()
+            val builder = RandomizerContextBuilderImp()
             randomizers(builder)
-            val collection = builder.build()
+            val collection = builder.buildContext()
             return builder
         }
 
         /**
          * R2
          */
-        fun random(randomConfig: RandomConfig, randomizers: RandomizerCollectionBuilder.() -> Unit = {}): AB {
-            val builder = RandomizerCollectionBuilderImp()
+        fun random(randomConfig: RandomConfig, randomizers: RandomizerContextBuilder.() -> Unit = {}): AB {
+            val builder = RandomizerContextBuilderImp()
             randomizers(builder)
-            val z = builder.build()
+            val z = builder.buildContext()
             val i = z.getRandomizer<Int>()?.random() ?: randomConfig.nextInt()
             val x = z.getRandomizer<Double>()?.random() ?: randomConfig.nextDouble()
             val s = z.getRandomizer<String>()?.random() ?: randomConfig.nextStringUUID()
@@ -165,11 +162,11 @@ data class CD<T1, T2>(val t1: T1, val t2: T2) {
         inline fun <reified T1 : Any, reified T2 : Any> random(
             randomT1: RandomizerCollection.(RandomConfig) -> T1,
             randomT2: RandomizerCollection.(RandomConfig) -> T2,
-            randomizers: RandomizerCollectionBuilder.() -> Unit = {}
+            randomizers: RandomizerContextBuilder.() -> Unit = {}
         ): CD<T1, T2> {
-            val builder = RandomizerCollectionBuilderImp()
+            val builder = RandomizerContextBuilderImp()
             randomizers(builder)
-            val collection = builder.build()
+            val collection = builder.buildContext()
             val config = RandomConfigForTest
             return CD(
                 t1 = collection.random<T1>() ?: collection.randomT1(config),

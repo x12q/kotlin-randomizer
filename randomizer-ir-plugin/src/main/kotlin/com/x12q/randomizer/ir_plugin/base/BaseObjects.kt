@@ -1,10 +1,7 @@
 package com.x12q.randomizer.ir_plugin.base
 
-import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.lib.RandomConfig
+import com.x12q.randomizer.lib.*
 import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.lib.RandomizerCollection
-import com.x12q.randomizer.lib.RandomizerCollectionBuilder
 import org.jetbrains.kotlin.fir.declarations.FirDeclarationOrigin
 import org.jetbrains.kotlin.ir.expressions.IrStatementOriginImpl
 import org.jetbrains.kotlin.name.CallableId
@@ -41,6 +38,10 @@ internal object BaseObjects {
     val RandomConfig_ClassId = ClassId.topLevel(FqName(requireNotNull(RandomConfig::class.qualifiedName){
         "RandomConfig interface does not exist in the class path."
     }))
+
+    val RandomContext_ClassId = ClassId.topLevel(FqName(requireNotNull(RandomContext::class.qualifiedName){
+        "RandomContext interface does not exist in the class path."
+    }))
     val Random_ClassId = ClassId.topLevel(FqName(Random::class.qualifiedName!!))
     val Function0_ClassId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
 
@@ -55,15 +56,15 @@ internal object BaseObjects {
         )
     )
 
-    val RandomizerCollectionBuilder_Id = ClassId.topLevel(
+    val RandomizerContextBuilder_Id = ClassId.topLevel(
         FqName(
-            requireNotNull(RandomizerCollectionBuilder::class.qualifiedName){
-                "ClassRandomizerCollectionBuilder interface does not exist in the class path"
+            requireNotNull(RandomizerContextBuilder::class.qualifiedName){
+                "Class RandomContextBuilder interface does not exist in the class path"
             }
         )
     )
 
-    val randomizersBuilderParamName = Name.identifier("randomizers")
+    val randomContextBuilderConfigFunctionParamName = Name.identifier("randomizers")
 
 
     object Std{

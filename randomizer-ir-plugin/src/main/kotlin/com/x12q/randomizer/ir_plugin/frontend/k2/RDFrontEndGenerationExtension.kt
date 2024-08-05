@@ -5,13 +5,11 @@ import com.x12q.randomizer.ir_plugin.frontend.k2.util.RDPredicates
 import com.x12q.randomizer.ir_plugin.frontend.k2.util.isAnnotatedRandomizable
 import org.jetbrains.kotlin.contracts.description.EventOccurrencesRange
 import org.jetbrains.kotlin.fir.FirSession
-import org.jetbrains.kotlin.fir.analysis.checkers.isInlineOnly
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.declarations.builder.buildAnonymousFunction
 import org.jetbrains.kotlin.fir.declarations.builder.buildReceiverParameter
 import org.jetbrains.kotlin.fir.declarations.builder.buildValueParameter
 import org.jetbrains.kotlin.fir.declarations.utils.isCompanion
-import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.fir.expressions.builder.*
 import org.jetbrains.kotlin.fir.extensions.*
 import org.jetbrains.kotlin.fir.getOwnerLookupTag
@@ -190,7 +188,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * random<Type,Type,...>(
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      * ```
@@ -214,7 +212,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * random<Type,Type,...>(
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      */
@@ -275,24 +273,24 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
 
     /**
      * Generate this parameter (randomizer build config function) for random() function
-     * ```randomizers: Function1<ClassRandomizerCollectionBuilder,Unit> ClassRandomizerCollectionBuilder.()->Unit = {}```
+     * ```randomizers: Function1<RandomContextBuilder,Unit> RandomContextBuilder.()->Unit = {}```
      */
     private fun makeRdmBuilderConfigFunctionParam(
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
-        val rdmBuilderType = BaseObjects.RandomizerCollectionBuilder_Id.constructClassLikeType()
+        val rdmBuilderType = BaseObjects.RandomizerContextBuilder_Id.constructClassLikeType()
 
         /**
-         * Build this type: ClassRandomizerCollectionBuilder.()->Unit
-         * in other form, it is: @ExtensionFunctionType Function1<ClassRandomizerCollectionBuilder,Unit>
+         * Build this type: RandomContextBuilder.()->Unit
+         * in other form, it is: @ExtensionFunctionType Function1<RandomContextBuilder,Unit>
          */
         val rdmBuilderConfigFunctionType = ConeClassLikeTypeImpl(
             lookupTag = ConeClassLikeLookupTagImpl(classId = BaseObjects.Function1_ClassId),
             typeArguments = arrayOf(rdmBuilderType, unitConeType),
             isNullable = false,
             /**
-             * This attribute turn ```Function1``` into ```ClassRandomizerCollectionBuilder.()->Unit``` by adding @ExtensionFunctionType in the background.
+             * This attribute turn ```Function1``` into ```RandomContextBuilder.()->Unit``` by adding @ExtensionFunctionType in the background.
              */
             attributes = ConeAttributes.WithExtensionFunctionType
         )
@@ -331,7 +329,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 }
             }
         }
-        val paramName = BaseObjects.randomizersBuilderParamName
+        val paramName = BaseObjects.randomContextBuilderConfigFunctionParamName
 
         /**
          * Construct the parameter to store the randomizer builder config lambda function.
@@ -368,7 +366,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      *    randomConfig:RandomConfig,
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      * ```

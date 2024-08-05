@@ -1,43 +1,36 @@
 package com.x12q.randomizer.lib
 
-class RandomizerCollectionBuilderImp: RandomizerCollectionBuilder {
+class RandomizerContextBuilderImp: RandomizerContextBuilder {
     private val randomizers:MutableList<ClassRandomizer<*>> = mutableListOf()
 
-    override fun add(randomizer: ClassRandomizer<*>): RandomizerCollectionBuilder {
+    override fun add(randomizer: ClassRandomizer<*>): RandomizerContextBuilder {
         randomizers.add(randomizer)
         return this
     }
 
     private var randomConfig:RandomConfig? = null
 
-    override fun setRandomConfig(randomConfig: RandomConfig): RandomizerCollectionBuilder {
+    override fun setRandomConfig(randomConfig: RandomConfig): RandomizerContextBuilder {
         this.randomConfig = randomConfig
         return this
     }
 
     private var builtRandomizerCollection:RandomizerCollection? = null
 
-    override fun build(): RandomizerCollection {
+    private fun buildRandomizerCollection() {
         if(builtRandomizerCollection == null){
             builtRandomizerCollection = RandomizerCollectionImp(randomizers.associateBy { it.returnType })
         }
-        return builtRandomizerCollection!!
     }
 
-    override fun buildConfig(): RandomConfig {
+    override fun buildContext(): RandomContext {
         val baseRandomConfig = randomConfig ?: RandomConfigImp.default
         if(builtRandomizerCollection == null){
-            build()
+            buildRandomizerCollection()
         }
 
-        return RandomConfigImp(
-            random = baseRandomConfig.random,
-            collectionSizeRange = baseRandomConfig.collectionSizeRange,
-            charRange = baseRandomConfig.charRange,
-            randomizerCollection = builtRandomizerCollection!!
+        return RandomContextImp(
+            baseRandomConfig, builtRandomizerCollection!!
         )
     }
 }
-
-
-
