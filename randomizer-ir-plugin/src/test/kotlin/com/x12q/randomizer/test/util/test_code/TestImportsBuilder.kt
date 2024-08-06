@@ -132,7 +132,7 @@ data class TestImportsBuilder(
                 ConstantClassRandomizer::class,
                 RandomizerCollectionImp::class,
                 RandomizerCollection::class,
-                RandomizerContextBuilder::class,
+                RandomContextBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,
                 RandomConfigForTest::class,

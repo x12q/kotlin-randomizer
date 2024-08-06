@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
 
-import com.x12q.randomizer.lib.RandomizerContextBuilderImp
+import com.x12q.randomizer.lib.RandomContextBuilderImp
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
@@ -17,7 +17,7 @@ class RandomContextBuilderImpAccessor @Inject constructor(
 
     private val classId = ClassId.topLevel(
         FqName(
-            requireNotNull(RandomizerContextBuilderImp::class.qualifiedName){
+            requireNotNull(RandomContextBuilderImp::class.qualifiedName){
                 "Class RandomContextBuilder interface does not exist in the class path"
             }
         )

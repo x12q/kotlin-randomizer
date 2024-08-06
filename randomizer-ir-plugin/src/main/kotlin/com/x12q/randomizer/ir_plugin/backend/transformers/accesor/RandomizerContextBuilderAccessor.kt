@@ -12,7 +12,7 @@ class RandomizerContextBuilderAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ):ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomizerContextBuilder_Id)) {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomContextBuilder_Id)) {
             "RandomizerContextBuilder interface is not in the class path."
         }
     }

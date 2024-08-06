@@ -1,16 +1,16 @@
 package com.x12q.randomizer.lib
 
-class RandomizerContextBuilderImp: RandomizerContextBuilder {
+class RandomContextBuilderImp: RandomContextBuilder {
     private val randomizers:MutableList<ClassRandomizer<*>> = mutableListOf()
 
-    override fun add(randomizer: ClassRandomizer<*>): RandomizerContextBuilder {
+    override fun add(randomizer: ClassRandomizer<*>): RandomContextBuilder {
         randomizers.add(randomizer)
         return this
     }
 
     private var randomConfig:RandomConfig? = null
 
-    override fun setRandomConfig(randomConfig: RandomConfig): RandomizerContextBuilder {
+    override fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder {
         this.randomConfig = randomConfig
         return this
     }

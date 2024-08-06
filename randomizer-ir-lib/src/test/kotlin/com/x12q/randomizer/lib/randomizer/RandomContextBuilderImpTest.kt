@@ -1,7 +1,7 @@
 package com.x12q.randomizer.lib.randomizer
 
 import com.x12q.randomizer.lib.ConstantClassRandomizer
-import com.x12q.randomizer.lib.RandomizerContextBuilderImp
+import com.x12q.randomizer.lib.RandomContextBuilderImp
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
@@ -12,7 +12,7 @@ class RandomContextBuilderImpTest{
     fun build(){
         val intRdm = ConstantClassRandomizer(1,Int::class)
         val floatRdm = ConstantClassRandomizer(2f,Float::class)
-        val builder = RandomizerContextBuilderImp()
+        val builder = RandomContextBuilderImp()
 
         builder.add(intRdm)
         builder.add(floatRdm)

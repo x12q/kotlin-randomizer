@@ -56,9 +56,9 @@ internal object BaseObjects {
         )
     )
 
-    val RandomizerContextBuilder_Id = ClassId.topLevel(
+    val RandomContextBuilder_Id = ClassId.topLevel(
         FqName(
-            requireNotNull(RandomizerContextBuilder::class.qualifiedName){
+            requireNotNull(RandomContextBuilder::class.qualifiedName){
                 "Class RandomContextBuilder interface does not exist in the class path"
             }
         )

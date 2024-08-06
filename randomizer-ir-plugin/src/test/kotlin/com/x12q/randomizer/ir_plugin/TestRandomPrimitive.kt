@@ -13,7 +13,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomPrimitive {
-    data class Primitives(
+    data class PrimitivesContainer(
         val boolean: Boolean,
         val int: Int,
         val long: Long,
@@ -33,7 +33,7 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Primitives::class)}
+                ${TestImportsBuilder.stdImport.import(PrimitivesContainer::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -51,7 +51,7 @@ class TestRandomPrimitive {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest { output ->
                     output.getObjs() shouldBe listOf(
-                        Primitives(
+                        PrimitivesContainer(
                             LegalRandomConfigObject.nextBoolean(),
                             LegalRandomConfigObject.nextInt(),
                             LegalRandomConfigObject.nextLong(),

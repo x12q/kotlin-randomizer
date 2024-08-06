@@ -3,13 +3,13 @@ package com.x12q.randomizer.lib
 class RandomContextImp(
     val randomConfig: RandomConfig,
     val collection: RandomizerCollection,
-): RandomContext, RandomConfig by randomConfig, RandomizerCollection by collection {
+) : RandomContext, RandomConfig by randomConfig, RandomizerCollection by collection {
     override fun nextInt(): Int {
-        return this.random<Int>()?: randomConfig.nextInt()
+        return this.random<Int>() ?: randomConfig.nextInt()
     }
 
     override fun nextAny(): Any {
-        return this.random<Any>()?: randomConfig.nextAny()
+        return this.random<Any>() ?: randomConfig.nextAny()
     }
 
     override fun nextAnyOrNull(): Any? {
@@ -17,121 +17,103 @@ class RandomContextImp(
     }
 
     override fun nextFloat(): Float {
-        return this.random<Float>()?: randomConfig.nextFloat()
+        return this.random<Float>() ?: randomConfig.nextFloat()
     }
 
     override fun nextDouble(): Double {
-        return this.random<Double>()?: randomConfig.nextDouble()
+        return this.random<Double>() ?: randomConfig.nextDouble()
     }
 
     override fun nextBoolean(): Boolean {
-        return super.nextBoolean()
+        return this.random<Boolean>() ?: randomConfig.nextBoolean()
     }
 
     override fun nextLong(): Long {
-        return super.nextLong()
-    }
-
-    override fun nextUInt(): UInt {
-        return super.nextUInt()
-    }
-
-    override fun nextUIntOrNull(): UInt? {
-        return super.nextUIntOrNull()
+        return this.random<Long>() ?: randomConfig.nextLong()
     }
 
     override fun nextIntOrNull(): Int? {
-        return super.nextIntOrNull()
+        return this.randomOrNull<Int>(random) ?: randomConfig.nextIntOrNull()
     }
 
     override fun nextBoolOrNull(): Boolean? {
-        return super.nextBoolOrNull()
+        return this.randomOrNull<Boolean>(random) ?: randomConfig.nextBoolOrNull()
     }
 
     override fun nextFloatOrNull(): Float? {
-        return super.nextFloatOrNull()
+        return this.randomOrNull<Float>(random) ?: randomConfig.nextFloatOrNull()
     }
 
     override fun nextULong(): ULong {
-        return super.nextULong()
+        return this.random<ULong>() ?: randomConfig.nextULong()
     }
 
     override fun nextULongOrNull(): ULong? {
-        return super.nextULongOrNull()
+        return this.randomOrNull<ULong>(random) ?: randomConfig.nextULongOrNull()
     }
 
     override fun nextLongOrNull(): Long? {
-        return super.nextLongOrNull()
+        return this.randomOrNull<Long>(random) ?: randomConfig.nextLongOrNull()
     }
 
     override fun nextDoubleOrNull(): Double? {
-        return super.nextDoubleOrNull()
+        return this.randomOrNull<Double>(random) ?: randomConfig.nextDoubleOrNull()
     }
 
     override fun nextByte(): Byte {
-        return super.nextByte()
+        return this.random<Byte>() ?: randomConfig.nextByte()
     }
 
     override fun nextByteOrNull(): Byte? {
-        return super.nextByteOrNull()
+        return this.randomOrNull<Byte>(random)?: randomConfig.nextByteOrNull()
     }
 
     override fun nextUByte(): UByte {
-        return super.nextUByte()
+        return this.random<UByte>()?: randomConfig.nextUByte()
     }
 
     override fun nextUByteOrNull(): UByte? {
-        return super.nextUByteOrNull()
+        return this.randomOrNull<UByte>(random)?: randomConfig.nextUByteOrNull()
     }
 
-    override val charRange: CharRange
-        get() = TODO("Not yet implemented")
 
     override fun nextChar(): Char {
-        return super.nextChar()
+        return this.random<Char>()?: randomConfig.nextChar()
     }
 
     override fun nextCharOrNull(): Char? {
-        return super.nextCharOrNull()
+        return this.randomOrNull<Char>(random)?: randomConfig.nextCharOrNull()
     }
 
     override fun nextShort(): Short {
-        return super.nextShort()
+        return this.random<Short>()?: randomConfig.nextShort()
     }
 
     override fun nextShortOrNull(): Short? {
-        return super.nextShortOrNull()
+        return this.randomOrNull<Short>(random)?: randomConfig.nextShortOrNull()
     }
 
     override fun nextUShort(): UShort {
-        return super.nextUShort()
+        return this.random<UShort>()?: randomConfig.nextUShort()
     }
 
     override fun nextUShortOrNull(): UShort? {
-        return super.nextUShortOrNull()
+        return this.randomOrNull<UShort>(random)?: randomConfig.nextUShortOrNull()
     }
 
     override fun nextStringUUID(): String {
-        return super.nextStringUUID()
+        return this.random<String>()?: randomConfig.nextStringUUID()
     }
 
     override fun nextStringUUIDOrNull(): String? {
-        return super.nextStringUUIDOrNull()
-    }
-
-    override fun nextUnit() {
-        super.nextUnit()
-    }
-
-    override fun nextUnitOrNull(): Unit? {
-        return super.nextUnitOrNull()
+        return this.randomOrNull<String>(random)?: randomConfig.nextStringUUIDOrNull()
     }
 
     override fun nextNumber(): Number {
-        return super.nextNumber()
+        return this.random<Number>()?: randomConfig.nextNumber()
     }
 
     override fun nextNumberOrNull(): Number? {
-        return super.nextNumberOrNull()
+        return this.randomOrNull<Number>(random)?: randomConfig.nextNumberOrNull()
     }
 }

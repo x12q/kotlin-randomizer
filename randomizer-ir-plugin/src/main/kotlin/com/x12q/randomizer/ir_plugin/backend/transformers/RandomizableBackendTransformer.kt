@@ -8,7 +8,7 @@ import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNullResult
 import com.x12q.randomizer.lib.RandomContext
-import com.x12q.randomizer.lib.RandomizerContextBuilder
+import com.x12q.randomizer.lib.RandomContextBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.descriptors.Modality.*
@@ -260,7 +260,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create an IrExpr to run a config function from [randomizerBuilderConfigFunctionAsParam]  on [RandomizerContextBuilder] from [getRandomContextBuilderExpr]
+     * Create an IrExpr to run a config function from [randomizerBuilderConfigFunctionAsParam]  on [RandomContextBuilder] from [getRandomContextBuilderExpr]
      */
     private fun makeExprToConfigRandomContextBuilder(
         getRandomContextBuilderExpr: IrExpression,
