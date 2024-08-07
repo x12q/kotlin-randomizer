@@ -18,9 +18,31 @@ class TestRandomGenericProperty {
     data class Qx<T1>(val i: T1?)
     data class Qx2<T1>(val i: T1)
 
-    val withData = WithData::class.qualifiedName!!
-    val qx = Qx::class.qualifiedName!!
-    val qx2 = Qx2::class.qualifiedName!!
+    @Test
+    fun `no `() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1=null))
+                    }
+                }
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1>(override val data:Qx2<T1>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest().getObjs() shouldBe listOf(
+                    Qx2(LegalRandomConfigObject.nextInt()),
+                    Qx2(LegalRandomConfigObject.nextInt())
+                )
+            }
+        }
+    }
 
     @Test
     fun `nullable generic property`() {
@@ -79,7 +101,6 @@ class TestRandomGenericProperty {
 
     data class Qx3<T1, T2, T3>(val i1: T1, val i2: T2, val i3: T3)
 
-    val qx3 = Qx3::class.qualifiedName!!
 
     @Test
     fun `randomize 3 generic property`() {

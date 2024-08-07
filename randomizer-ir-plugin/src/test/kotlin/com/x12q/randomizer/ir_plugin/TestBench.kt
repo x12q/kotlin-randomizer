@@ -59,45 +59,37 @@ data class ABC<T1 : Number, T2, T3>(
 ) {
     companion object {
         inline fun <reified T1 : Number, reified T2 : Any, reified T3 : Any> random(
-            /**
-             * Type randomizer. Nullable or not.
-             * Nullable:
-             *  - encourage user to NOT provide them here
-             *  - users not provide -> can still compile.
-             * Non-null:
-             *  - enforce user to provide them, otherwise -> not compile.
-             *  - user have to provide it, no other way out. So, if they want to reused to randomizer from random config, they will have explicitly say so everytime. This is tedious.
-             * How about return a nullable
-             * - user can easily return a null if they don't want to specify the random logic, then that will be delegated to random config.
-             *
-             *
-             */
-            noinline randomTypeT1: RandomConfig.() -> T1?,
-            noinline randomTypeT2: RandomConfig.() -> T2?,
-            noinline randomTypeT3: RandomConfig.() -> T3?,
+            noinline randomTypeT1: (RandomContext.() -> T1)?,
+            noinline randomTypeT2: (RandomContext.() -> T2)?,
+            noinline randomTypeT3: (RandomContext.() -> T3)?,
             randomizers: RandomContextBuilder.() -> Unit = {},
         ): ABC<T1, T2, T3> {
 
             val randomConfig = RandomConfigForTest
 
-            val confiz = run {
+            val context = run {
                 val builder = RandomContextBuilderImp()
                 randomizers(builder)
                 builder.setRandomConfig(randomConfig)
                 builder.buildContext()
             }
 
-            val t1 = randomTypeT1.invoke(randomConfig)
-                ?: confiz.random<T1>() ?: defaultRandomizerCollection.random<T1>()
-            val t1_2 = randomTypeT1.invoke(randomConfig) ?: confiz.random<T1>() ?: defaultRandomizerCollection.random<T1>()
+            val t1 = randomTypeT1?.invoke(context)
+                ?: context.random<T1>()
+                ?: defaultRandomizerCollection.random<T1>()
 
-            val t2 = randomTypeT2.invoke(randomConfig)
-                ?: confiz.random<T2>() ?: defaultRandomizerCollection.random<T2>()
+            val t1_2 = randomTypeT1?.invoke(context)
+                ?: context.random<T1>()
+                ?: defaultRandomizerCollection.random<T1>()
 
-            val _absVal = confiz.random<AbstractClassQWE>()
+            val t2 = randomTypeT2?.invoke(context)
+                ?: context.random<T2>()
+                ?: defaultRandomizerCollection.random<T2>()
+
+            val _absVal = context.random<AbstractClassQWE>()
                 ?: defaultRandomizerCollection.random<AbstractClassQWE>()
 
-            val _i2 = confiz.random<Int>() ?: defaultRandomizerCollection.random<Int>()
+            val _i2 = context.random<Int>() ?: defaultRandomizerCollection.random<Int>()
 
             return ABC(
                 t1Val1 = t1 ?: throw IllegalArgumentException("t1Val1"),
@@ -105,15 +97,16 @@ data class ABC<T1 : Number, T2, T3>(
                 t2Val = t2 ?: throw IllegalArgumentException("t2"),
                 absVal = _absVal ?: throw IllegalArgumentException("absVal"),
                 i2 = _i2 ?: throw IllegalArgumentException("i2"),
-                innerClass = confiz.random<InnerClass<T3>>()
+                innerClass = context.random<InnerClass<T3>>()
                     ?: InnerClass(
-                        tVal = randomTypeT3?.invoke(randomConfig) ?: defaultRandomizerCollection.random<T3>() !!,
+                        tVal = randomTypeT3?.invoke(context) ?: defaultRandomizerCollection.random<T3>()!!,
                         i = 123
                     )
             )
         }
     }
 }
+
 
 data class InnerClass<T>(
     val tVal: T,

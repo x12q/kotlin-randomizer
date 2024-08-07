@@ -46,6 +46,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      */
     val predicateProvider = session.predicateBasedProvider
     val randomConfigType = BaseObjects.RandomConfig_ClassId.constructClassLikeType()
+    val randomContextType = BaseObjects.RandomContext_ClassId.constructClassLikeType()
     val randomizerCollectionType = BaseObjects.RandomizerCollection_Id.constructClassLikeType()
     val unitConeType = session.builtinTypes.unitType.coneType
     val strBuilder = StringBuilder()
@@ -575,8 +576,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * They are the parameter in this:
      * ```
      * fun <T1,T2> random(
-     *    randomT1:(RandomConfig, RandomizerCollection)->T1, // <~~ this
-     *    randomT2:(RandomConfig, RandomizerCollection)->T2, // <~~ this
+     *    randomT1:(RandomConfig, RandomizerCollection)->T1?, // <~~ this
+     *    randomT2:(RandomConfig, RandomizerCollection)->T2?, // <~~ this
      *    ...
      * )
      * ```
@@ -592,8 +593,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
              * - randomT2 : Function2<RandomConfig, RandomizerCollection, T2> (RandomConfig)->T2
              */
             val randomLambda = BaseObjects.Function1_ClassId.constructClassLikeType(
-                typeArguments = arrayOf(randomConfigType, typeParam.toConeType()),
-                isNullable = false,
+                typeArguments = arrayOf(randomContextType, typeParam.toConeType()),
+                isNullable = true,
                 attributes = ConeAttributes.WithExtensionFunctionType
             )
             val paramName = Name.identifier("random${typeParam.name}")
