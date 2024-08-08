@@ -19,7 +19,7 @@ class TestRandomGenericProperty {
     data class Qx2<T1>(val i: T1)
 
     @Test
-    fun `no `() {
+    fun `prioritize generic function over random context`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -27,7 +27,9 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomT1=null))
+                        putData(QxC.random<Int>(randomT1={LegalRandomConfigObject.nextInt()+100}, randomizers = {
+                            add(ConstantClassRandomizer(LegalRandomConfigObject.nextInt()-100,Int::class))
+                        }))
                     }
                 }
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
@@ -37,8 +39,7 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest().getObjs() shouldBe listOf(
-                    Qx2(LegalRandomConfigObject.nextInt()),
-                    Qx2(LegalRandomConfigObject.nextInt())
+                    Qx2(LegalRandomConfigObject.nextInt()+100),
                 )
             }
         }
@@ -72,7 +73,7 @@ class TestRandomGenericProperty {
 
 
     @Test
-    fun `class with generic property + legal random config object in annotation`() {
+    fun `accessing random logic of RandomContext from generic function`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """

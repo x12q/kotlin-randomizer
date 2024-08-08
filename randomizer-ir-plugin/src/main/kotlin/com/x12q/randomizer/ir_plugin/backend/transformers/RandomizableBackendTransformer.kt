@@ -19,10 +19,7 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.classifierOrFail
-import org.jetbrains.kotlin.ir.types.isNullable
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
@@ -234,7 +231,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     builder = this,
                     getRandomContextBuilderExpr = irGet(randomContextBuilderVar),
                 ),
-                nameHint = "randomContext"
+                nameHint = "varRandomContext"
             )
 
             +irGet(updateRandomConfigVar)
@@ -245,7 +242,7 @@ class RandomizableBackendTransformer @Inject constructor(
             startOffset = randomFunction.startOffset,
             endOffset = randomFunction.endOffset,
             origin = IrDeclarationOrigin.DEFINED,
-            name = Name.identifier("randomContext"),
+            name = Name.identifier("varRandomContext"),
             type = randomContextAccessor.irType
         ).withInit(block)
 
@@ -578,14 +575,20 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * An expr to get a [RandomConfig]
          */
-        getRandomConfigExpr: IrExpression,
+        getRandomContext: IrExpression,
         /**
          * this is the return type of the if-else expr
          */
         type: IrType,
         truePart: IrExpression,
     ): IrExpression {
-        return randomIfElse(builder, getRandomConfigExpr, type, truePart, builder.irNull())
+        return randomIfElse(
+            builder = builder,
+            getRandomContextExpr = getRandomContext,
+            type = type,
+            truePart = truePart,
+            elsePart = builder.irNull()
+        )
     }
 
     /**
@@ -603,7 +606,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * An expr to get a [RandomConfig]
          */
-        getRandomConfigExpr: IrExpression,
+        getRandomContextExpr: IrExpression,
         /**
          * this is the return type of the if-else expr
          */
@@ -611,7 +614,7 @@ class RandomizableBackendTransformer @Inject constructor(
         truePart: IrExpression,
         elsePart: IrExpression
     ): IrExpression {
-        val conditionExpr = getRandomConfigExpr.dotCall(randomConfigAccessor.nextBoolean(builder))
+        val conditionExpr = getRandomContextExpr.dotCall(randomConfigAccessor.nextBoolean(builder))
         return builder.irIfThenElse(
             type = type,
             condition = conditionExpr,
@@ -676,7 +679,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     /**
                      * random from generic function
                      */
-                    val randomFromGenericFactoryFunction = run {
+                    val randomFromGenericFunction = run {
                         val paramTypeIndex = (paramType.classifierOrFail as IrTypeParameterSymbol).owner.index
                         val irGetLambda = builder.irGet(genericRandomFunctionParamList[paramTypeIndex])
                         irGetLambda
@@ -684,31 +687,29 @@ class RandomizableBackendTransformer @Inject constructor(
                             .withValueArgs(getRandomContextExpr)
                     }
 
+                    val varRandomFromGenericFunction = irTemporary(randomFromGenericFunction,nameHint = "varRandomFromGenericFunction")
+                    val getVarRandomFromGenericFunction = irGet(varRandomFromGenericFunction)
                     /**
                      * Generate random for generic param under this order of priority:
-                     * random context > generic factory function
+                     * generic factory function > random context
                      */
 
                     val randomFromRandomContextCall = getRandomizerCollection
                         .extensionDotCall(randomizerCollectionAccessor.randomFunction(builder))
                         .withTypeArgs(paramType)
 
-                    val randomFromCollectionVar = irTemporary(randomFromRandomContextCall, "randomResultFromRandomContext")
-
-                    val getRandomFromCollection = irGet(randomFromCollectionVar)
-
                     +builder.irIfNull(
                         type = paramType,
-                        subject = getRandomFromCollection,
-                        thenPart = randomFromGenericFactoryFunction,
-                        elsePart = getRandomFromCollection
+                        subject = getVarRandomFromGenericFunction,
+                        thenPart = randomFromRandomContextCall,
+                        elsePart = getVarRandomFromGenericFunction,
                     )
                 }
 
-                val rt = if (paramType.isNullable()) {
+                val rt = if (paramType.isMarkedNullable()) {
                     randomIfElseNull(
                         builder = builder,
-                        getRandomConfigExpr = getRandomContextExpr,
+                        getRandomContext = getRandomContextExpr,
                         type = paramType,
                         truePart = nonNullRandom,
                     )
@@ -740,19 +741,19 @@ class RandomizableBackendTransformer @Inject constructor(
                             /**
                              * random instance from random collection
                              */
-                            val randomFromCollectionCall = getRandomizerCollection
+                            val randomFromRandomContextCall = getRandomizerCollection
                                 .extensionDotCall(randomizerCollectionAccessor.randomFunction(builder))
                                 .withTypeArgs(paramType)
 
-                            val randomFromCollectionVar = irTemporary(randomFromCollectionCall, "randomFromContext")
+                            val varRandomFromRandomContext = irTemporary(randomFromRandomContextCall, "randomFromContext")
 
-                            val getRandomFromCollection = irGet(randomFromCollectionVar)
+                            val getRandomFromRandomContext = irGet(varRandomFromRandomContext)
 
                             +builder.irIfNull(
                                 type = paramType,
-                                subject = getRandomFromCollection,
+                                subject = getRandomFromRandomContext,
                                 thenPart = randomFromLevel0,
-                                elsePart = getRandomFromCollection
+                                elsePart = getRandomFromRandomContext
                             )
                         }
 

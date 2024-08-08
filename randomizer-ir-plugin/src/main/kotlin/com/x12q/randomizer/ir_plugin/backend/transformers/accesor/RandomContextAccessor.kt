@@ -9,7 +9,7 @@ class RandomContextAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) :ClassAccessor(){
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomConfig_ClassId)) {
+        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomContext_ClassId)) {
             "RandomConfig interface is not in the class path."
         }
     }
