@@ -562,7 +562,14 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 config = {
 
                     targetClassTypeParam.resolvedBounds.forEach {
-                        bound(it.type)
+//                        bound(it.type)
+
+                        if(it.type.isNullableAny){
+                            bound(session.builtinTypes.anyType.coneType)
+                        }else{
+                            bound(it.type)
+                        }
+
                     }
                 }
             )

@@ -4,10 +4,12 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
+import com.x12q.randomizer.lib.*
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
+import org.jetbrains.kotlin.backend.common.phaser.validationAction
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -17,10 +19,94 @@ class TestRandomGenericProperty {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<T1>(val i: T1)
+    data class QxC222<T1>(override val data: Qx2<T1>) : WithData {
+        companion object {
+            inline fun <reified T1 : Any> random(
+                noinline randomT1: (RandomContext.() -> T1)?,
+                noinline randomizers: RandomContextBuilder.() -> Unit = {}
+            ): QxC222<T1> {
+                println(T1::class)
+
+                val varRandomContext: RandomContext = run {
+                    val tmp0_randomConfig = LegalRandomConfigObject
+                    val tmp1_randomContextBuilder = RandomContextBuilderImp()
+                    tmp1_randomContextBuilder.setRandomConfig(tmp0_randomConfig)
+                    randomizers.invoke(tmp1_randomContextBuilder)
+                    val tmp2_varRandomContext = tmp1_randomContextBuilder.buildContext()
+                    tmp2_varRandomContext
+                }
+
+
+                return QxC222(data = run {
+                    val tmp4_randomFromContext = varRandomContext.random<Qx2<T1>>()
+
+                    val i = run {
+                        val tmp3_varRandomFromGenericFunction: T1? = run {
+                            when {
+                                randomT1 == null -> null
+                                else -> randomT1.invoke(varRandomContext)
+                            }
+                        }
+                        when {
+                            tmp3_varRandomFromGenericFunction == null -> varRandomContext.random<T1>()
+                            else -> tmp3_varRandomFromGenericFunction
+                        }
+                    }!!
+
+                    val z = when {
+                        tmp4_randomFromContext == null -> Qx2(i = i)
+                        else -> tmp4_randomFromContext
+                    }
+                    z
+                })
+            }
+        }
+    }
+
+    @Test
+    fun qweqwe(){
+        val q = QxC222.random<Int>(
+            randomT1 = null,
+            {
+                add(ConstantClassRandomizer(999,Int::class))
+            }
+        )
+        println(q)
+    }
+
+    @Test
+    fun `null generic function`() {
+
+        val randomFromRandomContext = -99
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1=null, randomizers = {
+                            val rdm = ConstantClassRandomizer<Int>(-99,Int::class)
+                            add(rdm)
+                        }))
+                    }
+                }
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1>(override val data:Qx2<T1>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest().getObjs() shouldBe listOf(
+                    Qx2(randomFromRandomContext),
+                )
+            }
+        }
+    }
+
 
     @Test
     fun `prioritize generic function over random context`() {
-
         testGeneratedCodeUsingStandardPlugin(
             """
                 ${TestImportsBuilder.stdImport.import(Qx2::class)}
@@ -39,7 +125,7 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest().getObjs() shouldBe listOf(
-                    Qx2(LegalRandomConfigObject.nextInt()+100),
+                    Qx2(LegalRandomConfigObject.nextInt() + 100),
                 )
             }
         }
@@ -102,7 +188,6 @@ class TestRandomGenericProperty {
 
     data class Qx3<T1, T2, T3>(val i1: T1, val i2: T2, val i3: T3)
 
-
     @Test
     fun `randomize 3 generic property`() {
 
@@ -125,7 +210,16 @@ class TestRandomGenericProperty {
                     }
                 }
                 @Randomizable(randomConfig = RandomConfigForTest::class)
-                data class QxC<T1,T2,T3>(override val data:Qx3<T1,T2,T3>):WithData
+                data class QxC<T1,T2,T3>(override val data:Qx3<T1,T2,T3>):WithData{
+                    companion object{
+                        fun q9(fn:(()->Int)?):Int{
+                            val v1 = fn?.invoke()
+                            val v2 = 100
+                            val rt = v1 ?: v2
+                            return rt
+                        }
+                    }
+                }
             """,
         ) {
             testCompilation = { result, _ ->
@@ -167,8 +261,6 @@ class TestRandomGenericProperty {
             }
         }
     }
-
-//    data class QxC<T1:Number>(override val data:Qx<T1>):WithData
 
     @Test
     fun `randomize 1 generic property with bound - ok case`() {

@@ -8,6 +8,7 @@ inline fun <reified T:Any> RandomizerCollection.getRandomizer(): ClassRandomizer
 }
 
 inline fun <reified T:Any> RandomizerCollection.random(): T?{
+    println(T::class)
     val randomizer = this.getRandomizer<T>()
     return randomizer?.random()
 }

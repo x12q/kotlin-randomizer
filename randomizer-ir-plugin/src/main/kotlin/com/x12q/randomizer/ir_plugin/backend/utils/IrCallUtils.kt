@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.types.IrType
 
-fun IrCall.withValueArgs(vararg valueArgs:IrExpression): IrFunctionAccessExpression {
+fun IrCall.withValueArgs(vararg valueArgs:IrExpression): IrCall {
     val newArgs = (this.valueArguments + valueArgs).filterNotNull()
     for((index,arg) in newArgs.withIndex()){
         this.putValueArgument(index,arg)
