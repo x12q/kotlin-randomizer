@@ -23,8 +23,6 @@ class TestRandomGenericProperty {
     @Test
     fun `null generic function 2`() {
 
-        val randomFromRandomContext = -99
-
         testGeneratedCodeUsingStandardPlugin(
             """
                 ${TestImportsBuilder.stdImport.import(Qx2::class)}
