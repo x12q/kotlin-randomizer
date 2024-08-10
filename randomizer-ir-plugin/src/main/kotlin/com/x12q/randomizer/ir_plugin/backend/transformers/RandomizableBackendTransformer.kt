@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
@@ -662,16 +663,18 @@ class RandomizableBackendTransformer @Inject constructor(
             return primitive
         }
         val paramType = param.type
-        if (paramType.isTypeParameter()) {
-            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(param.index)?.defaultType
+        val paramTypeSymbol = param.type.classifierOrNull as? IrTypeParameterSymbol
+
+        if (paramType.isTypeParameter() && paramTypeSymbol!=null) {
+            val typeIndex = paramTypeSymbol.owner.index
+            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(typeIndex)?.defaultType
             if (paramTypeOfFunction != null) {
                 val nonNullRandom = builder.irBlock {
                     /**
                      * random from generic function
                      */
                     val randomFromGenericFunctionCall = run {
-                        val paramTypeIndex = param.index
-                        val lambdaFunction = builder.irGet(genericRandomFunctionParamList[paramTypeIndex])
+                        val lambdaFunction = builder.irGet(genericRandomFunctionParamList[typeIndex])
 
                         lambdaFunction
                             .nullSafeDotCall(
@@ -777,6 +780,8 @@ class RandomizableBackendTransformer @Inject constructor(
             }
         }
 
+
+
     }
 
     /**
@@ -803,51 +808,51 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * An expression that return a [RandomConfig]
          */
-        getRandomConfig: IrExpression
+        getRandomContext: IrExpression
     ): IrExpression? {
 
         val paramType = param.type
 
         if (paramType.isNullable()) {
             return when {
-                paramType.isInt2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextIntOrNull(builder))
-                paramType.isUInt2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUIntOrNull(builder))
-                paramType.isLong2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextLongOrNull(builder))
-                paramType.isULong2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextULongOrNull(builder))
-                paramType.isByte2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextByteOrNull(builder))
-                paramType.isUByte2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUByteOrNull(builder))
-                paramType.isShort2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextShortOrNull(builder))
-                paramType.isUShort2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUShortOrNull(builder))
-                paramType.isBoolean2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolOrNull(builder))
-                paramType.isFloat2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloatOrNull(builder))
-                paramType.isDouble2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextDoubleOrNull(builder))
-                paramType.isChar2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextCharOrNull(builder))
-                paramType.isString2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder))
-                paramType.isUnit2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnitOrNull(builder))
-                paramType.isNumber2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumberOrNull(builder))
-                paramType.isAny2(true) -> getRandomConfig.dotCall(randomConfigAccessor.nextAnyOrNull(builder))
+                paramType.isInt2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextIntOrNull(builder))
+                paramType.isUInt2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextUIntOrNull(builder))
+                paramType.isLong2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextLongOrNull(builder))
+                paramType.isULong2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextULongOrNull(builder))
+                paramType.isByte2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextByteOrNull(builder))
+                paramType.isUByte2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextUByteOrNull(builder))
+                paramType.isShort2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextShortOrNull(builder))
+                paramType.isUShort2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextUShortOrNull(builder))
+                paramType.isBoolean2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextBoolOrNull(builder))
+                paramType.isFloat2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextFloatOrNull(builder))
+                paramType.isDouble2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextDoubleOrNull(builder))
+                paramType.isChar2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextCharOrNull(builder))
+                paramType.isString2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextStringUUIDOrNull(builder))
+                paramType.isUnit2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextUnitOrNull(builder))
+                paramType.isNumber2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextNumberOrNull(builder))
+                paramType.isAny2(true) -> getRandomContext.dotCall(randomConfigAccessor.nextAnyOrNull(builder))
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
 
                 else -> null
             }
         } else {
             val rt = when {
-                paramType.isInt2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextInt(builder))
-                paramType.isUInt2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUInt(builder))
-                paramType.isLong2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextLong(builder))
-                paramType.isULong2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextULong(builder))
-                paramType.isByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextByte(builder))
-                paramType.isUByte2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUByte(builder))
-                paramType.isShort2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextShort(builder))
-                paramType.isUShort2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUShort(builder))
-                paramType.isBoolean2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextBoolean(builder))
-                paramType.isFloat2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextFloat(builder))
-                paramType.isDouble2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextDouble(builder))
-                paramType.isChar2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextChar(builder))
-                paramType.isString2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextStringUUID(builder))
-                paramType.isUnit2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextUnit(builder))
-                paramType.isNumber2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextNumber(builder))
-                paramType.isAny2(false) -> getRandomConfig.dotCall(randomConfigAccessor.nextAny(builder))
+                paramType.isInt2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextInt(builder))
+                paramType.isUInt2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextUInt(builder))
+                paramType.isLong2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextLong(builder))
+                paramType.isULong2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextULong(builder))
+                paramType.isByte2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextByte(builder))
+                paramType.isUByte2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextUByte(builder))
+                paramType.isShort2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextShort(builder))
+                paramType.isUShort2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextUShort(builder))
+                paramType.isBoolean2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextBoolean(builder))
+                paramType.isFloat2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextFloat(builder))
+                paramType.isDouble2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextDouble(builder))
+                paramType.isChar2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextChar(builder))
+                paramType.isString2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextStringUUID(builder))
+                paramType.isUnit2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextUnit(builder))
+                paramType.isNumber2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextNumber(builder))
+                paramType.isAny2(false) -> getRandomContext.dotCall(randomConfigAccessor.nextAny(builder))
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
 
                 else -> null

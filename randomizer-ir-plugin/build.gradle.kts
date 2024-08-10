@@ -27,6 +27,7 @@ buildConfig{
 
 dependencies {
     implementation(project(":randomizer-ir-lib"))
+    testImplementation(project(":randomizer-ir-lib"))
     implementation(libs.michaelbull.kotlinResult)
 
     compileOnly(libs.kotlin.compiler.embeddable)

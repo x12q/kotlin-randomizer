@@ -21,6 +21,35 @@ class TestRandomGenericProperty {
     data class Qx2<T1>(val i: T1)
 
     @Test
+    fun `null generic function 2`() {
+
+        val randomFromRandomContext = -99
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1=null, randomizers = {
+                        }))
+                    }
+                }
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1>(override val data:Qx2<T1>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest().getObjs() shouldBe listOf(
+                    Qx2(LegalRandomConfigObject.nextInt()),
+                )
+            }
+        }
+    }
+
+
+    @Test
     fun `null generic function`() {
 
         val randomFromRandomContext = -99

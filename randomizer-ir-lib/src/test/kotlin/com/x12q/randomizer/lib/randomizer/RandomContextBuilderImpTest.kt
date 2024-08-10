@@ -17,6 +17,8 @@ class RandomContextBuilderImpTest{
         builder.add(intRdm)
         builder.add(floatRdm)
 
-        builder.buildContext().randomizersMap shouldBe listOf(intRdm,floatRdm).associateBy { it.returnType }
+        val context = builder.buildContext()
+        context.randomizersMap shouldBe listOf(intRdm,floatRdm).associateBy { it.returnType }
+
     }
 }

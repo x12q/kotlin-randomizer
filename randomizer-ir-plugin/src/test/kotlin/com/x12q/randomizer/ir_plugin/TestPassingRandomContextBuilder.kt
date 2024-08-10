@@ -33,23 +33,7 @@ class TestPassingRandomContextBuilder {
                     }
                 }
                 @Randomizable
-                data class QxC(override val data:Dt):WithData{
-                    companion object{
-                        fun m2():M2{
-                            val collection = ${imports.nameOf(RandomizerCollectionImp::class)}(emptyMap())                           
-                            return M2(
-                                b2 = collection.random<B2>() ?: B2(i = collection.random<Int>() ?: 123),
-                            )
-                        }
-                    }
-                }
-                data class B2(
-                    val i:Int
-                )
-                
-                data class M2(
-                    val b2:B2,
-                )
+                data class QxC(override val data:Dt):WithData
             """,
         ) {
             testCompilation = { result, testStream ->

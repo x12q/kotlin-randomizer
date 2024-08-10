@@ -1,7 +1,7 @@
 package com.x12q.randomizer.lib
 
 class RandomContextImp(
-    val randomConfig: RandomConfig,
+    override val randomConfig: RandomConfig,
     val collection: RandomizerCollection,
 ) : RandomContext, RandomConfig by randomConfig, RandomizerCollection by collection {
     override fun nextInt(): Int {
