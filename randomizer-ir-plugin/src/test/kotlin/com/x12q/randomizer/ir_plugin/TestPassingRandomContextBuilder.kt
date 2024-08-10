@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.lib.ConstantClassRandomizer
 import com.x12q.randomizer.lib.FactoryClassRandomizer
 import com.x12q.randomizer.lib.RandomizerCollectionImp
@@ -17,6 +18,35 @@ class TestPassingRandomContextBuilder {
 
     data class Dt(val i: Int)
 
+    @Test
+    fun `access RandomConfig from RandomContextBuilder`() {
+
+        val imports = TestImportsBuilder.stdImport.import(Dt::class)
+        testGeneratedCodeUsingStandardPlugin(
+            """
+               $imports
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random{
+                            add(${imports.nameOf(FactoryClassRandomizer::class)}<Dt>({Dt(this.randomConfig.nextInt())},Dt::class))
+                        })
+                    }
+                }
+                @Randomizable(randomConfig = AlwaysTrueRandomConfig::class)
+                data class QxC(override val data:Dt):WithData
+            """,
+        ) {
+            testCompilation = { result, testStream ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest {
+                    it.getObjs() shouldBe listOf(
+                        Dt(AlwaysTrueRandomConfig.nextInt())
+                    )
+                }
+            }
+        }
+    }
     @Test
     fun `pass randomizers config function`() {
 

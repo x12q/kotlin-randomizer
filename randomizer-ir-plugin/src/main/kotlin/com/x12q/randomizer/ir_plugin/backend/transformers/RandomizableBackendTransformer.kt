@@ -109,7 +109,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val annotation = requireNotNull(
                 target.getAnnotation(BaseObjects.randomizableFqName)
             ) {
-                "at this point, it must be guaranteed that the Randomizable annotation must not null. Cannot run this function on a class that does not have that annotation. This a bug by the developer."
+                "At this point, it must be guaranteed that the Randomizable annotation must not null. Cannot run this function on a class that does not have that annotation. This a bug by the developer."
             }
             val builder = DeclarationIrBuilder(
                 generatorContext = pluginContext,

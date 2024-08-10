@@ -8,10 +8,10 @@ class RandomContextBuilderImp: RandomContextBuilder {
         return this
     }
 
-    private var randomConfig:RandomConfig? = null
+    private var _randomConfig:RandomConfig? = null
 
     override fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder {
-        this.randomConfig = randomConfig
+        this._randomConfig = randomConfig
         return this
     }
 
@@ -23,8 +23,13 @@ class RandomContextBuilderImp: RandomContextBuilder {
         }
     }
 
+    override val randomConfig: RandomConfig
+        get() = requireNotNull(_randomConfig){
+            "_randomConfig is not set yet. This is a bug by the developer."
+        }
+
     override fun buildContext(): RandomContext {
-        val baseRandomConfig = randomConfig ?: RandomConfigImp.default
+        val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
         if(builtRandomizerCollection == null){
             buildRandomizerCollection()
         }
