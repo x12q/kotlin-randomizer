@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.randomizer.lib
 
 import kotlin.reflect.KClass
 
@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
  */
 interface ClassRandomizer<T : Any> {
     fun random(): T
-    val returnType: KClass<out T>
+    val returnType: KClass<T>
 }

@@ -3,10 +3,9 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.NonNullRandomConfig
-import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.assertions.runRunTest
-import com.x12q.randomizer.test.util.test_code.ImportData
-import io.kotest.matchers.collections.shouldContainAll
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -14,7 +13,7 @@ import kotlin.test.Test
 
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomPrimitive {
-    data class Primitives(
+    data class PrimitivesContainer(
         val boolean: Boolean,
         val int: Int,
         val long: Long,
@@ -34,7 +33,7 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(Primitives::class)}
+                ${TestImportsBuilder.stdImport.import(PrimitivesContainer::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -43,7 +42,7 @@ class TestRandomPrimitive {
                 }
 
                 @Randomizable
-                data class Q123Data(override val data:Primitives):WithData
+                data class Q123Data(override val data:PrimitivesContainer):WithData
             """
             ,
             fileName = "main.kt"
@@ -52,7 +51,7 @@ class TestRandomPrimitive {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest { output ->
                     output.getObjs() shouldBe listOf(
-                        Primitives(
+                        PrimitivesContainer(
                             LegalRandomConfigObject.nextBoolean(),
                             LegalRandomConfigObject.nextInt(),
                             LegalRandomConfigObject.nextLong(),
@@ -83,7 +82,7 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(UInt::class).import(UPrimitivies::class)}
+                ${TestImportsBuilder.stdImport.import(UInt::class).import(UPrimitivies::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -133,7 +132,7 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(NullablePrimitives::class)}
+                ${TestImportsBuilder.stdImport.import(NullablePrimitives::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -180,11 +179,11 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport}
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())
-                    println(Q123.random(DefaultRandomConfig.default))
+                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
                 }
 
                 @Randomizable
@@ -205,12 +204,12 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
+                
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())
-                    println(Q123.random(DefaultRandomConfig.default))
+                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
                 }
 
                 @Randomizable
@@ -238,7 +237,7 @@ class TestRandomPrimitive {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${ImportData.stdImport.import(NullableUPrim::class)}
+                ${TestImportsBuilder.stdImport.import(NullableUPrim::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{

@@ -45,7 +45,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * Important: predicate can only resolve top-level annotation. Annotation to nested class, or function will not be recognized.
      */
     val predicateProvider = session.predicateBasedProvider
-    val randomConfigTypeArgument = BaseObjects.RandomConfig_ClassId.constructClassLikeType()
+    val randomConfigType = BaseObjects.RandomConfig_ClassId.constructClassLikeType()
+    val randomContextType = BaseObjects.RandomContext_ClassId.constructClassLikeType()
+    val randomizerCollectionType = BaseObjects.RandomizerCollection_Id.constructClassLikeType()
     val unitConeType = session.builtinTypes.unitType.coneType
     val strBuilder = StringBuilder()
 
@@ -187,7 +189,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * random<Type,Type,...>(
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      * ```
@@ -211,7 +213,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * random<Type,Type,...>(
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      */
@@ -246,6 +248,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                     returnType
                 },
                 config = {
+                    this.status {
+                        isInline = true
+                    }
                     /**
                      * Port type params (aka generic types) from the enclosing class to the random() function
                      */
@@ -253,7 +258,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                         enclosingClass = enclosingClass,
                         functionBuildingContext = this
                     )
-
                 }
             )
 
@@ -270,24 +274,24 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
 
     /**
      * Generate this parameter (randomizer build config function) for random() function
-     * ```randomizers: Function1<ClassRandomizerCollectionBuilder,Unit> ClassRandomizerCollectionBuilder.()->Unit = {}```
+     * ```randomizers: Function1<RandomContextBuilder,Unit> RandomContextBuilder.()->Unit = {}```
      */
     private fun makeRdmBuilderConfigFunctionParam(
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
-        val rdmBuilderType = BaseObjects.RandomizerCollectionBuilder_Id.constructClassLikeType()
+        val rdmBuilderType = BaseObjects.RandomContextBuilder_Id.constructClassLikeType()
 
         /**
-         * Build this type: ClassRandomizerCollectionBuilder.()->Unit
-         * in other form, it is: @ExtensionFunctionType Function1<ClassRandomizerCollectionBuilder,Unit>
+         * Build this type: RandomContextBuilder.()->Unit
+         * in other form, it is: @ExtensionFunctionType Function1<RandomContextBuilder,Unit>
          */
         val rdmBuilderConfigFunctionType = ConeClassLikeTypeImpl(
-            ConeClassLikeLookupTagImpl(BaseObjects.Function1_ClassId),
+            lookupTag = ConeClassLikeLookupTagImpl(classId = BaseObjects.Function1_ClassId),
             typeArguments = arrayOf(rdmBuilderType, unitConeType),
             isNullable = false,
             /**
-             * This attribute turn ```Function1``` into ```ClassRandomizerCollectionBuilder.()->Unit``` by adding @ExtensionFunctionType in the background.
+             * This attribute turn ```Function1``` into ```RandomContextBuilder.()->Unit``` by adding @ExtensionFunctionType in the background.
              */
             attributes = ConeAttributes.WithExtensionFunctionType
         )
@@ -326,7 +330,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 }
             }
         }
-        val paramName = BaseObjects.randomizersBuilderParamName
+        val paramName = BaseObjects.randomContextBuilderConfigFunctionParamName
 
         /**
          * Construct the parameter to store the randomizer builder config lambda function.
@@ -363,7 +367,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      *    randomConfig:RandomConfig,
      *    randomT1: (RandomConfig)->T1,
      *    randomT2: (RandomConfig)->T2,
-     *    randomizers: ClassRandomizerCollectionBuilder.()->Unit = {},
+     *    randomizers: RandomContextBuilder.()->Unit = {},
      *    ...
      * )
      * ```
@@ -498,6 +502,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                             isNullable = false
                         ),
                     )
+                    this.status {
+                        isInline = true
+                    }
                     /**
                      * Port type params from the enclosing class to the random() function
                      */
@@ -550,8 +557,21 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             functionBuildingContext.typeParameter(
                 name = targetClassTypeParam.name,
                 variance = targetClassTypeParam.variance,
-                isReified = false,
+                isReified = true,
                 key = BaseObjects.Fir.randomizableDeclarationKey,
+                config = {
+
+                    targetClassTypeParam.resolvedBounds.forEach {
+//                        bound(it.type)
+
+                        if(it.type.isNullableAny){
+                            bound(session.builtinTypes.anyType.coneType)
+                        }else{
+                            bound(it.type)
+                        }
+
+                    }
+                }
             )
         }
     }
@@ -563,8 +583,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * They are the parameter in this:
      * ```
      * fun <T1,T2> random(
-     *    randomT1:(RandomConfig, RandomizerCollection)->T1, // <~~ this
-     *    randomT2:(RandomConfig, RandomizerCollection)->T2, // <~~ this
+     *    randomT1:(RandomConfig, RandomizerCollection)->T1?, // <~~ this
+     *    randomT2:(RandomConfig, RandomizerCollection)->T2?, // <~~ this
      *    ...
      * )
      * ```
@@ -580,8 +600,9 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
              * - randomT2 : Function2<RandomConfig, RandomizerCollection, T2> (RandomConfig)->T2
              */
             val randomLambda = BaseObjects.Function1_ClassId.constructClassLikeType(
-                typeArguments = arrayOf(randomConfigTypeArgument, typeParam.toConeType()),
-                isNullable = false,
+                typeArguments = arrayOf(randomContextType, typeParam.toConeType()),
+                isNullable = true,
+                attributes = ConeAttributes.WithExtensionFunctionType
             )
             val paramName = Name.identifier("random${typeParam.name}")
 

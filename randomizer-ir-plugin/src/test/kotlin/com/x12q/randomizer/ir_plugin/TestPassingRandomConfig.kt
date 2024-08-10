@@ -1,8 +1,14 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.DefaultRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject2
+import com.x12q.randomizer.lib.FactoryClassRandomizer
+import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -13,54 +19,33 @@ import kotlin.test.Test
  */
 @OptIn(ExperimentalCompilerApi::class)
 class TestPassingRandomConfig{
-    @Test
-    fun `class with a RandomConfig object via annotation`() {
 
-        DefaultRandomConfig
-        testGeneratedCodeUsingStandardPlugin(
-            """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
 
-                fun main(){
-                    println(Q123.random(DefaultRandomConfig.default))
-                    println(Q123.random())
-                }
-                @Randomizable(
-                    randomConfig = DefaultRandomConfig::class
-                )
-                data class Q123(val i:Int)
-            """,
-            fileName = "main.kt"
-        ) {
-            testCompilation = { result,_ ->
-                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
-            }
-        }
-    }
+    data class Q123(val i:Int)
 
     @Test
     fun `class with no RandomConfig`() {
-
-        DefaultRandomConfig
+        val imports = TestImportsBuilder.stdImport.import(Q123::class)
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-
-                fun main(){
-                    println(Q123.random(DefaultRandomConfig.default))
-                    println(Q123.random())
+                $imports
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random())
+                        putData(QxC.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
+                    }
                 }
+
                 @Randomizable
-                data class Q123(val i:Int, val l:Long)
+                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.runRunTest {
+                    it.getObjs().size shouldBe 2
+                }
             }
         }
     }
@@ -70,51 +55,92 @@ class TestPassingRandomConfig{
     @Test
     fun `class with legal custom random config class via annotation`() {
 
-        DefaultRandomConfig
+        val imports = TestImportsBuilder.stdImport.import(Q123::class)
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
+                $imports
 
-                fun main(){
-                    println(Q123.random(LegalRandomConfig()))
-                    println(Q123.random())
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random())
+                        putData(QxC.random(LegalRandomConfig()))
+                    }
                 }
+
                 @Randomizable(randomConfig = LegalRandomConfig::class)
-                data class Q123(val i:Int)
+                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.runRunTest {
+                    it.getObjs() shouldBe listOf(
+                        Q123(LegalRandomConfig().nextInt()),
+                        Q123(LegalRandomConfig().nextInt())
+                    )
+                }
+            }
+        }
+    }
+    @Test
+    fun `class with legal custom random config object via annotation`() {
+        val imports = TestImportsBuilder.stdImport.import(Q123::class)
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random())
+                        putData(QxC.random(LegalRandomConfigObject))
+                    }
+                }
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC(override val data: Q123):WithData
+            """,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result,_ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.runRunTest {
+                    it.getObjs() shouldBe listOf(
+                        Q123(LegalRandomConfigObject.nextInt()),
+                        Q123(LegalRandomConfigObject.nextInt())
+                    )
+                }
             }
         }
     }
 
     @Test
-    fun `class with legal custom random config object via annotation`() {
-
-        DefaultRandomConfig
+    fun `overriding random config in annotation`() {
+        val imports = TestImportsBuilder.stdImport.import(Q123::class)
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+                $imports
 
-                fun main(){
-                    println(Q123.random(LegalRandomConfigObject))
-                    println(Q123.random())
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random())
+                        putData(QxC.random(${imports.nameOf(LegalRandomConfigObject2::class)}))
+                    }
                 }
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class Q123(val i:Int)
+
+                @Randomizable(randomConfig = ${imports.nameOf(LegalRandomConfigObject::class)}::class)
+                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.runRunTest {
+                    it.getObjs() shouldBe listOf(
+                        Q123(LegalRandomConfigObject.nextInt()),
+                        Q123(LegalRandomConfigObject2.nextInt())
+                    )
+                }
             }
         }
     }
@@ -123,12 +149,10 @@ class TestPassingRandomConfig{
     @Test
     fun `class with illegal random config via annotation`() {
 
-        DefaultRandomConfig
+        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                import com.x12q.randomizer.DefaultRandomConfig
-                import com.x12q.randomizer.annotations.Randomizable
-                import com.x12q.randomizer.ir_plugin.mock_objects.IllegalRandomConfig
+                ${TestImportsBuilder.stdImport}
 
                 fun main(){
                     println(Q123.random())

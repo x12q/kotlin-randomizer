@@ -11,5 +11,12 @@ class DefaultRandomConfig(
 
     companion object{
         val default = DefaultRandomConfig(Random,5 .. 5, 'A' .. 'z')
+        fun default(
+            random: Random = Random,
+            collectionSizeRange: IntRange = 0 .. 10,
+            charRange: CharRange = 'A' .. 'z'
+        ):DefaultRandomConfig{
+            return DefaultRandomConfig(random, collectionSizeRange, charRange)
+        }
     }
 }
