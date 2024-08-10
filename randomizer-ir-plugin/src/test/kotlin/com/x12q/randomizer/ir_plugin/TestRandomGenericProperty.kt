@@ -19,60 +19,6 @@ class TestRandomGenericProperty {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<T1>(val i: T1)
-    data class QxC222<T1>(override val data: Qx2<T1>) : WithData {
-        companion object {
-            inline fun <reified T1 : Any> random(
-                noinline randomT1: (RandomContext.() -> T1)?,
-                noinline randomizers: RandomContextBuilder.() -> Unit = {}
-            ): QxC222<T1> {
-                println(T1::class)
-
-                val varRandomContext: RandomContext = run {
-                    val tmp0_randomConfig = LegalRandomConfigObject
-                    val tmp1_randomContextBuilder = RandomContextBuilderImp()
-                    tmp1_randomContextBuilder.setRandomConfig(tmp0_randomConfig)
-                    randomizers.invoke(tmp1_randomContextBuilder)
-                    val tmp2_varRandomContext = tmp1_randomContextBuilder.buildContext()
-                    tmp2_varRandomContext
-                }
-
-
-                return QxC222(data = run {
-                    val tmp4_randomFromContext = varRandomContext.random<Qx2<T1>>()
-
-                    val i = run {
-                        val tmp3_varRandomFromGenericFunction: T1? = run {
-                            when {
-                                randomT1 == null -> null
-                                else -> randomT1.invoke(varRandomContext)
-                            }
-                        }
-                        when {
-                            tmp3_varRandomFromGenericFunction == null -> varRandomContext.random<T1>()
-                            else -> tmp3_varRandomFromGenericFunction
-                        }
-                    }!!
-
-                    val z = when {
-                        tmp4_randomFromContext == null -> Qx2(i = i)
-                        else -> tmp4_randomFromContext
-                    }
-                    z
-                })
-            }
-        }
-    }
-
-    @Test
-    fun qweqwe(){
-        val q = QxC222.random<Int>(
-            randomT1 = null,
-            {
-                add(ConstantClassRandomizer(999,Int::class))
-            }
-        )
-        println(q)
-    }
 
     @Test
     fun `null generic function`() {
