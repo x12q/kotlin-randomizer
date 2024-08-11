@@ -647,20 +647,24 @@ class RandomizableBackendTransformer @Inject constructor(
             return primitive
         }
         val paramType = paramFromConstructor.type
-        val paramTypeSymbol = paramFromConstructor.type.classifierOrNull as? IrTypeParameterSymbol
+        val constructorParamTypeSymbol = paramFromConstructor.type.classifierOrNull as? IrTypeParameterSymbol
         val receiveTypeIsGeneric = ((receivedTypeArgument as? IrSimpleType)?.classifierOrNull as? IrClassSymbol) == null
         val noReceiveType_Or_ReceiveTypeIsGeneric = receivedTypeArgument == null || receiveTypeIsGeneric
 
-        if (paramType.isTypeParameter() && paramTypeSymbol != null && noReceiveType_Or_ReceiveTypeIsGeneric) {
-            val typeIndex = paramTypeSymbol.owner.index
-            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(typeIndex)?.defaultType
+        if (paramType.isTypeParameter() && constructorParamTypeSymbol != null && noReceiveType_Or_ReceiveTypeIsGeneric) {
+
+            val constructorParamTypeIndex = constructorParamTypeSymbol.owner.index
+
+            val paramTypeIndex = ((receivedTypeArgument as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.owner?.index ?: constructorParamTypeIndex
+
+            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
             if (paramTypeOfFunction != null) {
                 val nonNullRandom = builder.irBlock {
                     /**
                      * random from generic function
                      */
                     val randomFromGenericFunctionCall = run {
-                        val lambdaFunction = builder.irGet(genericRandomFunctionParamList[typeIndex])
+                        val lambdaFunction = builder.irGet(genericRandomFunctionParamList[paramTypeIndex])
 
                         lambdaFunction
                             .nullSafeDotCall(
