@@ -19,8 +19,14 @@ fun <T> stopAtFirst(
 /**
  * Evaluate each function in [functionList], stop at the first output that is not null
  */
-fun <T> stopAtFirstNotNullResult(
+fun <T> stopAtFirstNotNull(
     vararg functionList: () -> T?
 ): T? {
     return stopAtFirst({ it != null }, *functionList)
+}
+
+
+fun <T>Collection<T>.toMapWithIndex():Map<Int,T>{
+    val rt = this.withIndex().associateBy({ it.index },{ it.value }) .toMap()
+    return rt
 }

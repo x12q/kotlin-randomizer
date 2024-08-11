@@ -18,11 +18,44 @@ import kotlin.test.Test
 class TestRandomGenericProperty {
 
     data class Qx<T1>(val i: T1?)
-    data class Qx2<T1>(val i: T1)
+    data class Qx2<Z>(val paramOfQ2: Z)
+    data class Qx4<M>(val paramOfQ4: M)
+    data class Qx6<H>(val paramOfQ6: H)
+
+
+    @Test
+    fun nestedGeneric() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+            }
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1={123}, randomizers = {
+                        }))
+                    }
+                }
+                @Randomizable
+                data class QxC<T1>(override val data:Qx2<Qx4<Qx6<T1>>>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    Qx2(Qx4(Qx6(123))),
+                )
+            }
+        }
+    }
 
     @Test
     fun `null generic function 2`() {
-
         testGeneratedCodeUsingStandardPlugin(
             """
                 ${TestImportsBuilder.stdImport.import(Qx2::class)}
