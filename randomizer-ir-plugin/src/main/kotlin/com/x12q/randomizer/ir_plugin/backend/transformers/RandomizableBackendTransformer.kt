@@ -54,6 +54,20 @@ class RandomizableBackendTransformer @Inject constructor(
 
 
 
+    override fun visitCall(expression: IrCall): IrExpression {
+        println(expression.dumpKotlinLike())
+        val returnType = (expression.type.classifierOrNull as? IrClassSymbol)
+        val functionName = expression.symbol.owner.name
+        val needToGenerateSyntheticArgument = false
+        if(needToGenerateSyntheticArgument){
+            // add new synthetic argument here
+//            expression.putValueArgument()
+        }
+
+        return super.visitCall(expression)
+
+    }
+
     /**
      * complete random() function in [companionObj].
      * This function use the random config in annotation.
@@ -103,7 +117,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
                 genericRandomFunctionParamList = genericRandomFunctionParamList
             )
-            println(randomFunction.dumpKotlinLike())
+//            println(randomFunction.dumpKotlinLike())
         }
     }
 

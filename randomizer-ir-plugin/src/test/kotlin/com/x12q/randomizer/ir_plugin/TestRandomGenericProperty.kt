@@ -22,9 +22,32 @@ class TestRandomGenericProperty {
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
 
-    inline fun <reified T:Any> z(t:T): ConstantClassRandomizer<T> {
-        constantRandomizer(t)
-        return ConstantClassRandomizer.of(t)
+
+    @Test
+    fun `randomize 1 zzzzgeneric property`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${TestImportsBuilder.stdImport.import(Qx::class)}
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1=null))
+                    }
+                }
+                @Randomizable(randomConfig = RandomConfigForTest::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val o = result.runRunTest().getObjs()
+                o shouldBe listOf(
+                    Qx(i = 123),
+                )
+                println(o)
+            }
+        }
     }
 
     @Test
