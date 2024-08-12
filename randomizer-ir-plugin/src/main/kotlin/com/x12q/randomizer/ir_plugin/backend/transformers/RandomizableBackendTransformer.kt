@@ -47,7 +47,6 @@ class RandomizableBackendTransformer @Inject constructor(
             if (companionObj != null) {
                 completeRandomFunction1(companionObj, declaration)
                 completeRandomFunction2(companionObj, declaration)
-//                completeRandomizerFunction(companionObj, declaration)
             }
         }
         return super.visitClassNew(declaration)
@@ -629,11 +628,19 @@ class RandomizableBackendTransformer @Inject constructor(
 
 
     private fun generateRandomParam(
+        /**
+         * Received type argument is generic type information passed down from higher level to the param represented by [paramFromConstructor].
+         */
         receivedTypeArgument: IrTypeArgument?,
+        /**
+         * parameter directly from a constructor.
+         * In case of generic param, this object only contains the direct generic type from its constructor.
+         * If there's a [receivedTypeArgument], then [receivedTypeArgument] it must be prioritized over this, because this one does not contain enough information to construct the correct call.
+         */
         paramFromConstructor: IrValueParameter,
         builder: DeclarationIrBuilder,
         /**
-         * An expression that return a [RandomConfig]
+         * An expression that return a [RandomContext]
          */
         getRandomContextExpr: IrExpression,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
@@ -649,9 +656,11 @@ class RandomizableBackendTransformer @Inject constructor(
         val paramType = paramFromConstructor.type
         val constructorParamTypeSymbol = paramFromConstructor.type.classifierOrNull as? IrTypeParameterSymbol
         val receiveTypeIsGeneric = ((receivedTypeArgument as? IrSimpleType)?.classifierOrNull as? IrClassSymbol) == null
-        val noReceiveType_Or_ReceiveTypeIsGeneric = receivedTypeArgument == null || receiveTypeIsGeneric
 
-        if (paramType.isTypeParameter() && constructorParamTypeSymbol != null && noReceiveType_Or_ReceiveTypeIsGeneric) {
+
+        val noReceivedType_Or_ReceivedTypeIsGeneric = receivedTypeArgument == null || receiveTypeIsGeneric
+
+        if (paramType.isTypeParameter() && constructorParamTypeSymbol != null && noReceivedType_Or_ReceivedTypeIsGeneric) {
 
             val constructorParamTypeIndex = constructorParamTypeSymbol.owner.index
 
