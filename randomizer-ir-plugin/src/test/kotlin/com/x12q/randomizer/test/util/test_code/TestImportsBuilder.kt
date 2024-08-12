@@ -144,7 +144,10 @@ data class TestImportsBuilder(
                 TestOutput::class,
                 WithData::class,
             ),
-            functionList = listOf(::withTestOutput),
+            functionList = listOf(
+                ::withTestOutput,
+                ::constantRandomizer,
+            ),
             packages = listOf(
                 "kotlin.collections"
             ),

@@ -1,28 +1,13 @@
 package com.x12q.sample_app
 
-import com.x12q.randomizer.DefaultRandomConfig
-import com.x12q.randomizer.RandomConfig
-import com.x12q.randomizer.annotations.Randomizable
-import kotlin.random.Random
-import kotlin.reflect.typeOf
+import com.x12q.randomizer.lib.annotations.Randomizable
 
+@Randomizable
+data class Qx<T>(val qxParam:T)
 
-
-
-object Oo:RandomConfig{
-    override val charRange: CharRange = 'A' .. 'z'
-    override val collectionSizeRange: IntRange = 5 .. 5
-    override val random: Random = Random
-}
 fun main(){
-    val n = Q123.random()
-    println(n)
-
+    println(Qx.random<Int>(randomT={777}))
 }
 
-@Randomizable(randomConfig = Oo::class)
-data class Q123(
-    val i:UInt
-)
 
 

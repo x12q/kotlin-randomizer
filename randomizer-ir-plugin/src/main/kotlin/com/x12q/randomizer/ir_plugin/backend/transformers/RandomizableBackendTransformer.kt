@@ -59,7 +59,11 @@ class RandomizableBackendTransformer @Inject constructor(
      * This function use the random config in annotation.
      *
      * ```
-     *      fun random(randomT:RandomConfig.()->T?, randomT2:RandomConfig.()->T2,randomizers:RandomContextBuilder.()->Unit = {})
+     *      fun random(
+     *          randomT:RandomConfig.()->T?,
+     *          randomT2:RandomConfig.()->T2,
+     *          randomizers:RandomContextBuilder.()->Unit = {},
+     *      )
      * ```
      */
     private fun completeRandomFunction1(companionObj: IrClass, target: IrClass) {

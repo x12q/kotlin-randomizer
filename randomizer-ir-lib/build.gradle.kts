@@ -36,3 +36,18 @@ kotlin {
     val javaVersion = libs.versions.jvmVersion.get().toInt()
     jvmToolchain(javaVersion)
 }
+val v = libs.versions.version.get()
+val g = libs.versions.groupId.get()
+publishing {
+    /**
+     * This is for local publishing
+     */
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = g
+            artifactId = "randomizer-ir-lib"
+            version = v
+            from(components["java"])
+        }
+    }
+}
