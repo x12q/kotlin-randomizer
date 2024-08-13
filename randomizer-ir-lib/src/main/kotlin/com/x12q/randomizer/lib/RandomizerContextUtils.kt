@@ -8,7 +8,6 @@ inline fun <reified T:Any> RandomizerCollection.getRandomizer(): ClassRandomizer
 }
 
 inline fun <reified T:Any> RandomContext.random(): T?{
-    println("zz12:${T::class}")
     val randomizer = this.getRandomizer<T>()
     val resultFromRandomizer = randomizer?.random()
     if(resultFromRandomizer!=null){
