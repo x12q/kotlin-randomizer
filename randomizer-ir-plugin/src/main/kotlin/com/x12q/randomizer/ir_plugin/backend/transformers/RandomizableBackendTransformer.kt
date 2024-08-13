@@ -747,18 +747,21 @@ class RandomizableBackendTransformer @Inject constructor(
                         .extensionDotCall(randomizerCollectionAccessor.randomFunction(builder))
                         .withTypeArgs(paramTypeOfFunction)
 
-                    +irIfNull(
-                        type = paramTypeOfFunction,
-                        subject = getVarRandomFromGenericFunction,
-                        thenPart = randomFromRandomContextCall,
-                        elsePart = getVarRandomFromGenericFunction,
-                    )
-//                    +irIfNull(
-//                        type = paramTypeOfFunction,
-//                        subject = randomFromRandomContextCall,
-//                        thenPart = getVarRandomFromGenericFunction,
-//                        elsePart = randomFromRandomContextCall,
-//                    )
+                    if(true){
+                        +irIfNull(
+                            type = paramTypeOfFunction,
+                            subject = getVarRandomFromGenericFunction,
+                            thenPart = randomFromRandomContextCall,
+                            elsePart = getVarRandomFromGenericFunction,
+                        )
+                    }else{
+                        +irIfNull(
+                            type = paramTypeOfFunction,
+                            subject = randomFromRandomContextCall,
+                            thenPart = getVarRandomFromGenericFunction,
+                            elsePart = randomFromRandomContextCall,
+                        )
+                    }
 
                 }
                 val rt = if (paramType.isMarkedNullable()) {
