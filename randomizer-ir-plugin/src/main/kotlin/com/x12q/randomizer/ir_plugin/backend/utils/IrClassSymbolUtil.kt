@@ -4,6 +4,7 @@ import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.functions
+import org.jetbrains.kotlin.ir.util.getSimpleFunction
 import kotlin.reflect.KClass
 
 fun IrClassSymbol.isAnnotatedWithRandomizable():Boolean{

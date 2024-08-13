@@ -126,6 +126,7 @@ data class TestImportsBuilder(
     companion object {
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                RandomContext::class,
                 LegalRandomConfigObject2::class,
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,

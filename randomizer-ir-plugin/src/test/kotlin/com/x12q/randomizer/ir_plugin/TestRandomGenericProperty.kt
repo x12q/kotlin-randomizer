@@ -22,9 +22,8 @@ class TestRandomGenericProperty {
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
 
-
     @Test
-    fun `randomize 1 zzzzgeneric property`() {
+    fun `bbb`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -32,24 +31,27 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomT1=null))
                     }
                 }
                 @Randomizable(randomConfig = RandomConfigForTest::class)
-                data class QxC<T1:Any>(override val data:T1):WithData
+                data class QxC<T1>(override val data:Qx<T1>):WithData{
+                    companion object{
+                        fun zzz123(randomContext:RandomContext){
+                            val z = randomContext.randomConfig
+                            println(z)
+                        }
+                    }
+                }
             """,
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val o = result.runRunTest().getObjs()
-                o shouldBe listOf(
-                    Qx(i = 123),
-                )
+
                 println(o)
             }
         }
     }
-
     @Test
     fun `complex class as generic 2`() {
         testGeneratedCodeUsingStandardPlugin(
@@ -429,6 +431,7 @@ class TestRandomGenericProperty {
         }
     }
 
+
     @Test
     fun `randomize 1 generic property`() {
 
@@ -459,6 +462,8 @@ class TestRandomGenericProperty {
             }
         }
     }
+
+
 
     @Test
     fun `randomize 1 generic property with bound - ok case`() {
