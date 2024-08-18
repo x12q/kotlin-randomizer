@@ -151,7 +151,7 @@ class TestRandomPrimitive {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest { output->
-                    output.getObjs() shouldBe   listOf(
+                        output.getObjs() shouldBe   listOf(
                         NullablePrimitives(null,null,null,null,null,null,null,null,null,null,null,null,),
 //                        NullablePrimitives(
 //                            NonNullRandomConfig.nextIntOrNull(),

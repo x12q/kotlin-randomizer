@@ -56,13 +56,12 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-
     override fun visitCall(expression: IrCall): IrExpression {
         println(expression.dumpKotlinLike())
         val returnType = (expression.type.classifierOrNull as? IrClassSymbol)
         val functionName = expression.symbol.owner.name
         val needToGenerateSyntheticArgument = false
-        if(needToGenerateSyntheticArgument){
+        if (needToGenerateSyntheticArgument) {
             // add new synthetic argument here
 //            expression.putValueArgument()
         }
@@ -120,6 +119,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
                 genericRandomFunctionParamList = genericRandomFunctionParamList
             )
+            println(randomFunction.dumpKotlinLike())
         }
     }
 
@@ -139,7 +139,7 @@ class RandomizableBackendTransformer @Inject constructor(
         genericRandomFunctionParamList: List<IrValueParameter>,
     ): IrBlockBody {
 
-        val randomConfigVar = makeRandomConfigVar(randomFunction,getRandomConfigExpr)
+        val randomConfigVar = makeRandomConfigVar(randomFunction, getRandomConfigExpr)
         val getRandomConfigFromVar = builder.irGet(randomConfigVar)
 
         val randomContextVar = makeRandomContextVar(
@@ -176,14 +176,14 @@ class RandomizableBackendTransformer @Inject constructor(
         randomFunction: IrFunction,
         getRandomConfig: IrExpression,
     ): IrVariable {
-       return buildVariable(
-           parent = randomFunction,
-           startOffset = randomFunction.startOffset,
-           endOffset = randomFunction.endOffset,
-           origin = IrDeclarationOrigin.DEFINED,
-           name = Name.identifier("varRandomConfig"),
-           type = randomConfigAccessor.irType
-       ).withInit(getRandomConfig)
+        return buildVariable(
+            parent = randomFunction,
+            startOffset = randomFunction.startOffset,
+            endOffset = randomFunction.endOffset,
+            origin = IrDeclarationOrigin.DEFINED,
+            name = Name.identifier("varRandomConfig"),
+            type = randomConfigAccessor.irType
+        ).withInit(getRandomConfig)
     }
 
     /**
@@ -201,10 +201,6 @@ class RandomizableBackendTransformer @Inject constructor(
             origin = BaseObjects.Ir.statementOrigin
         ) {
 
-            val baseRandomConfigVar = irTemporary(
-                value = getRandomConfig, nameHint = "randomConfig"
-            )
-
             val randomContextBuilderVar = irTemporary(
                 value = randomContextBuilderImpAccessor.constructorFunction(this),
                 nameHint = "randomContextBuilder"
@@ -215,10 +211,7 @@ class RandomizableBackendTransformer @Inject constructor(
              */
             +irGet(randomContextBuilderVar).dotCall(
                 randomizerContextBuilderAccessor.setRandomConfigFunction(builder)
-            ).withValueArgs(
-                irGet(baseRandomConfigVar)
-            )
-
+            ).withValueArgs(getRandomConfig)
 
             /**
              * Run config function over a randomizer collection builder
@@ -544,8 +537,8 @@ class RandomizableBackendTransformer @Inject constructor(
 
 
             val typeArgumentList: List<IrTypeArgument> = stopAtFirstNotNull(
-                {receivedTypeArgument},
-                {(paramFromConstructor?.type as? IrSimpleType)?.arguments},
+                { receivedTypeArgument },
+                { (paramFromConstructor?.type as? IrSimpleType)?.arguments },
             ) ?: emptyList()
 
             val paramExpressions = constructor.valueParameters.withIndex().map { (index, param) ->
@@ -715,7 +708,9 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val constructorParamTypeIndex = constructorParamTypeSymbol.owner.index
 
-            val paramTypeIndex = ((receivedTypeArgument as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.owner?.index ?: constructorParamTypeIndex
+            val paramTypeIndex =
+                ((receivedTypeArgument as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.owner?.index
+                    ?: constructorParamTypeIndex
 
             val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
             if (paramTypeOfFunction != null) {
@@ -751,14 +746,14 @@ class RandomizableBackendTransformer @Inject constructor(
                         .extensionDotCall(randomContextAccessor.randomFunction(builder))
                         .withTypeArgs(paramTypeOfFunction)
 
-                    if(true){
+                    if (true) {
                         +irIfNull(
                             type = paramTypeOfFunction,
                             subject = getVarRandomFromGenericFunction,
                             thenPart = randomFromRandomContextCall,
                             elsePart = getVarRandomFromGenericFunction,
                         )
-                    }else{
+                    } else {
 
 //                        +irIfNull(
 //                            type = paramTypeOfFunction,
@@ -898,9 +893,8 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
 
         val paramType = param.type
-
-        if (paramType.isNullable()) {
-            val randomCallForRandomConfig = when {
+        val randomCallForRandomConfig = if (paramType.isNullable()) {
+            when {
                 paramType.isInt2(true) -> randomConfigAccessor.nextIntOrNull(builder)
                 paramType.isUInt2(true) -> randomConfigAccessor.nextUIntOrNull(builder)
                 paramType.isLong2(true) -> randomConfigAccessor.nextLongOrNull(builder)
@@ -918,12 +912,10 @@ class RandomizableBackendTransformer @Inject constructor(
                 paramType.isNumber2(true) -> randomConfigAccessor.nextNumberOrNull(builder)
                 paramType.isAny2(true) -> randomConfigAccessor.nextAnyOrNull(builder)
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
-
                 else -> null
             }
-            return randomCallForRandomConfig?.let{randomFromRandomContextOrRandomConfig(paramType,getRandomContext,getRandomConfigExpr,randomCallForRandomConfig,builder)}
         } else {
-            val randomCallForRandomConfig = when {
+            when {
                 paramType.isInt2(false) -> (randomConfigAccessor.nextInt(builder))
                 paramType.isUInt2(false) -> (randomConfigAccessor.nextUInt(builder))
                 paramType.isLong2(false) -> (randomConfigAccessor.nextLong(builder))
@@ -941,20 +933,27 @@ class RandomizableBackendTransformer @Inject constructor(
                 paramType.isNumber2(false) -> (randomConfigAccessor.nextNumber(builder))
                 paramType.isAny2(false) -> (randomConfigAccessor.nextAny(builder))
                 paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
-
                 else -> null
             }
-            return randomCallForRandomConfig?.let{randomFromRandomContextOrRandomConfig(paramType,getRandomContext,getRandomConfigExpr,randomCallForRandomConfig,builder)}
+        }
+        return randomCallForRandomConfig?.let {
+            randomFromRandomContextOrRandomConfig(
+                type = paramType,
+                getRandomContext = getRandomContext,
+                getRandomConfigExpr = getRandomConfigExpr,
+                randomConfigRandomCall = randomCallForRandomConfig,
+                builder = builder,
+            )
         }
     }
 
     private fun randomFromRandomContextOrRandomConfig(
-        type:IrType,
+        type: IrType,
         getRandomContext: IrExpression,
         getRandomConfigExpr: IrExpression,
-        randomConfigRandomCall:IrCall,
+        randomConfigRandomCall: IrCall,
         builder: DeclarationIrBuilder
-    ):IrExpression{
+    ): IrExpression {
         return evaluateRandomContextThenRandomConfig(
             type = type,
             randomFromRandomContext = getRandomContext
@@ -966,17 +965,23 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private fun evaluateRandomContextThenRandomConfig(
-        type:IrType,
+        type: IrType,
         randomFromRandomContext: IrExpression,
         randomFromRandomConfig: IrExpression,
         builder: DeclarationIrBuilder,
-    ):IrExpression{
-        return builder.irIfNull(
-            type = type,
-            subject = randomFromRandomContext,
-            thenPart = randomFromRandomConfig,
-            elsePart = randomFromRandomContext
-        )
+    ): IrExpression {
+        return builder.irBlock {
+
+            val randomFromContextVar = irTemporary(randomFromRandomContext,"randomFromContextVar")
+            val getRandomFromContextVar = irGet(randomFromContextVar)
+
+            +builder.irIfNull(
+                type = type,
+                subject = getRandomFromContextVar,
+                thenPart = randomFromRandomConfig,
+                elsePart = getRandomFromContextVar
+            )
+        }
     }
 
 

@@ -12,7 +12,35 @@ class RandomContextBuilderImp: RandomContextBuilder {
 
     override fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder {
         this._randomConfig = randomConfig
+        addStandardRandomizers(randomConfig)
         return this
+    }
+
+    private fun addStandardRandomizers(randomConfig: RandomConfig){
+        randomizers.addAll(
+            listOf(
+                factoryRandomizer { randomConfig.nextInt() },
+                factoryRandomizer { randomConfig.nextByte() },
+                factoryRandomizer { randomConfig.nextLong() },
+                factoryRandomizer { randomConfig.nextShort() },
+
+                factoryRandomizer { randomConfig.nextFloat() },
+                factoryRandomizer { randomConfig.nextDouble() },
+                factoryRandomizer { randomConfig.nextNumber() },
+
+                factoryRandomizer { randomConfig.nextBoolean() },
+                factoryRandomizer { randomConfig.nextChar() },
+
+                factoryRandomizer { randomConfig.nextUInt() },
+                factoryRandomizer { randomConfig.nextUByte() },
+                factoryRandomizer { randomConfig.nextULong() },
+                factoryRandomizer { randomConfig.nextUShort() },
+
+                factoryRandomizer { randomConfig.nextStringUUID() },
+                factoryRandomizer { randomConfig.nextUnit() },
+                factoryRandomizer { randomConfig.nextAny() },
+            )
+        )
     }
 
     private var builtRandomizerCollection:RandomizerCollection? = null
