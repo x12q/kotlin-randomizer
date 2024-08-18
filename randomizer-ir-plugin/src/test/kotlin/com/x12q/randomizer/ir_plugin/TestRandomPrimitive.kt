@@ -260,10 +260,10 @@ class TestRandomPrimitive {
                     output.getObjs() shouldBe listOf(
                         NullableUPrim(null,null,null,null),
                         NullableUPrim(
-                            NonNullRandomConfig.nextUIntOrNull(),
-                            NonNullRandomConfig.nextULongOrNull(),
-                            NonNullRandomConfig.nextUByteOrNull(),
-                            NonNullRandomConfig.nextUShortOrNull(),
+                            NonNullRandomConfig.nextUInt(),
+                            NonNullRandomConfig.nextULong(),
+                            NonNullRandomConfig.nextUByte(),
+                            NonNullRandomConfig.nextUShort(),
 
                         ),
 

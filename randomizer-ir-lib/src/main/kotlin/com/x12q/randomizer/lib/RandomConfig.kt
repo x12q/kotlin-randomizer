@@ -17,10 +17,6 @@ interface RandomConfig {
         ).random(random)
     }
 
-    fun nextAnyOrNull():Any?{
-        return listOf(null,nextAny()).random(random)
-    }
-
     fun nextFloat():Float{
         return random.nextFloat()
     }
@@ -45,53 +41,20 @@ interface RandomConfig {
         return random.nextInt().toUInt()
     }
 
-    fun nextUIntOrNull():UInt?{
-        return nextUInt().orNull()
-    }
 
-    fun nextIntOrNull(): Int? {
-        return random.nextInt().orNull()
-    }
-
-    fun nextBoolOrNull(): Boolean? {
-        return random.nextBoolean().orNull()
-    }
-
-    fun nextFloatOrNull(): Float? {
-        return random.nextFloat().orNull()
-    }
 
     fun nextULong():ULong{
         return random.nextULong()
     }
 
-    fun nextULongOrNull():ULong?{
-        return nextULong().orNull()
-    }
-
-    fun nextLongOrNull(): Long? {
-        return random.nextLong().orNull()
-    }
-
-    fun nextDoubleOrNull(): Double? {
-        return random.nextDouble().orNull()
-    }
 
     fun nextByte(): Byte {
         return random.nextBytes(1)[0]
     }
 
-    fun nextByteOrNull():Byte?{
-        return nextByte().orNull()
-    }
-
     @OptIn(ExperimentalUnsignedTypes::class)
     fun nextUByte():UByte{
         return random.nextUBytes(1).first()
-    }
-
-    fun nextUByteOrNull():UByte?{
-        return nextUByte().orNull()
     }
 
     val charRange: CharRange
@@ -100,41 +63,24 @@ interface RandomConfig {
         return charRange.random(this.random)
     }
 
-    fun nextCharOrNull():Char?{
-        return nextChar().orNull()
-    }
-
     fun nextShort(): Short {
         return random.nextInt().toShort()
     }
 
-    fun nextShortOrNull(): Short? {
-        return nextShort().orNull()
-    }
 
     fun nextUShort():UShort{
         return nextShort().toUShort()
     }
 
-    fun nextUShortOrNull():UShort?{
-        return nextUShort().orNull()
-    }
 
     fun nextStringUUID(): String {
         return randomUUIDStr()
-    }
-
-    fun nextStringUUIDOrNull(): String? {
-        return nextStringUUID().orNull()
     }
 
     fun nextUnit(): Unit {
         return Unit
     }
 
-    fun nextUnitOrNull(): Unit? {
-        return Unit.orNull()
-    }
 
     fun nextNumber(): Number {
         return listOf(
@@ -145,10 +91,6 @@ interface RandomConfig {
             nextShort(),
             nextByte(),
         ).random(random)
-    }
-
-    fun nextNumberOrNull():Number?{
-        return nextNumber().orNull()
     }
 
     private fun <T> T.orNull():T?{
