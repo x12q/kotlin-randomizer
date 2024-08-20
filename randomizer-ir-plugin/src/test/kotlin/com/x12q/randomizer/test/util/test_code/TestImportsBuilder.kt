@@ -102,7 +102,7 @@ data class TestImportsBuilder(
                 makeImportTopLevelFunction(f)
             } + packages.map {
                 makeImportPackageStatement(it)
-            } + literalImports
+            } + literalImports.map { makeLiteralImport(it) }
             return importStatements.joinToString("\n")
         }
 
@@ -118,12 +118,18 @@ data class TestImportsBuilder(
         return "import ${function.declaringKotlinFile.qualifiedName!!.dropLast(function.declaringKotlinFile.simpleName!!.length)}${function.name}"
     }
 
+    private fun makeLiteralImport(literal:String):String{
+        return "import $literal"
+    }
+
     override fun toString(): String {
 
         return importCode
     }
 
     companion object {
+
+
         val stdImport = TestImportsBuilder(
             classList = listOf(
                 RandomContext::class,
@@ -150,10 +156,13 @@ data class TestImportsBuilder(
                 ::constantRandomizer,
             ),
             packages = listOf(
-                "kotlin.collections"
+                "kotlin.collections",
             ),
             literalImports = listOf(
-                "import com.x12q.randomizer.lib.random"
+                "com.x12q.randomizer.lib.random",
+                "com.x12q.randomizer.lib.factoryRandomizer",
+                "com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant",
+                "com.x12q.randomizer.lib.RandomContextBuilderFunctions.factory",
             )
         )
     }
