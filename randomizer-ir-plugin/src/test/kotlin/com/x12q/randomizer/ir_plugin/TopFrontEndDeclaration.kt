@@ -117,17 +117,13 @@ class TopFrontEndDeclaration {
                      * test the existence of the first random(randomT:()->T, ...) function
                      */
                     val randomFunction = companionObj.functions.firstOrNull { function->
-                        val signatureOk = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 2
+                        val signatureOk = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 1
                         val params=function.valueParameters
-                        val genericFunctionalParamsAreCorrect = params[0].let { param0->
-                            param0.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
-                                    && param0.name.toString() == "randomT"
-                        }
-                        val randomizersBuilderFunctionIsCorrect = params[1].let {param1->
+                        val randomizersBuilderFunctionIsCorrect = params[0].let {param1->
                             param1.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
                                     && param1.name == BaseObjects.randomContextBuilderConfigFunctionParamName
                         }
-                        signatureOk && genericFunctionalParamsAreCorrect && randomizersBuilderFunctionIsCorrect
+                        signatureOk &&  randomizersBuilderFunctionIsCorrect
                     }
 
                     randomFunction.shouldNotBeNull()
@@ -135,14 +131,17 @@ class TopFrontEndDeclaration {
                     randomFunction.body.shouldNotBeNull()
 
                     /**
-                     * Test the existence of the 2nd random(randomConfig,randomT:()->T, ...) function
+                     * Test the existence of the 2nd random(randomConfig,randomizers:()->T) function
                      */
                     val randomFunctionWithRandomConfig = companionObj.functions.firstOrNull {
-                        val signatureIsOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 3
+                        val signatureIsOk = it.name == BaseObjects.randomFunctionName && it.valueParameters.size == 2
                         if(signatureIsOk){
                             val valueParamsAreCorrect = run {
                                 val param1IsCorrect = it.valueParameters[0].type.classFqName.toString() == RandomConfig::class.qualifiedName
-                                val param2IsCorrect = it.valueParameters[1].type.classFqName.toString() == kotlin.Function1::class.qualifiedName
+                                val param2IsCorrect = it.valueParameters[1].let {param1->
+                                    param1.type.classFqName.toString() == kotlin.Function1::class.qualifiedName
+                                            && param1.name == BaseObjects.randomContextBuilderConfigFunctionParamName
+                                }
                                 param1IsCorrect && param2IsCorrect
                             }
                             valueParamsAreCorrect

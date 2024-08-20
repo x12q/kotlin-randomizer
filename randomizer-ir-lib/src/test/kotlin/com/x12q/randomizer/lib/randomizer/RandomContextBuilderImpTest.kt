@@ -1,6 +1,7 @@
 package com.x12q.randomizer.lib.randomizer
 
 import com.x12q.randomizer.lib.ConstantClassRandomizer
+import com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import io.kotest.matchers.shouldBe
 import kotlin.test.*

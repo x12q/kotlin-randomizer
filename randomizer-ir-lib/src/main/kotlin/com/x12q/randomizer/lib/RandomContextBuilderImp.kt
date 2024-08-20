@@ -1,10 +1,14 @@
 package com.x12q.randomizer.lib
 
+import kotlin.reflect.KClass
+
+
+
 class RandomContextBuilderImp: RandomContextBuilder {
-    private val randomizers:MutableList<ClassRandomizer<*>> = mutableListOf()
+    private val randomizersMap:MutableMap<KClass<*>, ClassRandomizer<*>> = mutableMapOf()
 
     override fun add(randomizer: ClassRandomizer<*>): RandomContextBuilder {
-        randomizers.add(randomizer)
+        randomizersMap[randomizer.returnType] = randomizer
         return this
     }
 
@@ -17,37 +21,36 @@ class RandomContextBuilderImp: RandomContextBuilder {
     }
 
     private fun addStandardRandomizers(randomConfig: RandomConfig){
-        randomizers.addAll(
-            listOf(
-                factoryRandomizer { randomConfig.nextInt() },
-                factoryRandomizer { randomConfig.nextByte() },
-                factoryRandomizer { randomConfig.nextLong() },
-                factoryRandomizer { randomConfig.nextShort() },
+        val stdRdm = listOf(
+            factoryRandomizer { randomConfig.nextInt() },
+            factoryRandomizer { randomConfig.nextByte() },
+            factoryRandomizer { randomConfig.nextLong() },
+            factoryRandomizer { randomConfig.nextShort() },
 
-                factoryRandomizer { randomConfig.nextFloat() },
-                factoryRandomizer { randomConfig.nextDouble() },
-                factoryRandomizer { randomConfig.nextNumber() },
+            factoryRandomizer { randomConfig.nextFloat() },
+            factoryRandomizer { randomConfig.nextDouble() },
+            factoryRandomizer { randomConfig.nextNumber() },
 
-                factoryRandomizer { randomConfig.nextBoolean() },
-                factoryRandomizer { randomConfig.nextChar() },
+            factoryRandomizer { randomConfig.nextBoolean() },
+            factoryRandomizer { randomConfig.nextChar() },
 
-                factoryRandomizer { randomConfig.nextUInt() },
-                factoryRandomizer { randomConfig.nextUByte() },
-                factoryRandomizer { randomConfig.nextULong() },
-                factoryRandomizer { randomConfig.nextUShort() },
+            factoryRandomizer { randomConfig.nextUInt() },
+            factoryRandomizer { randomConfig.nextUByte() },
+            factoryRandomizer { randomConfig.nextULong() },
+            factoryRandomizer { randomConfig.nextUShort() },
 
-                factoryRandomizer { randomConfig.nextStringUUID() },
-                factoryRandomizer { randomConfig.nextUnit() },
-                factoryRandomizer { randomConfig.nextAny() },
-            )
+            factoryRandomizer { randomConfig.nextStringUUID() },
+            factoryRandomizer { randomConfig.nextUnit() },
+            factoryRandomizer { randomConfig.nextAny() },
         )
+        randomizersMap.putAll(stdRdm.associateBy { it.returnType })
     }
 
     private var builtRandomizerCollection:RandomizerCollection? = null
 
     private fun buildRandomizerCollection() {
         if(builtRandomizerCollection == null){
-            builtRandomizerCollection = RandomizerCollectionImp(randomizers.associateBy { it.returnType })
+            builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
         }
     }
 
