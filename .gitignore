@@ -40,3 +40,12 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/TODO.
+/.idea/.gitignore
+/.idea/gradle.xml
+/.idea/kotlinc.xml
+/.idea/misc.xml
+/.idea/uiDesigner.xml
+/.idea/vcs.xml
+/sample-app/.idea/
+/TODO.md
