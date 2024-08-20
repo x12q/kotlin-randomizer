@@ -8,9 +8,14 @@ import kotlin.reflect.KClass
 class FactoryClassRandomizer<T : Any>(
     val makeRandom: () -> T,
     override val returnType: KClass<T>
-) :
-    ClassRandomizer<T> {
+) : ClassRandomizer<T> {
     override fun random(): T {
         return makeRandom()
+    }
+
+    companion object{
+        inline fun <reified T:Any> of(noinline makeRandom: () -> T): FactoryClassRandomizer<T> {
+            return FactoryClassRandomizer(makeRandom,T::class)
+        }
     }
 }

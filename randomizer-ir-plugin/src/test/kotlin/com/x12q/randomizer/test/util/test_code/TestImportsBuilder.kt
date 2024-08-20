@@ -126,6 +126,7 @@ data class TestImportsBuilder(
     companion object {
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                RandomContext::class,
                 LegalRandomConfigObject2::class,
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
@@ -144,7 +145,10 @@ data class TestImportsBuilder(
                 TestOutput::class,
                 WithData::class,
             ),
-            functionList = listOf(::withTestOutput),
+            functionList = listOf(
+                ::withTestOutput,
+                ::constantRandomizer,
+            ),
             packages = listOf(
                 "kotlin.collections"
             ),

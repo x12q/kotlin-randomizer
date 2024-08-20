@@ -30,10 +30,6 @@ class RandomConfigAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("nextAny")
     }
 
-    fun nextAnyOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextAnyOrNull")
-    }
-
     /**
      * Construct an [IrCall] to access [RandomConfig.random]
      */
@@ -64,9 +60,6 @@ class RandomConfigAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("nextUByte")
     }
 
-    fun nextUByteOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextUByteOrNull")
-    }
 
     /**
      * Construct an [IrCall] to access [RandomConfig.nextChar]
@@ -89,20 +82,11 @@ class RandomConfigAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("nextUShort")
     }
 
-    /**
-     * Construct an [IrCall] to access [RandomConfig.nextUShortOrNull]
-     */
-    fun nextUShortOrNull(builder:DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextUShortOrNull")
-    }
 
     fun nextULong(builder: DeclarationIrBuilder):IrCall{
         return builder.zeroAgrFunctionCall("nextULong")
     }
 
-    fun nextULongOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextULongOrNull")
-    }
 
     /**
      * Construct an [IrCall] to access [RandomConfig.nextStringUUID]
@@ -129,56 +113,10 @@ class RandomConfigAccessor @Inject constructor(
         return builder.zeroAgrFunctionCall("nextLong")
     }
 
-    fun nextIntOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextIntOrNull")
-    }
 
     fun nextUInt(builder: DeclarationIrBuilder):IrCall{
         return builder.zeroAgrFunctionCall("nextUInt")
     }
 
-    fun nextUIntOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextUIntOrNull")
-    }
-
-    fun nextBoolOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextBoolOrNull")
-    }
-
-    fun nextFloatOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextFloatOrNull")
-    }
-
-    fun nextLongOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextLongOrNull")
-    }
-
-    fun nextDoubleOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextDoubleOrNull")
-    }
-
-    fun nextCharOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextCharOrNull")
-    }
-
-    fun nextByteOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextByteOrNull")
-    }
-
-    fun nextShortOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextShortOrNull")
-    }
-
-    fun nextStringUUIDOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextStringUUIDOrNull")
-    }
-
-    fun nextUnitOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextUnitOrNull")
-    }
-
-    fun nextNumberOrNull(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextNumberOrNull")
-    }
 }
 

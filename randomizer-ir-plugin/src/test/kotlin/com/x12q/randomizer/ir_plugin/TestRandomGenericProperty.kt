@@ -4,12 +4,11 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
-import com.x12q.randomizer.lib.*
-import com.x12q.randomizer.test.util.WithData
+import com.x12q.randomizer.lib.ConstantClassRandomizer
+import com.x12q.randomizer.lib.constantRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import org.jetbrains.kotlin.backend.common.phaser.validationAction
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -18,19 +17,218 @@ import kotlin.test.Test
 class TestRandomGenericProperty {
 
     data class Qx<T1>(val i: T1?)
-    data class Qx2<T1>(val i: T1)
+    data class Qx2<Z>(val paramOfQ2: Z)
+    data class Qx4<M>(val paramOfQ4: M)
+    data class Qx6<H>(val paramOfQ6: H)
+    data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
+
+
+    @Test
+    fun `complex class as generic 2`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+                    .import(TwoGeneric::class)
+            }
+                @Randomizable
+                data class Qx2x<Z>(val paramOfQ2x: Z)
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Qx2x<Int>>(randomT1=null,randomizers = {
+                            val rdm = constantRandomizer(Qx2x.random<Int>(randomConfig,randomZ=null))
+                            add(rdm)
+                        }))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList.toString() shouldBe "[Qx2x(paramOfQ2x=3)]"
+            }
+        }
+    }
+
+    @Test
+    fun `complex class as generic`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+                    .import(TwoGeneric::class)
+                }
+                @Randomizable
+                data class Qx2x<Z>(val paramOfQ2x: Z)
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Qx2x<Int>>(randomT1={
+                            Qx2x.random<Int>(randomConfig,randomZ=null)
+                        }))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList.toString() shouldBe "[Qx2x(paramOfQ2x=3)]"
+            }
+        }
+    }
+
+
+    @Test
+    fun `3 layers of multiple nested generic`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+                    .import(TwoGeneric::class)
+            }
+                @Randomizable
+                data class QxC<T1,T2>(override val data: TwoGeneric<Qx2<Qx4<T1>>,Qx4<Qx6<T2>>>):WithData
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int,Float>(randomT1={123},randomT2={-9.45f}))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    TwoGeneric(
+                        g1 = Qx2(Qx4(123)),
+                        g2 = Qx4(Qx6(-9.45f)),
+                    )
+
+                )
+            }
+        }
+    }
+
+
+    @Test
+    fun `2 layers of nested nullable generic`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+                    .import(Qx::class)
+            }
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1=null))
+                    }
+                }
+                @Randomizable(NullRandomConfig::class)
+                data class QxC<T1>(override val data:Qx2<Qx<T1>>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    Qx2(Qx(null)),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `2 layers of nested generic`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+            }
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1={123}))
+                    }
+                }
+                @Randomizable
+                data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    Qx2(Qx4(123)),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `3 layers of single nested generic`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                ${
+                TestImportsBuilder.stdImport
+                    .import(Qx2::class)
+                    .import(Qx4::class)
+                    .import(Qx6::class)
+            }
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomT1={123}))
+                    }
+                }
+                @Randomizable
+                data class QxC<T1>(override val data:Qx2<Qx4<Qx6<T1>>>):WithData
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    Qx2(Qx4(Qx6(123))),
+                )
+            }
+        }
+    }
 
     @Test
     fun `null generic function 2`() {
-
         testGeneratedCodeUsingStandardPlugin(
             """
                 ${TestImportsBuilder.stdImport.import(Qx2::class)}
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomT1=null, randomizers = {
-                        }))
+                        putData(QxC.random<Int>(randomT1=null))
                     }
                 }
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
@@ -204,6 +402,7 @@ class TestRandomGenericProperty {
         }
     }
 
+
     @Test
     fun `randomize 1 generic property`() {
 
@@ -234,6 +433,8 @@ class TestRandomGenericProperty {
             }
         }
     }
+
+
 
     @Test
     fun `randomize 1 generic property with bound - ok case`() {

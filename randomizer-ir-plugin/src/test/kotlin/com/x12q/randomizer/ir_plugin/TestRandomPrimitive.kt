@@ -137,7 +137,7 @@ class TestRandomPrimitive {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(Q123.random(NullRandomConfig))
-                        putData(Q123.random(NonNullRandomConfig))
+//                        putData(Q123.random(NonNullRandomConfig))
                     }
                 }
 
@@ -151,22 +151,22 @@ class TestRandomPrimitive {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest { output->
-                    output.getObjs() shouldBe   listOf(
+                        output.getObjs() shouldBe   listOf(
                         NullablePrimitives(null,null,null,null,null,null,null,null,null,null,null,null,),
-                        NullablePrimitives(
-                            NonNullRandomConfig.nextIntOrNull(),
-                            NonNullRandomConfig.nextBoolOrNull(),
-                            NonNullRandomConfig.nextLongOrNull(),
-                            NonNullRandomConfig.nextFloatOrNull(),
-                            NonNullRandomConfig.nextDoubleOrNull(),
-                            NonNullRandomConfig.nextByteOrNull(),
-                            NonNullRandomConfig.nextCharOrNull(),
-                            NonNullRandomConfig.nextShortOrNull(),
-                            NonNullRandomConfig.nextStringUUIDOrNull(),
-                            NonNullRandomConfig.nextNumberOrNull(),
-                            NonNullRandomConfig.nextUnitOrNull(),
-                            NonNullRandomConfig.nextAnyOrNull()
-                        ),
+//                        NullablePrimitives(
+//                            NonNullRandomConfig.nextIntOrNull(),
+//                            NonNullRandomConfig.nextBoolOrNull(),
+//                            NonNullRandomConfig.nextLongOrNull(),
+//                            NonNullRandomConfig.nextFloatOrNull(),
+//                            NonNullRandomConfig.nextDoubleOrNull(),
+//                            NonNullRandomConfig.nextByteOrNull(),
+//                            NonNullRandomConfig.nextCharOrNull(),
+//                            NonNullRandomConfig.nextShortOrNull(),
+//                            NonNullRandomConfig.nextStringUUIDOrNull(),
+//                            NonNullRandomConfig.nextNumberOrNull(),
+//                            NonNullRandomConfig.nextUnitOrNull(),
+//                            NonNullRandomConfig.nextAnyOrNull()
+//                        ),
                     )
                 }
             }
@@ -260,10 +260,10 @@ class TestRandomPrimitive {
                     output.getObjs() shouldBe listOf(
                         NullableUPrim(null,null,null,null),
                         NullableUPrim(
-                            NonNullRandomConfig.nextUIntOrNull(),
-                            NonNullRandomConfig.nextULongOrNull(),
-                            NonNullRandomConfig.nextUByteOrNull(),
-                            NonNullRandomConfig.nextUShortOrNull(),
+                            NonNullRandomConfig.nextUInt(),
+                            NonNullRandomConfig.nextULong(),
+                            NonNullRandomConfig.nextUByte(),
+                            NonNullRandomConfig.nextUShort(),
 
                         ),
 

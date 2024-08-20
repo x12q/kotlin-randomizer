@@ -1,12 +1,18 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
+import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.getAnnotation
 import org.jetbrains.kotlin.ir.util.isAnnotation
 import org.jetbrains.kotlin.name.FqName
 import kotlin.reflect.KClass
 
+
+fun IrClass.isAnnotatedWithRandomizable():Boolean{
+    return this.isAnnotatedWith(BaseObjects.randomizableFqName)
+}
 
 fun IrClass.isAnnotatedWith(annotationClazz: KClass<*>): Boolean {
     val rt = annotationClazz.qualifiedName?.let { annotationName ->

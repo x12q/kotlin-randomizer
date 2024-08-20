@@ -41,7 +41,7 @@ data class RDClassData(
     }
 
     /**
-     * Merged [directTypeMap] with indirect provide map created by [makeIndirectTypeMap]
+     * Merged [directTypeMap] with indirect type map created by [makeIndirectTypeMap]
      */
     fun makeCombineTypeMap(outerTypeMap: Map<String, RDClassData>): Map<String, RDClassData> {
         val direct = this.directTypeMap
@@ -94,7 +94,8 @@ data class RDClassData(
             ?.map { (it.type?.classifier as? KTypeParameter)?.name }
             ?.withIndex()
             ?.mapNotNull { (index, name) ->
-                name?.let { index to name }
+                val indexToNamePair = name?.let { index to name }
+                indexToNamePair
             }?.toMap() ?: emptyMap()
 
         /**
