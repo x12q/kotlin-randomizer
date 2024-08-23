@@ -790,14 +790,16 @@ class RandomizableBackendTransformer @Inject constructor(
             val randomResult = irTemporary(randomExpr,"randomResult")
             val getRandomResult = irGet(randomResult)
             val throwExceptionExpr = run {
-                irThrow(irCallConstructor(
-                    callee =  unableToGenerateRandomExceptionAccessor.primaryConstructor().symbol,
-                    typeArguments = emptyList()
-                ).withValueArgs(
-                    /*targetClassName:String*/ irString(enclosingClassName),
-                    /*paramName:String*/ irString(paramName),
-                    /*paramType:String*/ irString(type.dumpKotlinLike())
-                ))
+                irThrow(
+                    irCallConstructor(
+                        callee =  unableToGenerateRandomExceptionAccessor.primaryConstructor().symbol,
+                        typeArguments = emptyList()
+                    ).withValueArgs(
+                        /*targetClassName:String*/ irString(enclosingClassName),
+                        /*paramName:String*/ irString(paramName),
+                        /*paramType:String*/ irString(type.dumpKotlinLike())
+                    )
+                )
             }
             +irIfNull(type,getRandomResult, throwExceptionExpr, getRandomResult)
         }
