@@ -779,6 +779,11 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
+    /**
+     * Construct an express that:
+     * - either return whatever [randomExpr] returns if such value is not null
+     * - or throw an exception at runtime
+     */
     private fun randomOrThrow(
         builder:DeclarationIrBuilder,
         randomExpr:IrExpression,
