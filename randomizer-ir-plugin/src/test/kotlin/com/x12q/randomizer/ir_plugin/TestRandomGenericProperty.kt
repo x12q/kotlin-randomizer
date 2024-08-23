@@ -9,6 +9,7 @@ import com.x12q.randomizer.lib.constantRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -31,22 +32,17 @@ class TestRandomGenericProperty {
         .import(TwoGeneric::class)
 
     @Test
-    fun `bbbbb 2`() {
+    fun `complex class as generic WITHOUT custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
-                @Randomizable
-                data class Qx2x<Z>(val paramOfQ2x: Z)
 
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Qx2x<Int>>(randomizers = {
-                            val rdm = constantRandomizer(Qx2x.random<Int>(randomConfig))
-                            add(rdm)
-                        }))
+                        putData(QxC.random<Qx2<Int>>())
                     }
                 }
             """,
@@ -54,14 +50,15 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
-
+                objectList.size shouldBe 1
+                objectList[0].shouldBeInstanceOf<Qx2<Int>>()
             }
         }
     }
 
 
     @Test
-    fun `complex class as generic 2`() {
+    fun `complex class as generic with custom randomizer 2`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
@@ -90,7 +87,7 @@ class TestRandomGenericProperty {
     }
 
     @Test
-    fun `complex class as generic`() {
+    fun `complex class as generic with custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -133,6 +130,7 @@ class TestRandomGenericProperty {
                             constant(123)
                             constant(-9.45f)
                         }))
+                        putData(QxC.random<Int,Float>())
                     }
                 }
             """,
@@ -140,13 +138,12 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
-                objectList shouldBe listOf(
-                    TwoGeneric(
-                        g1 = Qx2(Qx4(123)),
-                        g2 = Qx4(Qx6(-9.45f)),
-                    )
-
+                objectList.size shouldBe 2
+                objectList[0] shouldBe TwoGeneric(
+                    g1 = Qx2(Qx4(123)),
+                    g2 = Qx4(Qx6(-9.45f)),
                 )
+                objectList[1].shouldBeInstanceOf<TwoGeneric<Qx2<Qx4<Int>>,Qx4<Qx6<Float>>>>()
             }
         }
     }
