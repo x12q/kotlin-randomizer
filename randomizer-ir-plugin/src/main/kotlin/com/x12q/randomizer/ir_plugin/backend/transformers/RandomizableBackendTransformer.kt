@@ -11,6 +11,7 @@ import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
@@ -40,6 +41,7 @@ class RandomizableBackendTransformer @Inject constructor(
     private val randomContextBuilderImpAccessor: RandomContextBuilderImpAccessor,
     private val randomizerCollectionAccessor: RandomizerCollectionAccessor,
     private val randomContextAccessor: RandomContextAccessor,
+    private val unableToGenerateRandomExceptionAccessor: UnableToGenerateRandomExceptionAccessor,
 ) : RDBackendTransformer() {
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
@@ -725,10 +727,8 @@ class RandomizableBackendTransformer @Inject constructor(
             val paramClass = (receivedTypeClassifier as? IrClassSymbol)?.owner ?: paramType.classOrNull?.owner
 
             if (paramClass != null) {
-                /**
-                 * random instance from randomizer level 0
-                 */
-                val randomInstance = generateRandomClass(
+
+                val randomInstanceExpr = generateRandomClass(
                     receivedTypeArguments = receivedType?.arguments,
                     param = paramFromConstructor,
                     irClass = paramClass,
@@ -738,7 +738,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     typeParamOfRandomFunction = typeParamOfRandomFunctionList,
                 )
 
-                if (randomInstance != null) {
+                if (randomInstanceExpr != null) {
                     val actualParamType = receivedType ?: paramType
 
                     val nonNullRandom = builder.irBlock {
@@ -759,7 +759,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         +irIfNull(
                             type = actualParamType,
                             subject = getRandomFromRandomContext,
-                            thenPart = randomInstance,
+                            thenPart = randomInstanceExpr,
                             elsePart = getRandomFromRandomContext
                         )
                     }
@@ -767,17 +767,40 @@ class RandomizableBackendTransformer @Inject constructor(
                     if (actualParamType.isNullable()) {
                         return randomOrNull(builder, getRandomConfigExpr, actualParamType, nonNullRandom)
                     } else {
-                        return nonNullRandom
+                        return randomOrThrow(builder,nonNullRandom,actualParamType,paramFromConstructor.name.asString(),paramFromConstructor.parentClassOrNull?.name?.asString() ?: "")
                     }
                 } else {
                     throw IllegalArgumentException("unable to construct an expression to generate a random instance for ${paramFromConstructor.name}:${paramClass.name}")
                 }
             } else {
-                throw IllegalArgumentException("$paramFromConstructor does not belong to a class :| ")
+                throw IllegalArgumentException("$paramFromConstructor does not belong to a class.")
             }
         }
+    }
 
 
+    private fun randomOrThrow(
+        builder:DeclarationIrBuilder,
+        randomExpr:IrExpression,
+        type: IrType,
+        paramName:String,
+        enclosingClassName:String,
+    ): IrExpression {
+        return builder.irBlock {
+            val randomResult = irTemporary(randomExpr,"randomResult")
+            val getRandomResult = irGet(randomResult)
+            val throwExceptionExpr = run {
+                irThrow(irCallConstructor(
+                    callee =  unableToGenerateRandomExceptionAccessor.primaryConstructor().symbol,
+                    typeArguments = emptyList()
+                ).withValueArgs(
+                    /*targetClassName:String*/ irString(enclosingClassName),
+                    /*paramName:String*/ irString(paramName),
+                    /*paramType:String*/ irString(type.dumpKotlinLike())
+                ))
+            }
+            +irIfNull(type,getRandomResult, throwExceptionExpr, getRandomResult)
+        }
     }
 
     /**
