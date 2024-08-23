@@ -22,18 +22,49 @@ class TestRandomGenericProperty {
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
 
+    private val imports = TestImportsBuilder.stdImport
+        .import(Qx::class)
+        .import(Qx2::class)
+        .import(Qx3::class)
+        .import(Qx4::class)
+        .import(Qx6::class)
+        .import(TwoGeneric::class)
+
+    @Test
+    fun `bbbbb 2`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+                @Randomizable
+                data class Qx2x<Z>(val paramOfQ2x: Z)
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Qx2x<Int>>(randomizers = {
+                            val rdm = constantRandomizer(Qx2x.random<Int>(randomConfig))
+                            add(rdm)
+                        }))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+            }
+        }
+    }
+
 
     @Test
     fun `complex class as generic 2`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-                    .import(TwoGeneric::class)
-            }
+               $imports
                 @Randomizable
                 data class Qx2x<Z>(val paramOfQ2x: Z)
 
@@ -62,13 +93,8 @@ class TestRandomGenericProperty {
     fun `complex class as generic`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-                    .import(TwoGeneric::class)
-                }
+                $imports
+
                 @Randomizable
                 data class Qx2x<Z>(val paramOfQ2x: Z)
 
@@ -97,13 +123,7 @@ class TestRandomGenericProperty {
     fun `3 layers of multiple nested generic`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-                    .import(TwoGeneric::class)
-            }
+               $imports
                 @Randomizable
                 data class QxC<T1,T2>(override val data: TwoGeneric<Qx2<Qx4<T1>>,Qx4<Qx6<T2>>>):WithData
 
@@ -136,13 +156,7 @@ class TestRandomGenericProperty {
     fun `2 layers of nested nullable generic`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-                    .import(Qx::class)
-            }
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -167,12 +181,7 @@ class TestRandomGenericProperty {
     fun `2 layers of nested generic`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-            }
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -199,12 +208,7 @@ class TestRandomGenericProperty {
     fun `3 layers of single nested generic`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${
-                TestImportsBuilder.stdImport
-                    .import(Qx2::class)
-                    .import(Qx4::class)
-                    .import(Qx6::class)
-            }
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -231,7 +235,7 @@ class TestRandomGenericProperty {
     fun `random primitive generic using default random text`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -259,7 +263,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -287,7 +291,8 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx::class)}
+                $imports
+
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(AlwaysFalseRandomConfig, randomizers={
@@ -318,7 +323,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx2::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -352,7 +357,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx3::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -398,7 +403,7 @@ class TestRandomGenericProperty {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -434,7 +439,7 @@ class TestRandomGenericProperty {
     fun `randomize 1 generic property with bound - ok case`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
@@ -465,7 +470,7 @@ class TestRandomGenericProperty {
     fun `randomize 1 generic property with bound - fail case`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport.import(Qx::class)}
+                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
