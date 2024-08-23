@@ -714,7 +714,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         } else {
             /**
-             * This else handle all the rest cases in which:
+             * This else block handles all the rest cases in which:
              * - param type can be generic or not
              * - and constructor is invoked using generic type provided from outside, not the type from the constructor.
              */
