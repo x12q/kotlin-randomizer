@@ -1,39 +1,25 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.lib.RandomizerCollection
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetField
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
-class RandomContextAccessor @Inject constructor(
+class RandomizerCollectionAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
-) :ClassAccessor(){
+):ClassAccessor() {
+
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomContext_ClassId)) {
-            "RandomConfig interface is not in the class path."
+        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomizerCollection_Id)) {
+            "ClassRandomizerCollection class is not in the class path."
         }
-    }
-
-    fun getRandomizersMap(builder:DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("getRandomizers")
-    }
-
-    fun randomConfig(builder:DeclarationIrBuilder):IrCall{
-        val propGetter = requireNotNull(clzz.getPropertyGetter("randomConfig")){
-            "RandomContext must have randomConfig property. This is a bug by the developer."
-        }
-        return builder.irCall(propGetter)
     }
 
     private val randomFunctionCallId = CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("random"))
@@ -44,5 +30,4 @@ class RandomContextAccessor @Inject constructor(
         }
         return builder.irCall(function)
     }
-
 }

@@ -3,7 +3,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.ir_plugin.backend.transformers.accesor.*
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNull

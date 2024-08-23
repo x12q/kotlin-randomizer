@@ -1,8 +1,6 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall

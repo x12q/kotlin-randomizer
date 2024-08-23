@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accesor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects

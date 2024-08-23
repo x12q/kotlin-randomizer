@@ -1,8 +1,8 @@
 kotlin version: 2.0.0
 error message: java.lang.IllegalArgumentException: impossible, DefaultRandomConfig.Companion must exist
-	at com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicClassAccessor.defaultRandomConfigCompanionObject_delegate$lambda$7(BasicClassAccessor.kt:30)
+	at com.x12q.randomizer.ir_plugin.backend.transformers.accessor.BasicClassAccessor.defaultRandomConfigCompanionObject_delegate$lambda$7(BasicClassAccessor.kt:30)
 	at kotlin.SynchronizedLazyImpl.getValue(LazyJVM.kt:74)
-	at com.x12q.randomizer.ir_plugin.backend.transformers.accesor.BasicClassAccessor.getDefaultRandomConfigCompanionObject(BasicClassAccessor.kt:29)
+	at com.x12q.randomizer.ir_plugin.backend.transformers.accessor.BasicClassAccessor.getDefaultRandomConfigCompanionObject(BasicClassAccessor.kt:29)
 	at com.x12q.randomizer.ir_plugin.backend.transformers.RandomizableBackendTransformer.getDefaultRandomConfigInstance(RandomizableBackendTransformer.kt:126)
 	at com.x12q.randomizer.ir_plugin.backend.transformers.RandomizableBackendTransformer.makeRandomConfigExpressionFromAnnotation(RandomizableBackendTransformer.kt:118)
 	at com.x12q.randomizer.ir_plugin.backend.transformers.RandomizableBackendTransformer.completeRandomFunction(RandomizableBackendTransformer.kt:145)
