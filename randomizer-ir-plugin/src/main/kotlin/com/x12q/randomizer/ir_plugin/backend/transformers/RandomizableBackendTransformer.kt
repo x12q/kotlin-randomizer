@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -41,7 +42,7 @@ class RandomizableBackendTransformer @Inject constructor(
     private val randomContextBuilderImpAccessor: RandomContextBuilderImpAccessor,
     private val randomizerCollectionAccessor: RandomizerCollectionAccessor,
     private val randomContextAccessor: RandomContextAccessor,
-    private val unableToGenerateRandomExceptionAccessor: UnableToGenerateRandomExceptionAccessor,
+    private val unableToMakeRandomExceptionAccessor: UnableToMakeRandomExceptionAccessor,
 ) : RDBackendTransformer() {
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
@@ -685,10 +686,10 @@ class RandomizableBackendTransformer @Inject constructor(
             && `dont receive type or received type is generic`
         ) {
 
-            requireNotNull(constructorParamTypeSymbol){"impossible for constructorParamTypeSymbol to be null at this point"}
+            requireNotNull(constructorParamTypeSymbol) { "impossible for constructorParamTypeSymbol to be null at this point" }
 
             val paramTypeIndex = (receivedTypeClassifier as? IrTypeParameterSymbol)?.owner?.index
-                    ?: constructorParamTypeSymbol.owner.index
+                ?: constructorParamTypeSymbol.owner.index
 
             val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
 
@@ -708,7 +709,13 @@ class RandomizableBackendTransformer @Inject constructor(
                     randomPart = nonNullRandom,
                 )
             } else {
-                nonNullRandom
+                return randomOrThrow(
+                    builder,
+                    nonNullRandom,
+                    paramType,
+                    paramFromConstructor.name.asString(),
+                    paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
+                )
             }
             return rt
 
@@ -767,7 +774,13 @@ class RandomizableBackendTransformer @Inject constructor(
                     if (actualParamType.isNullable()) {
                         return randomOrNull(builder, getRandomConfigExpr, actualParamType, nonNullRandom)
                     } else {
-                        return randomOrThrow(builder,nonNullRandom,actualParamType,paramFromConstructor.name.asString(),paramFromConstructor.parentClassOrNull?.name?.asString() ?: "")
+                        return randomOrThrow(
+                            builder,
+                            nonNullRandom,
+                            actualParamType,
+                            paramFromConstructor.name.asString(),
+                            paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
+                        )
                     }
                 } else {
                     throw IllegalArgumentException("unable to construct an expression to generate a random instance for ${paramFromConstructor.name}:${paramClass.name}")
@@ -785,28 +798,42 @@ class RandomizableBackendTransformer @Inject constructor(
      * - or throw an exception at runtime
      */
     private fun randomOrThrow(
-        builder:DeclarationIrBuilder,
-        randomExpr:IrExpression,
+        builder: DeclarationIrBuilder,
+        randomExpr: IrExpression,
         type: IrType,
-        paramName:String,
-        enclosingClassName:String,
+        paramName: String,
+        enclosingClassName: String,
     ): IrExpression {
         return builder.irBlock {
-            val randomResult = irTemporary(randomExpr,"randomResult")
+            val randomResult = irTemporary(randomExpr, "randomResult")
             val getRandomResult = irGet(randomResult)
-            val throwExceptionExpr = run {
-                irThrow(
-                    irCallConstructor(
-                        callee =  unableToGenerateRandomExceptionAccessor.primaryConstructor().symbol,
-                        typeArguments = emptyList()
-                    ).withValueArgs(
-                        /*targetClassName:String*/ irString(enclosingClassName),
-                        /*paramName:String*/ irString(paramName),
-                        /*paramType:String*/ irString(type.dumpKotlinLike())
-                    )
+            val throwExceptionExpr = throwUnableToRandomizeException(
+                builder = this,
+                paramName = paramName,
+                typeName = type.dumpKotlinLike(),
+                enclosingClassName = enclosingClassName
+            )
+            +irIfNull(type, getRandomResult, throwExceptionExpr, getRandomResult)
+        }
+    }
+
+    private fun throwUnableToRandomizeException(
+        builder: IrBuilderWithScope,
+        paramName: String,
+        typeName: String,
+        enclosingClassName: String
+    ): IrThrowImpl {
+        return with(builder) {
+            irThrow(
+                irCallConstructor(
+                    callee = unableToMakeRandomExceptionAccessor.primaryConstructor().symbol,
+                    typeArguments = emptyList()
+                ).withValueArgs(
+                    /*targetClassName:String*/ irString(enclosingClassName),
+                    /*paramName:String*/ irString(paramName),
+                    /*paramType:String*/ irString(typeName)
                 )
-            }
-            +irIfNull(type,getRandomResult, throwExceptionExpr, getRandomResult)
+            )
         }
     }
 
