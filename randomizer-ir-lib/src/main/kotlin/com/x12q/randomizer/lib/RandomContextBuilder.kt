@@ -6,6 +6,7 @@ interface RandomContextBuilder {
     fun buildContext():RandomContext
     fun add(randomizer: ClassRandomizer<*>): RandomContextBuilder
     fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder
+    fun getLazyContext():RandomContext
 
     companion object{
 

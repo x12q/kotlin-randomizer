@@ -42,7 +42,7 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Qx2<Int>>(randomizers = {}))
+                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers = {}))
                     }
                 }
             """,
@@ -51,7 +51,7 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList.size shouldBe 1
-                objectList[0].shouldBeInstanceOf<Qx2<Int>>()
+                objectList[0].shouldBeInstanceOf<Qx2<Qx4<Int>>>()
             }
         }
     }

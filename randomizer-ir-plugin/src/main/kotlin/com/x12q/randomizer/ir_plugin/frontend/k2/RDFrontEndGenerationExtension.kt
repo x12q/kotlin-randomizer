@@ -237,7 +237,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             )
 
 
-            val randomizersBuilderConfigLambda = listOf(makeRdmBuilderConfigFunctionParam(randomFunction))
+            val randomizersBuilderConfigLambda = listOf(makeRdmBuilderConfigLambdaParam(randomFunction))
             randomFunction.replaceValueParameters(randomizersBuilderConfigLambda)
 
             val rt = randomFunction.symbol
@@ -251,7 +251,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
      * Generate this parameter (randomizer build config function) for random() function
      * ```randomizers: Function1<RandomContextBuilder,Unit> RandomContextBuilder.()->Unit = {}```
      */
-    private fun makeRdmBuilderConfigFunctionParam(
+    private fun makeRdmBuilderConfigLambdaParam(
         randomFunction: FirSimpleFunction,
     ): FirValueParameter {
 
@@ -409,7 +409,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 /**
                  * This is a lambda that will be used to config randomizer collection builder.
                  */
-                val randomizerBuilderConfigLambda = makeRdmBuilderConfigFunctionParam(randomFunctionWithRandomConfig)
+                val randomizerBuilderConfigLambda = makeRdmBuilderConfigLambdaParam(randomFunctionWithRandomConfig)
 
                 val params = currentValueParams + randomizerBuilderConfigLambda
 

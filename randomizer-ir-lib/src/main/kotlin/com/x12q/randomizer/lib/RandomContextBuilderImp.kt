@@ -20,6 +20,8 @@ class RandomContextBuilderImp: RandomContextBuilder {
         return this
     }
 
+
+
     private fun addStandardRandomizers(randomConfig: RandomConfig){
         val stdRdm = listOf(
             factoryRandomizer { randomConfig.nextInt() },
@@ -59,14 +61,27 @@ class RandomContextBuilderImp: RandomContextBuilder {
             "_randomConfig is not set yet. This is a bug by the developer."
         }
 
-    override fun buildContext(): RandomContext {
-        val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
-        if(builtRandomizerCollection == null){
-            buildRandomizerCollection()
-        }
+    private var builtContext:RandomContext? = null
 
-        return RandomContextImp(
-            baseRandomConfig, builtRandomizerCollection!!
-        )
+    override fun getLazyContext(): RandomContext {
+        return requireNotNull(builtContext) {
+            "getLazyContext is invoked before context is built. This is a bug by the developer."
+        }
+    }
+    override fun buildContext(): RandomContext {
+        val built = builtContext
+        if(built==null){
+            val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
+            if(builtRandomizerCollection == null){
+                buildRandomizerCollection()
+            }
+
+            val rt = RandomContextImp(
+                baseRandomConfig, builtRandomizerCollection!!
+            )
+            builtContext = rt
+            return rt
+        }
+        return built
     }
 }

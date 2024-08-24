@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
@@ -73,19 +74,90 @@ class RandomizableBackendTransformer @Inject constructor(
         val returnType = (expression.type.classifierOrNull as? IrClassSymbol)
 
         if (isGeneratedRandomFunction(function)) {
-            // add new synthetic argument
 
-            val param = function.valueParameters.firstOrNull { it.name == BaseObjects.randomContextBuilderConfigFunctionParamName }
-            if(param!=null){
-                val argument = expression.getValueArgument(param.index)!!
-                val newArgument = run {
-                    argument
+            val randomFunction = function
+
+            // add new synthetic argument
+            val param =
+                function.valueParameters.firstOrNull { it.name == BaseObjects.randomContextBuilderConfigFunctionParamName }
+            if (param != null) {
+                val providedRandomizersArgument = expression.getValueArgument(param.index)
+                val lambda = if (providedRandomizersArgument != null) {
+                    (providedRandomizersArgument as? IrFunctionExpression)?.function
+                } else {
+                    val defaultRandomizerArgument = param.defaultValue
+                    (defaultRandomizerArgument?.expression as? IrFunctionExpression)?.function
                 }
-                expression.putValueArgument(param.index,newArgument)
+                if (lambda != null) {
+                    val randomContextExtensionReceiver = requireNotNull(lambda.extensionReceiverParameter) {
+                        "at this point, it must be guaranteed that RandomContext passed to this lambda is not null"
+                    }
+
+                    val builder = DeclarationIrBuilder(
+                        generatorContext = pluginContext,
+                        symbol = lambda.symbol,
+                    )
+
+                    val getRandomContextExpr = builder.irGet(randomContextExtensionReceiver).dotCall(
+                        randomizerContextBuilderAccessor.randomConfig(builder)
+                    )
+
+                    val newBody = builder.irBlockBody {
+                        /**
+                         * Add randomizers for generic
+                         */
+                        makeCustomRandomizerForProvidedType(
+                            builder = builder,
+                            typeParamList = expression.typeArguments,
+                            getRandomConfigExpr = getRandomContextExpr,
+                            typeParamOfRandomFunction = randomFunction.typeParameters,
+                        ).forEach { statement ->
+                            +statement
+                        }
+                        /**
+                         * Appended old body's statements into the end of the new body
+                         */
+                        lambda.body?.statements?.forEach { statement ->
+                            +statement
+                        }
+                    }
+                    lambda.body = newBody
+                }
             }
         }
         return super.visitCall(expression)
     }
+
+    private fun makeCustomRandomizerForProvidedType(
+        builder: DeclarationIrBuilder,
+        typeParamList: List<IrType?>,
+        getRandomConfigExpr: IrExpression,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): List<IrStatement> {
+        val rt = mutableListOf<IrStatement>()
+        typeParamList.forEach { type ->
+            if (type != null && type is IrSimpleType) {
+                val clzz = type.classOrNull
+                if (clzz != null) {
+                    val arguments = type.arguments
+                    val expr = generateRandomClass(
+                        receivedTypeArguments = arguments,
+                        param = null,
+                        irClass = clzz.owner,
+                        getRandomContextExpr = getRandomConfigExpr,
+                        getRandomConfigExpr = getRandomConfigExpr,
+                        builder = builder,
+                        typeParamOfRandomFunction = typeParamOfRandomFunction
+                    )
+                    if (expr != null) {
+                        rt.add(expr)
+                    }
+                }
+            }
+        }
+        return rt
+    }
+
 
     /**
      * complete random() function in [companionObj].
@@ -132,7 +204,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 target = target,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
             )
-//            println(randomFunction.dumpKotlinLike())
+           println(randomFunction.dumpKotlinLike())
         }
     }
 
@@ -677,6 +749,7 @@ class RandomizableBackendTransformer @Inject constructor(
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
     ): IrExpression {
         val primitive = generatePrimitiveRandomParam(
+            receivedTypeArgument = receivedTypeArgument,
             param = paramFromConstructor,
             builder = builder,
             getRandomContext = getRandomContextExpr,
@@ -868,6 +941,7 @@ class RandomizableBackendTransformer @Inject constructor(
      * Generate an [IrExpression] that will return a random value for a parameter ([param])
      */
     private fun generatePrimitiveRandomParam(
+        receivedTypeArgument: IrTypeArgument?,
         param: IrValueParameter,
         builder: DeclarationIrBuilder,
         /**
@@ -876,7 +950,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContext: IrExpression,
         getRandomConfigExpr: IrExpression,
     ): IrExpression? {
-        val paramType = param.type
+        val paramType = receivedTypeArgument?.typeOrNull ?: param.type
         val isNullable = paramType.isNullable()
         val randomCallForRandomConfigCall = when {
             paramType.isInt2(isNullable) -> randomConfigAccessor.nextInt(builder)
