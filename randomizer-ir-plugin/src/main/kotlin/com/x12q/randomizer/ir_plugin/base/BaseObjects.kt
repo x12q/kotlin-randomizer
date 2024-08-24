@@ -23,7 +23,10 @@ internal object BaseObjects {
     val randomizableFqName = FqName(randomizableAnnotationName)
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
 
+    @Deprecated("consider before using, see if this a duplicated concept because there's already a a randomizableDeclarationKey")
     val declarationOrigin = RandomizerDeclarationOrigin
+
+    val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
 
     val randomFunctionName = Name.identifier("random")
     val randomConfigParamName= Name.identifier("randomConfig")
@@ -74,7 +77,6 @@ internal object BaseObjects {
 
 
     object Fir {
-        val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
         val firDeclarationOrigin = FirDeclarationOrigin.Plugin(randomizableDeclarationKey)
         val randomConfigClassId = BaseObjects.RandomConfig_ClassId
     }

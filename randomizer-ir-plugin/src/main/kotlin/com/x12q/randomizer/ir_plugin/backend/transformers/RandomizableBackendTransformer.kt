@@ -59,14 +59,46 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
+    private fun isGeneratedRandomFunction(function: IrSimpleFunction): Boolean {
+        val origin = function.origin
+        val isGeneratedByRandomizerPlugin =
+            (origin is IrDeclarationOrigin.GeneratedByPlugin) && (origin.pluginKey == BaseObjects.randomizableDeclarationKey)
+        val nameIsRandom = function.name == BaseObjects.randomFunctionName
+        return isGeneratedByRandomizerPlugin && nameIsRandom
+    }
+
     override fun visitCall(expression: IrCall): IrExpression {
-        println(expression.dumpKotlinLike())
+
+        val function = expression.symbol.owner
         val returnType = (expression.type.classifierOrNull as? IrClassSymbol)
-        val functionName = expression.symbol.owner.name
-        val needToGenerateSyntheticArgument = false
-        if (needToGenerateSyntheticArgument) {
-            // add new synthetic argument here
-//            expression.putValueArgument()
+
+        if (isGeneratedRandomFunction(function)) {
+            // add new synthetic argument
+
+            val random1 = expression.valueArgumentsCount == 1
+            val random2 = expression.valueArgumentsCount == 2
+            val random3 = false
+            val randomizersParamIndex = if (random1) {
+                0
+            } else if (random2) {
+                1
+            } else if(random3){
+                1
+            }else{
+                null
+            }
+
+            if(randomizersParamIndex!=null){
+                if(random1 || random2){
+                    val randomizersParam = expression.getValueArgument(randomizersParamIndex)
+                    val newRandomizersParam = randomizersParam
+                    expression.putValueArgument(randomizersParamIndex,newRandomizersParam)
+                }
+
+                if (random3){
+                    TODO()
+                }
+            }
         }
 
         return super.visitCall(expression)
@@ -79,8 +111,6 @@ class RandomizableBackendTransformer @Inject constructor(
      *
      * ```
      *      fun random(
-     *          randomT:RandomConfig.()->T?,
-     *          randomT2:RandomConfig.()->T2,
      *          randomizers:RandomContextBuilder.()->Unit = {},
      *      )
      * ```
@@ -120,7 +150,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 target = target,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
             )
-            println(randomFunction.dumpKotlinLike())
+//            println(randomFunction.dumpKotlinLike())
         }
     }
 

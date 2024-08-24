@@ -136,7 +136,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         val rt = mutableListOf(
             createDefaultPrivateConstructor(
                 owner = context.owner,
-                key = BaseObjects.Fir.randomizableDeclarationKey,
+                key = BaseObjects.randomizableDeclarationKey,
                 generateDelegatedNoArgConstructorCall = true,
             ).symbol,
         )
@@ -211,7 +211,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
 
             val randomFunction = createMemberFunction(
                 owner = companionObjectSymbol,
-                key = BaseObjects.Fir.randomizableDeclarationKey,
+                key = BaseObjects.randomizableDeclarationKey,
                 name = functionName,
                 returnTypeProvider = { typeParameters ->
                     val returnType = run {
@@ -366,7 +366,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
 
             val randomFunctionWithRandomConfig = createMemberFunction(
                 owner = companionObjectSymbol,
-                key = BaseObjects.Fir.randomizableDeclarationKey,
+                key = BaseObjects.randomizableDeclarationKey,
                 name = functionName,
                 returnTypeProvider = { typeParameters ->
 
@@ -436,7 +436,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
                 name = targetClassTypeParam.name,
                 variance = targetClassTypeParam.variance,
                 isReified = true,
-                key = BaseObjects.Fir.randomizableDeclarationKey,
+                key = BaseObjects.randomizableDeclarationKey,
                 config = {
 
                     targetClassTypeParam.resolvedBounds.forEach {
@@ -465,7 +465,7 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         if (currentCompanion != null) {
             return currentCompanion
         } else {
-            val companionClass = createCompanionObject(companionOwner, BaseObjects.Fir.randomizableDeclarationKey)
+            val companionClass = createCompanionObject(companionOwner, BaseObjects.randomizableDeclarationKey)
             val rt = companionClass.symbol
             return rt
         }

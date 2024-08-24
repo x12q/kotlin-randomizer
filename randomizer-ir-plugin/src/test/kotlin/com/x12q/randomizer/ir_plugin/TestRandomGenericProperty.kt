@@ -32,7 +32,7 @@ class TestRandomGenericProperty {
         .import(TwoGeneric::class)
 
     @Test
-    fun `complex class as generic WITHOUT custom randomizer`() {
+    fun `complex class as generic WITH empty custom randomizers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -42,7 +42,7 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Qx2<Int>>())
+                        putData(QxC.random<Qx2<Int>>(randomizers = {}))
                     }
                 }
             """,
