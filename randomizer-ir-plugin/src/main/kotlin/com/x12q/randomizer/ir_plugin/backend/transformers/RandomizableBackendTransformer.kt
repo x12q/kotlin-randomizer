@@ -75,34 +75,16 @@ class RandomizableBackendTransformer @Inject constructor(
         if (isGeneratedRandomFunction(function)) {
             // add new synthetic argument
 
-            val random1 = expression.valueArgumentsCount == 1
-            val random2 = expression.valueArgumentsCount == 2
-            val random3 = false
-            val randomizersParamIndex = if (random1) {
-                0
-            } else if (random2) {
-                1
-            } else if(random3){
-                1
-            }else{
-                null
-            }
-
-            if(randomizersParamIndex!=null){
-                if(random1 || random2){
-                    val randomizersParam = expression.getValueArgument(randomizersParamIndex)
-                    val newRandomizersParam = randomizersParam
-                    expression.putValueArgument(randomizersParamIndex,newRandomizersParam)
+            val param = function.valueParameters.firstOrNull { it.name == BaseObjects.randomContextBuilderConfigFunctionParamName }
+            if(param!=null){
+                val argument = expression.getValueArgument(param.index)!!
+                val newArgument = run {
+                    argument
                 }
-
-                if (random3){
-                    TODO()
-                }
+                expression.putValueArgument(param.index,newArgument)
             }
         }
-
         return super.visitCall(expression)
-
     }
 
     /**
