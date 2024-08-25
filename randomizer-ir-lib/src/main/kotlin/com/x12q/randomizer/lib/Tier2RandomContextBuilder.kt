@@ -1,21 +1,21 @@
 package com.x12q.randomizer.lib
 
-import kotlin.reflect.KClass
 
-
-class TwoTierRandomContextBuilder(
-    val tier1Context:RandomContext,
+class Tier2RandomContextBuilder(
+    private val tier1Context:RandomContext,
 ) {
     private val tier2Builder = RandomContextBuilderImp()
 
-    fun add(makeRandomizer: (RandomContext)->ClassRandomizer<*>): TwoTierRandomContextBuilder {
+    fun invokeAndAdd(makeRandomizer: (RandomContext)->ClassRandomizer<*>): Tier2RandomContextBuilder {
         val randomizer = makeRandomizer(tier1Context)
         tier2Builder.add(randomizer)
         return this
     }
 
     fun build(): TwoTierRandomContext {
-        val tier2 = tier2Builder.buildContext()
+        val tier2 = tier2Builder
+            .setRandomConfig(tier1Context.randomConfig)
+            .buildContext()
         return TwoTierRandomContext(
             tier1Context,tier2
         )

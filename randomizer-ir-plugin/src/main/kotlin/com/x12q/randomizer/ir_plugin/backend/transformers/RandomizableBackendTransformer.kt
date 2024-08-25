@@ -97,9 +97,9 @@ class RandomizableBackendTransformer @Inject constructor(
                         symbol = lambda.symbol,
                     )
 
-                    val getRandomContextExpr = builder.irGet(randomContextExtensionReceiver).dotCall(
-                        randomizerContextBuilderAccessor.randomConfig(builder)
-                    )
+                    // val getRandomContextExpr = builder.irGet(randomContextExtensionReceiver).dotCall(
+                    //     randomizerContextBuilderAccessor.randomConfig(builder)
+                    // )
 
                     val newBody = builder.irBlockBody {
                         /**

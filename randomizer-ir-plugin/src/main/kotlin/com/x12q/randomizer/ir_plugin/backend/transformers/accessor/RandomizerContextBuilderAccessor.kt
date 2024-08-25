@@ -27,10 +27,6 @@ class RandomizerContextBuilderAccessor @Inject constructor(
         )
     }
 
-    fun getLazyContext(builder: DeclarationIrBuilder): IrCall {
-        return builder.zeroAgrFunctionCall("getLazyContext")
-    }
-
     fun buildFunction(builder: IrBuilderWithScope): IrCall {
         return builder.zeroAgrFunctionCall("build")
     }
