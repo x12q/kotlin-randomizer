@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
  */
 interface RandomizerCollection {
     val randomizersMap:Map<KClass<*>, ClassRandomizer<*>>
-    fun getRandomizers():Map<KClass<*>, ClassRandomizer<*>>
+    fun getRandomizerForClass(clazz:KClass<*>):ClassRandomizer<*>?
 }

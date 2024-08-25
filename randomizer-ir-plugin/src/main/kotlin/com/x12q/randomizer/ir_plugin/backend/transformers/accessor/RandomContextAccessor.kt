@@ -25,7 +25,12 @@ class RandomContextAccessor @Inject constructor(
     }
 
     fun getRandomizersMap(builder:DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("getRandomizers")
+        return builder.irCall(
+            requireNotNull(clzz.getPropertyGetter("randomizersMap")){
+                "randomizersMap must exist in a RandomContext. This is a bug by the developer."
+            }
+        )
+        // return builder.zeroAgrFunctionCall("getRandomizers")
     }
 
     fun randomConfig(builder:DeclarationIrBuilder):IrCall{

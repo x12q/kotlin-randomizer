@@ -2,7 +2,7 @@ package com.x12q.randomizer.lib
 
 import kotlin.random.Random
 
-class RandomConfigImp(
+data class RandomConfigImp(
     override val random: Random,
     override val collectionSizeRange: IntRange,
     override val charRange: CharRange,

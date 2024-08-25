@@ -16,13 +16,17 @@ class RandomContextBuilderImp: RandomContextBuilder {
 
     override fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder {
         this._randomConfig = randomConfig
-        addStandardRandomizers(randomConfig)
+        return this
+    }
+
+    override fun setRandomConfigAndGenerateStandardRandomizers(randomConfig: RandomConfig): RandomContextBuilder {
+        setRandomConfig(randomConfig)
+        generateStandardRandomizers(randomConfig)
         return this
     }
 
 
-
-    private fun addStandardRandomizers(randomConfig: RandomConfig){
+    override fun generateStandardRandomizers(randomConfig: RandomConfig){
         val stdRdm = listOf(
             factoryRandomizer { randomConfig.nextInt() },
             factoryRandomizer { randomConfig.nextByte() },
@@ -48,6 +52,12 @@ class RandomContextBuilderImp: RandomContextBuilder {
         randomizersMap.putAll(stdRdm.associateBy { it.returnType })
     }
 
+    private val tier2RandomizerFactoryFunctions:MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
+    override fun addForTier2(makeRandomizer: (RandomContext) -> ClassRandomizer<*>): RandomContextBuilder {
+        tier2RandomizerFactoryFunctions.add(makeRandomizer)
+        return this
+    }
+
     private var builtRandomizerCollection:RandomizerCollection? = null
 
     private fun buildRandomizerCollection() {
@@ -61,15 +71,16 @@ class RandomContextBuilderImp: RandomContextBuilder {
             "_randomConfig is not set yet. This is a bug by the developer."
         }
 
-    private var builtContext:RandomContext? = null
+    private var tier1Context:RandomContext? = null
 
     override fun getLazyContext(): RandomContext {
-        return requireNotNull(builtContext) {
+        return requireNotNull(tier1Context) {
             "getLazyContext is invoked before context is built. This is a bug by the developer."
         }
     }
+
     override fun buildContext(): RandomContext {
-        val built = builtContext
+        val built = tier1Context
         if(built==null){
             val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
             if(builtRandomizerCollection == null){
@@ -79,9 +90,10 @@ class RandomContextBuilderImp: RandomContextBuilder {
             val rt = RandomContextImp(
                 baseRandomConfig, builtRandomizerCollection!!
             )
-            builtContext = rt
+            tier1Context = rt
             return rt
         }
         return built
     }
 }
+

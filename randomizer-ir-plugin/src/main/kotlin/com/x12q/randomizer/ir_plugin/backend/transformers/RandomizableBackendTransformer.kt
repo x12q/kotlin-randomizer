@@ -14,7 +14,6 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
@@ -106,14 +105,14 @@ class RandomizableBackendTransformer @Inject constructor(
                         /**
                          * Add randomizers for generic
                          */
-                        makeCustomRandomizerForProvidedType(
-                            builder = builder,
-                            typeParamList = expression.typeArguments,
-                            getRandomConfigExpr = getRandomContextExpr,
-                            typeParamOfRandomFunction = randomFunction.typeParameters,
-                        ).forEach { statement ->
-                            +statement
-                        }
+                        // makeCustomRandomizerForProvidedType(
+                        //     builder = builder,
+                        //     typeParamList = expression.typeArguments,
+                        //     getRandomConfigExpr = getRandomContextExpr,
+                        //     typeParamOfRandomFunction = randomFunction.typeParameters,
+                        // ).forEach { statement ->
+                        //     +statement
+                        // }
                         /**
                          * Appended old body's statements into the end of the new body
                          */
@@ -290,7 +289,7 @@ class RandomizableBackendTransformer @Inject constructor(
              * Give base random config to builder
              */
             +irGet(randomContextBuilderVar).dotCall(
-                randomizerContextBuilderAccessor.setRandomConfigFunction(builder)
+                randomizerContextBuilderAccessor.setRandomConfigAndGenerateStandardRandomizersFunction(builder)
             ).withValueArgs(getRandomConfig)
 
             /**

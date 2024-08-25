@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 class RandomizerCollectionImp(
     override val randomizersMap: Map<KClass<*>, ClassRandomizer<*>>
 ) : RandomizerCollection {
-    override fun getRandomizers(): Map<KClass<*>, ClassRandomizer<*>> {
-        return randomizersMap
+    override fun getRandomizerForClass(clazz: KClass<*>): ClassRandomizer<*>? {
+        return randomizersMap[clazz]
     }
 }
