@@ -19,6 +19,10 @@ class RandomizerContextBuilderAccessor @Inject constructor(
         }
     }
 
+    fun addForTier2(builder: DeclarationIrBuilder):IrCall{
+        return builder.oneAgrFunctionCall("addForTier2")
+    }
+
     fun randomConfig(builder: DeclarationIrBuilder): IrCall {
         return builder.irCall(
             requireNotNull(clzz.getPropertyGetter("randomConfig")) {

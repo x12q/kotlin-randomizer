@@ -42,7 +42,11 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers = {}))
+                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers = {
+                            addForTier2{ context->
+                                constantRandomizer(1)
+                            }
+                        }))
                     }
                 }
             """,
