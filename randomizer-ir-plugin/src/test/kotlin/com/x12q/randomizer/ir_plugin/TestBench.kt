@@ -27,8 +27,9 @@ val defaultRandomizerCollection = RandomContextBuilderImp().apply {
     add(makeConstantRandomizer<AbstractClassQWE>(ObjectQWE2))
 }.buildContext()
 
-fun main() {
 
+
+fun main() {
     println(
         ABC.random<Double, String, Float>(
             randomTypeT1 = {
@@ -43,6 +44,13 @@ fun main() {
             randomizers = {
                 add(makeConstantRandomizer(999))
                 add(makeConstantRandomizer<AbstractClassQWE>(ObjectQWE2))
+
+
+                addForTier2{ //makeRandomizer lambda
+                    factoryRandomizer{ //makeRandomizer lambda
+
+                    }
+                }
             }
         )
     )

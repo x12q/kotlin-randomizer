@@ -53,9 +53,10 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private val tier2RandomizerFactoryFunctionList: MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
 
-    override fun addForTier2(makeRandomizer: RandomContext.() -> ClassRandomizer<*>): RandomContextBuilder {
-        tier2RandomizerFactoryFunctionList.add(makeRandomizer)
-        return this
+    override fun addForTier2(makeRandomizer: (RandomContext.()->ClassRandomizer<*>)?) {
+        if(makeRandomizer!=null){
+            tier2RandomizerFactoryFunctionList.add(makeRandomizer)
+        }
     }
 
     private var builtRandomizerCollection: RandomizerCollection? = null

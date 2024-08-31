@@ -1,12 +1,15 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import javax.inject.Inject
 
@@ -19,7 +22,11 @@ class RandomizerContextBuilderAccessor @Inject constructor(
         }
     }
 
-    fun addForTier2(builder: DeclarationIrBuilder):IrCall{
+    fun addForTier2():IrSimpleFunctionSymbol{
+        return clzz.oneAgrFunction("addForTier2")
+    }
+
+    fun addForTier2Call(builder: IrBuilderWithScope):IrCall{
         return builder.oneAgrFunctionCall("addForTier2")
     }
 

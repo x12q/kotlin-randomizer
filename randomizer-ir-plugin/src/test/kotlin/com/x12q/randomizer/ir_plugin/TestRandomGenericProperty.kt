@@ -40,12 +40,11 @@ class TestRandomGenericProperty {
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
-                fun runTest():TestOutput{
+                fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers = {
-                            addForTier2{ context->
-                                constantRandomizer(1)
-                            }
+                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers={
+                            val i =123
+                            println(i)
                         }))
                     }
                 }

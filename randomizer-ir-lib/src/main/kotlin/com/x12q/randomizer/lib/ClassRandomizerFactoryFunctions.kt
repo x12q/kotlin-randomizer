@@ -7,3 +7,8 @@ inline fun <reified T:Any> constantRandomizer(value:T):ClassRandomizer<T>{
 inline fun <reified T:Any> factoryRandomizer(noinline makeRandom:()->T):ClassRandomizer<T>{
     return FactoryClassRandomizer.of(makeRandom)
 }
+
+
+inline fun qwe(){
+    constantRandomizer<Int>(123)
+}
