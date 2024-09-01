@@ -71,6 +71,13 @@ class RandomizableBackendTransformer @Inject constructor(
         return isGeneratedByRandomizerPlugin && nameIsRandom
     }
 
+    /**
+     * The purpose of this transformation is:
+     * - add randomizers for generic type at call side of random() functions
+     * Explanation:
+     * - Only at call side that the concrete type of generic type is known.
+     * - Therefore, only at call side there's enough information to generate randomizers for generic type.
+     */
     override fun visitCall(expression: IrCall): IrExpression {
 
         val function = expression.symbol.owner
@@ -164,11 +171,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             +statement
                         }
                     }
-
                     randomizersLambda.body = newBody
-
-                    val z = newBody.dumpKotlinLike()
-                    println("z12q: ${z}")
                 }
             }
 
@@ -306,7 +309,6 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         val rt = generatedLambda
-        println("z12q: ${rt.dumpKotlinLike()}")
         return rt
     }
 
