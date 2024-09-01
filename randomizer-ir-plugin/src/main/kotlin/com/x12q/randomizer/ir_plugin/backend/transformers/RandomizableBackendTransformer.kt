@@ -8,14 +8,17 @@ import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNull
 import com.x12q.randomizer.lib.*
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.ir.addExtensionReceiver
+import org.jetbrains.kotlin.backend.common.ir.returnType
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irThrow
+import org.jetbrains.kotlin.backend.jvm.ir.eraseTypeParameters
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.builders.declarations.addFunction
 import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
 import org.jetbrains.kotlin.ir.declarations.*
@@ -28,12 +31,13 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.name.SpecialNames
+import java.util.UUID
 import javax.inject.Inject
 
 /**
  * Order of priority: random context > generic factory function
  */
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 class RandomizableBackendTransformer @Inject constructor(
     override val pluginContext: IrPluginContext,
     private val randomAccessor: RandomAccessor,
@@ -75,24 +79,25 @@ class RandomizableBackendTransformer @Inject constructor(
     override fun visitCall(expression: IrCall): IrExpression {
 
         val function = expression.symbol.owner
+
         if (isGeneratedRandomFunction(function)) {
 
             val randomFunction = function
-            // add new synthetic argument
-            val param =
-                function.valueParameters.firstOrNull { it.name == BaseObjects.randomContextBuilderConfigFunctionParamName }
+
+            val param = function.valueParameters.firstOrNull {
+                it.name == BaseObjects.randomContextBuilderConfigFunctionParamName
+            }
             if (param != null) {
                 val providedRandomizersArgument = expression.getValueArgument(param.index)
 
                 /**
-                 * Extract the lambda, use the default if none is available
-                 * this lambda is: randomizers = RandomContextBuilder.{}
+                 * Extract the randomizers lambda, use the default if none is available
+                 * this lambda signature is: randomizers = RandomContextBuilder.{}
                  */
                 val randomizersLambda = if (providedRandomizersArgument != null) {
                     (providedRandomizersArgument as? IrFunctionExpression)?.function
                 } else {
-                    val defaultRandomizerArgument = param.defaultValue
-                    (defaultRandomizerArgument?.expression as? IrFunctionExpression)?.function
+                    (param.defaultValue?.expression as? IrFunctionExpression)?.function
                 }
 
                 if (randomizersLambda != null) {
@@ -104,52 +109,39 @@ class RandomizableBackendTransformer @Inject constructor(
 
                     val newBody = builder.irBlockBody {
                         val blockBodyBuilder = this
-                        val addForTier2FunctionCall =
-                            randomizerContextBuilderAccessor.addForTier2Call(blockBodyBuilder).apply {
-                                val randomContextBuilder =
-                                    requireNotNull(randomizersLambda.extensionReceiverParameter) {
-                                        "at this point, it must be guaranteed that RandomContext passed to this lambda is not null"
-                                    }
-                                dispatchReceiver = irGet(randomContextBuilder)
-                            }
+                        val randomContextBuilder = requireNotNull(randomizersLambda.extensionReceiverParameter) {
+                            "at this point, it must be guaranteed that a valid RandomContext is passed to randomizers lambda"
+                        }
 
                         for (typeArg in expression.typeArguments) {
                             /**
                              * This build the lambda passed to "addForTier2"
                              * This lambda accept a RandomContext as its extension param, and return a ClassRandomizer<*>
-                             * Like this
-                             *     RandomContext.() -> ClassRandomizer<*>
+                             * Like this: RandomContext.() -> ClassRandomizer<*>
                              */
                             if (typeArg != null) {
+                                val addForTier2FunctionCall = irGet(randomContextBuilder)
+                                    .dotCall(randomizerContextBuilderAccessor.addForTier2Call(blockBodyBuilder))
+
                                 val makeRandomizerLambda = generate_makeClassRandomizer_Lambda(
                                     randomizersLambda = randomizersLambda,
                                     randomType = typeArg,
                                     typeParamOfRandomFunction = randomFunction.typeParameters,
                                 )
 
-                                // +makeRandomizerLambda
-
                                 addForTier2FunctionCall.putValueArgument(
                                     index = 0,
-                                    IrFunctionExpressionImpl(
-                                        UNDEFINED_OFFSET,
-                                        UNDEFINED_OFFSET,
-                                        makeRandomizerLambda.returnType,
-                                        makeRandomizerLambda,
-                                        IrStatementOrigin.LAMBDA
+                                    valueArgument = IrFunctionExpressionImpl(
+                                        startOffset = makeRandomizerLambda.startOffset,
+                                        endOffset = makeRandomizerLambda.endOffset,
+                                        type =  pluginContext.irBuiltIns.functionN(1).typeWith(randomContextAccessor.irType,makeRandomizerLambda.returnType),
+                                        function = makeRandomizerLambda,
+                                        origin = IrStatementOrigin.LAMBDA,
                                     )
                                 )
-                                // addForTier2FunctionCall.putValueArgument(
-                                //     index = 0,
-                                //     valueArgument = builder.irFunctionReference(
-                                //         makeRandomizerLambda.returnType, makeRandomizerLambda.symbol
-                                //     ),
-                                // )
-                                // addForTier2FunctionCall.putValueArgument(0,irNull())
+                                +addForTier2FunctionCall
                             }
                         }
-
-                        +addForTier2FunctionCall
 
                         /**
                          * Appended old body's statements into the end of the new body
@@ -163,6 +155,7 @@ class RandomizableBackendTransformer @Inject constructor(
             }
         }
         return super.visitCall(expression)
+        // return expression
     }
 
     /**
@@ -177,17 +170,16 @@ class RandomizableBackendTransformer @Inject constructor(
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrSimpleFunction {
 
-        val classRandomizerType = classRandomizerAccessor.clzz.typeWith(randomType)
-
         val generatedLambda = pluginContext.irFactory.buildFun {
-            // name = SpecialNames.ANONYMOUS
-            name = Name.special("<makeClassRandomizer>")
+            // name = Name.special("<makeClassRandomizer>")
+            name = SpecialNames.ANONYMOUS
             origin = BaseObjects.declarationOrigin
             visibility = DescriptorVisibilities.LOCAL
-            returnType = classRandomizerType
+            returnType = classRandomizerAccessor.clzz.starProjectedType
             modality = FINAL
             isSuspend = false
         }.apply {
+
             parent = randomizersLambda
 
             val makeClassRandomizerLambda = this
@@ -211,77 +203,36 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomContextExpr = getRandomContextExpr,
                 )
 
-                // +makeRandomInstanceLambda
-
                 val classRandomizerMakingCall = if (false) {
+                    +makeRandomInstanceLambda
                     classRandomizerUtilAccessor.constantClassRandomizerFunctionCall(builder).apply {
-                        // putValueArgument(0, irCall(makeRandomInstanceLambda))
-                        +makeRandomInstanceLambda
-                        putValueArgument(
-                            0, IrFunctionExpressionImpl(
-                                UNDEFINED_OFFSET,
-                                UNDEFINED_OFFSET,
-                                rdType,
-                                makeRandomInstanceLambda,
-                                IrStatementOrigin.LAMBDA
-                            )
-                        )
+                        putValueArgument(0, irCall(makeRandomInstanceLambda))
                         putTypeArgument(0, rdType)
                     }
                 } else {
                     classRandomizerUtilAccessor.factoryClassRandomizerFunctionCall(builder).apply {
-                        // putValueArgument(0, builder.irFunctionReference(rdType, makeRandomInstanceLambda.symbol))
+
                         putValueArgument(
-                            0, IrFunctionExpressionImpl(
-                                UNDEFINED_OFFSET,
-                                UNDEFINED_OFFSET,
-                                rdType,
-                                makeRandomInstanceLambda,
-                                IrStatementOrigin.LAMBDA
+                            index = 0,
+                            valueArgument = IrFunctionExpressionImpl(
+                                startOffset = makeRandomInstanceLambda.startOffset,
+                                endOffset = makeRandomInstanceLambda.endOffset,
+                                type = pluginContext.irBuiltIns.functionN(0).typeWith(makeRandomInstanceLambda.returnType),
+                                function = makeRandomInstanceLambda,
+                                origin = IrStatementOrigin.LAMBDA
                             )
                         )
                         putTypeArgument(0, rdType)
                     }
-                    // val factoryRandomizerCall = generate_FactoryRandomizerCall(
-                    //     builder = builder,
-                    //     declarationParent = classRandomizerLambda,
-                    //     randomTargetType = randomType,
-                    //     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    //     getRandomContextExpr = getRandomContextExpr,
-                    // )
                 }
-
                 +irReturn(classRandomizerMakingCall)
+                // +irReturn(irNull())
             }
             body = newBody
         }
 
         val rt = generatedLambda
-        return rt
-    }
-
-    /**
-     * Generate this call: factoryRandomizer(makeRandom = factoryLambda)
-     * This call will invoke factoryRandomizer function to create a ClassRandomizer
-     */
-    fun generate_FactoryRandomizerCall(
-        builder: DeclarationIrBuilder,
-        declarationParent: IrDeclarationParent,
-        randomTargetType: IrType,
-        typeParamOfRandomFunction: List<IrTypeParameter>,
-        getRandomContextExpr: IrExpression,
-    ): IrCall {
-        val tt = requireNotNull(randomTargetType as? IrSimpleType)
-        val factoryLambda = generate_makeRandom_Lambda(
-            declarationParent = declarationParent,
-            randomTargetType = tt,
-            typeParamOfRandomFunction = typeParamOfRandomFunction,
-            getRandomContextExpr = getRandomContextExpr,
-        )
-        val rt = classRandomizerUtilAccessor.factoryClassRandomizerFunctionCall(builder).apply {
-            putValueArgument(0, builder.irFunctionReference(tt, factoryLambda.symbol))
-            putTypeArgument(0, tt)
-        }
+        println("z12q: ${rt.dumpKotlinLike()}")
         return rt
     }
 
@@ -306,8 +257,8 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         val generatedLambda = pluginContext.irFactory.buildFun {
-            // name = SpecialNames.ANONYMOUS
-            name = Name.special("<makeRandom>")
+            name = SpecialNames.ANONYMOUS
+            // name = Name.special("<makeRandom>")
             origin = BaseObjects.declarationOrigin
             visibility = DescriptorVisibilities.LOCAL
             returnType = randomTargetType

@@ -32,6 +32,35 @@ class TestRandomGenericProperty {
         .import(TwoGeneric::class)
 
     @Test
+    fun `complex class as generic WITH NO custom randomizers`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Qx2<Qx4<Int>>>())
+                        putData(QxC.random<Qx2<Qx4<Float>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    Qx2(Qx4(LegalRandomConfigObject.nextInt())),
+                    Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
+                )
+            }
+        }
+    }
+
+    @Test
     fun `complex class as generic WITH empty custom randomizers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -42,10 +71,8 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers={
-                            val i =123
-                            println(i)
-                        }))
+                        putData(QxC.random<Qx2<Qx4<Int>>>(randomizers={}))
+                        putData(QxC.random<Qx2<Qx4<Float>>>(randomizers={}))
                     }
                 }
             """,
@@ -53,8 +80,12 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
-                objectList.size shouldBe 1
-                objectList[0].shouldBeInstanceOf<Qx2<Qx4<Int>>>()
+
+                objectList shouldBe listOf(
+                    Qx2(Qx4(LegalRandomConfigObject.nextInt())),
+                    Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
+
+                    )
             }
         }
     }
@@ -146,7 +177,7 @@ class TestRandomGenericProperty {
                     g1 = Qx2(Qx4(123)),
                     g2 = Qx4(Qx6(-9.45f)),
                 )
-                objectList[1].shouldBeInstanceOf<TwoGeneric<Qx2<Qx4<Int>>,Qx4<Qx6<Float>>>>()
+                objectList[1].shouldBeInstanceOf<TwoGeneric<Qx2<Qx4<Int>>, Qx4<Qx6<Float>>>>()
             }
         }
     }
@@ -432,7 +463,6 @@ class TestRandomGenericProperty {
             }
         }
     }
-
 
 
     @Test
