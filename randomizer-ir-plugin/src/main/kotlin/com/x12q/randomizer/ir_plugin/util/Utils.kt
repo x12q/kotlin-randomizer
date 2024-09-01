@@ -30,3 +30,7 @@ fun <T>Collection<T>.toMapWithIndex():Map<Int,T>{
     val rt = this.withIndex().associateBy({ it.index },{ it.value }) .toMap()
     return rt
 }
+
+fun runSideEffect(sideEffect:()->Unit){
+    sideEffect()
+}

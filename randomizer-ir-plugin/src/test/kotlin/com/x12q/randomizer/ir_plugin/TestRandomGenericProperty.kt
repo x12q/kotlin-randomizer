@@ -44,6 +44,8 @@ class TestRandomGenericProperty {
                     return withTestOutput{
                         putData(QxC.random<Qx2<Qx4<Int>>>())
                         putData(QxC.random<Qx2<Qx4<Float>>>())
+                        putData(QxC.random<Qx2<Qx4<String>>>())
+                        
                     }
                 }
             """,
@@ -55,6 +57,7 @@ class TestRandomGenericProperty {
                 objectList shouldBe listOf(
                     Qx2(Qx4(LegalRandomConfigObject.nextInt())),
                     Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
+                    Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())),
                 )
             }
         }
@@ -73,6 +76,7 @@ class TestRandomGenericProperty {
                     return withTestOutput{
                         putData(QxC.random<Qx2<Qx4<Int>>>(randomizers={}))
                         putData(QxC.random<Qx2<Qx4<Float>>>(randomizers={}))
+                        putData(QxC.random<Qx2<Qx4<String>>>(randomizers={}))
                     }
                 }
             """,
