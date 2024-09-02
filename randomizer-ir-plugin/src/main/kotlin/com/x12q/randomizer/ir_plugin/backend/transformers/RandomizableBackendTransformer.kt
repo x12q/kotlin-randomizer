@@ -1114,12 +1114,16 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Construct and throw an instance of [UnableToMakeRandomException]
+     */
     private fun throwUnableToRandomizeException(
         builder: IrBuilderWithScope,
         paramName: String,
         typeName: String,
         enclosingClassName: String
     ): IrThrowImpl {
+
         return with(builder) {
             irThrow(
                 irCallConstructor(
