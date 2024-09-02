@@ -22,6 +22,7 @@ class TestRandomGenericProperty {
     data class Qx4<M>(val paramOfQ4: M)
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
+    data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
 
     private val imports = TestImportsBuilder.stdImport
         .import(Qx::class)
@@ -30,9 +31,98 @@ class TestRandomGenericProperty {
         .import(Qx4::class)
         .import(Qx6::class)
         .import(TwoGeneric::class)
+        .import(ThreeGeneric::class)
+
 
     @Test
-    fun `complex class as generic WITH NO custom randomizers`() {
+    fun `multi generic with NO randomizers `() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
+                        putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
+                        putData(QxC.random<TwoGeneric<Double,String>>())
+                        
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    TwoGeneric(Qx2(LegalRandomConfigObject.nextInt()), Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    ThreeGeneric(
+                        Qx2(LegalRandomConfigObject.nextInt()),
+                        Qx4(LegalRandomConfigObject.nextStringUUID()),
+                        LegalRandomConfigObject.nextFloat()
+                    ),
+                    ThreeGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID(),Qx4(LegalRandomConfigObject.nextShort())),
+                    ThreeGeneric(
+                        Qx2(LegalRandomConfigObject.nextInt()),
+                        Qx4(LegalRandomConfigObject.nextStringUUID()),
+                        Qx4(Qx2(Qx4(LegalRandomConfigObject.nextInt()))),
+                    ),
+                    TwoGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID()),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `multi generic with empty randomizers `() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(randomizers={}))
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>(randomizers={}))
+                        putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>(randomizers={}))
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>(randomizers={}))
+                        putData(QxC.random<TwoGeneric<Double,String>>(randomizers={}))
+                        
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    TwoGeneric(Qx2(LegalRandomConfigObject.nextInt()), Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    ThreeGeneric(
+                        Qx2(LegalRandomConfigObject.nextInt()),
+                        Qx4(LegalRandomConfigObject.nextStringUUID()),
+                        LegalRandomConfigObject.nextFloat()
+                    ),
+                    ThreeGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID(),Qx4(LegalRandomConfigObject.nextShort())),
+                    ThreeGeneric(
+                        Qx2(LegalRandomConfigObject.nextInt()),
+                        Qx4(LegalRandomConfigObject.nextStringUUID()),
+                        Qx4(Qx2(Qx4(LegalRandomConfigObject.nextInt()))),
+                    ),
+                    TwoGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID()),
+                )
+            }
+        }
+    }
+    @Test
+    fun `one generic WITH NO custom randomizers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -45,6 +135,8 @@ class TestRandomGenericProperty {
                         putData(QxC.random<Qx2<Qx4<Int>>>())
                         putData(QxC.random<Qx2<Qx4<Float>>>())
                         putData(QxC.random<Qx2<Qx4<String>>>())
+                        putData(QxC.random<Qx2<Int>>(randomizers={}))
+                        putData(QxC.random<Qx2<Boolean>>(randomizers={}))
                         
                     }
                 }
@@ -58,13 +150,16 @@ class TestRandomGenericProperty {
                     Qx2(Qx4(LegalRandomConfigObject.nextInt())),
                     Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
                     Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    Qx2(LegalRandomConfigObject.nextInt()),
+                    Qx2(LegalRandomConfigObject.nextBoolean()),
                 )
             }
         }
     }
 
+
     @Test
-    fun `complex class as generic WITH empty custom randomizers`() {
+    fun `one generic with empty randomizers `() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -77,6 +172,8 @@ class TestRandomGenericProperty {
                         putData(QxC.random<Qx2<Qx4<Int>>>(randomizers={}))
                         putData(QxC.random<Qx2<Qx4<Float>>>(randomizers={}))
                         putData(QxC.random<Qx2<Qx4<String>>>(randomizers={}))
+                        putData(QxC.random<Qx2<Int>>(randomizers={}))
+                        putData(QxC.random<Qx2<Boolean>>(randomizers={}))
                     }
                 }
             """,
@@ -88,8 +185,10 @@ class TestRandomGenericProperty {
                 objectList shouldBe listOf(
                     Qx2(Qx4(LegalRandomConfigObject.nextInt())),
                     Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
-
-                    )
+                    Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    Qx2(LegalRandomConfigObject.nextInt()),
+                    Qx2(LegalRandomConfigObject.nextBoolean()),
+                )
             }
         }
     }
