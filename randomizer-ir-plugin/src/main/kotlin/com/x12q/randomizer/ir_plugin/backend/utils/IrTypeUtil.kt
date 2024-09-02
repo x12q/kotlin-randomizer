@@ -1,10 +1,40 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
+import com.x12q.randomizer.ir_plugin.util.stopAtFirst
+import org.jetbrains.kotlin.backend.jvm.ir.firstSuperMethodFromKotlin
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.ir.util.hasTopLevelEqualFqName
+
+/**
+ * Check if a type is a primitive type that has a built-in randomizer in the plugin
+ */
+internal fun IrType.isProvidedPrimitive(nullable: Boolean):Boolean{
+    val rt = stopAtFirst(
+        resultIsOk = {it},
+        {isLong2(nullable)},
+        {isFloat2(nullable)},
+        {isDouble2(nullable)},
+        {isByte2(nullable)},
+        {isChar2(nullable)},
+        {isShort2(nullable)},
+        {isString2(nullable)},
+        {isNumber2(nullable)},
+        {isUnit2(nullable)},
+        {isAny2(nullable)},
+        {isNothing2()},
+        {isBoolean2(nullable)},
+        {isInt2(nullable)},
+
+        {isUInt2(nullable)},
+        {isULong2(nullable)},
+        {isUShort2(nullable)},
+        {isUByte2(nullable)},
+    )?:false
+    return rt
+}
 
 
 internal fun IrType.isLong2(nullable: Boolean):Boolean{

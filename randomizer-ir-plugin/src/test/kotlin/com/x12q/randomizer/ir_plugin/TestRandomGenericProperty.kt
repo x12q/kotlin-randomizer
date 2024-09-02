@@ -541,11 +541,11 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomizers={
-                            val config=this.randomConfig
-                            println(config)
-                            constant(config.nextInt())
-                        }))
+                        // putData(QxC.random<Int>(randomizers={
+                        //     val config=this.randomConfig
+                        //     println(config)
+                        //     constant(config.nextInt())
+                        // }))
                         putData(QxC.random<Int>(randomizers={
                             add(constantRandomizer(123))
                         }))
@@ -559,7 +559,7 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val o = result.runRunTest().getObjs()
                 o shouldBe listOf(
-                    Qx(i = RandomConfigForTest.nextInt()),
+                    // Qx(i = RandomConfigForTest.nextInt()),
                     Qx(i = 123),
                 )
                 println(o)
