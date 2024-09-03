@@ -84,27 +84,15 @@ class RandomContextBuilderImp : RandomContextBuilder {
         )
 
         if(tier2RandomizerFactoryFunctionList.isNotEmpty()){
+            val tier2Builder = RandomContextBuilderImp()
+                .setRandomConfig(tier1.randomConfig)
 
-            if(false){
-                val tier2 = Tier2RandomContextBuilder(tier1)
-                    .apply {
-                        for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
-                            invokeAndAdd(makeRandomizer)
-                        }
-                    }
-                    .build()
-                return TwoTierRandomContext(tier1, tier2)
-            }else{
-                val tier2Builder = RandomContextBuilderImp()
-                    .setRandomConfig(tier1.randomConfig)
-
-                for(randomizerMaker in tier2RandomizerFactoryFunctionList){
-                    val t2Randomizer = randomizerMaker(tier1)
-                    tier2Builder.add(t2Randomizer)
-                }
-                val tier2 = tier2Builder.buildContext()
-                return TwoTierRandomContext(tier1, tier2)
+            for(randomizerMaker in tier2RandomizerFactoryFunctionList){
+                val t2Randomizer = randomizerMaker(tier1)
+                tier2Builder.add(t2Randomizer)
             }
+            val tier2 = tier2Builder.buildContext()
+            return TwoTierRandomContext(tier1, tier2)
         }else{
             return tier1
         }
