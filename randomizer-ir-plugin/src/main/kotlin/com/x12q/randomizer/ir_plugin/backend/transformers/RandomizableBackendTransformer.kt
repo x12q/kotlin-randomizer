@@ -163,20 +163,20 @@ class RandomizableBackendTransformer @Inject constructor(
                                     .dotCall(randomContextBuilderAccessor.addForTier2Call(blockBodyBuilder))
                                     .apply {
                                         putValueArgument(
-                                        index = 0,
-                                        valueArgument = IrFunctionExpressionImpl(
-                                            startOffset = makeRandomizerLambda.startOffset,
-                                            endOffset = makeRandomizerLambda.endOffset,
-                                            type = pluginContext.irBuiltIns.functionN(1)
-                                                .typeWith(
-                                                    randomContextAccessor.irType,
-                                                    makeRandomizerLambda.returnType,
-                                                ),
-                                            function = makeRandomizerLambda,
-                                            origin = IrStatementOrigin.LAMBDA,
+                                            index = 0,
+                                            valueArgument = IrFunctionExpressionImpl(
+                                                startOffset = makeRandomizerLambda.startOffset,
+                                                endOffset = makeRandomizerLambda.endOffset,
+                                                type = pluginContext.irBuiltIns.functionN(1)
+                                                    .typeWith(
+                                                        randomContextAccessor.irType,
+                                                        makeRandomizerLambda.returnType,
+                                                    ),
+                                                function = makeRandomizerLambda,
+                                                origin = IrStatementOrigin.LAMBDA,
+                                            )
                                         )
-                                    )
-                                }
+                                    }
                                 +addForTier2_FunctionCall
                             }
                         }
@@ -814,12 +814,12 @@ class RandomizableBackendTransformer @Inject constructor(
         }
         // get element type
         val elementTypes = extractTypeArgument(receivedTypeArguments, param).firstOrNull()
-        if(elementTypes!=null){
+        if (elementTypes != null) {
             // create expression to construct random instances of elements
-            val type = requireNotNull(elementTypes.typeOrNull){
-                val paramNamePrefix = if(param!=null){
+            val type = requireNotNull(elementTypes.typeOrNull) {
+                val paramNamePrefix = if (param != null) {
                     "${param.name}:"
-                }else{
+                } else {
                     ""
                 }
                 "$paramNamePrefix List element type must be specified. It is null here."
@@ -827,7 +827,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
 
             // create expression to call List() function and random config
-        }else{
+        } else {
             // TODO consider throw an exception here because can't find a type param for a kotlin.List
             return null
         }
@@ -942,7 +942,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomConfigExpr = getRandomConfigExpr,
             )
 
-            if(randomPrimitiveExpr!=null){
+            if (randomPrimitiveExpr != null) {
                 return randomPrimitiveExpr
             }
 
@@ -1326,7 +1326,7 @@ class RandomizableBackendTransformer @Inject constructor(
      * Generate an [IrExpression] that will return a random value for a parameter ([param])
      */
     private fun generateRandomPrimitive(
-        type:IrType,
+        type: IrType,
         builder: DeclarationIrBuilder,
         /**
          * An expression that return a [RandomConfig]
@@ -1365,7 +1365,6 @@ class RandomizableBackendTransformer @Inject constructor(
             )
         }
     }
-
 
 
     private fun randomFromRandomContextOrRandomConfig(
