@@ -810,18 +810,16 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
         // get element type
-
         val elementTypes = extractTypeArgument(receivedTypeArguments, param).firstOrNull()
         if(elementTypes!=null){
+            // create expression to construct random instances of elements
 
+
+            // create expression to call List() function and random config
         }else{
             // TODO consider throw an exception here because can't find a type param for a kotlin.List
             return null
         }
-
-        // create expression to construct random instances of elements
-
-        // create expression to call List() function and random config
         return null
     }
 
@@ -1279,20 +1277,6 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-
-    // private fun generateList(
-    //     elementType:IrType,
-    //     receivedTypeArguments: List<IrTypeArgument>?,
-    //     param: IrValueParameter?,
-    //     irClass: IrClass,
-    //     getRandomContextExpr: IrExpression,
-    //     getRandomConfigExpr: IrExpression,
-    //     builder: DeclarationIrBuilder,
-    //     typeParamOfRandomFunction: List<IrTypeParameter>,
-    // ):IrExpression?{
-    //
-    // }
-
     /**
      * Generate an [IrExpression] that will return a random value for a parameter ([param])
      */
@@ -1307,43 +1291,62 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfigExpr: IrExpression,
     ): IrExpression? {
         val paramType = receivedTypeArgument?.typeOrNull ?: param.type
-        val isNullable = paramType.isNullable()
+        return generateRandomPrimitive(paramType,builder, getRandomContext, getRandomConfigExpr)
+    }
+
+    /**
+     * Generate an [IrExpression] that will return a random value for a parameter ([param])
+     */
+    private fun generateRandomPrimitive(
+        type:IrType,
+        builder: DeclarationIrBuilder,
+        /**
+         * An expression that return a [RandomConfig]
+         */
+        getRandomContext: IrExpression,
+        getRandomConfigExpr: IrExpression,
+    ): IrExpression? {
+        val isNullable = type.isNullable()
         val randomCallForRandomConfigCall = when {
-            paramType.isInt2(isNullable) -> randomConfigAccessor.nextInt(builder)
-            paramType.isUInt2(isNullable) -> randomConfigAccessor.nextUInt(builder)
-            paramType.isLong2(isNullable) -> randomConfigAccessor.nextLong(builder)
-            paramType.isULong2(isNullable) -> randomConfigAccessor.nextULong(builder)
-            paramType.isByte2(isNullable) -> randomConfigAccessor.nextByte(builder)
-            paramType.isUByte2(isNullable) -> randomConfigAccessor.nextUByte(builder)
-            paramType.isShort2(isNullable) -> randomConfigAccessor.nextShort(builder)
-            paramType.isUShort2(isNullable) -> randomConfigAccessor.nextUShort(builder)
-            paramType.isBoolean2(isNullable) -> randomConfigAccessor.nextBoolean(builder)
-            paramType.isFloat2(isNullable) -> randomConfigAccessor.nextFloat(builder)
-            paramType.isDouble2(isNullable) -> randomConfigAccessor.nextDouble(builder)
-            paramType.isChar2(isNullable) -> randomConfigAccessor.nextChar(builder)
-            paramType.isString2(isNullable) -> randomConfigAccessor.nextStringUUID(builder)
-            paramType.isUnit2(isNullable) -> randomConfigAccessor.nextUnit(builder)
-            paramType.isNumber2(isNullable) -> randomConfigAccessor.nextNumber(builder)
-            paramType.isAny2(isNullable) -> randomConfigAccessor.nextAny(builder)
-            paramType.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
+            type.isInt2(isNullable) -> randomConfigAccessor.nextInt(builder)
+            type.isUInt2(isNullable) -> randomConfigAccessor.nextUInt(builder)
+            type.isLong2(isNullable) -> randomConfigAccessor.nextLong(builder)
+            type.isULong2(isNullable) -> randomConfigAccessor.nextULong(builder)
+            type.isByte2(isNullable) -> randomConfigAccessor.nextByte(builder)
+            type.isUByte2(isNullable) -> randomConfigAccessor.nextUByte(builder)
+            type.isShort2(isNullable) -> randomConfigAccessor.nextShort(builder)
+            type.isUShort2(isNullable) -> randomConfigAccessor.nextUShort(builder)
+            type.isBoolean2(isNullable) -> randomConfigAccessor.nextBoolean(builder)
+            type.isFloat2(isNullable) -> randomConfigAccessor.nextFloat(builder)
+            type.isDouble2(isNullable) -> randomConfigAccessor.nextDouble(builder)
+            type.isChar2(isNullable) -> randomConfigAccessor.nextChar(builder)
+            type.isString2(isNullable) -> randomConfigAccessor.nextStringUUID(builder)
+            type.isUnit2(isNullable) -> randomConfigAccessor.nextUnit(builder)
+            type.isNumber2(isNullable) -> randomConfigAccessor.nextNumber(builder)
+            type.isAny2(isNullable) -> randomConfigAccessor.nextAny(builder)
+            type.isNothing2() -> throw IllegalArgumentException("impossible to randomize ${Nothing::class.qualifiedName}")
             else -> null
         }
 
         return randomCallForRandomConfigCall?.let {
             randomFromRandomContextOrRandomConfig(
-                type = paramType,
+                type = type,
                 getRandomContext = getRandomContext,
-                randomConfigRandomExpr = getRandomConfigExpr.dotCall(randomCallForRandomConfigCall),
+                randomFromConfigRandomExpr = getRandomConfigExpr.dotCall(randomCallForRandomConfigCall),
                 builder = builder,
             )
         }
     }
 
 
+
     private fun randomFromRandomContextOrRandomConfig(
         type: IrType,
         getRandomContext: IrExpression,
-        randomConfigRandomExpr: IrExpression,
+        /**
+         * [randomFromConfigRandomExpr] return a random instance of [type]
+         */
+        randomFromConfigRandomExpr: IrExpression,
         builder: DeclarationIrBuilder
     ): IrExpression {
 
@@ -1352,7 +1355,7 @@ class RandomizableBackendTransformer @Inject constructor(
             randomFromRandomContext = getRandomContext
                 .extensionDotCall(randomContextAccessor.randomFunction(builder))
                 .withTypeArgs(type),
-            randomFromRandomConfig = randomConfigRandomExpr,
+            randomFromRandomConfig = randomFromConfigRandomExpr,
             builder = builder,
         )
         if (type.isNullable()) {
