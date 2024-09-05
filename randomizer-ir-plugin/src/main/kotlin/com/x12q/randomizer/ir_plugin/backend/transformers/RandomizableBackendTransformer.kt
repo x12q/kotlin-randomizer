@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
-import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.getArguments
 import javax.inject.Inject
 
 /**
@@ -1136,9 +1135,9 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val paramType = paramFromConstructor.type
 
-        return generateRandomTypeGenericOrNot(
+        return generateRandomType(
             receivedTypeArgument = receivedTypeArgument,
-            irType = paramType,
+            targetType = paramType,
             builder = builder,
             getRandomContextExpr = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
@@ -1147,29 +1146,32 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-    private fun generateRandomTypeGenericOrNot(
+    private fun generateRandomType(
         /**
-         * Received type argument is generic type information passed down from higher level to the param represented by [paramFromConstructor].
+         * Received type argument is generic type information passed down from higher level or wherever.
+         * This can be used to look-up type (could be concrete or intermediate generic) for [targetType].
          */
         receivedTypeArgument: IrTypeArgument?,
-        /**
-         * parameter directly from a constructor.
-         * In case of generic param, this object only contains the direct generic type from its constructor.
-         * If there's a [receivedTypeArgument], then [receivedTypeArgument] it must be prioritized over this, because this one does not contain enough information to construct the correct call.
-         */
-        irType: IrType,
+        targetType: IrType,
         builder: DeclarationIrBuilder,
         /**
          * An expression that return a [RandomContext]
          */
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
+        /**
+         * This is type parameter of random() functions.
+         */
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
+        /**
+         * These optional names are for generating error reporting expression.
+         * If given, a more descriptive message can be generated, otherwise, the message will be based on [targetType]
+         */
         optionalParamName: String? = null,
         optionalEnclosingClassName: String? = null,
     ): IrExpression {
         val primitive = generateRandomPrimitive(
-            type = irType,
+            type = targetType,
             builder = builder,
             getRandomContext = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
@@ -1179,7 +1181,7 @@ class RandomizableBackendTransformer @Inject constructor(
             return primitive
         }
 
-        val typeSymbol = irType.classifierOrNull as? IrTypeParameterSymbol
+        val typeSymbol = targetType.classifierOrNull as? IrTypeParameterSymbol
         val receivedType = receivedTypeArgument as? IrSimpleType
         val receivedTypeClassifier = receivedType?.classifierOrNull
         val receiveTypeIsGeneric = receivedTypeClassifier !is IrClassSymbol
@@ -1188,18 +1190,16 @@ class RandomizableBackendTransformer @Inject constructor(
          * This is the case in which param type is generic, but does not receive any concrete type from the outside
          * This construct ane expr that pass the generic from random() function to [RandomContext] to get a random instance.
          */
-        if (irType.isTypeParameter()
+        if (targetType.isTypeParameter()
             && typeSymbol != null
             && (receivedTypeArgument == null || receiveTypeIsGeneric)
         ) {
-
-            val paramTypeIndex = (receivedTypeClassifier as? IrTypeParameterSymbol)?.owner?.index
-                ?: typeSymbol.owner.index
-
-            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
-
-            requireNotNull(paramTypeOfFunction) {
-                "Can't find concrete type for ${irType}. This is most likely a bug by the developer."
+            val paramTypeOfFunction = run{
+                val actualTypeSymbol = (receivedTypeClassifier as? IrTypeParameterSymbol) ?: typeSymbol
+                val ptof = typeParamOfRandomFunctionList.getOrNull(actualTypeSymbol.owner.index)?.defaultType
+                requireNotNull(ptof) {
+                    "Can't find concrete type for ${targetType}. This is most likely a bug by the developer."
+                }
             }
 
             val nonNullRandom = getRandomContextExpr
@@ -1209,18 +1209,18 @@ class RandomizableBackendTransformer @Inject constructor(
             /**
              * use [isMarkedNullable] here because [isNullable] always returns true for generic type
              */
-            val rt = if (irType.isMarkedNullable()) {
+            val rt = if (targetType.isMarkedNullable()) {
                 randomOrNull(
                     builder = builder,
                     getRandomContext = getRandomContextExpr,
-                    type = irType,
+                    type = targetType,
                     randomPart = nonNullRandom,
                 )
             } else {
                 return randomOrThrow(
                     builder = builder,
                     randomExpr = nonNullRandom,
-                    type = irType,
+                    type = targetType,
                     optionalParamName, optionalEnclosingClassName
                 )
             }
@@ -1234,7 +1234,7 @@ class RandomizableBackendTransformer @Inject constructor(
              * - and constructor is invoked using generic type provided from outside, not the type from the constructor.
              */
 
-            val actualParamType = receivedType ?: irType
+            val actualParamType = receivedType ?: targetType
             val clazz = actualParamType.classOrNull?.owner
 
             if (clazz != null) {
@@ -1302,7 +1302,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     )
                 }
             } else {
-                throw IllegalArgumentException("$irType cannot provide a class.")
+                throw IllegalArgumentException("$targetType cannot provide a class.")
             }
         }
     }
