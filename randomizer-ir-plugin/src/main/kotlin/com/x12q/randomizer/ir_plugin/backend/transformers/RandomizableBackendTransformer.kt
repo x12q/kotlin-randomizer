@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.types.checker.SimpleClassicTypeSystemContext.getArguments
 import javax.inject.Inject
 
 /**
@@ -417,6 +418,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 target = target,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
             )
+            println("zz13: ${randomFunction.dumpKotlinLike()}")
         }
     }
 
@@ -713,7 +715,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 generateRandomConcreteClass(
                     receivedTypeArgument = receivedTypeArguments,
                     paramFromConstructor = param,
-                    irType=irType,
+                    irType = irType,
                     irClass = irClass,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
@@ -809,7 +811,7 @@ class RandomizableBackendTransformer @Inject constructor(
         receivedTypeArguments: List<IrTypeArgument>?,
         param: IrValueParameter?,
         irListType: IrType?,
-        irListClass:IrClass,
+        irListClass: IrClass,
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
@@ -820,7 +822,11 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         // get element type
-        val elementTypes =  extractTypeArgument(receivedTypeArguments, param).firstOrNull()
+        val elementTypes = extractTypeArgument(
+            receivedTypeArgument = receivedTypeArguments,
+            paramFromConstructor = param,
+            irType = null
+        ).firstOrNull()
         if (elementTypes != null) {
             // create expression to construct random instances of elements
             val type = requireNotNull(elementTypes.typeOrNull) {
@@ -960,7 +966,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val constructor = getConstructor(irClass)
 
             val typeArgumentList: List<IrTypeArgument> = extractTypeArgument(
-                receivedTypeArgument, paramFromConstructor
+                receivedTypeArgument = receivedTypeArgument, paramFromConstructor = paramFromConstructor, irType = irType
             )
 
             val paramExpressions = constructor.valueParameters.withIndex().map { (index, param) ->
@@ -986,13 +992,24 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Extract concrete type from provided generic type argument from various sources.
+     */
     private fun extractTypeArgument(
+        /**
+         * Explicit provided type, highest priority
+         */
         receivedTypeArgument: List<IrTypeArgument>?,
+        /**
+         * The rest are of equal priority. Doesn't matter which come first.
+         */
         paramFromConstructor: IrValueParameter?,
+        irType: IrType?,
     ): List<IrTypeArgument> {
         val rt: List<IrTypeArgument> = stopAtFirstNotNull(
             { receivedTypeArgument },
             { (paramFromConstructor?.type as? IrSimpleType)?.arguments },
+            { (irType as? IrSimpleType)?.arguments },
         ) ?: emptyList()
         return rt
     }
@@ -1116,133 +1133,18 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfigExpr: IrExpression,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
     ): IrExpression {
-        val primitive = generatePrimitiveRandomParam(
-            receivedTypeArgument = receivedTypeArgument,
-            param = paramFromConstructor,
-            builder = builder,
-            getRandomContext = getRandomContextExpr,
-            getRandomConfigExpr = getRandomConfigExpr,
-        )
 
-        if (primitive != null) {
-            return primitive
-        }
         val paramType = paramFromConstructor.type
-        val constructorParamTypeSymbol = paramType.classifierOrNull as? IrTypeParameterSymbol
-        val receivedType = receivedTypeArgument as? IrSimpleType
-        val receivedTypeClassifier = receivedType?.classifierOrNull
-        val receiveTypeIsGeneric = receivedTypeClassifier !is IrClassSymbol
 
-        /**
-         * This is the case in which param type is generic, but does not receive any concrete type from the outside
-         * This construct ane expr that pass the generic from random() function to [RandomContext] to get a random instance.
-         */
-        if (paramType.isTypeParameter()
-            && constructorParamTypeSymbol != null
-            && (receivedTypeArgument == null || receiveTypeIsGeneric)
-        ) {
-
-            val paramTypeIndex = (receivedTypeClassifier as? IrTypeParameterSymbol)?.owner?.index
-                ?: constructorParamTypeSymbol.owner.index
-
-            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
-
-            requireNotNull(paramTypeOfFunction) {
-                "Can't find concrete type for param ${paramFromConstructor.dumpKotlinLike()}. This is most likely a bug by the developer."
-            }
-
-            val nonNullRandom = getRandomContextExpr
-                .extensionDotCall(randomContextAccessor.randomFunction(builder))
-                .withTypeArgs(paramTypeOfFunction)
-
-            val rt = if (paramType.isMarkedNullable()) {
-                randomOrNull(
-                    builder = builder,
-                    getRandomContext = getRandomContextExpr,
-                    type = paramType,
-                    randomPart = nonNullRandom,
-                )
-            } else {
-                return randomOrThrow(
-                    builder = builder,
-                    randomExpr = nonNullRandom,
-                    type = paramType,
-                    paramName = paramFromConstructor.name.asString(),
-                    enclosingClassName = paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
-                )
-            }
-            return rt
-
-        } else {
-            /**
-             * This is the case in which a concrete/define class is assigned to the generic param.
-             * This block handles all the rest cases in which:
-             * - param type can be generic or not
-             * - and constructor is invoked using generic type provided from outside, not the type from the constructor.
-             */
-
-            val actualParamType = receivedType ?: paramType
-            val paramClass = actualParamType.classOrNull?.owner
-
-            if (paramClass != null) {
-
-                val randomInstanceExpr = generateRandomClass(
-                    receivedTypeArguments = receivedType?.arguments,
-                    param = paramFromConstructor,
-                    irType = actualParamType,
-                    irClass = paramClass,
-                    getRandomContextExpr = getRandomContextExpr,
-                    getRandomConfigExpr = getRandomConfigExpr,
-                    builder = builder,
-                    typeParamOfRandomFunction = typeParamOfRandomFunctionList,
-                )
-
-                if (randomInstanceExpr != null) {
-                    val actualParamType = receivedType ?: paramType
-
-                    val nonNullRandom = builder.irBlock {
-                        /**
-                         * random instance from random context
-                         */
-                        val randomFromRandomContextCall = getRandomContextExpr
-                            .extensionDotCall(randomContextAccessor.randomFunction(builder))
-                            .withTypeArgs(actualParamType)
-
-                        val varRandomFromRandomContext =
-                            irTemporary(randomFromRandomContextCall, "randomFromContext").apply {
-                                this.type = actualParamType.makeNullable()
-                            }
-
-                        val getRandomFromRandomContext = irGet(varRandomFromRandomContext)
-
-                        +irIfNull(
-                            type = actualParamType,
-                            subject = getRandomFromRandomContext,
-                            thenPart = randomInstanceExpr,
-                            elsePart = getRandomFromRandomContext
-                        )
-                    }
-
-                    if (actualParamType.isNullable()) {
-                        return randomOrNull(builder, getRandomConfigExpr, actualParamType, nonNullRandom)
-                    } else {
-                        return randomOrThrow(
-                            builder,
-                            nonNullRandom,
-                            actualParamType,
-                            paramFromConstructor.name.asString(),
-                            paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
-                        )
-                    }
-                } else {
-                    throw IllegalArgumentException("unable to construct an expression to generate a random instance for ${paramFromConstructor.name}:${paramClass.name}")
-                }
-            } else {
-                throw IllegalArgumentException("$paramFromConstructor does not belong to a class.")
-            }
-        }
+        return generateRandomTypeGenericOrNot(
+            receivedTypeArgument = receivedTypeArgument,
+            irType = paramType,
+            builder = builder,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            typeParamOfRandomFunctionList = typeParamOfRandomFunctionList
+        )
     }
-
 
 
     private fun generateRandomTypeGenericOrNot(
@@ -1255,7 +1157,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * In case of generic param, this object only contains the direct generic type from its constructor.
          * If there's a [receivedTypeArgument], then [receivedTypeArgument] it must be prioritized over this, because this one does not contain enough information to construct the correct call.
          */
-        irType:IrType,
+        irType: IrType,
         builder: DeclarationIrBuilder,
         /**
          * An expression that return a [RandomContext]
@@ -1263,8 +1165,8 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
-        makeExceptionExpression:()->IrExpression,
-        optionalParamName:String? = null,
+        optionalParamName: String? = null,
+        optionalEnclosingClassName: String? = null,
     ): IrExpression {
         val primitive = generateRandomPrimitive(
             type = irType,
@@ -1304,6 +1206,9 @@ class RandomizableBackendTransformer @Inject constructor(
                 .extensionDotCall(randomContextAccessor.randomFunction(builder))
                 .withTypeArgs(paramTypeOfFunction)
 
+            /**
+             * use [isMarkedNullable] here because [isNullable] always returns true for generic type
+             */
             val rt = if (irType.isMarkedNullable()) {
                 randomOrNull(
                     builder = builder,
@@ -1316,8 +1221,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     builder = builder,
                     randomExpr = nonNullRandom,
                     type = irType,
-                    paramName = "zzz",
-                    enclosingClassName = ""
+                    optionalParamName, optionalEnclosingClassName
                 )
             }
             return rt
@@ -1347,7 +1251,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 )
 
                 if (randomInstanceExpr != null) {
-                    val actualParamType = receivedType ?: irType
 
                     val nonNullRandom = builder.irBlock {
                         /**
@@ -1357,6 +1260,11 @@ class RandomizableBackendTransformer @Inject constructor(
                             .extensionDotCall(randomContextAccessor.randomFunction(builder))
                             .withTypeArgs(actualParamType)
 
+                        /**
+                         * store random-from-context in a var because it will be used in 2 places:
+                         * - a null check
+                         * - else branch of an if-else below
+                         */
                         val varRandomFromRandomContext =
                             irTemporary(randomFromRandomContextCall, "randomFromContext").apply {
                                 this.type = actualParamType.makeNullable()
@@ -1373,12 +1281,22 @@ class RandomizableBackendTransformer @Inject constructor(
                     }
 
                     if (actualParamType.isNullable()) {
-                        return randomOrNull(builder, getRandomConfigExpr, actualParamType, nonNullRandom)
+                        return randomOrNull(
+                            builder = builder,
+                            getRandomContext = getRandomConfigExpr,
+                            type = actualParamType,
+                            randomPart = nonNullRandom
+                        )
                     } else {
-                        return makeExceptionExpression()
+                        return randomOrThrow(
+                            builder = builder,
+                            randomExpr = nonNullRandom,
+                            type = actualParamType,
+                            paramName = optionalParamName, enclosingClassName = optionalEnclosingClassName
+                        )
                     }
                 } else {
-                    val paramNameText = optionalParamName?.let { "$it:" } ?:""
+                    val paramNameText = optionalParamName?.let { "$it:" } ?: ""
                     throw IllegalArgumentException(
                         "unable to construct an expression to generate a random instance for $paramNameText${clazz.name}"
                     )
@@ -1398,8 +1316,8 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomExpr: IrExpression,
         type: IrType,
-        paramName: String,
-        enclosingClassName: String,
+        paramName: String?,
+        enclosingClassName: String?,
     ): IrExpression {
         return builder.irBlock {
             val randomResult = irTemporary(randomExpr, "randomResult")
@@ -1419,9 +1337,9 @@ class RandomizableBackendTransformer @Inject constructor(
      */
     private fun throwUnableToRandomizeException(
         builder: IrBuilderWithScope,
-        paramName: String,
+        paramName: String?,
         typeName: String,
-        enclosingClassName: String
+        enclosingClassName: String?
     ): IrThrowImpl {
 
         return with(builder) {
@@ -1430,8 +1348,8 @@ class RandomizableBackendTransformer @Inject constructor(
                     callee = unableToMakeRandomExceptionAccessor.primaryConstructor().symbol,
                     typeArguments = emptyList()
                 ).withValueArgs(
-                    /*targetClassName:String*/ irString(enclosingClassName),
-                    /*paramName:String*/ irString(paramName),
+                    /*targetClassName:String*/ enclosingClassName?.let { irString(it) } ?: irNull(),
+                    /*paramName:String*/ paramName?.let { irString(it) } ?: irNull(),
                     /*paramType:String*/ irString(typeName)
                 )
             )
@@ -1593,4 +1511,164 @@ class RandomizableBackendTransformer @Inject constructor(
         return printlnCall!!
     }
 
+    @Deprecated("Do the same thing as [generateRandomParam], kept for reference in case [generateRandomParam] goes wrong" )
+    private fun generateRandomParam_old(
+        /**
+         * Received type argument is generic type information passed down from higher level to the param represented by [paramFromConstructor].
+         */
+        receivedTypeArgument: IrTypeArgument?,
+        /**
+         * parameter directly from a constructor.
+         * In case of generic param, this object only contains the direct generic type from its constructor.
+         * If there's a [receivedTypeArgument], then [receivedTypeArgument] it must be prioritized over this, because this one does not contain enough information to construct the correct call.
+         */
+        paramFromConstructor: IrValueParameter,
+        builder: DeclarationIrBuilder,
+        /**
+         * An expression that return a [RandomContext]
+         */
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        typeParamOfRandomFunctionList: List<IrTypeParameter>,
+    ): IrExpression {
+        val primitive = generatePrimitiveRandomParam(
+            receivedTypeArgument = receivedTypeArgument,
+            param = paramFromConstructor,
+            builder = builder,
+            getRandomContext = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+        )
+
+        if (primitive != null) {
+            return primitive
+        }
+        val paramType = paramFromConstructor.type
+        val paramSymbol: IrTypeParameterSymbol? = paramType.classifierOrNull as? IrTypeParameterSymbol
+        val receivedType = receivedTypeArgument as? IrSimpleType
+        val receivedTypeClassifier = receivedType?.classifierOrNull
+        val receiveTypeIsGeneric = receivedTypeClassifier !is IrClassSymbol
+
+        /**
+         * This is the case in which param type is generic, but does not receive any concrete type from the outside
+         * This construct ane expr that pass the generic from random() function to [RandomContext] to get a random instance.
+         */
+        if (paramType.isTypeParameter()
+            && paramSymbol != null
+            && (receivedTypeArgument == null || receiveTypeIsGeneric)
+        ) {
+
+            val paramTypeIndex =
+                (receivedTypeClassifier as? IrTypeParameterSymbol)?.owner?.index
+                    ?: paramSymbol.owner.index
+
+            val paramTypeOfFunction = typeParamOfRandomFunctionList.getOrNull(paramTypeIndex)?.defaultType
+
+            requireNotNull(paramTypeOfFunction) {
+                "Can't find concrete type for param ${paramFromConstructor.dumpKotlinLike()}. This is most likely a bug by the developer."
+            }
+
+            val nonNullRandom = getRandomContextExpr
+                .extensionDotCall(randomContextAccessor.randomFunction(builder))
+                .withTypeArgs(paramTypeOfFunction)
+
+
+            /**
+             * use [isMarkedNullable] here because [isNullable] always returns true for generic type
+             */
+            val rt = if (paramType.isMarkedNullable()) {
+                randomOrNull(
+                    builder = builder,
+                    getRandomContext = getRandomContextExpr,
+                    type = paramType,
+                    randomPart = nonNullRandom,
+                )
+            } else {
+                return randomOrThrow(
+                    builder = builder,
+                    randomExpr = nonNullRandom,
+                    type = paramType,
+                    paramName = paramFromConstructor.name.asString(),
+                    enclosingClassName = paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
+                )
+            }
+            return rt
+
+        } else {
+            /**
+             * This is the case in which a concrete/define class is assigned to the generic param.
+             * This block handles all the rest cases in which:
+             * - param type can be generic or not
+             * - and constructor is invoked using generic type provided from outside, not the type from the constructor.
+             */
+
+            val actualParamType = receivedType ?: paramType
+            val paramClass = actualParamType.classOrNull?.owner
+
+            if (paramClass != null) {
+
+                val randomInstanceExpr = generateRandomClass(
+                    receivedTypeArguments = receivedType?.arguments,
+                    param = paramFromConstructor,
+                    irType = actualParamType,
+                    irClass = paramClass,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunctionList,
+                )
+
+                if (randomInstanceExpr != null) {
+
+                    val nonNullRandom = builder.irBlock {
+                        /**
+                         * random instance from random context
+                         */
+                        val randomFromRandomContextCall = getRandomContextExpr
+                            .extensionDotCall(randomContextAccessor.randomFunction(builder))
+                            .withTypeArgs(actualParamType)
+
+                        /**
+                         * store random-from-context in a var because it will be used in 2 places:
+                         * - a null check
+                         * - else branch of an if-else below
+                         */
+                        val randomFromRandomContext =
+                            irTemporary(randomFromRandomContextCall, "randomFromContext").apply {
+                                this.type = actualParamType.makeNullable()
+                            }
+
+                        val getRandomFromRandomContext = irGet(randomFromRandomContext)
+
+                        +irIfNull(
+                            type = actualParamType,
+                            subject = getRandomFromRandomContext,
+                            thenPart = randomInstanceExpr,
+                            elsePart = getRandomFromRandomContext
+                        )
+                    }
+
+                    if (actualParamType.isNullable()) {
+                        return randomOrNull(
+                            builder = builder,
+                            getRandomContext = getRandomConfigExpr,
+                            type = actualParamType,
+                            randomPart = nonNullRandom
+                        )
+                    } else {
+                        return randomOrThrow(
+                            builder = builder,
+                            randomExpr = nonNullRandom,
+                            type = actualParamType,
+                            paramName = paramFromConstructor.name.asString(),
+                            enclosingClassName = paramFromConstructor.parentClassOrNull?.name?.asString() ?: ""
+                        )
+                    }
+                } else {
+                    throw IllegalArgumentException("unable to construct an expression to generate a random instance for ${paramFromConstructor.name}:${paramClass.name}")
+                }
+            } else {
+                throw IllegalArgumentException("$paramFromConstructor does not belong to a class.")
+            }
+        }
+    }
 }

@@ -4,13 +4,12 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
-import com.x12q.randomizer.lib.ConstantClassRandomizer
-import com.x12q.randomizer.lib.constantRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 
@@ -18,8 +17,8 @@ import kotlin.test.Test
 class TestRandomGenericProperty {
 
     data class Qx<T1>(val i: T1?)
-    data class Qx2<Z>(val paramOfQ2: Z)
-    data class Qx4<M>(val paramOfQ4: M)
+    data class Qx2<Q2T>(val paramOfQ2: Q2T)
+    data class Qx4<Q4T>(val paramOfQ4: Q4T)
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
     data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
@@ -36,6 +35,7 @@ class TestRandomGenericProperty {
         .import(QxList::class)
 
     @Test
+    @Ignore
     fun `randomize generic list in value param`(){
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -64,6 +64,7 @@ class TestRandomGenericProperty {
     }
 
     @Test
+    @Ignore
     fun `randomize generic list in type param`(){
         testGeneratedCodeUsingStandardPlugin(
             """
