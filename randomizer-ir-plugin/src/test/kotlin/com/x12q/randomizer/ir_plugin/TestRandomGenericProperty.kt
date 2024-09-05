@@ -23,7 +23,7 @@ class TestRandomGenericProperty {
     data class Qx6<H>(val paramOfQ6: H)
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
     data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
-    data class QxList<T>(val listT:List<T>)
+    data class QxList<TL>(val listT:List<TL>)
 
     private val imports = TestImportsBuilder.stdImport
         .import(Qx::class)
