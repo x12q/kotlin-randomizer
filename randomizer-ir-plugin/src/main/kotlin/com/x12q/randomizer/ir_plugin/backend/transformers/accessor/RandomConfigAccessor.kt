@@ -4,6 +4,7 @@ import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -24,6 +25,10 @@ class RandomConfigAccessor @Inject constructor(
         requireNotNull(clzz.getPropertyGetter("random")){
             "impossible, ${BaseObjects.RandomConfig_ClassId.shortClassName} must provide a ${BaseObjects.Random_ClassId} instance"
         }
+    }
+
+    fun randomCollectionSize(builder: IrBuilderWithScope):IrCall{
+        return builder.zeroAgrFunctionCall("randomCollectionSize")
     }
 
     fun nextAny(builder: DeclarationIrBuilder):IrCall{

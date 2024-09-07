@@ -34,19 +34,21 @@ class TestRandomGenericProperty {
         .import(ThreeGeneric::class)
         .import(QxList::class)
 
+    /**
+     * something like this: random<Int>() ~> param:List<Int>
+     */
     @Test
-    @Ignore
-    fun `randomize generic list in value param`(){
+    fun `randomize generic list of primitive with element type provided in type param`(){
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
 
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class QxC<T1:Any>(override val data:T1):WithData
+                data class QxC<T1:Any>(override val data:List<T1>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<QxList<Int>>())
+                        putData(QxC.random<Int>())
                     }
                 }
             """,
@@ -55,17 +57,20 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
-                    QxList(List(LegalRandomConfigObject.collectionSizeRange.first){
+                    List(LegalRandomConfigObject.randomCollectionSize()){
                         LegalRandomConfigObject.nextInt()
-                    })
+                    }
                 )
             }
         }
     }
 
+    /**
+     * Something like this: random<List<Int>>() ~> param:T
+     */
     @Test
     @Ignore
-    fun `randomize generic list in type param`(){
+    fun `randomize generic primitive list with the whole list type provided in type param`(){
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports

@@ -23,3 +23,24 @@ When generate something new in fir, and I don't know how to do that, I can:
     - put a break point somewhere, then inspect `declarations` of the class
 - then check around (kotlin source code) to see how it is created if possible.
 - just look around, inspect objects, etc
+
+## Generate a lambda
+
+Use `pluginContext.irFactory.buildFun()` to create the lambda. See `generate_makeClassRandomizer_Lambda` for example.
+To pass lambda as parameter, put the lambda into `IrFunctionExpressionImpl()`
+
+Example:
+
+```kotlin
+IrFunctionExpressionImpl(
+    startOffset = makeRandomizerLambda.startOffset,
+    endOffset = makeRandomizerLambda.endOffset,
+    type = pluginContext.irBuiltIns.functionN(1)
+        .typeWith(
+            randomContextAccessor.irType,
+            makeRandomizerLambda.returnType,
+        ),
+    function = makeRandomizerLambda,
+    origin = IrStatementOrigin.LAMBDA,
+)
+```
