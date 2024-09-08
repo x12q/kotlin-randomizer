@@ -24,15 +24,6 @@ class RandomContextAccessor @Inject constructor(
         }
     }
 
-    fun getRandomizersMap(builder:DeclarationIrBuilder):IrCall{
-        return builder.irCall(
-            requireNotNull(clzz.getPropertyGetter("randomizersMap")){
-                "randomizersMap must exist in a RandomContext. This is a bug by the developer."
-            }
-        )
-        // return builder.zeroAgrFunctionCall("getRandomizers")
-    }
-
     fun randomConfig(builder:DeclarationIrBuilder):IrCall{
         val propGetter = requireNotNull(clzz.getPropertyGetter("randomConfig")){
             "RandomContext must have randomConfig property. This is a bug by the developer."

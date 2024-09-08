@@ -1,7 +1,9 @@
 package com.x12q.randomizer.ir_plugin
 
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.lib.*
+import com.x12q.randomizer.test.util.WithData
 
 abstract class AbstractClassQWE
 
@@ -27,32 +29,61 @@ val defaultRandomizerCollection = RandomContextBuilderImp().apply {
 }.buildContext()
 
 
+data class QxC<T1>(override val data: List<List<T1>>) : WithData {
+    companion object {
+        inline fun <reified T1 : Any> random(
+            noinline randomizers: RandomContextBuilder.() -> Unit = {}
+        ): QxC<T1> {
+            val varRandomConfig: RandomConfig = LegalRandomConfigObject
+            val varRandomContext: RandomContext = run {
+                val randomContextBuilder = RandomContextBuilderImp()
+                randomContextBuilder.setRandomConfigAndGenerateStandardRandomizers(randomConfig = varRandomConfig)
+                randomContextBuilder.randomizers()
+                randomContextBuilder.buildContext()
+            }
 
-fun main() {
-    println(
-        ABC.random<Double, String, Float>(
-            randomTypeT1 = {
-                33.33
-            },
-            randomTypeT2 = {
-                "T2"
-            },
-            randomTypeT3 = {
-                1.2f
-            },
-            randomizers = {
-                add(makeConstantRandomizer(999))
-                add(makeConstantRandomizer<AbstractClassQWE>(ObjectQWE2))
+            return QxC(data = run {
+                val randomResult: List<List<T1>> = run {
+                    val randomFromContext: List<List<T1>>? = varRandomContext.random<List<List<T1>>>()
 
+                    if (randomFromContext == null) {
+                        List(varRandomConfig.randomCollectionSize()) {
+                            List(varRandomConfig.randomCollectionSize()) {
+                                val innerRandomResult: T1? = varRandomContext.random<T1>()
 
-                addForTier2{ //makeRandomizer lambda
-                    factoryRandomizer{ //makeRandomizer lambda
-
+                                if (innerRandomResult == null) {
+                                    throw UnableToMakeRandomException(
+                                        targetClassName = T1::class.simpleName,
+                                        paramName = null,
+                                        type = "T1"
+                                    )
+                                } else {
+                                    innerRandomResult
+                                }
+                            }
+                        }
+                    } else {
+                        randomFromContext
                     }
                 }
-            }
-        )
-    )
+
+                if (randomResult == null) {
+                    throw UnableToMakeRandomException(
+                        targetClassName = T1::class.simpleName,
+                        paramName = null,
+                        type = "List<List<T1>>"
+                    )
+                } else {
+                    randomResult
+                }
+            })
+        }
+    }
+}
+
+
+fun main() {
+    println(QxC.random<Int>())
 }
 
 
@@ -175,3 +206,5 @@ data class CD<T1, T2>(val t1: T1, val t2: T2) {
         }
     }
 }
+
+

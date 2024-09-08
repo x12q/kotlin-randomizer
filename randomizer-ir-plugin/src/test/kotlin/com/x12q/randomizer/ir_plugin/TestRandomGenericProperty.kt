@@ -56,7 +56,8 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>())
+                        val z = QxC.random<Double>()
+                        putData(z)
                         // putData(QxC.random<Qx2<Float>>())
                         // putData(QxC.random<Qx2<Qx4<String>>>())
                         // putData(QxC.random<TwoGeneric<Int,String>>())
@@ -69,6 +70,7 @@ class TestRandomGenericProperty {
                 }
             """,
         ) {
+            // random$lambda$1(Lcom/x12q/randomizer/lib/RandomContext;Lcom/x12q/randomizer/lib/RandomConfig;I)Ljava/util/List;
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()

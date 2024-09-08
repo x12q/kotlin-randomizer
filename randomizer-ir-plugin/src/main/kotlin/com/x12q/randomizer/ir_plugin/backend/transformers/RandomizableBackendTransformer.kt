@@ -62,6 +62,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 completeRandomFunction2(companionObj, declaration)
             }
         }
+        println("z12q: ${declaration.dumpKotlinLike()}")
         return super.visitClassNew(declaration)
     }
 
@@ -323,13 +324,8 @@ class RandomizableBackendTransformer @Inject constructor(
         if (clzz.owner.isAbstract()) {
             if (!clzz.owner.isList()) {
                 throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
-            }else{
-                println("z")
             }
         }
-        // require(!clzz.owner.isAbstract()) {
-        //     "generate_factoryLambda only works with concrete class"
-        // }
 
         val rt = pluginContext.irFactory.buildFun {
             name = SpecialNames.ANONYMOUS
@@ -850,7 +846,6 @@ class RandomizableBackendTransformer @Inject constructor(
         if (elementTypes != null) {
             // create expression to construct random instances of elements
             val type = requireNotNull(elementTypes.typeOrNull) {
-
                 val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
                 "$paramNamePrefix List element type must be specified. It is null here."
             }

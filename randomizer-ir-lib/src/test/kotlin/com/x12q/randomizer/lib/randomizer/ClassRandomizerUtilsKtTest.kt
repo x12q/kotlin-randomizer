@@ -10,11 +10,14 @@ class ClassRandomizerUtilsKtTest {
     data class ABC(val i: Int)
     data class DDD(val abc: ABC)
 
-    val floatRdm = ConstantClassRandomizer(2f,TypeKey.of<Float>())
+    val floatRdm = ConstantClassRandomizer(2f, TypeKey.of<Float>())
     val strRdm = FactoryClassRandomizer({ "abc" }, TypeKey.of<String>())
     val abcRdm = FactoryClassRandomizer({ ABC(222) }, TypeKey.of<ABC>())
     val dddRdm = FactoryClassRandomizer({ DDD(ABC(8888)) }, TypeKey.of<DDD>())
-    val l = listOf(floatRdm, strRdm, abcRdm, dddRdm)
+    val listList = FactoryClassRandomizer.of<List<List<List<Int>>>> {
+        List(1) { List(2) { List(3) { 123 } } }
+    }
+    val l = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
     val col = RandomizerCollection2Imp(l.associateBy { it.returnType })
     val config = AlwaysTrueRandomConfig
     val context = RandomContextImp(
@@ -28,6 +31,7 @@ class ClassRandomizerUtilsKtTest {
         col.getRandomizer<String>() shouldBe strRdm
         col.getRandomizer<ABC>() shouldBe abcRdm
         col.getRandomizer<DDD>() shouldBe dddRdm
+        col.getRandomizer<List<List<List<Int>>>>() shouldBe listList
     }
 
     @Test
@@ -36,9 +40,14 @@ class ClassRandomizerUtilsKtTest {
         context.random<String>() shouldBe strRdm.random()
         context.random<ABC>() shouldBe abcRdm.random()
         context.random<DDD>() shouldBe dddRdm.random()
+        context.random<List<List<List<Int>>>>() shouldBe listList.random()
+
     }
+
     @Test
-    fun `random of primitive type that does not have a randomizer`(){
+    fun `random of primitive type that does not have a randomizer`() {
         context.random<Int>() shouldBe null
+        context.random<List<Int>>() shouldBe null
+        context.random<List<List<Int>>>() shouldBe null
     }
 }
