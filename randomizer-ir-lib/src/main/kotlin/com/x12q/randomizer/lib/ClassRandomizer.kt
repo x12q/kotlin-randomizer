@@ -7,5 +7,5 @@ import kotlin.reflect.KClass
  */
 interface ClassRandomizer<T : Any> {
     fun random(): T
-    val returnType: KClass<T>
+    val returnType: TypeKey
 }

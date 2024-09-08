@@ -193,7 +193,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 }
             }
         }
-        return super.visitCall(expression)
+        val rt = super.visitCall(expression)
+        return rt
     }
 
     private fun cloneDefaultRandomizersArgument(originalDefault: IrSimpleFunction?): IrSimpleFunction? {
@@ -265,7 +266,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 val rdType = requireNotNull(randomType as? IrSimpleType)
 
                 /**
-                 * This lambda:
+                 * This lambda is: ()->[randomType]
                  * - generates a random instance of [randomType].
                  * - is passed to "factoryRandomizer" function
                  */
@@ -303,7 +304,8 @@ class RandomizableBackendTransformer @Inject constructor(
 
 
     /**
-     * this generates the lambda passed to [factoryRandomizer] function, like this: factoryRandomizer(makeRandom = factoryLambda <~ this one)
+     * Generate a lambda like this: ()-> SomeType
+     * The lambda is passed to [factoryRandomizer] function, like this: factoryRandomizer(makeRandom = factoryLambda <~ this one)
      * This factoryLambda return a random instance of [randomTargetType]
      */
     private fun generate_makeRandom_Lambda(
@@ -315,15 +317,22 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val clzz = randomTargetType.classOrNull
         requireNotNull(clzz) {
-            "generate_factoryLambda only works with concrete class"
-        }
-        require(!clzz.owner.isAbstract()) {
-            "generate_factoryLambda only works with concrete class"
+            "generate_factoryLambda only works with valid class"
         }
 
-        val generatedLambda = pluginContext.irFactory.buildFun {
+        if (clzz.owner.isAbstract()) {
+            if (!clzz.owner.isList()) {
+                throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
+            }else{
+                println("z")
+            }
+        }
+        // require(!clzz.owner.isAbstract()) {
+        //     "generate_factoryLambda only works with concrete class"
+        // }
+
+        val rt = pluginContext.irFactory.buildFun {
             name = SpecialNames.ANONYMOUS
-            // name = Name.special("<makeRandom>")
             origin = BaseObjects.declarationOrigin
             visibility = DescriptorVisibilities.LOCAL
             returnType = randomTargetType
@@ -340,13 +349,13 @@ class RandomizableBackendTransformer @Inject constructor(
             )
 
             /**
-             * The body constructs a random instance of [randomTargetType]
+             * The new body constructs a random instance of [randomTargetType]
              */
             val newBody = innerBuilder.irBlockBody {
                 +irReturn(
                     irBlock {
                         val generateExpr = generateRandomClass(
-                            declarationParent = declarationParent, // hhh
+                            declarationParent = function, // hhh
                             receivedTypeArguments = randomTargetType.arguments,
                             param = null,
                             irType = randomTargetType,
@@ -365,7 +374,6 @@ class RandomizableBackendTransformer @Inject constructor(
             body = newBody
         }
 
-        val rt = generatedLambda
         return rt
     }
 
@@ -414,7 +422,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 target = target,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
             )
-            println("zz13: ${randomFunction.dumpKotlinLike()}")
         }
     }
 
@@ -883,6 +890,8 @@ class RandomizableBackendTransformer @Inject constructor(
                         +irReturn(randomElementExpr)
                     }
                 }
+                val ps = lambdaDeclaration.parentsWithSelf.toList()
+                println(ps)
                 IrFunctionExpressionImpl(
                     startOffset = lambdaDeclaration.startOffset,
                     endOffset = lambdaDeclaration.endOffset,
@@ -900,7 +909,6 @@ class RandomizableBackendTransformer @Inject constructor(
             val rt = listAccessor.ListFunction(builder)
                 .withValueArgs(sizeExpr, lambdaRandomElementExpr)
                 .withTypeArgs(type)
-
             return rt
             // create expression to call List() function and random config
         } else {
@@ -1033,10 +1041,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 irType = irType
             )
 
-            val paramExpressions = constructor.valueParameters.withIndex().map { (index, param) ->
-
+            val paramExpressions = constructor.valueParameters.withIndex().map { (_, param) ->
                 val typeIndex = (param.type.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index
-
                 generateRandomParam(
                     declarationParent =declarationParent ,
                     receivedTypeArgument = typeIndex?.let { typeArgumentList.getOrNull(it) },

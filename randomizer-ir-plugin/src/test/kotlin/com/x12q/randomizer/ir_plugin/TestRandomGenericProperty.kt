@@ -9,7 +9,6 @@ import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 
@@ -34,6 +33,60 @@ class TestRandomGenericProperty {
         .import(TwoGeneric::class)
         .import(ThreeGeneric::class)
         .import(QxList::class)
+
+    val size = LegalRandomConfigObject.randomCollectionSize()
+    val int = LegalRandomConfigObject.nextInt()
+    val float = LegalRandomConfigObject.nextFloat()
+    val str = LegalRandomConfigObject.nextStringUUID()
+    val double = LegalRandomConfigObject.nextDouble()
+    val short = LegalRandomConfigObject.nextShort()
+
+
+    /**
+     * something like this: random<Int>() ~> param:List<Int>
+     */
+    @Test
+    fun `randomize generic nested List of primitive with element type provided in type param`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1>(override val data:List<List<T1>>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Int>())
+                        // putData(QxC.random<Qx2<Float>>())
+                        // putData(QxC.random<Qx2<Qx4<String>>>())
+                        // putData(QxC.random<TwoGeneric<Int,String>>())
+                        // putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
+                        // putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
+                        // putData(QxC.random<ThreeGeneric<Int,String,Double>>())
+                        // putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
+                        // putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    List(size) { List(size) {  int } },
+                    // List(size) { List(size) { List(size) { Qx2(float) } } },
+                    // List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    // List(size) { List(size) { List(size) { TwoGeneric(int, str) } } },
+                    // List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
+                    // List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
+                    // List(size) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
+                    // List(size) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
+                    // List(size) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                )
+            }
+        }
+    }
 
     /**
      * something like this: random<Int>() ~> param:List<Int>
@@ -65,49 +118,17 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
+
                 objectList shouldBe listOf(
-                    List(LegalRandomConfigObject.randomCollectionSize()) { LegalRandomConfigObject.nextInt() },
-                    List(LegalRandomConfigObject.randomCollectionSize()) { Qx2(LegalRandomConfigObject.nextFloat()) },
-                    List(LegalRandomConfigObject.randomCollectionSize()) { Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())) },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        TwoGeneric(
-                            LegalRandomConfigObject.nextInt(),
-                            LegalRandomConfigObject.nextStringUUID()
-                        )
-                    },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        TwoGeneric(
-                            Qx2(LegalRandomConfigObject.nextInt()),
-                            LegalRandomConfigObject.nextStringUUID()
-                        )
-                    },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        TwoGeneric(
-                            Qx2(LegalRandomConfigObject.nextInt()),
-                            Qx4(LegalRandomConfigObject.nextStringUUID())
-                        )
-                    },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        ThreeGeneric(
-                            LegalRandomConfigObject.nextInt(),
-                            LegalRandomConfigObject.nextStringUUID(),
-                            LegalRandomConfigObject.nextDouble(),
-                        )
-                    },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        ThreeGeneric(
-                            LegalRandomConfigObject.nextInt(),
-                            Qx2(LegalRandomConfigObject.nextStringUUID()),
-                            LegalRandomConfigObject.nextDouble(),
-                        )
-                    },
-                    List(LegalRandomConfigObject.randomCollectionSize()) {
-                        ThreeGeneric(
-                            Qx6(LegalRandomConfigObject.nextInt()),
-                            Qx4(LegalRandomConfigObject.nextStringUUID()),
-                            Qx2(LegalRandomConfigObject.nextDouble()),
-                        )
-                    },
+                    List(size) { int },
+                    List(size) { Qx2(float) },
+                    List(size) { Qx2(Qx4(str)) },
+                    List(size) { TwoGeneric(int, str) },
+                    List(size) { TwoGeneric(Qx2(int), str) },
+                    List(size) { TwoGeneric(Qx2(int), Qx4(str)) },
+                    List(size) { ThreeGeneric(int, str, double) },
+                    List(size) { ThreeGeneric(int, Qx2(str), double) },
+                    List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
                 )
             }
         }
@@ -125,9 +146,15 @@ class TestRandomGenericProperty {
                 @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC2<E1,E2>(override val data:TwoGeneric<E1,E2>):WithData
+                
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<List<Int>>())
+                        putData(QxC.random<List<Float>>())
+                        putData(QxC.random<List<Qx2<Double>>>())
+                        putData(QxC2.random<List<Float>, List<String>>())
+                        putData(QxC2.random<List<Qx2<String>>, List<List<Short>>>())
                     }
                 }
             """,
@@ -136,9 +163,10 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
-                    List(LegalRandomConfigObject.collectionSizeRange.first) {
-                        LegalRandomConfigObject.nextInt()
-                    }
+                    List(size) { float },
+                    List(size) { Qx2(double) },
+                    TwoGeneric(List(size) { float }, List(size) { str }),
+                    TwoGeneric(List(size) { Qx2(str) }, List(size) { List(size) { short } })
                 )
             }
         }
@@ -169,25 +197,12 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
-
                 objectList shouldBe listOf(
-                    TwoGeneric(Qx2(LegalRandomConfigObject.nextInt()), Qx4(LegalRandomConfigObject.nextStringUUID())),
-                    ThreeGeneric(
-                        Qx2(LegalRandomConfigObject.nextInt()),
-                        Qx4(LegalRandomConfigObject.nextStringUUID()),
-                        LegalRandomConfigObject.nextFloat()
-                    ),
-                    ThreeGeneric(
-                        LegalRandomConfigObject.nextDouble(),
-                        LegalRandomConfigObject.nextStringUUID(),
-                        Qx4(LegalRandomConfigObject.nextShort())
-                    ),
-                    ThreeGeneric(
-                        Qx2(LegalRandomConfigObject.nextInt()),
-                        Qx4(LegalRandomConfigObject.nextStringUUID()),
-                        Qx4(Qx2(Qx4(LegalRandomConfigObject.nextInt()))),
-                    ),
-                    TwoGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID()),
+                    TwoGeneric(Qx2(int), Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    ThreeGeneric(Qx2(int), Qx4(str), float),
+                    ThreeGeneric(double, str, Qx4(LegalRandomConfigObject.nextShort())),
+                    ThreeGeneric(Qx2(int), Qx4(str), Qx4(Qx2(Qx4(int)))),
+                    TwoGeneric(double, str),
                 )
             }
         }
@@ -219,23 +234,11 @@ class TestRandomGenericProperty {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    TwoGeneric(Qx2(LegalRandomConfigObject.nextInt()), Qx4(LegalRandomConfigObject.nextStringUUID())),
-                    ThreeGeneric(
-                        Qx2(LegalRandomConfigObject.nextInt()),
-                        Qx4(LegalRandomConfigObject.nextStringUUID()),
-                        LegalRandomConfigObject.nextFloat()
-                    ),
-                    ThreeGeneric(
-                        LegalRandomConfigObject.nextDouble(),
-                        LegalRandomConfigObject.nextStringUUID(),
-                        Qx4(LegalRandomConfigObject.nextShort())
-                    ),
-                    ThreeGeneric(
-                        Qx2(LegalRandomConfigObject.nextInt()),
-                        Qx4(LegalRandomConfigObject.nextStringUUID()),
-                        Qx4(Qx2(Qx4(LegalRandomConfigObject.nextInt()))),
-                    ),
-                    TwoGeneric(LegalRandomConfigObject.nextDouble(), LegalRandomConfigObject.nextStringUUID()),
+                    TwoGeneric(Qx2(int), Qx4(str)),
+                    ThreeGeneric(Qx2(int), Qx4(str), float),
+                    ThreeGeneric(double, str, Qx4(short)),
+                    ThreeGeneric(Qx2(int), Qx4(str), Qx4(Qx2(Qx4(int)))),
+                    TwoGeneric(double, str),
                 )
             }
         }
@@ -513,7 +516,7 @@ class TestRandomGenericProperty {
     @Test
     fun `custom primitive generic param`() {
 
-        val randomFromRandomContext = -99
+        val customRandomInt = -99
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -522,7 +525,7 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(randomizers = {
-                            val rdm = ConstantClassRandomizer<Int>(-99,Int::class)
+                            val rdm = ConstantClassRandomizer<Int>(-99,TypeKey.of<Int>())
                             add(rdm)
                         }))
                     }
@@ -534,7 +537,7 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest().getObjs() shouldBe listOf(
-                    Qx2(randomFromRandomContext),
+                    Qx2(customRandomInt),
                 )
             }
         }

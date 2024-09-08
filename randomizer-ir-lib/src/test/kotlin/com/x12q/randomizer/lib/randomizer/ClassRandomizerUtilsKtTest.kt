@@ -10,12 +10,12 @@ class ClassRandomizerUtilsKtTest {
     data class ABC(val i: Int)
     data class DDD(val abc: ABC)
 
-    val floatRdm = ConstantClassRandomizer(2f,Float::class)
-    val strRdm = FactoryClassRandomizer({ "abc" }, String::class)
-    val abcRdm = FactoryClassRandomizer({ ABC(222) }, ABC::class)
-    val dddRdm = FactoryClassRandomizer({ DDD(ABC(8888)) }, DDD::class)
+    val floatRdm = ConstantClassRandomizer(2f,TypeKey.of<Float>())
+    val strRdm = FactoryClassRandomizer({ "abc" }, TypeKey.of<String>())
+    val abcRdm = FactoryClassRandomizer({ ABC(222) }, TypeKey.of<ABC>())
+    val dddRdm = FactoryClassRandomizer({ DDD(ABC(8888)) }, TypeKey.of<DDD>())
     val l = listOf(floatRdm, strRdm, abcRdm, dddRdm)
-    val col = RandomizerCollectionImp(l.associateBy { it.returnType })
+    val col = RandomizerCollection2Imp(l.associateBy { it.returnType })
     val config = AlwaysTrueRandomConfig
     val context = RandomContextImp(
         randomConfig = config,
@@ -39,6 +39,6 @@ class ClassRandomizerUtilsKtTest {
     }
     @Test
     fun `random of primitive type that does not have a randomizer`(){
-        context.random<Int>() shouldBe config.nextInt()
+        context.random<Int>() shouldBe null
     }
 }

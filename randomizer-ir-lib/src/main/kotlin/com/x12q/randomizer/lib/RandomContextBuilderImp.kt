@@ -4,7 +4,7 @@ import kotlin.reflect.KClass
 
 
 class RandomContextBuilderImp : RandomContextBuilder {
-    private val randomizersMap: MutableMap<KClass<*>, ClassRandomizer<*>> = mutableMapOf()
+    private val randomizersMap: MutableMap<TypeKey, ClassRandomizer<*>> = mutableMapOf()
 
     override fun add(randomizer: ClassRandomizer<*>): RandomContextBuilder {
         randomizersMap[randomizer.returnType] = randomizer
@@ -59,11 +59,11 @@ class RandomContextBuilderImp : RandomContextBuilder {
         }
     }
 
-    private var builtRandomizerCollection: RandomizerCollection? = null
+    private var builtRandomizerCollection: RandomizerCollection2? = null
 
     private fun buildRandomizerCollection() {
         if (builtRandomizerCollection == null) {
-            builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
+            builtRandomizerCollection = RandomizerCollection2Imp(randomizersMap.toMap())
         }
     }
 

@@ -4,8 +4,8 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.lib.ConstantClassRandomizer
 import com.x12q.randomizer.lib.FactoryClassRandomizer
-import com.x12q.randomizer.lib.RandomizerCollectionImp
 import com.x12q.randomizer.lib.RandomContextBuilder
+import com.x12q.randomizer.lib.TypeKey
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -29,7 +29,7 @@ class TestPassingRandomContextBuilder {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                            add(${imports.nameOf(FactoryClassRandomizer::class)}<Dt>({Dt(this.randomConfig.nextInt())},Dt::class))
+                            add(FactoryClassRandomizer.of{Dt(this.randomConfig.nextInt())})
                         })
                     }
                 }
@@ -58,7 +58,7 @@ class TestPassingRandomContextBuilder {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                            add(${imports.nameOf(FactoryClassRandomizer::class)}<Dt>({Dt(-999)},Dt::class))
+                            add(FactoryClassRandomizer.of({Dt(-999)}))
                         })
                     }
                 }
@@ -69,27 +69,25 @@ class TestPassingRandomContextBuilder {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest {
-                    it.getObjs() shouldBe listOf(
-                        Dt(-999)
-                    )
+                    it.getObjs() shouldBe listOf(Dt(-999))
                 }
             }
         }
     }
 
     val qweqwe: RandomContextBuilder.() -> Unit = {
-        add(ConstantClassRandomizer(true, Boolean::class))
-        add(ConstantClassRandomizer(123, Int::class))
-        add(ConstantClassRandomizer(321L, Long::class))
-        add(ConstantClassRandomizer(543f, Float::class))
-        add(ConstantClassRandomizer(89.78, Double::class))
-        add(ConstantClassRandomizer(123.toByte(), Byte::class))
-        add(ConstantClassRandomizer('z', Char::class))
-        add(ConstantClassRandomizer(88.toShort(), Short::class))
-        add(ConstantClassRandomizer("qwezxc123", String::class))
-        add(ConstantClassRandomizer(44.123, Number::class))
-        add(ConstantClassRandomizer(Unit, Unit::class))
-        add(ConstantClassRandomizer("mmmm", Any::class))
+        add(ConstantClassRandomizer(true, TypeKey.of<Boolean>()))
+        add(ConstantClassRandomizer(123, TypeKey.of<Int>()))
+        add(ConstantClassRandomizer(321L, TypeKey.of<Long>()))
+        add(ConstantClassRandomizer(543f, TypeKey.of<Float>()))
+        add(ConstantClassRandomizer(89.78, TypeKey.of<Double>()))
+        add(ConstantClassRandomizer(123.toByte(), TypeKey.of<Byte>()))
+        add(ConstantClassRandomizer('z', TypeKey.of<Char>()))
+        add(ConstantClassRandomizer(88.toShort(), TypeKey.of<Short>()))
+        add(ConstantClassRandomizer("qwezxc123", TypeKey.of<String>()))
+        add(ConstantClassRandomizer(44.123, TypeKey.of<Number>()))
+        add(ConstantClassRandomizer(Unit, TypeKey.of<Unit>()))
+        add(ConstantClassRandomizer("mmmm", TypeKey.of<Any>()))
     }
 
     data class PrimitivesContainer(
@@ -148,18 +146,18 @@ class TestPassingRandomContextBuilder {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random{
-                            add(ConstantClassRandomizer(true, Boolean::class))
-                            add(ConstantClassRandomizer(123, Int::class))
-                            add(ConstantClassRandomizer(321L, Long::class))
-                            add(ConstantClassRandomizer(543f, Float::class))
-                            add(ConstantClassRandomizer(89.78, Double::class))
-                            add(ConstantClassRandomizer(123.toByte(), Byte::class))
-                            add(ConstantClassRandomizer('z', Char::class))
-                            add(ConstantClassRandomizer(88.toShort(), Short::class))
-                            add(ConstantClassRandomizer("qwezxc123", String::class))
-                            add(ConstantClassRandomizer(44.123, Number::class))
-                            add(ConstantClassRandomizer(Unit, Unit::class))
-                            add(ConstantClassRandomizer("mmmm", Any::class))
+                            add(ConstantClassRandomizer.of(true))
+                            add(ConstantClassRandomizer.of(123))
+                            add(ConstantClassRandomizer.of(321L))
+                            add(ConstantClassRandomizer.of(543f))
+                            add(ConstantClassRandomizer.of(89.78))
+                            add(ConstantClassRandomizer.of(123.toByte()))
+                            add(ConstantClassRandomizer.of('z'))
+                            add(ConstantClassRandomizer.of(88.toShort()))
+                            add(ConstantClassRandomizer.of("qwezxc123"))
+                            add(ConstantClassRandomizer.of<Number>(44.123))
+                            add(ConstantClassRandomizer.of(Unit))
+                            add(ConstantClassRandomizer.of<Any>("mmmm"))
                         })
                     }
                 }

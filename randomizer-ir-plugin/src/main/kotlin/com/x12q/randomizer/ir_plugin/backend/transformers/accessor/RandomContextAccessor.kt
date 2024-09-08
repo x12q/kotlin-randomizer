@@ -3,7 +3,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilder
-import com.x12q.randomizer.lib.RandomizerCollection
+import com.x12q.randomizer.lib.RandomizerCollection2
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -44,7 +44,7 @@ class RandomContextAccessor @Inject constructor(
 
     fun randomFunction(builder: DeclarationIrBuilder):IrCall{
         val function = requireNotNull(pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()){
-            "com.x12q.randomizer.lib.randomizer.random on ${RandomizerCollection::class.simpleName} does not exist. This is a bug by the developer."
+            "com.x12q.randomizer.lib.randomizer.random on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
         }
         return builder.irCall(function)
     }

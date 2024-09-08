@@ -2,7 +2,6 @@ package com.x12q.randomizer.ir_plugin
 
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.lib.*
-import kotlin.reflect.KClass
 
 abstract class AbstractClassQWE
 
@@ -15,7 +14,7 @@ inline fun <reified T : Any> makeConstantRandomizer(i: T): ClassRandomizer<T> {
             return i
         }
 
-        override val returnType: KClass<T> = T::class
+        override val returnType: TypeKey = TypeKey.of<T>()
     }
 }
 
@@ -161,8 +160,8 @@ data class CD<T1, T2>(val t1: T1, val t2: T2) {
          * When there are generic, I want user to explicitly
          */
         inline fun <reified T1 : Any, reified T2 : Any> random(
-            randomT1: RandomizerCollection.(RandomConfig) -> T1,
-            randomT2: RandomizerCollection.(RandomConfig) -> T2,
+            randomT1: RandomizerCollection2.(RandomConfig) -> T1,
+            randomT2: RandomizerCollection2.(RandomConfig) -> T2,
             randomizers: RandomContextBuilder.() -> Unit = {}
         ): CD<T1, T2> {
             val builder = RandomContextBuilderImp()

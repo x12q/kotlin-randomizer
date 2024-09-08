@@ -137,8 +137,8 @@ data class TestImportsBuilder(
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
                 ConstantClassRandomizer::class,
-                RandomizerCollectionImp::class,
-                RandomizerCollection::class,
+                RandomizerCollection2Imp::class,
+                RandomizerCollection2::class,
                 RandomContextBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,
@@ -150,6 +150,7 @@ data class TestImportsBuilder(
                 AlwaysTrueRandomConfig::class,
                 TestOutput::class,
                 WithData::class,
+                TypeKey::class,
             ),
             functionList = listOf(
                 ::withTestOutput,

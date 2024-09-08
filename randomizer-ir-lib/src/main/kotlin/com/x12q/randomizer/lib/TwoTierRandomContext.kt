@@ -20,10 +20,8 @@ class TwoTierRandomContext(
     override val random: Random = tier1.random
     override val collectionSizeRange: IntRange = randomConfig.collectionSizeRange
     override val charRange: CharRange = randomConfig.charRange
-
-    override val randomizersMap: Map<KClass<*>, ClassRandomizer<*>> = tier2.randomizersMap + tier1.randomizersMap
-
-    override fun getRandomizerForClass(clazz: KClass<*>): ClassRandomizer<*>? {
-        return tier1.getRandomizerForClass(clazz) ?: tier2.getRandomizerForClass(clazz)
+    override val randomizersMap: Map<TypeKey, ClassRandomizer<*>> = tier2.randomizersMap + tier1.randomizersMap
+    override fun add(key: TypeKey, randomizer: ClassRandomizer<*>): RandomizerCollection2 {
+        throw UnsupportedOperationException()
     }
 }
