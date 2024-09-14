@@ -38,6 +38,49 @@ class TestRandomCollection {
     val double = LegalRandomConfigObject.nextDouble()
     val short = LegalRandomConfigObject.nextShort()
 
+    @Test
+    fun `list from type param - 3 nested`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<List<List<List<Double>>>>())
+                        putData(QxC.random<List<List<List<Qx2<Float>>>>>())
+                        putData(QxC.random<List<List<List<Qx2<Qx4<String>>>>>>())
+                        putData(QxC.random<List<List<List<TwoGeneric<Int, String>>>>>())
+                        putData(QxC.random<List<List<List<TwoGeneric<Qx2<Int>, String>>>>>())
+                        putData(QxC.random<List<List<List<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>())
+                        putData(QxC.random<List<List<List<ThreeGeneric<Int, String, Double>>>>>())
+                        putData(QxC.random<List<List<List<ThreeGeneric<Int, Qx2<String>, Double>>>>>())
+                        putData(QxC.random<List<List<List<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    List(size) { List(size) { List(size) { double } } },
+                    List(size) { List(size) { List(size) { Qx2(float) } } },
+                    List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(int, str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                )
+            }
+        }
+    }
+
 
     @Test
     fun `list from type param - 2 nested`() {
@@ -63,13 +106,12 @@ class TestRandomCollection {
                 }
             """,
         ) {
-            // random$lambda$1(Lcom/x12q/randomizer/lib/RandomContext;Lcom/x12q/randomizer/lib/RandomConfig;I)Ljava/util/List;
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    List(size) { List(size) {  double } },
+                    List(size) { List(size) { double } },
                     List(size) { List(size) { Qx2(float) } },
                     List(size) { List(size) { Qx2(Qx4(str)) } },
                     List(size) { List(size) { TwoGeneric(int, str) } },
@@ -108,7 +150,6 @@ class TestRandomCollection {
                 }
             """,
         ) {
-            // random$lambda$1(Lcom/x12q/randomizer/lib/RandomContext;Lcom/x12q/randomizer/lib/RandomConfig;I)Ljava/util/List;
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
