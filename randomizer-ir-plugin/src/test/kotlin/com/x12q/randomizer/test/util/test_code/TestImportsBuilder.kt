@@ -164,6 +164,7 @@ data class TestImportsBuilder(
                 "com.x12q.randomizer.lib.factoryRandomizer",
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.factory",
+                "kotlin.random.Random",
             )
         )
     }

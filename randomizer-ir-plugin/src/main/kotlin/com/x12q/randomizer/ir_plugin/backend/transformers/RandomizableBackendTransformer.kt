@@ -27,6 +27,8 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
+import org.jetbrains.kotlin.ir.types.impl.originalKotlinType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
@@ -62,7 +64,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 completeRandomFunction2(companionObj, declaration)
             }
         }
-        println("z12q: ${declaration.dumpKotlinLike()}")
         return super.visitClassNew(declaration)
     }
 
@@ -202,6 +203,7 @@ class RandomizableBackendTransformer @Inject constructor(
         if (originalDefault != null) {
             val rt = pluginContext.irFactory.buildFun {
                 // updateFrom(originalDefault)
+                name = Name.special("<cloneDefaultRandomizersArgument>")
                 name = SpecialNames.ANONYMOUS
                 origin = originalDefault.origin
                 visibility = originalDefault.visibility
@@ -242,6 +244,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrSimpleFunction {
 
         val generatedLambda = pluginContext.irFactory.buildFun {
+            name = Name.special("<generate_makeClassRandomizer_Lambda>")
             name = SpecialNames.ANONYMOUS
             origin = BaseObjects.declarationOrigin
             visibility = DescriptorVisibilities.LOCAL
@@ -328,6 +331,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         val rt = pluginContext.irFactory.buildFun {
+            name = Name.special("<generate_makeRandom_Lambda>")
             name = SpecialNames.ANONYMOUS
             origin = BaseObjects.declarationOrigin
             visibility = DescriptorVisibilities.LOCAL
@@ -418,6 +422,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 target = target,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
             )
+            // println(randomFunction.dumpKotlinLike())
         }
     }
 
@@ -851,18 +856,9 @@ class RandomizableBackendTransformer @Inject constructor(
             }
 
             val lambdaRandomElementExpr = run {
-                val randomElementExpr = generateRandomType(
-                    declarationParent = declarationParent,
-                    receivedTypeArgument = null,
-                    targetType = type,
-                    builder = builder,
-                    getRandomContextExpr = getRandomContextExpr,
-                    getRandomConfigExpr = getRandomConfigExpr,
-                    typeParamOfRandomFunctionList = typeParamOfRandomFunction,
-                    optionalParamName = null,
-                    optionalEnclosingClassName = null,
-                )
+
                 val lambdaDeclaration = pluginContext.irFactory.buildFun {
+                    name = Name.special("<generateList_withinRandomFunction>")
                     name = SpecialNames.ANONYMOUS
                     origin = BaseObjects.declarationOrigin
                     visibility = DescriptorVisibilities.LOCAL
@@ -871,9 +867,9 @@ class RandomizableBackendTransformer @Inject constructor(
                     isSuspend = false
 
                 }.apply {
-                    declarationParent?.also {
-                        parent = it
-                    }
+                    val lambdaFunction = this
+
+                    declarationParent?.also { parent = it }
 
                     addValueParameter("index", pluginContext.irBuiltIns.intType)
 
@@ -881,12 +877,23 @@ class RandomizableBackendTransformer @Inject constructor(
                         generatorContext = pluginContext,
                         symbol = this.symbol,
                     )
+                    val randomElementExpr = generateRandomType(
+                        declarationParent = lambdaFunction ,
+                        // declarationParent = declarationParent ,
+                        receivedTypeArgument = null,
+                        targetType = type,
+                        builder = builder,
+                        getRandomContextExpr = getRandomContextExpr,
+                        getRandomConfigExpr = getRandomConfigExpr,
+                        typeParamListOfRandomFunction = typeParamOfRandomFunction,
+                        optionalParamName = null,
+                        optionalEnclosingClassName = null,
+                    )
                     body = lambdaBuilder.irBlockBody {
                         +irReturn(randomElementExpr)
                     }
                 }
-                val ps = lambdaDeclaration.parentsWithSelf.toList()
-                println(ps)
+
                 IrFunctionExpressionImpl(
                     startOffset = lambdaDeclaration.startOffset,
                     endOffset = lambdaDeclaration.endOffset,
@@ -904,11 +911,14 @@ class RandomizableBackendTransformer @Inject constructor(
             val rt = listAccessor.ListFunction(builder)
                 .withValueArgs(sizeExpr, lambdaRandomElementExpr)
                 .withTypeArgs(type)
+
             return rt
-            // create expression to call List() function and random config
+
         } else {
-            // TODO consider throw an exception here because can't find a type param for a kotlin.List
-            // but returning null is easier to handle, it simply continue the computation along the way.
+            /**
+             * TODO consider throw an exception here because can't find a type param for a kotlin.List
+             *  but returning null is easier to handle, it simply continue the computation along the way.
+             */
             return null
         }
     }
@@ -1039,13 +1049,13 @@ class RandomizableBackendTransformer @Inject constructor(
             val paramExpressions = constructor.valueParameters.withIndex().map { (_, param) ->
                 val typeIndex = (param.type.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index
                 generateRandomParam(
-                    declarationParent =declarationParent ,
+                    declarationParent = declarationParent ,
                     receivedTypeArgument = typeIndex?.let { typeArgumentList.getOrNull(it) },
                     paramFromConstructor = param,
                     builder = builder,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
-                    typeParamOfRandomFunctionList = typeParamOfRandomFunctionList,
+                    typeParamListOfRandomFunction = typeParamOfRandomFunctionList,
                 )
             }
 
@@ -1202,22 +1212,78 @@ class RandomizableBackendTransformer @Inject constructor(
          */
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
-        typeParamOfRandomFunctionList: List<IrTypeParameter>,
+        typeParamListOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression {
-
+        val paramType = paramFromConstructor.type as? IrSimpleTypeImpl
+        val q = replaceTypeArgument(paramType!!,typeParamListOfRandomFunction)
         return generateRandomType(
             declarationParent = declarationParent,
             receivedTypeArgument = receivedTypeArgument,
-            targetType = paramFromConstructor.type,
+            targetType = q!!,
             builder = builder,
             getRandomContextExpr = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
-            typeParamOfRandomFunctionList = typeParamOfRandomFunctionList,
-            optionalParamName = null,
+            typeParamListOfRandomFunction = typeParamListOfRandomFunction,
+            optionalParamName = paramFromConstructor.name.asString(),
             optionalEnclosingClassName = null,
         )
     }
 
+    /**
+     * Replace generic type of [irType] with generic type from random() function.
+     * The typed is mapped using their index.
+     * List<List<T>> -> List<List<T_R>>
+     */
+    private fun replaceTypeArgument(
+        irType: IrSimpleType,
+        typeParamListOfRandomFunction: List<IrTypeParameter>,
+    ):IrSimpleType{
+        val newArg = irType.arguments.map { arg->
+
+            val argType = arg.typeOrNull
+            val argClassifier = argType?.classifierOrNull
+
+            val newArg: IrTypeArgument = when(argClassifier){
+                is IrClassSymbol->{
+                    val spType = argType as? IrSimpleType
+                    if(spType!=null){
+                        replaceTypeArgument(argType, typeParamListOfRandomFunction)
+                    }else{
+                        arg
+                    }
+                }
+                is IrTypeParameterSymbol-> {
+                    val typeIndex = argClassifier.owner.index
+                    val typeFromRandomFunction = typeParamListOfRandomFunction.getOrNull(typeIndex)
+                    val argSimpleType = (arg as? IrSimpleType)
+                    if(argSimpleType!=null && typeFromRandomFunction!=null){
+                        val alteredArg = IrSimpleTypeImpl(
+                            kotlinType = arg.originalKotlinType,
+                            classifier = typeFromRandomFunction.symbol,
+                            nullability = arg.nullability,
+                            arguments = argSimpleType.arguments,
+                            annotations = arg.annotations,
+                            abbreviation = arg.abbreviation
+                        )
+                        alteredArg
+                    }else{
+                        arg
+                    }
+                }
+                else -> arg
+            }
+            newArg
+        }
+        val rt = IrSimpleTypeImpl(
+            kotlinType = irType.originalKotlinType,
+            classifier = irType.classifier,
+            nullability = irType.nullability,
+            arguments = newArg,
+            annotations = irType.annotations,
+            abbreviation = irType.abbreviation
+        )
+        return rt
+    }
 
     private fun generateRandomType(
         declarationParent:IrDeclarationParent?,
@@ -1236,7 +1302,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is type parameter of random() functions.
          */
-        typeParamOfRandomFunctionList: List<IrTypeParameter>,
+        typeParamListOfRandomFunction: List<IrTypeParameter>,
         /**
          * These optional names are for generating error reporting expression.
          * If given, a more descriptive message can be generated, otherwise, the message will be based on [targetType]
@@ -1274,7 +1340,7 @@ class RandomizableBackendTransformer @Inject constructor(
             return generateRandomTypeForTypelessGeneric(
                 receivedTypeClassifier = receivedTypeClassifier,
                 typeSymbol = typeSymbol,
-                typeParamOfRandomFunctionList = typeParamOfRandomFunctionList,
+                typeParamListOfRandomFunction = typeParamListOfRandomFunction,
                 targetType = targetType,
                 builder = builder,
                 getRandomContextExpr = getRandomContextExpr,
@@ -1286,13 +1352,14 @@ class RandomizableBackendTransformer @Inject constructor(
              * This is the case in which it is possible to retrieve a concrete/define class for the generic type.
              */
             return generateRandomTypeWithDefinedType(
+                // TODO this is wrong, this declaration parent must be the block that produce the lambda, not the random function
                 declarationParent=declarationParent,
                 receivedType = receivedType,
                 targetType = targetType,
                 builder = builder,
                 getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = getRandomConfigExpr,
-                typeParamOfRandomFunctionList = typeParamOfRandomFunctionList,
+                typeParamOfRandomFunctionList = typeParamListOfRandomFunction,
                 optionalParamName = optionalParamName,
                 optionalEnclosingClassName = optionalEnclosingClassName,
             )
@@ -1303,6 +1370,9 @@ class RandomizableBackendTransformer @Inject constructor(
      * This is the case in which it is possible to retrieve a concrete/define class for the generic type.
      */
     private fun generateRandomTypeWithDefinedType(
+        /**
+         * Declaration parent is for generating lambda down the line. For now, it is only for the lambda passed to List() function
+         */
         declarationParent: IrDeclarationParent?,
         receivedType: IrSimpleType?,
         targetType: IrType,
@@ -1393,16 +1463,16 @@ class RandomizableBackendTransformer @Inject constructor(
     private fun generateRandomTypeForTypelessGeneric(
         receivedTypeClassifier: IrClassifierSymbol?,
         typeSymbol: IrTypeParameterSymbol,
-        typeParamOfRandomFunctionList: List<IrTypeParameter>,
+        typeParamListOfRandomFunction: List<IrTypeParameter>,
         targetType: IrType,
         builder: DeclarationIrBuilder,
         getRandomContextExpr: IrExpression,
         optionalParamName: String? = null,
         optionalEnclosingClassName: String? = null,
     ): IrExpression {
-        val paramTypeOfFunction = run {
-            val actualTypeSymbol = (receivedTypeClassifier as? IrTypeParameterSymbol) ?: typeSymbol
-            val ptof = typeParamOfRandomFunctionList.getOrNull(actualTypeSymbol.owner.index)?.defaultType
+        val paramTypeForRandomFunction = run {
+            val actualTypeSymbol: IrTypeParameterSymbol = (receivedTypeClassifier as? IrTypeParameterSymbol) ?: typeSymbol
+            val ptof: IrSimpleType? = typeParamListOfRandomFunction.getOrNull(actualTypeSymbol.owner.index)?.defaultType
             requireNotNull(ptof) {
                 "Can't find concrete type for ${targetType}. This is most likely a bug by the developer."
             }
@@ -1410,7 +1480,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val nonNullRandom = getRandomContextExpr
             .extensionDotCall(randomContextAccessor.randomFunction(builder))
-            .withTypeArgs(paramTypeOfFunction)
+            .withTypeArgs(paramTypeForRandomFunction)
 
         /**
          * use [isMarkedNullable] here because [isNullable] always returns true for generic type

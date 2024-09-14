@@ -41,7 +41,12 @@ class ClassRandomizerUtilsKtTest {
         context.random<ABC>() shouldBe abcRdm.random()
         context.random<DDD>() shouldBe dddRdm.random()
         context.random<List<List<List<Int>>>>() shouldBe listList.random()
+        z<List<List<List<Int>>>>()shouldBe listList.random()
 
+    }
+
+    inline fun <reified T:Any>z():T?{
+        return context.random<T>()
     }
 
     @Test

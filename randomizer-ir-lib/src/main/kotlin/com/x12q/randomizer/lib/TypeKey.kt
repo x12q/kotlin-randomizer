@@ -10,11 +10,9 @@ data class TypeKey(
 ) {
     companion object {
         inline fun <reified T> of(): TypeKey {
-            val c = T::class
-            val t = typeOf<T>()
             return TypeKey(
-                kClass = c,
-                kType = t,
+                kClass = T::class,
+                kType = typeOf<T>(),
             )
         }
     }

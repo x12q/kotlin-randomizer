@@ -13,7 +13,6 @@ class FactoryClassRandomizer<T : Any>(
 
     companion object {
         inline fun <reified T : Any> of(noinline makeRandom: () -> T): FactoryClassRandomizer<T> {
-            val z = T::class
             return FactoryClassRandomizer(makeRandom, TypeKey.of<T>())
         }
     }

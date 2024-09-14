@@ -431,21 +431,20 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         enclosingClass: FirRegularClassSymbol,
         functionBuildingContext: SimpleFunctionBuildingContext
     ) {
-        enclosingClass.typeParameterSymbols.forEach { targetClassTypeParam ->
+        for(targetClassTypeParam in enclosingClass.typeParameterSymbols){
             functionBuildingContext.typeParameter(
-                name = targetClassTypeParam.name,
+                // name = targetClassTypeParam.name,
+                name = Name.identifier(targetClassTypeParam.name.asString()+"_R"), // adding "_R" at the end for easier debugging, remove it later, it's bad user experience to see it like that
                 variance = targetClassTypeParam.variance,
                 isReified = true,
                 key = BaseObjects.randomizableDeclarationKey,
                 config = {
-
-                    targetClassTypeParam.resolvedBounds.forEach {
-                        if (it.type.isNullableAny) {
+                    for(typeRef in targetClassTypeParam.resolvedBounds){
+                        if (typeRef.type.isNullableAny) {
                             bound(session.builtinTypes.anyType.coneType)
                         } else {
-                            bound(it.type)
+                            bound(typeRef.type)
                         }
-
                     }
                 }
             )
