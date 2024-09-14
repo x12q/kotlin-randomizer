@@ -65,7 +65,6 @@ class TestRandomMap {
                 }
             """,
         ) {
-
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
