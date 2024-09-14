@@ -1,8 +1,8 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.ir_plugin.TestRandomList.*
-import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -32,12 +32,14 @@ class TestRandomMap {
         .import(ThreeGeneric::class)
         .import(QxList::class)
 
-    val size = LegalRandomConfigObject.randomCollectionSize()
-    val int = LegalRandomConfigObject.nextInt()
-    val float = LegalRandomConfigObject.nextFloat()
-    val str = LegalRandomConfigObject.nextStringUUID()
-    val double = LegalRandomConfigObject.nextDouble()
-    val short = LegalRandomConfigObject.nextShort()
+    private val rdc = TestRandomConfig()
+    fun nextSize(): Int = rdc.randomCollectionSize()
+    val mapSize = nextSize()
+    fun nextInt(): Int = rdc.nextInt()
+    fun nextFloat(): Float = rdc.nextFloat()
+    fun nextStr(): String = rdc.nextStringUUID()
+    fun nextDouble(): Double = rdc.nextDouble()
+    fun nextShort(): Short = rdc.nextShort()
 
     @Test
     fun `map param`() {
@@ -63,11 +65,17 @@ class TestRandomMap {
                 }
             """,
         ) {
+
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
-
+                    buildMap {
+                        for (x in 1..mapSize) {
+                            put(nextInt(), nextDouble())
+                        }
+                        rdc.reset()
+                    },
                 )
             }
         }

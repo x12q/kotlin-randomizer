@@ -11,25 +11,33 @@ interface RandomConfig {
 
     val collectionSizeRange: IntRange
 
-    fun randomCollectionSize():Int{
+    fun randomCollectionSize(): Int {
         return collectionSizeRange.random(random)
     }
 
-    fun nextAny():Any{
+    fun nextAny(): Any {
         return listOf(
-            nextInt(),nextBoolean(),nextFloat(),nextLong(),nextDouble(),nextChar(),nextByte(),nextStringUUID(),nextUnit()
+            nextInt(),
+            nextBoolean(),
+            nextFloat(),
+            nextLong(),
+            nextDouble(),
+            nextChar(),
+            nextByte(),
+            nextStringUUID(),
+            nextUnit()
         ).random(random)
     }
 
-    fun nextFloat():Float{
+    fun nextFloat(): Float {
         return random.nextFloat()
     }
 
-    fun nextDouble():Double{
+    fun nextDouble(): Double {
         return random.nextDouble()
     }
 
-    fun nextBoolean():Boolean{
+    fun nextBoolean(): Boolean {
         return random.nextBoolean()
     }
 
@@ -41,13 +49,12 @@ interface RandomConfig {
         return random.nextLong()
     }
 
-    fun nextUInt():UInt{
+    fun nextUInt(): UInt {
         return random.nextInt().toUInt()
     }
 
 
-
-    fun nextULong():ULong{
+    fun nextULong(): ULong {
         return random.nextULong()
     }
 
@@ -57,7 +64,7 @@ interface RandomConfig {
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    fun nextUByte():UByte{
+    fun nextUByte(): UByte {
         return random.nextUBytes(1).first()
     }
 
@@ -72,7 +79,7 @@ interface RandomConfig {
     }
 
 
-    fun nextUShort():UShort{
+    fun nextUShort(): UShort {
         return nextShort().toUShort()
     }
 
@@ -97,10 +104,10 @@ interface RandomConfig {
         ).random(random)
     }
 
-    private fun <T> T.orNull():T?{
-        return if(random.nextBoolean()){
+    private fun <T> T.orNull(): T? {
+        return if (random.nextBoolean()) {
             this
-        }else{
+        } else {
             null
         }
     }

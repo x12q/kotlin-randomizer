@@ -1,12 +1,13 @@
 package com.x12q.randomizer.ir_plugin.mock_objects
 
-import com.x12q.randomizer.lib.ClassRandomizer
 import com.x12q.randomizer.lib.RandomConfig
 import kotlin.random.Random
-import kotlin.reflect.KClass
 
 
-open class DefaultTestRandomConfig : RandomConfig {
+/**
+ * A random config that always return constant for all of its random functions
+ */
+open class StaticTestRandomConfig : RandomConfig {
     override val random: Random = Random
     override val collectionSizeRange: IntRange = 5..5
     override val charRange: CharRange = 'A'..'z'
