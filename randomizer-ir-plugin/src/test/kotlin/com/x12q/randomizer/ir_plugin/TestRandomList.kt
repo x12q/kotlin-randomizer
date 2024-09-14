@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomCollection {
+class TestRandomList {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -58,6 +58,16 @@ class TestRandomCollection {
                         putData(QxC.random<List<List<List<ThreeGeneric<Int, String, Double>>>>>())
                         putData(QxC.random<List<List<List<ThreeGeneric<Int, Qx2<String>, Double>>>>>())
                         putData(QxC.random<List<List<List<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>())
+
+                        putData(QxC.random<List<List<List<Double>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<Qx2<Float>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<Qx2<Qx4<String>>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<TwoGeneric<Int, String>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<TwoGeneric<Qx2<Int>, String>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<ThreeGeneric<Int, String, Double>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<ThreeGeneric<Int, Qx2<String>, Double>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<List<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>(LegalRandomConfigObject))
                     }
                 }
             """,
@@ -67,6 +77,16 @@ class TestRandomCollection {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
+                    List(size) { List(size) { List(size) { double } } },
+                    List(size) { List(size) { List(size) { Qx2(float) } } },
+                    List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(int, str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+
                     List(size) { List(size) { List(size) { double } } },
                     List(size) { List(size) { List(size) { Qx2(float) } } },
                     List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
@@ -102,6 +122,16 @@ class TestRandomCollection {
                         putData(QxC.random<List<List<ThreeGeneric<Int,String,Double>>>>())
                         putData(QxC.random<List<List<ThreeGeneric<Int,Qx2<String>,Double>>>>())
                         putData(QxC.random<List<List<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>())
+
+                        putData(QxC.random<List<List<Double>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<Qx2<Float>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<Qx2<Qx4<String>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<TwoGeneric<Int,String>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<TwoGeneric<Qx2<Int>,String>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<TwoGeneric<Qx2<Int>,Qx4<String>>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<ThreeGeneric<Int,String,Double>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<ThreeGeneric<Int,Qx2<String>,Double>>>>(LegalRandomConfigObject))
+                        putData(QxC.random<List<List<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(LegalRandomConfigObject))
                     }
                 }
             """,
@@ -111,6 +141,16 @@ class TestRandomCollection {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
+                    List(size) { List(size) { double } },
+                    List(size) { List(size) { Qx2(float) } },
+                    List(size) { List(size) { Qx2(Qx4(str)) } },
+                    List(size) { List(size) { TwoGeneric(int, str) } },
+                    List(size) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    List(size) { List(size) { ThreeGeneric(int, str, double) } },
+                    List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
+                    List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+
                     List(size) { List(size) { double } },
                     List(size) { List(size) { Qx2(float) } },
                     List(size) { List(size) { Qx2(Qx4(str)) } },
@@ -146,6 +186,16 @@ class TestRandomCollection {
                         putData(QxC.random<ThreeGeneric<Int,String,Double>>())
                         putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
                         putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+
+                        putData(QxC.random<Double>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Float>>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Int,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(LegalRandomConfigObject))
                     }
                 }
             """,
@@ -155,6 +205,16 @@ class TestRandomCollection {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
+                    List(size) { List(size) { List(size) { double } } },
+                    List(size) { List(size) { List(size) { Qx2(float) } } },
+                    List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(int, str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
+                    List(size) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
+                    List(size) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+
                     List(size) { List(size) { List(size) { double } } },
                     List(size) { List(size) { List(size) { Qx2(float) } } },
                     List(size) { List(size) { List(size) { Qx2(Qx4(str)) } } },
@@ -192,6 +252,16 @@ class TestRandomCollection {
                         putData(QxC.random<ThreeGeneric<Int,String,Double>>())
                         putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
                         putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+
+                        putData(QxC.random<Double>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Float>>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Int,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(LegalRandomConfigObject))
                     }
                 }
             """,
@@ -210,6 +280,16 @@ class TestRandomCollection {
                     List(size) { List(size) { ThreeGeneric(int, str, double) } },
                     List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
                     List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+
+                    List(size) { List(size) { double } },
+                    List(size) { List(size) { Qx2(float) } },
+                    List(size) { List(size) { Qx2(Qx4(str)) } },
+                    List(size) { List(size) { TwoGeneric(int, str) } },
+                    List(size) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    List(size) { List(size) { ThreeGeneric(int, str, double) } },
+                    List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
+                    List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
                 )
             }
         }
@@ -219,7 +299,7 @@ class TestRandomCollection {
      * something like this: random<Int>() ~> param:List<Int>
      */
     @Test
-    fun `randomize generic List of primitive with element type provided in type param`() {
+    fun `list param`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -238,6 +318,16 @@ class TestRandomCollection {
                         putData(QxC.random<ThreeGeneric<Int,String,Double>>())
                         putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
                         putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+
+                        putData(QxC.random<Int>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Float>>(LegalRandomConfigObject))
+                        putData(QxC.random<Qx2<Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Int,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(LegalRandomConfigObject))
+                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(LegalRandomConfigObject))
+                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(LegalRandomConfigObject))
                     }
                 }
             """,
@@ -256,47 +346,18 @@ class TestRandomCollection {
                     List(size) { ThreeGeneric(int, str, double) },
                     List(size) { ThreeGeneric(int, Qx2(str), double) },
                     List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
+
+                    List(size) { int },
+                    List(size) { Qx2(float) },
+                    List(size) { Qx2(Qx4(str)) },
+                    List(size) { TwoGeneric(int, str) },
+                    List(size) { TwoGeneric(Qx2(int), str) },
+                    List(size) { TwoGeneric(Qx2(int), Qx4(str)) },
+                    List(size) { ThreeGeneric(int, str, double) },
+                    List(size) { ThreeGeneric(int, Qx2(str), double) },
+                    List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
                 )
             }
         }
     }
-
-    /**
-     * Something like this: random<List<Int>>() ~> param:T
-     */
-    @Test
-    fun `randomize generic primitive list with the whole list type provided in type param`() {
-        testGeneratedCodeUsingStandardPlugin(
-            """
-                $imports
-
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class QxC<T1:Any>(override val data:T1):WithData
-
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class QxC2<E1,E2>(override val data:TwoGeneric<E1,E2>):WithData
-                
-                fun runTest():TestOutput {
-                    return withTestOutput{
-                        putData(QxC.random<List<Float>>())
-                        putData(QxC.random<List<Qx2<Double>>>())
-                        putData(QxC2.random<List<Float>, List<String>>())
-                        putData(QxC2.random<List<Qx2<String>>, List<List<Short>>>())
-                    }
-                }
-            """,
-        ) {
-            testCompilation = { result, _ ->
-                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
-                objectList shouldBe listOf(
-                    List(size) { float },
-                    List(size) { Qx2(double) },
-                    TwoGeneric(List(size) { float }, List(size) { str }),
-                    TwoGeneric(List(size) { Qx2(str) }, List(size) { List(size) { short } })
-                )
-            }
-        }
-    }
-
 }
