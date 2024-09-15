@@ -121,7 +121,7 @@ class TestRandomMap {
                 fun runTest():TestOutput {
                     return withTestOutput{
                         // putData(QxC.random<Map<Int,Double>>())
-                        // putData(QxC.random<Map<Qx2<Float>,Double>>())
+                        putData(QxC.random<Map<Qx2<Float>,Double>>())
                         // putData(QxC.random<Qx2<Float>>())
                         // putData(QxC.random<Qx2<Qx4<String>>>())
                         // putData(QxC.random<TwoGeneric<Int,String>>())
