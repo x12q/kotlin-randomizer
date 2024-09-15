@@ -12,7 +12,7 @@ interface RandomContextBuilder {
     fun setRandomConfig(randomConfig: RandomConfig): RandomContextBuilder
     fun setRandomConfigAndGenerateStandardRandomizers(randomConfig: RandomConfig): RandomContextBuilder
     fun generateStandardRandomizers(randomConfig: RandomConfig)
-    fun addForTier2(makeRandomizer:(RandomContext.()-> ClassRandomizer<*>)?)
+    fun addForTier2(makeRandomizer:(RandomContext.()-> ClassRandomizer<*>)?):RandomContextBuilder
 }
 
 

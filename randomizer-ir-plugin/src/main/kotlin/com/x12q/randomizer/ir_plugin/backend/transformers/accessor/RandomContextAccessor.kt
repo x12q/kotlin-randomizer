@@ -15,27 +15,51 @@ import javax.inject.Inject
 
 class RandomContextAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
-) :ClassAccessor(){
+) : ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
         requireNotNull(pluginContext.referenceClass(BaseObjects.RandomContext_ClassId)) {
             "RandomConfig interface is not in the class path."
         }
     }
 
-    fun randomConfig(builder:DeclarationIrBuilder):IrCall{
-        val propGetter = requireNotNull(clzz.getPropertyGetter("randomConfig")){
+    fun randomConfig(builder: DeclarationIrBuilder): IrCall {
+        val propGetter = requireNotNull(clzz.getPropertyGetter("randomConfig")) {
             "RandomContext must have randomConfig property. This is a bug by the developer."
         }
         return builder.irCall(propGetter)
     }
 
-    private val randomFunctionCallId = CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("random"))
+    private val randomFunctionCallId =
+        CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("random"))
 
-    fun randomFunction(builder: DeclarationIrBuilder):IrCall{
-        val function = requireNotNull(pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()){
+    private val randomFunctionSymbol by lazy {
+        requireNotNull(pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()) {
             "com.x12q.randomizer.lib.randomizer.random on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
         }
-        return builder.irCall(function)
     }
 
+    fun randomFunction(builder: DeclarationIrBuilder): IrCall {
+        return builder.irCall(randomFunctionSymbol)
+    }
+
+
+    private val randomListFunctionCallId =  CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("randomList"))
+    private val randomListFunctionSymbol by lazy {
+        requireNotNull(pluginContext.referenceFunctions(randomListFunctionCallId).firstOrNull()) {
+            "com.x12q.randomizer.lib.random on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
+        }
+    }
+    fun randomList(builder: DeclarationIrBuilder): IrCall {
+        return builder.irCall(randomListFunctionSymbol)
+    }
+
+    private val randomMapFunctionCallId =  CallableId(packageName = FqName("com.x12q.randomizer.lib"), callableName = Name.identifier("randomMap"))
+    private val randomMapFunctionSymbol by lazy {
+        requireNotNull(pluginContext.referenceFunctions(randomMapFunctionCallId).firstOrNull()) {
+            "com.x12q.randomizer.lib.random on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
+        }
+    }
+    fun randomMap(builder: DeclarationIrBuilder): IrCall {
+        return builder.irCall(randomMapFunctionSymbol)
+    }
 }

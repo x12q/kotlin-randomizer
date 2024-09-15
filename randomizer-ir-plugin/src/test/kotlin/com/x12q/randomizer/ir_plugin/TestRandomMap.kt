@@ -2,10 +2,15 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
+import com.x12q.randomizer.lib.RandomContext
+import com.x12q.randomizer.lib.RandomContextBuilderImp
+import com.x12q.randomizer.lib.random
+import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
@@ -31,14 +36,30 @@ class TestRandomMap {
         .import(ThreeGeneric::class)
         .import(QxList::class)
 
-    private val rdc = TestRandomConfig()
-    fun nextSize(): Int = rdc.randomCollectionSize()
+    private val rdConfig = TestRandomConfig()
+    lateinit var rdContext:RandomContext
+    fun nextSize(): Int = rdConfig.randomCollectionSize()
     val mapSize = nextSize()
-    fun nextInt(): Int = rdc.nextInt()
-    fun nextFloat(): Float = rdc.nextFloat()
-    fun nextStr(): String = rdc.nextString()
-    fun nextDouble(): Double = rdc.nextDouble()
-    fun nextShort(): Short = rdc.nextShort()
+    fun nextInt(): Int = rdConfig.nextInt()
+    fun nextFloat(): Float = rdConfig.nextFloat()
+    fun nextStr(): String = rdConfig.nextString()
+    fun nextDouble(): Double = rdConfig.nextDouble()
+    fun nextShort(): Short = rdConfig.nextShort()
+
+
+    @BeforeTest
+    fun bt(){
+        rdContext = RandomContextBuilderImp()
+            .setRandomConfigAndGenerateStandardRandomizers(rdConfig)
+            .add(factoryRandomizer {
+                Qx2(rdConfig.nextFloat())
+            })
+            .addForTier2 {
+                factoryRandomizer {
+                    Qx2(nextFloat())
+                }
+            }.build()
+    }
 
     @Test
     fun `map param`() {
@@ -46,13 +67,13 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int,Double>())
-                        // putData(QxC.random<Qx2<Float>>())
+                        // putData(QxC.random<Int,Double>())
+                        putData(QxC.random<Qx2<Float>,Double>())
                         // putData(QxC.random<Qx2<Qx4<String>>>())
                         // putData(QxC.random<TwoGeneric<Int,String>>())
                         // putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
@@ -67,13 +88,23 @@ class TestRandomMap {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
+
+
                 objectList shouldBe listOf(
+                    // buildMap {
+                    //     rdConfig.resetRandomState()
+                    //     repeat(mapSize) {
+                    //         put(nextInt(), nextDouble())
+                    //     }
+                    // },
+
                     buildMap {
-                        for (x in 1..mapSize) {
-                            put(nextInt(), nextDouble())
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(rdContext.random<Qx2<Float>>(), nextDouble())
                         }
-                        rdc.reset()
                     },
+
                 )
             }
         }

@@ -193,6 +193,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         }
                     }
                     randomizersLambda.body = newBody
+                    println("z12q: ${newBody.dumpKotlinLike()}")
                 }
             }
         }
@@ -784,7 +785,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     receivedTypeArguments = receivedTypeArguments,
                     param = param,
                     irClass = irClass,
-                    irListType = irType,
+                    irMapType = irType,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
@@ -925,7 +926,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Generate an expression that use buildMap function to generate a map of random size, holding random elements
+     * Generate an expression that use [randomMap] in [RandomContext] function to generate a map of random size, holding random elements
      */
     private fun generateMap(
         declarationParent: IrDeclarationParent?,
@@ -937,7 +938,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * The param that holds the list
          */
         param: IrValueParameter?,
-        irListType: IrType?,
+        irMapType: IrType?,
         /**
          * The class that hold the param
          */
@@ -951,10 +952,17 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
 
+        val types = extractTypeArgument(receivedTypeArguments,irMapType)
+        if(types.size!=2){
+            throw IllegalArgumentException("randomMap function require 2 generic type arguments. Only receive ${types.size}")
+        }
+        val keyType = types[0].typeOrNull!!
+        val valueType = types[1].typeOrNull!!
 
-
-
-        return null
+        val randomMapCall = getRandomContextExpr.extensionDotCall(
+            randomContextAccessor.randomMap(builder)
+        ).withTypeArgs(keyType,valueType)
+        return randomMapCall
     }
 
     fun generateSet(

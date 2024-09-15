@@ -1,7 +1,6 @@
 package com.x12q.randomizer.lib
 
 import kotlin.jvm.Throws
-import kotlin.reflect.typeOf
 
 /**
  * Construct a random [Map] using a [RandomContext]

@@ -23,7 +23,7 @@ class TestRandomConfig : RandomConfig  {
     /**
      * Recreate the random obj
      */
-    fun reset(){
+    fun resetRandomState(){
         random = Random(123)
     }
 }

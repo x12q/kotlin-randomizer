@@ -152,6 +152,7 @@ data class TestImportsBuilder(
                 TestOutput::class,
                 WithData::class,
                 TypeKey::class,
+                TestRandomConfig::class,
             ),
             functionList = listOf(
                 ::withTestOutput,
