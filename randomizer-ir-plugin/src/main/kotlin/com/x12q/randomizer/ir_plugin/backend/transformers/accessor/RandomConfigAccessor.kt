@@ -94,10 +94,10 @@ class RandomConfigAccessor @Inject constructor(
 
 
     /**
-     * Construct an [IrCall] to access [RandomConfig.nextStringUUID]
+     * Construct an [IrCall] to access [RandomConfig.nextString]
      */
     fun nextStringUUID(builder: DeclarationIrBuilder):IrCall{
-        return builder.zeroAgrFunctionCall("nextStringUUID")
+        return builder.zeroAgrFunctionCall("nextString")
     }
     /**
      * Construct an [IrCall] to access [RandomConfig.nextUnit]

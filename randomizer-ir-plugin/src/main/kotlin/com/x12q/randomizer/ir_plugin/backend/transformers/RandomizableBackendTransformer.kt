@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 
 import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.*
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.ListAccessor
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.runSideEffect
@@ -552,7 +553,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: IrBuilderWithScope,
         getRandomContextBuilderExpr: IrExpression,
     ): IrExpression {
-        return getRandomContextBuilderExpr.dotCall(randomContextBuilderAccessor.buildRandomConfigFunction(builder))
+        return getRandomContextBuilderExpr.dotCall(randomContextBuilderAccessor.buildFunction(builder))
     }
 
     /**
@@ -779,10 +780,11 @@ class RandomizableBackendTransformer @Inject constructor(
         val rt = stopAtFirstNotNull(
             {
                 generateMap(
+                    declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
                     param = param,
-                    irType = irType,
                     irClass = irClass,
+                    irListType = irType,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
@@ -819,6 +821,9 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
+    /**
+     * Generate an expression that will invoke List{} function to create a list of random size, holding random elements.
+     */
     private fun generateList(
         declarationParent: IrDeclarationParent?,
         /**
@@ -915,25 +920,40 @@ class RandomizableBackendTransformer @Inject constructor(
             return rt
 
         } else {
-            /**
-             * TODO consider throw an exception here because can't find a type param for a kotlin.List
-             *  but returning null is easier to handle, it simply continue the computation along the way.
-             */
             return null
         }
     }
 
-    fun generateMap(
+    /**
+     * Generate an expression that use buildMap function to generate a map of random size, holding random elements
+     */
+    private fun generateMap(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
         receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
         param: IrValueParameter?,
-        irType: IrType?,
+        irListType: IrType?,
+        /**
+         * The class that hold the param
+         */
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        // TODO
+        if(!irClass.isMap()){
+            return null
+        }
+
+
+
+
         return null
     }
 

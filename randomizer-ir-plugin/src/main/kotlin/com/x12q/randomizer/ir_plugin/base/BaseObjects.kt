@@ -53,7 +53,7 @@ internal object BaseObjects {
 
     val RandomizerCollection_Id = ClassId.topLevel(
         FqName(
-            requireNotNull(RandomizerCollection2::class.qualifiedName){
+            requireNotNull(RandomizerCollection::class.qualifiedName){
                 "ClassRandomizerCollection interface does not exist in the class path"
             }
         )

@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
-import com.x12q.randomizer.lib.ClassRandomizer
+import com.x12q.randomizer.lib.randomizer.ClassRandomizer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.name.ClassId

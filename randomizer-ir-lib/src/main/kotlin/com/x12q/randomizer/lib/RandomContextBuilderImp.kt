@@ -1,6 +1,7 @@
 package com.x12q.randomizer.lib
 
-import kotlin.reflect.KClass
+import com.x12q.randomizer.lib.randomizer.ClassRandomizer
+import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 
 
 class RandomContextBuilderImp : RandomContextBuilder {
@@ -44,7 +45,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
             factoryRandomizer { randomConfig.nextULong() },
             factoryRandomizer { randomConfig.nextUShort() },
 
-            factoryRandomizer { randomConfig.nextStringUUID() },
+            factoryRandomizer { randomConfig.nextString() },
             factoryRandomizer { randomConfig.nextUnit() },
             factoryRandomizer { randomConfig.nextAny() },
         )
@@ -53,17 +54,17 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private val tier2RandomizerFactoryFunctionList: MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
 
-    override fun addForTier2(makeRandomizer: (RandomContext.()->ClassRandomizer<*>)?) {
+    override fun addForTier2(makeRandomizer: (RandomContext.()-> ClassRandomizer<*>)?) {
         if(makeRandomizer!=null){
             tier2RandomizerFactoryFunctionList.add(makeRandomizer)
         }
     }
 
-    private var builtRandomizerCollection: RandomizerCollection2? = null
+    private var builtRandomizerCollection: RandomizerCollection? = null
 
     private fun buildRandomizerCollection() {
         if (builtRandomizerCollection == null) {
-            builtRandomizerCollection = RandomizerCollection2Imp(randomizersMap.toMap())
+            builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
         }
     }
 
@@ -73,7 +74,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
         }
 
 
-    override fun buildContext(): RandomContext {
+    override fun build(): RandomContext {
         val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
         if (builtRandomizerCollection == null) {
             buildRandomizerCollection()
@@ -91,7 +92,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
                 val t2Randomizer = randomizerMaker(tier1)
                 tier2Builder.add(t2Randomizer)
             }
-            val tier2 = tier2Builder.buildContext()
+            val tier2 = tier2Builder.build()
             return TwoTierRandomContext(tier1, tier2)
         }else{
             return tier1

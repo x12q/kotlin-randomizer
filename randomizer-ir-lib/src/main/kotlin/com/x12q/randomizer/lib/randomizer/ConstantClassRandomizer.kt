@@ -1,4 +1,6 @@
-package com.x12q.randomizer.lib
+package com.x12q.randomizer.lib.randomizer
+
+import com.x12q.randomizer.lib.TypeKey
 
 
 /**
@@ -11,7 +13,7 @@ data class ConstantClassRandomizer<T:Any>(val value: T,override val returnType: 
 
     companion object{
         inline fun <reified T:Any> of(t:T): ConstantClassRandomizer<T> {
-            return ConstantClassRandomizer(t,TypeKey.of<T>())
+            return ConstantClassRandomizer(t, TypeKey.of<T>())
         }
     }
 }

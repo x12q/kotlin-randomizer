@@ -4,7 +4,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.lib.RandomizerCollection2
+import com.x12q.randomizer.lib.RandomizerCollection
 import com.x12q.randomizer.test.util.assertions.isInstanceOf
 import com.x12q.randomizer.test.util.assertions.runMain
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
@@ -43,7 +43,7 @@ class TopFrontEndDeclaration {
                 )
                 data class Q123(val i:Int){
                     companion object{
-                          fun x12(randomizers: ${imports.nameOf(RandomizerCollection2::class)}.() -> Unit = {}): Int {
+                          fun x12(randomizers: ${imports.nameOf(RandomizerCollection::class)}.() -> Unit = {}): Int {
                             return 123
                         }
                     }

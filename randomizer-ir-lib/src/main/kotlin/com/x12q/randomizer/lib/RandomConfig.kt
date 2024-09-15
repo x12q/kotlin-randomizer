@@ -1,6 +1,5 @@
 package com.x12q.randomizer.lib
 
-import com.x12q.randomizer.lib.util.randomUUIDStr
 import kotlin.random.Random
 import kotlin.random.nextUBytes
 import kotlin.random.nextULong
@@ -11,8 +10,17 @@ interface RandomConfig {
 
     val collectionSizeRange: IntRange
 
+    val charRange: CharRange
+
+    val stringSize:IntRange
+    val stringCandidates:List<Char>
+
     fun randomCollectionSize(): Int {
         return collectionSizeRange.random(random)
+    }
+
+    fun randomStringSize():Int{
+        return stringSize.random(random)
     }
 
     fun nextAny(): Any {
@@ -24,7 +32,7 @@ interface RandomConfig {
             nextDouble(),
             nextChar(),
             nextByte(),
-            nextStringUUID(),
+            nextString(),
             nextUnit()
         ).random(random)
     }
@@ -68,8 +76,6 @@ interface RandomConfig {
         return random.nextUBytes(1).first()
     }
 
-    val charRange: CharRange
-
     fun nextChar(): Char {
         return charRange.random(this.random)
     }
@@ -84,8 +90,13 @@ interface RandomConfig {
     }
 
 
-    fun nextStringUUID(): String {
-        return randomUUIDStr()
+    fun nextString(): String {
+        val strBuilder = StringBuilder()
+        val strSize = randomStringSize()
+        repeat(strSize){
+            strBuilder.append(stringCandidates.random(random))
+        }
+        return strBuilder.toString()
     }
 
     fun nextUnit(): Unit {

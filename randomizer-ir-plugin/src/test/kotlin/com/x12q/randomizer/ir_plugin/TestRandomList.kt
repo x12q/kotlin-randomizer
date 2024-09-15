@@ -34,7 +34,7 @@ class TestRandomList {
     val size = LegalRandomConfigObject.randomCollectionSize()
     val int = LegalRandomConfigObject.nextInt()
     val float = LegalRandomConfigObject.nextFloat()
-    val str = LegalRandomConfigObject.nextStringUUID()
+    val str = LegalRandomConfigObject.nextString()
     val double = LegalRandomConfigObject.nextDouble()
     val short = LegalRandomConfigObject.nextShort()
 

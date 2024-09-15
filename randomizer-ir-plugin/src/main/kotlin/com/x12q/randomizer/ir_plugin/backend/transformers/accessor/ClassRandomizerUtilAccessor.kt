@@ -14,7 +14,7 @@ class ClassRandomizerUtilAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) {
 
-    val factoryRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib"), Name.identifier("factoryRandomizer"))
+    val factoryRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("factoryRandomizer"))
 
     val factoryClassRandomizerFunction by lazy {
         val function = requireNotNull(pluginContext.referenceFunctions(factoryRandomizerCallId).firstOrNull()){
@@ -27,7 +27,7 @@ class ClassRandomizerUtilAccessor @Inject constructor(
         return builder.irCall(factoryClassRandomizerFunction)
     }
 
-    val constantRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib"), Name.identifier("constantRandomizer"))
+    val constantRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("constantRandomizer"))
 
     val constantClassRandomizerFunction by lazy {
         val function = requireNotNull(pluginContext.referenceFunctions(constantRandomizerCallId).firstOrNull()){

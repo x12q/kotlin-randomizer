@@ -3,6 +3,9 @@ package com.x12q.randomizer.test.util.test_code
 import com.x12q.randomizer.ir_plugin.mock_objects.*
 import com.x12q.randomizer.lib.*
 import com.x12q.randomizer.lib.annotations.Randomizable
+import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
+import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
+import com.x12q.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.withTestOutput
@@ -123,12 +126,10 @@ data class TestImportsBuilder(
     }
 
     override fun toString(): String {
-
         return importCode
     }
 
     companion object {
-
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
@@ -137,8 +138,8 @@ data class TestImportsBuilder(
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
                 ConstantClassRandomizer::class,
-                RandomizerCollection2Imp::class,
-                RandomizerCollection2::class,
+                RandomizerCollectionImp::class,
+                RandomizerCollection::class,
                 RandomContextBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,
@@ -161,7 +162,7 @@ data class TestImportsBuilder(
             ),
             literalImports = listOf(
                 "com.x12q.randomizer.lib.random",
-                "com.x12q.randomizer.lib.factoryRandomizer",
+                "com.x12q.randomizer.lib.randomizer.factoryRandomizer",
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.factory",
                 "kotlin.random.Random",

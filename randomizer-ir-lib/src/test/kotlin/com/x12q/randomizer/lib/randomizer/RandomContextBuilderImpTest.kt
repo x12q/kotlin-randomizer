@@ -1,7 +1,6 @@
 package com.x12q.randomizer.lib.randomizer
 
 import com.x12q.randomizer.lib.*
-import com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
@@ -17,7 +16,7 @@ class RandomContextBuilderImpTest{
         builder.add(intRdm)
         builder.add(floatRdm)
 
-        val context = builder.buildContext()
+        val context = builder.build()
         context.randomizersMap shouldBe listOf(intRdm,floatRdm).associateBy { it.returnType }
     }
 
@@ -35,7 +34,7 @@ class RandomContextBuilderImpTest{
         }
 
 
-        val context = builder.buildContext()
+        val context = builder.build()
         context.random<Float>() shouldBe 1f
     }
 
@@ -50,7 +49,7 @@ class RandomContextBuilderImpTest{
         builder.add(factoryRandomizer { intList })
             .add(factoryRandomizer { strList })
 
-        val context = builder.buildContext()
+        val context = builder.build()
         context.random<List<Int>>() shouldBe intList
     }
 }

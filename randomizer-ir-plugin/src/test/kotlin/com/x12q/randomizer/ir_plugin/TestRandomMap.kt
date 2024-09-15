@@ -1,7 +1,6 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
@@ -37,7 +36,7 @@ class TestRandomMap {
     val mapSize = nextSize()
     fun nextInt(): Int = rdc.nextInt()
     fun nextFloat(): Float = rdc.nextFloat()
-    fun nextStr(): String = rdc.nextStringUUID()
+    fun nextStr(): String = rdc.nextString()
     fun nextDouble(): Double = rdc.nextDouble()
     fun nextShort(): Short = rdc.nextShort()
 

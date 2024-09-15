@@ -60,7 +60,7 @@ class TestRandomPrimitive {
                             LegalRandomConfigObject.nextByte(),
                             LegalRandomConfigObject.nextChar(),
                             LegalRandomConfigObject.nextShort(),
-                            LegalRandomConfigObject.nextStringUUID(),
+                            LegalRandomConfigObject.nextString(),
                             LegalRandomConfigObject.nextNumber(),
                             Unit,
                             LegalRandomConfigObject.nextAny()

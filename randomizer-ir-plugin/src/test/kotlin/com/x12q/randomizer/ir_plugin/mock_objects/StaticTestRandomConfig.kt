@@ -9,8 +9,11 @@ import kotlin.random.Random
  */
 open class StaticTestRandomConfig : RandomConfig {
     override val random: Random = Random
+    override val stringSize: IntRange = 1 .. 20
+
     override val collectionSizeRange: IntRange = 5..5
     override val charRange: CharRange = 'A'..'z'
+    override val stringCandidates: List<Char> get() = charRange.toList()
 
     override fun nextAny(): Any {
         return "any"
@@ -71,7 +74,7 @@ open class StaticTestRandomConfig : RandomConfig {
     }
 
 
-    override fun nextStringUUID(): String {
+    override fun nextString(): String {
         return "abc-uuid"
     }
 

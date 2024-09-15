@@ -4,7 +4,6 @@ import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.builders.IrBlockBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -40,10 +39,6 @@ class RandomizerContextBuilderAccessor @Inject constructor(
 
     fun buildFunction(builder: IrBuilderWithScope): IrCall {
         return builder.zeroAgrFunctionCall("build")
-    }
-
-    fun buildRandomConfigFunction(builder: IrBuilderWithScope): IrCall {
-        return builder.zeroAgrFunctionCall("buildContext")
     }
 
     fun addFunction(builder: DeclarationIrBuilder): IrCall {

@@ -1,7 +1,7 @@
 package com.x12q.randomizer.lib.randomizer
 
 import com.x12q.randomizer.lib.*
-import com.x12q.randomizer.lib.randomizer.mock_obj.AlwaysTrueRandomConfig
+import com.x12q.randomizer.lib.test_utils.mock_obj.random_config.AlwaysTrueRandomConfig
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
@@ -18,7 +18,7 @@ class ClassRandomizerUtilsKtTest {
         List(1) { List(2) { List(3) { 123 } } }
     }
     val l = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
-    val col = RandomizerCollection2Imp(l.associateBy { it.returnType })
+    val col = RandomizerCollectionImp(l.associateBy { it.returnType })
     val config = AlwaysTrueRandomConfig
     val context = RandomContextImp(
         randomConfig = config,

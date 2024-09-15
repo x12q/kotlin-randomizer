@@ -9,7 +9,6 @@ import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.random.Random
 import kotlin.test.Test
 
 
@@ -40,7 +39,7 @@ class TestRandomGenericProperty {
     val size = LegalRandomConfigObject.randomCollectionSize()
     val int = LegalRandomConfigObject.nextInt()
     val float = LegalRandomConfigObject.nextFloat()
-    val str = LegalRandomConfigObject.nextStringUUID()
+    val str = LegalRandomConfigObject.nextString()
     val double = LegalRandomConfigObject.nextDouble()
     val short = LegalRandomConfigObject.nextShort()
 
@@ -70,7 +69,7 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
-                    TwoGeneric(Qx2(int), Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    TwoGeneric(Qx2(int), Qx4(LegalRandomConfigObject.nextString())),
                     ThreeGeneric(Qx2(int), Qx4(str), float),
                     ThreeGeneric(double, str, Qx4(LegalRandomConfigObject.nextShort())),
                     ThreeGeneric(Qx2(int), Qx4(str), Qx4(Qx2(Qx4(int)))),
@@ -144,7 +143,7 @@ class TestRandomGenericProperty {
                 objectList shouldBe listOf(
                     Qx2(Qx4(LegalRandomConfigObject.nextInt())),
                     Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
-                    Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    Qx2(Qx4(LegalRandomConfigObject.nextString())),
                     Qx2(LegalRandomConfigObject.nextInt()),
                     Qx2(LegalRandomConfigObject.nextBoolean()),
                 )
@@ -180,7 +179,7 @@ class TestRandomGenericProperty {
                 objectList shouldBe listOf(
                     Qx2(Qx4(LegalRandomConfigObject.nextInt())),
                     Qx2(Qx4(LegalRandomConfigObject.nextFloat())),
-                    Qx2(Qx4(LegalRandomConfigObject.nextStringUUID())),
+                    Qx2(Qx4(LegalRandomConfigObject.nextString())),
                     Qx2(LegalRandomConfigObject.nextInt()),
                     Qx2(LegalRandomConfigObject.nextBoolean()),
                 )
@@ -378,7 +377,7 @@ class TestRandomGenericProperty {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.runRunTest().getObjs() shouldBe listOf(
-                    Qx2(LegalRandomConfigObject.nextStringUUID()),
+                    Qx2(LegalRandomConfigObject.nextString()),
                 )
             }
         }

@@ -2,8 +2,7 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-import com.x12q.randomizer.lib.ConstantClassRandomizer
-import com.x12q.randomizer.lib.FactoryClassRandomizer
+import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
 import com.x12q.randomizer.lib.RandomContextBuilder
 import com.x12q.randomizer.lib.TypeKey
 import com.x12q.randomizer.test.util.assertions.runRunTest

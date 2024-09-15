@@ -10,6 +10,10 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.FqName
 import kotlin.reflect.KClass
 
+fun IrClass.isMap():Boolean{
+    return this.isClass(Map::class)
+}
+
 fun IrClass.isList():Boolean{
     return this.isClass(List::class)
 }

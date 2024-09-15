@@ -1,4 +1,6 @@
-package com.x12q.randomizer.lib
+package com.x12q.randomizer.lib.randomizer
+
+import com.x12q.randomizer.lib.TypeKey
 
 /**
  * A class randomizer that run a factory function to produce random values

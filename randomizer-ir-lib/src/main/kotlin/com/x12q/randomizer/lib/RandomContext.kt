@@ -1,5 +1,5 @@
 package com.x12q.randomizer.lib
 
-interface RandomContext: RandomConfig, RandomizerCollection2{
+interface RandomContext: RandomConfig, RandomizerCollection{
     val randomConfig:RandomConfig
 }

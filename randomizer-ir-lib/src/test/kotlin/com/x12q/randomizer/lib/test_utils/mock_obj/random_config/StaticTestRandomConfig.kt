@@ -1,13 +1,15 @@
-package com.x12q.randomizer.lib.randomizer.mock_obj
+package com.x12q.randomizer.lib.test_utils.mock_obj.random_config
 
 import com.x12q.randomizer.lib.RandomConfig
 import kotlin.random.Random
 
 
-open class DefaultTestRandomConfig: RandomConfig {
+open class StaticTestRandomConfig: RandomConfig {
     override val random: Random = Random
     override val collectionSizeRange: IntRange = 5 .. 5
     override val charRange: CharRange = 'A' .. 'z'
+    override val stringSize: IntRange = 1 .. 20
+    override val stringCandidates: List<Char> get()= charRange.toList()
 
     override fun nextAny(): Any {
         return "any"
@@ -62,7 +64,7 @@ open class DefaultTestRandomConfig: RandomConfig {
         return 19U
     }
 
-    override fun nextStringUUID(): String {
+    override fun nextString(): String {
         return "abc-uuid"
     }
 
