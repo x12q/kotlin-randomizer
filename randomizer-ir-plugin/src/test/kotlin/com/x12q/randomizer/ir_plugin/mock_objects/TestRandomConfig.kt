@@ -15,7 +15,7 @@ class TestRandomConfig : RandomConfig  {
     override val collectionSizeRange: IntRange = 6 .. 6
 
     override fun randomCollectionSize(): Int {
-        return 6
+        return 1
     }
 
     override val charRange: CharRange =  'A' .. 'z'

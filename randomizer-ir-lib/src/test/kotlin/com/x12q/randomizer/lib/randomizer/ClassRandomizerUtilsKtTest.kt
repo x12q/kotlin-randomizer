@@ -18,7 +18,7 @@ class ClassRandomizerUtilsKtTest {
         List(1) { List(2) { List(3) { 123 } } }
     }
     val l = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
-    val col = RandomizerCollectionImp(l.associateBy { it.returnType })
+    val col = MutableRandomizerCollection(l.associateBy { it.returnType })
     val config = AlwaysTrueRandomConfig
     val context = RandomContextImp(
         randomConfig = config,

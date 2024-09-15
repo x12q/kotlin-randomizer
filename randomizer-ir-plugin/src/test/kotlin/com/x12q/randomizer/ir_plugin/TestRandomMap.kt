@@ -40,11 +40,11 @@ class TestRandomMap {
     lateinit var rdContext:RandomContext
     fun nextSize(): Int = rdConfig.randomCollectionSize()
     val mapSize = nextSize()
-    fun nextInt(): Int = rdConfig.nextInt()
-    fun nextFloat(): Float = rdConfig.nextFloat()
-    fun nextStr(): String = rdConfig.nextString()
-    fun nextDouble(): Double = rdConfig.nextDouble()
-    fun nextShort(): Short = rdConfig.nextShort()
+    fun nextInt(): Int = rdContext.nextInt()
+    fun nextFloat(): Float = rdContext.nextFloat()
+    fun nextStr(): String = rdContext.nextString()
+    fun nextDouble(): Double = rdContext.nextDouble()
+    fun nextShort(): Short = rdContext.nextShort()
 
 
     @BeforeTest
@@ -54,11 +54,7 @@ class TestRandomMap {
             .add(factoryRandomizer {
                 Qx2(rdConfig.nextFloat())
             })
-            .addForTier2 {
-                factoryRandomizer {
-                    Qx2(nextFloat())
-                }
-            }.build()
+            .build()
     }
 
     @Test
@@ -69,11 +65,13 @@ class TestRandomMap {
 
                 @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
+                // data class QxC<K:Any>(override val data:K):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        // putData(QxC.random<Int,Double>())
+                        putData(QxC.random<Int,Double>())
                         putData(QxC.random<Qx2<Float>,Double>())
+                        // putData(QxC.random<Qx2<Float>>())
                         // putData(QxC.random<Qx2<Qx4<String>>>())
                         // putData(QxC.random<TwoGeneric<Int,String>>())
                         // putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
@@ -91,12 +89,12 @@ class TestRandomMap {
 
 
                 objectList shouldBe listOf(
-                    // buildMap {
-                    //     rdConfig.resetRandomState()
-                    //     repeat(mapSize) {
-                    //         put(nextInt(), nextDouble())
-                    //     }
-                    // },
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(nextInt(), nextDouble())
+                        }
+                    },
 
                     buildMap {
                         rdConfig.resetRandomState()

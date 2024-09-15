@@ -54,8 +54,8 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private val tier2RandomizerFactoryFunctionList: MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
 
-    override fun addForTier2(makeRandomizer: (RandomContext.()-> ClassRandomizer<*>)?):RandomContextBuilderImp {
-        if(makeRandomizer!=null){
+    override fun addForTier2(makeRandomizer: (RandomContext.() -> ClassRandomizer<*>)?): RandomContextBuilderImp {
+        if (makeRandomizer != null) {
             tier2RandomizerFactoryFunctionList.add(makeRandomizer)
         }
         return this
@@ -65,7 +65,8 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private fun buildRandomizerCollection() {
         if (builtRandomizerCollection == null) {
-            builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
+            // builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
+            builtRandomizerCollection = MutableRandomizerCollection(randomizersMap.toMap())
         }
     }
 
@@ -77,27 +78,25 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     override fun build(): RandomContext {
         val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
+
         if (builtRandomizerCollection == null) {
             buildRandomizerCollection()
         }
 
-        val tier1 = RandomContextImp(
-            baseRandomConfig, builtRandomizerCollection!!
+        val rdCollection = builtRandomizerCollection!!
+
+        val randomContext1 = RandomContextImp(
+            baseRandomConfig, rdCollection
         )
 
-        if(tier2RandomizerFactoryFunctionList.isNotEmpty()){
-            val tier2Builder = RandomContextBuilderImp()
-                .setRandomConfig(tier1.randomConfig)
-
-            for(randomizerMaker in tier2RandomizerFactoryFunctionList){
-                val t2Randomizer = randomizerMaker(tier1)
-                tier2Builder.add(t2Randomizer)
+        if (tier2RandomizerFactoryFunctionList.isNotEmpty()) {
+            for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
+                val t2Randomizer = makeRandomizer(randomContext1)
+                rdCollection.add(t2Randomizer.returnType, t2Randomizer)
             }
-            val tier2 = tier2Builder.build()
-            return TwoTierRandomContext(tier1, tier2)
-        }else{
-            return tier1
         }
+        return randomContext1
     }
+
 }
 
