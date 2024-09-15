@@ -327,7 +327,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         if (clzz.owner.isAbstract()) {
-            if (!clzz.owner.isList()) {
+            if (!clzz.owner.isList() && !clzz.owner.isMap()) {
                 throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
             }
         }
@@ -357,7 +357,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 +irReturn(
                     irBlock {
                         val generateExpr = generateRandomClass(
-                            declarationParent = function, // hhh
+                            declarationParent = function,
                             receivedTypeArguments = randomTargetType.arguments,
                             irType = randomTargetType,
                             param = null,

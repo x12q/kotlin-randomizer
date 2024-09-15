@@ -37,7 +37,7 @@ class TestRandomMap {
         .import(QxList::class)
 
     private val rdConfig = TestRandomConfig()
-    lateinit var rdContext:RandomContext
+    lateinit var rdContext: RandomContext
     fun nextSize(): Int = rdConfig.randomCollectionSize()
     val mapSize = nextSize()
     fun nextInt(): Int = rdContext.nextInt()
@@ -48,7 +48,7 @@ class TestRandomMap {
 
 
     @BeforeTest
-    fun bt(){
+    fun bt() {
         rdContext = RandomContextBuilderImp()
             .setRandomConfigAndGenerateStandardRandomizers(rdConfig)
             .add(factoryRandomizer {
@@ -95,6 +95,57 @@ class TestRandomMap {
                             put(nextInt(), nextDouble())
                         }
                     },
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(rdContext.random<Qx2<Float>>(), nextDouble())
+                        }
+                    },
+
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun `map to param`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T:Any>(override val data:T):WithData
+                // data class QxC<K:Any>(override val data:K):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        // putData(QxC.random<Map<Int,Double>>())
+                        // putData(QxC.random<Map<Qx2<Float>,Double>>())
+                        // putData(QxC.random<Qx2<Float>>())
+                        // putData(QxC.random<Qx2<Qx4<String>>>())
+                        // putData(QxC.random<TwoGeneric<Int,String>>())
+                        // putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
+                        // putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
+                        // putData(QxC.random<ThreeGeneric<Int,String,Double>>())
+                        // putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
+                        // putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+
+                objectList shouldBe listOf(
+                    // buildMap {
+                    //     rdConfig.resetRandomState()
+                    //     repeat(mapSize) {
+                    //         put(nextInt(), nextDouble())
+                    //     }
+                    // },
 
                     buildMap {
                         rdConfig.resetRandomState()
