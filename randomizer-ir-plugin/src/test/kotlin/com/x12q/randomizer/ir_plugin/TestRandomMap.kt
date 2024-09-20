@@ -137,7 +137,6 @@ class TestRandomMap {
 
                 @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
-                // data class QxC<K:Any>(override val data:K):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
