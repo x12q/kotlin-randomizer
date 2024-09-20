@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.mock_objects
+package com.x12q.randomizer.lib.test_utils.mock_obj.random_config
 
 object AlwaysTrueRandomConfig: StaticTestRandomConfig(){
     override fun nextBoolean(): Boolean {

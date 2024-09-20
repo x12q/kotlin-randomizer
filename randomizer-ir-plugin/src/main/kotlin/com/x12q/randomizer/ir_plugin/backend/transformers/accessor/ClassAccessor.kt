@@ -12,7 +12,7 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.defaultType
 
 abstract class ClassAccessor{
-    protected abstract val clzz: IrClassSymbol
+    abstract val clzz: IrClassSymbol
 
     val irType: IrType by lazy { clzz.defaultType }
 

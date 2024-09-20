@@ -1,6 +1,5 @@
 package com.x12q.randomizer.lib
 
-import com.x12q.randomizer.lib.util.randomUUIDStr
 import kotlin.random.Random
 import kotlin.random.nextUBytes
 import kotlin.random.nextULong
@@ -11,21 +10,42 @@ interface RandomConfig {
 
     val collectionSizeRange: IntRange
 
-    fun nextAny():Any{
+    val charRange: CharRange
+
+    val stringSize:IntRange
+    val stringCandidates:List<Char>
+
+    fun randomCollectionSize(): Int {
+        return collectionSizeRange.random(random)
+    }
+
+    fun randomStringSize():Int{
+        return stringSize.random(random)
+    }
+
+    fun nextAny(): Any {
         return listOf(
-            nextInt(),nextBoolean(),nextFloat(),nextLong(),nextDouble(),nextChar(),nextByte(),nextStringUUID(),nextUnit()
+            nextInt(),
+            nextBoolean(),
+            nextFloat(),
+            nextLong(),
+            nextDouble(),
+            nextChar(),
+            nextByte(),
+            nextString(),
+            nextUnit()
         ).random(random)
     }
 
-    fun nextFloat():Float{
+    fun nextFloat(): Float {
         return random.nextFloat()
     }
 
-    fun nextDouble():Double{
+    fun nextDouble(): Double {
         return random.nextDouble()
     }
 
-    fun nextBoolean():Boolean{
+    fun nextBoolean(): Boolean {
         return random.nextBoolean()
     }
 
@@ -37,13 +57,12 @@ interface RandomConfig {
         return random.nextLong()
     }
 
-    fun nextUInt():UInt{
+    fun nextUInt(): UInt {
         return random.nextInt().toUInt()
     }
 
 
-
-    fun nextULong():ULong{
+    fun nextULong(): ULong {
         return random.nextULong()
     }
 
@@ -53,11 +72,9 @@ interface RandomConfig {
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    fun nextUByte():UByte{
+    fun nextUByte(): UByte {
         return random.nextUBytes(1).first()
     }
-
-    val charRange: CharRange
 
     fun nextChar(): Char {
         return charRange.random(this.random)
@@ -68,13 +85,18 @@ interface RandomConfig {
     }
 
 
-    fun nextUShort():UShort{
+    fun nextUShort(): UShort {
         return nextShort().toUShort()
     }
 
 
-    fun nextStringUUID(): String {
-        return randomUUIDStr()
+    fun nextString(): String {
+        val strBuilder = StringBuilder()
+        val strSize = randomStringSize()
+        repeat(strSize){
+            strBuilder.append(stringCandidates.random(random))
+        }
+        return strBuilder.toString()
     }
 
     fun nextUnit(): Unit {
@@ -93,10 +115,10 @@ interface RandomConfig {
         ).random(random)
     }
 
-    private fun <T> T.orNull():T?{
-        return if(random.nextBoolean()){
+    private fun <T> T.orNull(): T? {
+        return if (random.nextBoolean()) {
             this
-        }else{
+        } else {
             null
         }
     }

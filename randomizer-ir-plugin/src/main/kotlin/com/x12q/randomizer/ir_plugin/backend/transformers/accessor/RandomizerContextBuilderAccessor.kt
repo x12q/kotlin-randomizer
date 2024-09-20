@@ -1,12 +1,11 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import com.x12q.randomizer.lib.RandomContextBuilder
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -22,6 +21,14 @@ class RandomizerContextBuilderAccessor @Inject constructor(
         }
     }
 
+    fun addForTier2():IrSimpleFunctionSymbol{
+        return clzz.oneAgrFunction("addForTier2")
+    }
+
+    fun addForTier2Call(builder: IrBuilderWithScope):IrCall{
+        return builder.oneAgrFunctionCall("addForTier2")
+    }
+
     fun randomConfig(builder: DeclarationIrBuilder): IrCall {
         return builder.irCall(
             requireNotNull(clzz.getPropertyGetter("randomConfig")) {
@@ -30,23 +37,15 @@ class RandomizerContextBuilderAccessor @Inject constructor(
         )
     }
 
-    fun getLazyContext(builder: DeclarationIrBuilder): IrCall {
-        return builder.zeroAgrFunctionCall("getLazyContext")
-    }
-
     fun buildFunction(builder: IrBuilderWithScope): IrCall {
         return builder.zeroAgrFunctionCall("build")
-    }
-
-    fun buildRandomConfigFunction(builder: IrBuilderWithScope): IrCall {
-        return builder.zeroAgrFunctionCall("buildContext")
     }
 
     fun addFunction(builder: DeclarationIrBuilder): IrCall {
         return builder.oneAgrFunctionCall("add")
     }
 
-    fun setRandomConfigFunction(builder: DeclarationIrBuilder): IrCall {
-        return builder.oneAgrFunctionCall("setRandomConfig")
+    fun setRandomConfigAndGenerateStandardRandomizersFunction(builder: DeclarationIrBuilder): IrCall {
+        return builder.oneAgrFunctionCall("setRandomConfigAndGenerateStandardRandomizers")
     }
 }

@@ -1,11 +1,8 @@
 package com.x12q.randomizer.lib
 
-import kotlin.reflect.KClass
+import com.x12q.randomizer.lib.randomizer.ClassRandomizer
 
-/**
- * A collection of randomizers
- */
-interface RandomizerCollection {
-    val randomizersMap:Map<KClass<*>, ClassRandomizer<*>>
-    fun getRandomizers():Map<KClass<*>, ClassRandomizer<*>>
+interface RandomizerCollection{
+    val randomizersMap:Map<TypeKey, ClassRandomizer<*>>
+    fun add(key:TypeKey, randomizer: ClassRandomizer<*>)
 }
