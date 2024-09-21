@@ -114,18 +114,15 @@ class RandomizableBackendTransformer @Inject constructor(
                 } else {
                     val defaultRandomizers =
                         (randomizersParam.defaultValue?.expression as? IrFunctionExpression)?.function
-                    val newDefault = defaultRandomizers?.let { cloneFunction(it,pluginContext) }
+                    val newDefault = defaultRandomizers?.let { cloneFunction(it, pluginContext) }
 
                     runSideEffect {
                         // replace the default argument with a copy of it
+
                         val newDefaultArg = newDefault?.let {
-                            IrFunctionExpressionImpl(
-                                startOffset = newDefault.startOffset,
-                                endOffset = newDefault.endOffset,
-                                type = pluginContext.irBuiltIns.functionN(1)
-                                    .typeWith(randomContextBuilderAccessor.irType, newDefault.returnType),
-                                function = newDefault,
-                                origin = IrStatementOrigin.LAMBDA
+                            makeIrFunctionExpr(
+                                newDefault, pluginContext.irBuiltIns.functionN(1)
+                                    .typeWith(randomContextBuilderAccessor.irType, newDefault.returnType)
                             )
                         }
                         expression.putValueArgument(randomizersParam.index, newDefaultArg)
@@ -175,16 +172,12 @@ class RandomizableBackendTransformer @Inject constructor(
                                         .apply {
                                             putValueArgument(
                                                 index = 0,
-                                                valueArgument = IrFunctionExpressionImpl(
-                                                    function = makeRandomizerLambda,
-                                                    startOffset = makeRandomizerLambda.startOffset,
-                                                    endOffset = makeRandomizerLambda.endOffset,
-                                                    type = pluginContext.irBuiltIns.functionN(1)
+                                                valueArgument = makeIrFunctionExpr(
+                                                    makeRandomizerLambda, pluginContext.irBuiltIns.functionN(1)
                                                         .typeWith(
                                                             randomContextAccessor.irType,
                                                             makeRandomizerLambda.returnType,
-                                                        ),
-                                                    origin = IrStatementOrigin.LAMBDA,
+                                                        )
                                                 )
                                             )
                                         }
@@ -274,13 +267,10 @@ class RandomizableBackendTransformer @Inject constructor(
                         classRandomizerUtilAccessor.factoryClassRandomizerFunctionCall(builder).apply {
                             putValueArgument(
                                 index = 0,
-                                valueArgument = IrFunctionExpressionImpl(
-                                    startOffset = makeRandomInstanceLambda.startOffset,
-                                    endOffset = makeRandomInstanceLambda.endOffset,
-                                    type = pluginContext.irBuiltIns.functionN(0)
-                                        .typeWith(makeRandomInstanceLambda.returnType),
-                                    function = makeRandomInstanceLambda,
-                                    origin = IrStatementOrigin.LAMBDA
+                                valueArgument = makeIrFunctionExpr(
+                                    lambda = makeRandomInstanceLambda,
+                                    functionType = pluginContext.irBuiltIns.functionN(0)
+                                        .typeWith(makeRandomInstanceLambda.returnType)
                                 )
                             )
                             putTypeArgument(0, rdType)
@@ -320,7 +310,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
 
-        val rt = makeLocalLambda(randomTargetType,{name = Name.special("<generate_makeRandom_Lambda>")}).apply {
+        val rt = makeLocalLambda(randomTargetType, { name = Name.special("<generate_makeRandom_Lambda>") }).apply {
             parent = declarationParent
 
             val function = this
@@ -883,13 +873,10 @@ class RandomizableBackendTransformer @Inject constructor(
                     }
                 }
 
-                IrFunctionExpressionImpl(
-                    startOffset = lambdaDeclaration.startOffset,
-                    endOffset = lambdaDeclaration.endOffset,
-                    type = pluginContext.irBuiltIns.functionN(1)
-                        .typeWith(pluginContext.irBuiltIns.intType, type),
-                    function = lambdaDeclaration,
-                    origin = IrStatementOrigin.LAMBDA
+                makeIrFunctionExpr(
+                    lambda = lambdaDeclaration,
+                    functionType = pluginContext.irBuiltIns.functionN(1)
+                        .typeWith(pluginContext.irBuiltIns.intType, type)
                 )
             }
 
@@ -906,6 +893,17 @@ class RandomizableBackendTransformer @Inject constructor(
         } else {
             return null
         }
+    }
+
+
+    private fun makeIrFunctionExpr(lambda: IrSimpleFunction, functionType: IrType): IrFunctionExpressionImpl {
+        return IrFunctionExpressionImpl(
+            startOffset = lambda.startOffset,
+            endOffset = lambda.endOffset,
+            type = functionType,
+            function = lambda,
+            origin = IrStatementOrigin.LAMBDA
+        )
     }
 
     /**
@@ -984,8 +982,8 @@ class RandomizableBackendTransformer @Inject constructor(
             )
 
             // val makeKeyLambda: IrExpression = run {
-            //     null
-            // }!!
+            //     makeLocalLambda(keyType)
+            // }
             // val makeValueLambda: IrExpression = run {
             //     null
             // }!!
