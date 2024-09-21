@@ -1,5 +1,8 @@
 package com.x12q.randomizer.ir_plugin.util
 
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
 /**
  * Evaluate each function in [functionList], stop at the first output that satisfies [resultIsOk]
  */
@@ -33,4 +36,13 @@ fun <T>Collection<T>.toMapWithIndex():Map<Int,T>{
 
 fun runSideEffect(sideEffect:()->Unit){
     sideEffect()
+}
+
+
+fun <T> T?.crashOnNull(msg:()->Any):T{
+    return checkNotNull(this,msg)
+}
+
+fun <T> T?.crashOnNull():T{
+    return checkNotNull(this)
 }
