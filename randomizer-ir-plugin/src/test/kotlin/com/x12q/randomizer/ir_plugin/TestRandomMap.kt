@@ -8,6 +8,7 @@ import com.x12q.randomizer.lib.random
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.BeforeTest
@@ -69,22 +70,23 @@ class TestRandomMap {
                 Qx2(Qx4(rdConfig.nextShort()))
             })
             .add(factoryRandomizer {
-                TwoGeneric(rdConfig.nextInt(),rdConfig.nextString())
+                TwoGeneric(rdConfig.nextInt(), rdConfig.nextString())
             })
             .add(factoryRandomizer {
-                TwoGeneric(rdConfig.nextDouble(),rdConfig.nextShort())
+                TwoGeneric(rdConfig.nextDouble(), rdConfig.nextShort())
             })
             .add(factoryRandomizer {
-                TwoGeneric(Qx2(rdConfig.nextInt()),rdConfig.nextString())
+                TwoGeneric(Qx2(rdConfig.nextInt()), rdConfig.nextString())
             })
             .add(factoryRandomizer {
-                ThreeGeneric(rdConfig.nextInt(),Qx2(rdConfig.nextString()), rdConfig.nextDouble())
+                ThreeGeneric(rdConfig.nextInt(), Qx2(rdConfig.nextString()), rdConfig.nextDouble())
             })
             .build()
     }
 
     @Test
     fun `map in value param`() {
+
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -92,12 +94,25 @@ class TestRandomMap {
                 @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
 
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC_Nest2<K,V,T>(override val data:Map<Map<K, V>, Map<K,T>>):WithData
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC_Nest3<K,V,T,E>(override val data:Map<Map<Map<K,V>, T>, Map<Map<K,V>,E>>):WithData
+
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int,Double>())
-                        // putData(QxC.random<Qx2<Float>,Double>())
-                        // putData(QxC.random<Qx2<Float>,Qx2<Double>>())
-                        // putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                        putData(QxC.random<Short,Double>())
+                        putData(QxC.random<Qx2<Float>,Double>())
+                        putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+
+                        putData(QxC_Nest2.random<Short,Double,String>())
+                        putData(QxC_Nest2.random<Qx2<Short>,Qx4<Double>,Qx6<String>>())
+                        putData(QxC_Nest2.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>())
+
+                        putData(QxC_Nest3.random<Short,Double,String,Float>())
+                        putData(QxC_Nest3.random<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>())
+                        putData(QxC_Nest3.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>())
                     }
                 }
             """,
@@ -106,35 +121,158 @@ class TestRandomMap {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
 
-
                 objectList shouldBe listOf(
-                   buildMap {
-                       rdConfig.resetRandomState()
-                       repeat(mapSize) {
-                           put(nextInt(), nextDouble())
-                       }
-                   },
 
-                   // buildMap {
-                   //     rdConfig.resetRandomState()
-                   //     repeat(mapSize) {
-                   //         put(rdContext.random<Qx2<Float>>(), nextDouble())
-                   //     }
-                   // },
-                   //
-                   //  buildMap {
-                   //      rdConfig.resetRandomState()
-                   //      repeat(mapSize) {
-                   //          put(rdContext.random<Qx2<Float>>(), rdContext.random<Qx2<Double>>())
-                   //      }
-                   //  },
-                   //
-                   //  buildMap {
-                   //      rdConfig.resetRandomState()
-                   //      repeat(mapSize) {
-                   //          put(rdContext.random<Qx2<Qx4<String>>>(), rdContext.random<Qx2<Qx4<Short>>>())
-                   //      }
-                   //  },
+                    // ==== 1 nest ==== //
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(nextShort(), nextDouble())
+                        }
+                    },
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(Qx2(nextFloat()), nextDouble())
+                        }
+                    },
+                    // putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                    buildMap {
+                        rdConfig.resetRandomState()
+
+                        repeat(mapSize) {
+                            val z = Qx2(Qx4(nextStr()))
+                            val q = Qx2(Qx4(nextShort()))
+                            put(z,q)
+                        }
+                    },
+
+                    // ==== 2 nest ==== //
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(nextShort(), nextDouble())
+                                    }
+                                },
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(nextShort(), nextStr())
+                                    }
+                                }
+                            )
+                        }
+                    },
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(Qx2(nextShort()), Qx4(nextDouble()))
+                                    }
+                                },
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(Qx2(nextShort()), Qx6(nextStr()))
+                                    }
+                                }
+                            )
+                        }
+                    },
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(Qx2(Qx4(nextShort())), Qx4(Qx4(nextDouble())))
+                                    }
+                                },
+                                buildMap {
+                                    repeat(mapSize) {
+                                        put(Qx2(Qx4(nextShort())), Qx6(Qx4(nextStr())))
+                                    }
+                                }
+                            )
+                        }
+                    },
+
+                    // ==== 3 nest ==== //
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(nextShort(), nextDouble())
+                                        }
+                                    }, nextStr())
+                                }
+                            }, buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(nextShort(), nextDouble())
+                                        }
+                                    }, nextFloat())
+                                }
+                            })
+                        }
+                    },
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(Qx2(nextShort()), Qx4(nextDouble()))
+                                        }
+                                    }, Qx6(nextStr()))
+                                }
+                            }, buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(Qx2(nextShort()), Qx4(nextDouble()))
+                                        }
+                                    }, Qx(nextFloat()))
+                                }
+                            })
+                        }
+                    },
+
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(Qx2(Qx4(nextShort())), Qx4(Qx4(nextDouble())))
+                                        }
+                                    }, Qx6(Qx4(nextStr())))
+                                }
+                            }, buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(Qx2(Qx4(nextShort())), Qx4(Qx4(nextDouble())))
+                                        }
+                                    }, Qx(Qx4(nextFloat())))
+                                }
+                            })
+                        }
+                    }
                 )
             }
         }
@@ -227,12 +365,12 @@ class TestRandomMap {
 
 
                 objectList shouldBe listOf(
-                     buildMap {
-                         rdConfig.resetRandomState()
-                         repeat(mapSize) {
-                             put(nextInt(), nextDouble())
-                         }
-                     },
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(nextInt(), nextDouble())
+                        }
+                    },
 
                     buildMap {
                         rdConfig.resetRandomState()
@@ -259,7 +397,7 @@ class TestRandomMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
-                                rdContext.random<TwoGeneric<Int,String>>(),
+                                rdContext.random<TwoGeneric<Int, String>>(),
                                 rdContext.nextInt(),
                             )
                         }
@@ -269,8 +407,8 @@ class TestRandomMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
-                                rdContext.random<TwoGeneric<Int,String>>(),
-                                rdContext.random<TwoGeneric<Double,Short>>(),
+                                rdContext.random<TwoGeneric<Int, String>>(),
+                                rdContext.random<TwoGeneric<Double, Short>>(),
                             )
                         }
                     },
@@ -279,8 +417,8 @@ class TestRandomMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
-                                rdContext.random<TwoGeneric<Qx2<Int>,String>>(),
-                                rdContext.random<TwoGeneric<Qx2<Int>,String>>(),
+                                rdContext.random<TwoGeneric<Qx2<Int>, String>>(),
+                                rdContext.random<TwoGeneric<Qx2<Int>, String>>(),
                             )
                         }
                     },
@@ -289,8 +427,8 @@ class TestRandomMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
-                                rdContext.random<ThreeGeneric<Int,Qx2<String>,Double>>(),
-                                rdContext.random<ThreeGeneric<Int,Qx2<String>,Double>>(),
+                                rdContext.random<ThreeGeneric<Int, Qx2<String>, Double>>(),
+                                rdContext.random<ThreeGeneric<Int, Qx2<String>, Double>>(),
                             )
                         }
                     },

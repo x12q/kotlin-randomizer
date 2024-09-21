@@ -232,21 +232,20 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         val rt = rdTypeList.map { rdType ->
+
             val generatedLambda =
-                makeLocalLambda(returnType = classRandomizerAccessor.clzz.starProjectedType, beforeStandardConfig = {
-                    name = Name.special("<generate_makeClassRandomizer_Lambda>")
-                }).apply {
+                makeLocalLambdaWithoutBody(
+                    returnType = classRandomizerAccessor.clzz.starProjectedType,
+                    beforeStandardConfig = {
+                        name = Name.special("<generate_makeClassRandomizer_Lambda>")
+                    }
+                ).buildBody { builder->
                     parent = randomizersLambda
 
                     val makeClassRandomizerLambda = this
                     makeClassRandomizerLambda.addExtensionReceiver(randomContextAccessor.irType)
 
-                    val builder = DeclarationIrBuilder(
-                        generatorContext = pluginContext,
-                        symbol = makeClassRandomizerLambda.symbol,
-                    )
-
-                    val newBody = builder.irBlockBody {
+                    body = builder.irBlockBody {
                         val randomContextParam = makeClassRandomizerLambda.extensionReceiverParameter.crashOnNull()
                         val getRandomContextExpr = irGet(randomContextParam)
 
@@ -276,7 +275,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
                         +irReturn(classRandomizerMakingCall)
                     }
-                    body = newBody
                 }
             generatedLambda
         }
@@ -308,7 +306,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
 
-        val rt = makeLocalLambda(randomTargetType, { name = Name.special("<generate_makeRandom_Lambda>") }).apply {
+        val rt = makeLocalLambdaWithoutBody(randomTargetType, { name = Name.special("<generate_makeRandom_Lambda>") }).apply {
             parent = declarationParent
 
             val function = this
@@ -820,8 +818,7 @@ class RandomizableBackendTransformer @Inject constructor(
                  * This block generates the lambda that will be passed to List() function
                  */
 
-
-                val lambdaDeclaration = makeLocalLambda(type, {
+                val lambdaDeclaration = makeLocalLambdaWithoutBody(type, {
                     name = Name.special("<generateList_withinRandomFunction>")
                 }).apply {
                     val lambdaFunction = this
@@ -874,41 +871,8 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-    private fun makeIrFunctionExpr(lambda: IrSimpleFunction, functionType: IrType): IrFunctionExpressionImpl {
-        return IrFunctionExpressionImpl(
-            startOffset = lambda.startOffset,
-            endOffset = lambda.endOffset,
-            type = functionType,
-            function = lambda,
-            origin = IrStatementOrigin.LAMBDA
-        )
-    }
-
     /**
-     * Make a local lambda.
-     */
-    private fun makeLocalLambda(
-        /**
-         * Return type of the lambda
-         */
-        returnType: IrType,
-        beforeStandardConfig: IrFunctionBuilder.() -> Unit = {},
-        afterStandardConfig: IrFunctionBuilder.() -> Unit = {},
-    ): IrSimpleFunction {
-        return pluginContext.irFactory.buildFun {
-            beforeStandardConfig(this)
-            name = SpecialNames.ANONYMOUS
-            origin = BaseObjects.declarationOrigin
-            visibility = DescriptorVisibilities.LOCAL
-            this.returnType = returnType
-            modality = FINAL
-            isSuspend = false
-            afterStandardConfig(this)
-        }
-    }
-
-    /**
-     * Generate an expression that use [randomMap] in [RandomContext] function to generate a map of random size, holding random elements
+     * Generate an expression that can generate a random Map
      */
     private fun generateMap(
         declarationParent: IrDeclarationParent?,
@@ -940,17 +904,8 @@ class RandomizableBackendTransformer @Inject constructor(
         ).take(2)
 
         if (elementTypes.size == 2) {
-            // create expression to construct random instances of elements
-            val keyType =
-                elementTypes.firstOrNull { (it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index == 0 }
-                    .crashOnNull {
-                        "Key type for Map must be available at this point. This is a bug by the developer."
-                    }
-            val valueType =
-                elementTypes.firstOrNull { (it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index == 1 }
-                    .crashOnNull {
-                        "Value type for Map must be available at this point. This is a bug by the developer."
-                    }
+            val keyTypeArg = elementTypes[0]
+            val valueTypeArg = elementTypes[1]
 
             /**
              * Generate an expr that do something like this:
@@ -960,28 +915,70 @@ class RandomizableBackendTransformer @Inject constructor(
                 randomConfigAccessor.randomCollectionSize(builder)
             )
 
-
-            val makeKeyLambdaExpr: IrExpression = run {
-                val kt = keyType.typeOrNull.crashOnNull {
-                    "Can't make random Map because unable to retrieve type for map keys."
-                }
-                val lambda = makeLocalLambda(kt)
-                makeIrFunctionExpr(lambda, functionType = pluginContext.irBuiltIns.functionN(0).typeWith(kt))
-            }
-            val makeValueLambda: IrExpression = run {
-                null
-            }!!
-
-            val keyTypeForMakeMap = keyType.typeOrNull.crashOnNull {
+            val keyType = keyTypeArg.typeOrNull.crashOnNull {
                 "Key type passed to makeMap() must not be null. This is a bug."
             }
-            val valueTypeForMakeMap = valueType.typeOrNull.crashOnNull {
+
+            val makeKeyLambdaExpr: IrExpression = run {
+                val lambda = makeLocalLambdaWithoutBody(keyType).buildBody { keyLambdaBuilder->
+                    declarationParent?.let { parent = it }
+                    val keyLambda = this
+                    body = keyLambdaBuilder.irBlockBody {
+                        // call something to return a random key
+                        val randomKey = generateRandomType(
+                            declarationParent = keyLambda,
+                            param = null,
+                            receivedTypeArgument = null,
+                            targetType = keyType,
+                            builder = keyLambdaBuilder,
+                            getRandomContextExpr = getRandomContextExpr,
+                            getRandomConfigExpr = getRandomConfigExpr,
+                            typeParamListOfRandomFunction = typeParamOfRandomFunction,
+                            optionalParamMetaDataForReporting = ParamMetaDataForReporting(",","","")
+                        )
+                        +keyLambdaBuilder.irReturn(randomKey)
+                    }
+                }
+                makeIrFunctionExpr(
+                    lambda = lambda,
+                    functionType = pluginContext.irBuiltIns.functionN(0).typeWith(keyType),
+                )
+            }
+
+            val valueType = valueTypeArg.typeOrNull.crashOnNull {
                 "Value type passed to makeMap() must not be null. This is a bug."
             }
-            mapAccessor.makeMapFunction(builder).withValueArgs(sizeExpr, makeKeyLambdaExpr, makeValueLambda)
-                .withTypeArgs(keyTypeForMakeMap, valueTypeForMakeMap)
-            return null
+            val makeValueLambda: IrExpression = run {
+                val valueLambda = makeLocalLambdaWithoutBody(valueType).buildBody { valueLambdaBuilder->
+                    declarationParent?.let { parent = it }
+                    val valueLambda = this
+                    body = valueLambdaBuilder.irBlockBody {
+                        // call something to return a random value
+                        val randomValue = generateRandomType(
+                            declarationParent = valueLambda,
+                            param = null,
+                            receivedTypeArgument = null,
+                            targetType = valueType,
+                            builder = valueLambdaBuilder,
+                            getRandomContextExpr = getRandomContextExpr,
+                            getRandomConfigExpr = getRandomConfigExpr,
+                            typeParamListOfRandomFunction = typeParamOfRandomFunction,
+                            optionalParamMetaDataForReporting = ParamMetaDataForReporting(",","","")
+                        )
+                        +valueLambdaBuilder.irReturn(randomValue)
+                    }
+                }
+                makeIrFunctionExpr(
+                    lambda = valueLambda,
+                    functionType = pluginContext.irBuiltIns.functionN(0).typeWith(valueType),
+                )
+            }
 
+            val makeMapFunctionCall = mapAccessor.makeMapFunction(builder)
+                .withValueArgs(sizeExpr, makeKeyLambdaExpr, makeValueLambda)
+                .withTypeArgs(keyType, valueType)
+
+            return makeMapFunctionCall
         } else {
             return null
         }
@@ -1754,6 +1751,47 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    private fun makeIrFunctionExpr(lambda: IrSimpleFunction, functionType: IrType): IrFunctionExpressionImpl {
+        return IrFunctionExpressionImpl(
+            startOffset = lambda.startOffset,
+            endOffset = lambda.endOffset,
+            type = functionType,
+            function = lambda,
+            origin = IrStatementOrigin.LAMBDA
+        )
+    }
+
+    /**
+     * Make a local lambda.
+     */
+    private fun makeLocalLambdaWithoutBody(
+        /**
+         * Return type of the lambda
+         */
+        returnType: IrType,
+        beforeStandardConfig: IrFunctionBuilder.() -> Unit = {},
+        afterStandardConfig: IrFunctionBuilder.() -> Unit = {},
+    ): IrSimpleFunction {
+        return pluginContext.irFactory.buildFun {
+            beforeStandardConfig(this)
+            name = SpecialNames.ANONYMOUS
+            origin = BaseObjects.declarationOrigin
+            visibility = DescriptorVisibilities.LOCAL
+            this.returnType = returnType
+            modality = FINAL
+            isSuspend = false
+            afterStandardConfig(this)
+        }
+    }
+
+    private fun IrSimpleFunction.buildBody(configBuilder:IrSimpleFunction.(DeclarationIrBuilder)->Unit):IrSimpleFunction{
+        val builder = DeclarationIrBuilder(
+            generatorContext = pluginContext,
+            symbol = this.symbol,
+        )
+        this.configBuilder(builder)
+        return this
+    }
 
     private fun irPrintln(
         prefix: String,
