@@ -1,8 +1,5 @@
 package com.x12q.randomizer.ir_plugin.util
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
-
 /**
  * Evaluate each function in [functionList], stop at the first output that satisfies [resultIsOk]
  */
@@ -39,7 +36,7 @@ fun runSideEffect(sideEffect:()->Unit){
 }
 
 
-fun <T> T?.crashOnNull(msg:()->Any):T{
+inline fun <T> T?.crashOnNull(msg:()->Any):T{
     return checkNotNull(this,msg)
 }
 
