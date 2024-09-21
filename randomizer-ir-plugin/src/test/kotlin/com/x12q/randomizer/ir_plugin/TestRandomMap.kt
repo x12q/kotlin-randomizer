@@ -129,7 +129,7 @@ class TestRandomMap {
                         repeat(mapSize) {
                             val z = Qx2(Qx4(nextStr()))
                             val q = Qx2(Qx4(nextShort()))
-                            put(z,q)
+                            put(z, q)
                         }
                     },
                 )
@@ -250,10 +250,10 @@ class TestRandomMap {
                     buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(nextInt(),  buildMap {
-                                repeat(mapSize){
-                                    put(buildMap{
-                                        repeat(mapSize){
+                            put(nextInt(), buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
                                             put(nextInt(), nextDouble())
                                         }
                                     }, nextDouble())
@@ -449,7 +449,8 @@ class TestRandomMap {
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Map<Int,Double>,Map<Int,Double>>())
+                         putData(QxC.random<Map<Map<Int,Double>,Map<Int,Double>>>())
+                         putData(QxC.random<Map<Map<Qx2<Int>,Qx4<Double>>,Map<Qx4<Int>,Qx6<Double>>>>())
                     }
                 }
             """,
@@ -462,22 +463,83 @@ class TestRandomMap {
                     buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put( buildMap {
+                            put(buildMap {
                                 repeat(mapSize) {
                                     put(nextInt(), nextDouble())
                                 }
-                            },  buildMap {
+                            }, buildMap {
                                 repeat(mapSize) {
-                                    put(nextInt(), nextDouble())
+                                    put(nextInt(),nextDouble())
                                 }
                             })
                         }
                     },
-
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(buildMap {
+                                repeat(mapSize) {
+                                    put(Qx2(nextInt()), Qx4(nextDouble()))
+                                }
+                            }, buildMap {
+                                repeat(mapSize) {
+                                    put(Qx4(nextInt()),Qx6(nextDouble()))
+                                }
+                            })
+                        }
+                    },
                 )
             }
         }
     }
 
+    @Test
+    fun `map in type param - 3 nest`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T:Any>(override val data:T):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                         putData(QxC.random<Map<Map<Map<Short,Double>, String>, Map<Map<Short,Double>,Float>>>())
+
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    buildMap {
+                        rdConfig.resetRandomState()
+                        repeat(mapSize) {
+                            put(buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(nextShort(), nextDouble())
+                                        }
+                                    }, nextStr())
+                                }
+                            }, buildMap {
+                                repeat(mapSize) {
+                                    put(buildMap {
+                                        repeat(mapSize) {
+                                            put(nextShort(), nextDouble())
+                                        }
+                                    }, nextFloat())
+                                }
+                            })
+                        }
+                    },
+                )
+            }
+        }
+    }
 
 }

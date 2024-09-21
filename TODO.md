@@ -166,7 +166,8 @@ NEXT:
     - Generate expression to invoke List(int){} function within the random() function body: OK
     - Generate expression to construct randomizer for element type of such List at call side: OK
   - to generate random Map: CONT
-  - migrate random list to using new randomList function
+    - review the callside code for map generation, see if it is actually need
+  - tidy up the generator code of list
 
 
 - Write random() function for built-in class such as:
