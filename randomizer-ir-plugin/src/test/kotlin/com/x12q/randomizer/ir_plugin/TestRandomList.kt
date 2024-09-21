@@ -39,7 +39,7 @@ class TestRandomList {
     val short = LegalRandomConfigObject.nextShort()
 
     @Test
-    fun `list from type param - 3 nested`() {
+    fun `list in type param - 3 nested`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -104,7 +104,7 @@ class TestRandomList {
 
 
     @Test
-    fun `list from type param - 2 nested`() {
+    fun `list in type param - 2 nested`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -168,7 +168,7 @@ class TestRandomList {
 
 
     @Test
-    fun `list param with 3 nested list`() {
+    fun `list in value param with 3 nested list`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -234,7 +234,7 @@ class TestRandomList {
      * something like this: random<Int>() ~> param:List<Int>
      */
     @Test
-    fun `list param with 2 nested list`() {
+    fun `list in value param with 2 nested list`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports

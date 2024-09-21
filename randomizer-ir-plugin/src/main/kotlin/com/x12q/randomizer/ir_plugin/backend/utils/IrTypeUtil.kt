@@ -9,6 +9,15 @@ import org.jetbrains.kotlin.ir.util.IdSignature
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.hasTopLevelEqualFqName
 
+
+internal fun IrType.isList():Boolean{
+    return this.classOrNull?.owner?.isList() == true
+}
+
+internal fun IrType.isMap():Boolean{
+    return this.classOrNull?.owner?.isMap() == true
+}
+
 /**
  * Check if a type is a primitive type that has a built-in randomizer in the plugin
  */

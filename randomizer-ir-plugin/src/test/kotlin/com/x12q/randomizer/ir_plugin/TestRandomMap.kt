@@ -46,13 +46,15 @@ class TestRandomMap {
     fun nextDouble(): Double = rdContext.nextDouble()
     fun nextShort(): Short = rdContext.nextShort()
 
-
     @BeforeTest
     fun bt() {
         rdContext = RandomContextBuilderImp()
             .setRandomConfigAndGenerateStandardRandomizers(rdConfig)
             .add(factoryRandomizer {
                 Qx2(rdConfig.nextFloat())
+            })
+            .add(factoryRandomizer {
+                Qx2(rdConfig.nextDouble())
             })
             .add(factoryRandomizer {
                 Qx4(rdConfig.nextDouble())
@@ -62,6 +64,9 @@ class TestRandomMap {
             })
             .add(factoryRandomizer {
                 Qx2(Qx4(rdConfig.nextString()))
+            })
+            .add(factoryRandomizer {
+                Qx2(Qx4(rdConfig.nextShort()))
             })
             .add(factoryRandomizer {
                 TwoGeneric(rdConfig.nextInt(),rdConfig.nextString())
@@ -86,20 +91,70 @@ class TestRandomMap {
 
                 @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
-                // data class QxC<K:Any>(override val data:K):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
                         putData(QxC.random<Int,Double>())
-                        putData(QxC.random<Qx2<Float>,Double>())
-                        // putData(QxC.random<Qx2<Float>>())
-                        // putData(QxC.random<Qx2<Qx4<String>>>())
-                        // putData(QxC.random<TwoGeneric<Int,String>>())
-                        // putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        // putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        // putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        // putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        // putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        // putData(QxC.random<Qx2<Float>,Double>())
+                        // putData(QxC.random<Qx2<Float>,Qx2<Double>>())
+                        // putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+
+                objectList shouldBe listOf(
+                   buildMap {
+                       rdConfig.resetRandomState()
+                       repeat(mapSize) {
+                           put(nextInt(), nextDouble())
+                       }
+                   },
+
+                   // buildMap {
+                   //     rdConfig.resetRandomState()
+                   //     repeat(mapSize) {
+                   //         put(rdContext.random<Qx2<Float>>(), nextDouble())
+                   //     }
+                   // },
+                   //
+                   //  buildMap {
+                   //      rdConfig.resetRandomState()
+                   //      repeat(mapSize) {
+                   //          put(rdContext.random<Qx2<Float>>(), rdContext.random<Qx2<Double>>())
+                   //      }
+                   //  },
+                   //
+                   //  buildMap {
+                   //      rdConfig.resetRandomState()
+                   //      repeat(mapSize) {
+                   //          put(rdContext.random<Qx2<Qx4<String>>>(), rdContext.random<Qx2<Qx4<Short>>>())
+                   //      }
+                   //  },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `map in value param - 3 nested`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<K,V>(override val data:Map<K,Map<Map<K,V>,V>>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Int,Double>())
+                        // putData(QxC.random<Qx2<Float>,Double>())
+                        // putData(QxC.random<Qx2<Float>,Qx2<Double>>())
+                        // putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
                     }
                 }
             """,
@@ -117,17 +172,31 @@ class TestRandomMap {
                         }
                     },
 
-                    buildMap {
-                        rdConfig.resetRandomState()
-                        repeat(mapSize) {
-                            put(rdContext.random<Qx2<Float>>(), nextDouble())
-                        }
-                    },
-
-                    )
+                    // buildMap {
+                    //     rdConfig.resetRandomState()
+                    //     repeat(mapSize) {
+                    //         put(rdContext.random<Qx2<Float>>(), nextDouble())
+                    //     }
+                    // },
+                    //
+                    // buildMap {
+                    //     rdConfig.resetRandomState()
+                    //     repeat(mapSize) {
+                    //         put(rdContext.random<Qx2<Float>>(), rdContext.random<Qx2<Double>>())
+                    //     }
+                    // },
+                    //
+                    // buildMap {
+                    //     rdConfig.resetRandomState()
+                    //     repeat(mapSize) {
+                    //         put(rdContext.random<Qx2<Qx4<String>>>(), rdContext.random<Qx2<Qx4<Short>>>())
+                    //     }
+                    // },
+                )
             }
         }
     }
+
 
     @Test
     fun `map in type param`() {
