@@ -18,6 +18,7 @@ import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
+import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.declarations.buildFun
 import org.jetbrains.kotlin.ir.builders.declarations.buildVariable
@@ -111,8 +112,9 @@ class RandomizableBackendTransformer @Inject constructor(
                 val randomizersLambda = if (providedRandomizersArgument != null) {
                     (providedRandomizersArgument as? IrFunctionExpression)?.function
                 } else {
-                    val defaultRandomizers = (randomizersParam.defaultValue?.expression as? IrFunctionExpression)?.function
-                    val newDefault = cloneDefaultRandomizersArgument(defaultRandomizers)
+                    val defaultRandomizers =
+                        (randomizersParam.defaultValue?.expression as? IrFunctionExpression)?.function
+                    val newDefault = defaultRandomizers?.let { cloneFunction(it,pluginContext) }
 
                     runSideEffect {
                         // replace the default argument with a copy of it
@@ -164,7 +166,7 @@ class RandomizableBackendTransformer @Inject constructor(
                                     typeParamOfRandomFunction = randomFunction.typeParameters,
                                 )
 
-                                for(makeRandomizerLambda in makeRandomizerLambdas){
+                                for (makeRandomizerLambda in makeRandomizerLambdas) {
                                     /**
                                      * This call "addForTier2" function inside "randomizers" lambda
                                      */
@@ -207,38 +209,6 @@ class RandomizableBackendTransformer @Inject constructor(
         return rt
     }
 
-    private fun cloneDefaultRandomizersArgument(originalDefault: IrSimpleFunction?): IrSimpleFunction? {
-        if (originalDefault != null) {
-            val rt = pluginContext.irFactory.buildFun {
-                // updateFrom(originalDefault)
-                name = Name.special("<cloneDefaultRandomizersArgument>")
-                name = SpecialNames.ANONYMOUS
-                origin = originalDefault.origin
-                visibility = originalDefault.visibility
-                returnType = originalDefault.returnType
-                modality = FINAL
-                isSuspend = false
-            }.apply {
-                parent = originalDefault.parent
-                originalDefault.extensionReceiverParameter?.type?.also {
-                    addExtensionReceiver(it)
-                }
-                val builder = DeclarationIrBuilder(
-                    generatorContext = pluginContext,
-                    symbol = this.symbol,
-                )
-                body = builder.irBlockBody {
-                    originalDefault.body?.statements?.forEach { stm ->
-                        +stm
-                    }
-                }
-            }
-            return rt
-        } else {
-            return null
-        }
-    }
-
     /**
      * This build a lambda passed to "addForTier2"
      * This lambda accept a RandomContext as its extension param, and return a ClassRandomizer<*>
@@ -251,7 +221,7 @@ class RandomizableBackendTransformer @Inject constructor(
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): List<IrSimpleFunction> {
         val irSimpleType = requireNotNull(randomType as? IrSimpleType)
-        val rdTypeList = run{
+        val rdTypeList = run {
             // if(randomType.isMap()){
             //     (irSimpleType.arguments.mapNotNull{
             //         val type = it.typeOrNull as? IrSimpleType
@@ -267,17 +237,13 @@ class RandomizableBackendTransformer @Inject constructor(
             listOf(irSimpleType)
         }
 
-        val rt = rdTypeList.map{rdType->
-            val generatedLambda = pluginContext.irFactory.buildFun {
-                name = Name.special("<generate_makeClassRandomizer_Lambda>")
-                name = SpecialNames.ANONYMOUS
-                origin = BaseObjects.declarationOrigin
-                visibility = DescriptorVisibilities.LOCAL
-                returnType = classRandomizerAccessor.clzz.starProjectedType
-                modality = FINAL
-                isSuspend = false
-            }.apply {
-
+        val rt = rdTypeList.map { rdType ->
+            val generatedLambda = makeLocalLambda(
+                returnType = classRandomizerAccessor.clzz.starProjectedType,
+                beforeStandardConfig = {
+                    name = Name.special("<generate_makeClassRandomizer_Lambda>")
+                }
+            ).apply {
                 parent = randomizersLambda
 
                 val makeClassRandomizerLambda = this
@@ -353,15 +319,8 @@ class RandomizableBackendTransformer @Inject constructor(
             }
         }
 
-        val rt = pluginContext.irFactory.buildFun {
-            name = Name.special("<generate_makeRandom_Lambda>")
-            name = SpecialNames.ANONYMOUS
-            origin = BaseObjects.declarationOrigin
-            visibility = DescriptorVisibilities.LOCAL
-            returnType = randomTargetType
-            modality = FINAL
-            isSuspend = false
-        }.apply {
+
+        val rt = makeLocalLambda(randomTargetType,{name = Name.special("<generate_makeRandom_Lambda>")}).apply {
             parent = declarationParent
 
             val function = this
@@ -890,15 +849,10 @@ class RandomizableBackendTransformer @Inject constructor(
                  * This block generates the lambda that will be passed to List() function
                  */
 
-                val lambdaDeclaration = pluginContext.irFactory.buildFun {
+
+                val lambdaDeclaration = makeLocalLambda(type, {
                     name = Name.special("<generateList_withinRandomFunction>")
-                    name = SpecialNames.ANONYMOUS
-                    origin = BaseObjects.declarationOrigin
-                    visibility = DescriptorVisibilities.LOCAL
-                    returnType = type
-                    modality = FINAL
-                    isSuspend = false
-                }.apply {
+                }).apply {
                     val lambdaFunction = this
 
                     declarationParent?.also { parent = it }
@@ -953,6 +907,30 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
     }
+
+    /**
+     * Make a local lambda.
+     */
+    private fun makeLocalLambda(
+        /**
+         * Return type of the lambda
+         */
+        returnType: IrType,
+        beforeStandardConfig: IrFunctionBuilder.() -> Unit = {},
+        afterStandardConfig: IrFunctionBuilder.() -> Unit = {},
+    ): IrSimpleFunction {
+        return pluginContext.irFactory.buildFun {
+            beforeStandardConfig(this)
+            name = SpecialNames.ANONYMOUS
+            origin = BaseObjects.declarationOrigin
+            visibility = DescriptorVisibilities.LOCAL
+            this.returnType = returnType
+            modality = FINAL
+            isSuspend = false
+            afterStandardConfig(this)
+        }
+    }
+
     /**
      * Generate an expression that use [randomMap] in [RandomContext] function to generate a map of random size, holding random elements
      */
@@ -986,14 +964,17 @@ class RandomizableBackendTransformer @Inject constructor(
             irType = irMapType
         ).take(2)
 
-        if (elementTypes.size==2) {
+        if (elementTypes.size == 2) {
             // create expression to construct random instances of elements
-            val keyType = requireNotNull(elementTypes.firstOrNull{(it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index==0}){
-                "Key type for Map must be available at this point. This is a bug by the developer."
-            }
-            val valueType = requireNotNull(elementTypes.firstOrNull{(it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index==1}){
-                "Value type for Map must be available at this point. This is a bug by the developer."
-            }
+            val keyType =
+                requireNotNull(elementTypes.firstOrNull { (it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index == 0 }) {
+                    "Key type for Map must be available at this point. This is a bug by the developer."
+                }
+            val valueType =
+                requireNotNull(elementTypes.firstOrNull { (it.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index == 1 }) {
+                    "Value type for Map must be available at this point. This is a bug by the developer."
+                }
+
             /**
              * Generate an expr that do something like this:
              * makeMap(size, pairFactoryFunction)
@@ -1002,21 +983,22 @@ class RandomizableBackendTransformer @Inject constructor(
                 randomConfigAccessor.randomCollectionSize(builder)
             )
 
-            val pairFactoryLambda:IrExpression = run{
-                null
-            }!!
-
-
-            val keyTypeForMakeMap = requireNotNull(keyType.typeOrNull){
-                "Key type passed to makeMap() must not be null. This is a bug."
-            }
-            val valueTypeForMakeMap = requireNotNull(valueType.typeOrNull){
-                "Value type passed to makeMap() must not be null. This is a bug."
-            }
-            mapAccessor.makeMapFunction(builder)
-                .withValueArgs(sizeExpr,pairFactoryLambda)
-                .withTypeArgs(keyTypeForMakeMap, valueTypeForMakeMap)
-
+            // val makeKeyLambda: IrExpression = run {
+            //     null
+            // }!!
+            // val makeValueLambda: IrExpression = run {
+            //     null
+            // }!!
+            //
+            // val keyTypeForMakeMap = requireNotNull(keyType.typeOrNull) {
+            //     "Key type passed to makeMap() must not be null. This is a bug."
+            // }
+            // val valueTypeForMakeMap = requireNotNull(valueType.typeOrNull) {
+            //     "Value type passed to makeMap() must not be null. This is a bug."
+            // }
+            // mapAccessor.makeMapFunction(builder)
+            //     .withValueArgs(sizeExpr, makeKeyLambda, makeValueLambda)
+            //     .withTypeArgs(keyTypeForMakeMap, valueTypeForMakeMap)
             return null
 
         } else {
