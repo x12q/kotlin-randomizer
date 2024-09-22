@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -14,12 +15,14 @@ class ClassRandomizerUtilAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) {
 
-    val factoryRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("factoryRandomizer"))
+    val factoryRandomizerCallId =
+        CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("factoryRandomizer"))
 
     val factoryClassRandomizerFunction by lazy {
-        val function = requireNotNull(pluginContext.referenceFunctions(factoryRandomizerCallId).firstOrNull()){
-            "$factoryRandomizerCallId does not exist in the class path. This is a bug by the developer."
-        }
+        val function = pluginContext.referenceFunctions(factoryRandomizerCallId).firstOrNull()
+            .crashOnNull {
+                "$factoryRandomizerCallId does not exist in the class path. This is a bug by the developer."
+            }
         function
     }
 
@@ -27,12 +30,14 @@ class ClassRandomizerUtilAccessor @Inject constructor(
         return builder.irCall(factoryClassRandomizerFunction)
     }
 
-    val constantRandomizerCallId = CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("constantRandomizer"))
+    val constantRandomizerCallId =
+        CallableId(FqName("com.x12q.randomizer.lib.randomizer"), Name.identifier("constantRandomizer"))
 
     val constantClassRandomizerFunction by lazy {
-        val function = requireNotNull(pluginContext.referenceFunctions(constantRandomizerCallId).firstOrNull()){
-            "$constantRandomizerCallId does not exist in the class path. This is a bug by the developer."
-        }
+        val function = pluginContext.referenceFunctions(constantRandomizerCallId).firstOrNull()
+            .crashOnNull {
+                "$constantRandomizerCallId does not exist in the class path. This is a bug by the developer."
+            }
         function
     }
 

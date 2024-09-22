@@ -1,5 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.randomizer.lib.randomizer.ClassRandomizer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -9,10 +10,14 @@ import javax.inject.Inject
 
 class ClassRandomizerAccessor @Inject constructor(
     val pluginContext: IrPluginContext
-) : ClassAccessor(){
-    val name = ClassId.topLevel(FqName(requireNotNull(ClassRandomizer::class.qualifiedName){
-        "Class ClassRandomizer does not exist in the class path"
-    }))
+) : ClassAccessor() {
+    val name = ClassId.topLevel(
+        FqName(ClassRandomizer::class.qualifiedName
+            .crashOnNull {
+                "Class ClassRandomizer does not exist in the class path"
+            }
+        )
+    )
 
     override val clzz: IrClassSymbol by lazy { pluginContext.referenceClass(name)!! }
 }

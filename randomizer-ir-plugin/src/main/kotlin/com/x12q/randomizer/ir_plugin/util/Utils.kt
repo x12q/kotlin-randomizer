@@ -37,9 +37,9 @@ fun runSideEffect(sideEffect:()->Unit){
 
 
 inline fun <T> T?.crashOnNull(msg:()->Any):T{
-    return checkNotNull(this,msg)
+    return requireNotNull(this,msg)
 }
 
 fun <T> T?.crashOnNull():T{
-    return checkNotNull(this)
+    return requireNotNull(this)
 }

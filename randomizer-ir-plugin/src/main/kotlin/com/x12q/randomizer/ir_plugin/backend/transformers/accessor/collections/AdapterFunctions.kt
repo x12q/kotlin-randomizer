@@ -2,7 +2,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections
 
 /**
  * Guide:
- * - This file contains adapter functions that make it safer for the randomizer plugin to lookup different overloads of functions from the kotlin standard library.
+ * - This file contains adapter functions that make it safer & more reliable for the randomizer plugin to lookup different overloads of functions from the kotlin standard library.
  * - These functions are not meant to be used by anything other than the randomizer plugin.
  * - Functions in this file must not have more than 1 overload.
  * - If there's a need for overloading, use a unique new name instead. That way, the plugin can avoid perform filter by itself.
