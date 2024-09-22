@@ -165,8 +165,7 @@ NEXT:
   - to generate a random List, I need to: OK
     - Generate expression to invoke List(int){} function within the random() function body: OK
     - Generate expression to construct randomizer for element type of such List at call side: OK
-  - to generate random Map: CONT
-    - review the callside code for map generation, see if it is actually need
+  - to generate random Map: OK
   - tidy up the generator code of list
 
 
@@ -184,3 +183,6 @@ BACKLOG:
 - randomizable enum
 - reconsider having RandomContextBuilder as an interface, a class is all it needs maybe
 - Randomize Pair
+- Inner class pose a challenge because it require an instance of outer class before it can do anything.
+  - Generator code must init an outer instance, then use that to construct the inner.
+  - Random function on inner class must accept an optional outer instance

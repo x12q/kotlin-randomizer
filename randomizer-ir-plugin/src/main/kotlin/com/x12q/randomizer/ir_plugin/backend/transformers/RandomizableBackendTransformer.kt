@@ -674,6 +674,9 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
+        if(irClass.isInner){
+            throw IllegalArgumentException("Inner class is not supported for now.")
+        }
 
         val rt = stopAtFirstNotNull({ generateRandomObj(irClass, builder) },
             { generateRandomEnum(irClass, getRandomContextExpr, builder) },

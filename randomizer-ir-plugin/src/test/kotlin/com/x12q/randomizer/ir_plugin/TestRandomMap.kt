@@ -85,7 +85,7 @@ class TestRandomMap {
     }
 
     @Test
-    fun `map in value param`() {
+    fun `Map in value param`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -138,7 +138,7 @@ class TestRandomMap {
     }
 
     @Test
-    fun `map in value param - 2 nest`() {
+    fun `Map in value param - 2 nest`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
@@ -221,7 +221,7 @@ class TestRandomMap {
 
 
     @Test
-    fun `map in value param - 3 nested`() {
+    fun `Map in value param - 3 nested`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -337,7 +337,7 @@ class TestRandomMap {
 
 
     @Test
-    fun `map in type param`() {
+    fun `Map in type param`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -439,7 +439,7 @@ class TestRandomMap {
 
 
     @Test
-    fun `map in type param - 2 nest`() {
+    fun `Map in type param - 2 nest`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -494,7 +494,7 @@ class TestRandomMap {
     }
 
     @Test
-    fun `map in type param - 3 nest`() {
+    fun `Map in type param - 3 nest`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports

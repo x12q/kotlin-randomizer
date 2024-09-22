@@ -4,7 +4,6 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeParameter
 import kotlin.reflect.typeOf
-import kotlinx.serialization.Serializable
 
 /**
  * Class meta data available at runtime
@@ -15,13 +14,13 @@ data class RDClassData(
 ) {
 
     /**
-     * Query [RDClassData] for a particular [typeParam].
+     * Get [RDClassData] for a particular [typeParam].
      * Param is matched by name.
      */
     fun getDataFor(typeParam: KTypeParameter): RDClassData? {
         val typeParameterName = typeParam.name
-        val can = kClass.typeParameters
-        val typeParameterIndex = can.indexOfFirst { it.name == typeParameterName }
+        val candidates = kClass.typeParameters
+        val typeParameterIndex = candidates.indexOfFirst { it.name == typeParameterName }
         val args = kType?.arguments
         val immediateRt = if (typeParameterIndex >= 0) {
             val parameterKType = args?.get(typeParameterIndex)?.type
