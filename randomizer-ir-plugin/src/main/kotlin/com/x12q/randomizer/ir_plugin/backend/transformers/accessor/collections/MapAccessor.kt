@@ -3,6 +3,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
 import com.x12q.randomizer.ir_plugin.backend.utils.isClass
 import com.x12q.randomizer.ir_plugin.backend.utils.isClassType2
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -42,62 +43,17 @@ class MapAccessor @Inject constructor(
         return builder.irCall(bmFunction)
     }
 
+    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("makeMap"))
 
-
-
-
-    private val mapOfFunctionName = CallableId(FqName("kotlin.collections"), Name.identifier("mapOf"))
     /**
-     * Get a reference of the mapOf(vararg pairs) function.
+     * Get a reference to kotlin.to function.
      */
-    fun mapOf(builder: IrBuilderWithScope):IrCall{
-        val bmFunction = requireNotNull(
-            pluginContext.referenceFunctions(mapOfFunctionName).firstOrNull { function ->
-                val correctSize = function.owner.valueParameters.let {
-                    val correctArgCount = it.size == 1
-                    correctArgCount
-                }
-                if(correctSize){
-                    val firstParam = requireNotNull(function.owner.valueParameters.first()){
-                        "This can't be null at this point"
-                    }
-                    val v = firstParam.isVararg
-                    val t = firstParam.type.classOrNull?.owner?.isClass(Pair::class) == true
-                    v && t
-                }else{
-                    false
-                }
+    fun makeMapFunction(builder: IrBuilderWithScope): IrCall {
+        val bmFunction = pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeMap does not exist."
             }
-        ) {
-            "function kotlin.collections.mapOf does not exist."
-        }
-        return builder.irCall(bmFunction)
-    }
-    private val makePairFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makePair"))
 
-    /**
-     * Get a reference to kotlin.to function.
-     */
-    fun makePairFunction(builder: IrBuilderWithScope):IrCall{
-        val bmFunction = requireNotNull(
-            pluginContext.referenceFunctions(makePairFunctionName).firstOrNull()
-        ) {
-            "function com.x12q.randomizer.lib.util.makePair does not exist."
-        }
-        return builder.irCall(bmFunction)
-    }
-
-    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeMap"))
-
-    /**
-     * Get a reference to kotlin.to function.
-     */
-    fun makeMapFunction(builder: IrBuilderWithScope):IrCall{
-        val bmFunction = requireNotNull(
-            pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
-        ) {
-            "function com.x12q.randomizer.lib.util.makeMap does not exist."
-        }
         return builder.irCall(bmFunction)
     }
 }

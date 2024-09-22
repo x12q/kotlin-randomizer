@@ -813,7 +813,7 @@ class RandomizableBackendTransformer @Inject constructor(
             // create expression to construct random instances of elements
             val type = elementTypes.typeOrNull.crashOnNull {
                 val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
-                "$paramNamePrefix List element type must be specified. It is null here."
+                "$paramNamePrefix List's element type must be specified. It is null here."
             }
 
             val lambdaRandomElementExpr = run {
@@ -864,7 +864,7 @@ class RandomizableBackendTransformer @Inject constructor(
             )
 
             val rt =
-                listAccessor.ListFunction(builder).withValueArgs(sizeExpr, lambdaRandomElementExpr).withTypeArgs(type)
+                listAccessor.makeListFunctionCall(builder).withValueArgs(sizeExpr, lambdaRandomElementExpr).withTypeArgs(type)
 
             return rt
 
@@ -985,46 +985,6 @@ class RandomizableBackendTransformer @Inject constructor(
         } else {
             return null
         }
-    }
-
-    /**
-     * Generate an expression that use [randomMap] in [RandomContext] function to generate a map of random size, holding random elements
-     */
-    private fun generateMap_old(
-        declarationParent: IrDeclarationParent?,
-        /**
-         * Typed received externally
-         */
-        receivedTypeArguments: List<IrTypeArgument>?,
-        /**
-         * The param that holds the list
-         */
-        param: IrValueParameter?,
-        irMapType: IrType?,
-        /**
-         * The class that hold the param
-         */
-        irClass: IrClass,
-        getRandomContextExpr: IrExpression,
-        getRandomConfigExpr: IrExpression,
-        builder: DeclarationIrBuilder,
-        typeParamOfRandomFunction: List<IrTypeParameter>,
-    ): IrExpression? {
-        if (!irClass.isMap()) {
-            return null
-        }
-
-        val types = extractTypeArgument(receivedTypeArguments, irMapType)
-        if (types.size != 2) {
-            throw IllegalArgumentException("randomMap function require 2 generic type arguments, but receives ${types.size}")
-        }
-        val keyType = types[0].typeOrNull!!
-        val valueType = types[1].typeOrNull!!
-
-        val randomMapCall = getRandomContextExpr.extensionDotCall(
-            randomContextAccessor.randomMap(builder)
-        ).withTypeArgs(keyType, valueType)
-        return randomMapCall
     }
 
     fun generateSet(

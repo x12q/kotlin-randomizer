@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections
 
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -21,24 +22,17 @@ class ListAccessor @Inject constructor(
         }
     }
 
-    private val listFunctionName = CallableId(FqName("kotlin.collections"), Name.identifier("List"))
+    private val makeListFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("makeList"))
 
-    fun ListFunction(builder:IrBuilderWithScope):IrCall{
-        val function = requireNotNull(pluginContext.referenceFunctions(listFunctionName).firstOrNull { function->
-            function.owner.valueParameters.let {
-                val correctSize = it.size == 2
-                correctSize
-                // val firstParamIsInt= it.getOrNull(0)?.type == pluginContext.irBuiltIns.intType
-                //
-                //
-                //
-                // val secondIsAfunction = it[1].type == pluginContext.irBuiltIns.functionN(2)
-                // correctSize && firstParamIsInt && secondIsAfunction
+    /**
+     * Get a reference to kotlin.to function.
+     */
+    fun makeListFunctionCall(builder: IrBuilderWithScope):IrCall{
+        val bmFunction = pluginContext.referenceFunctions(makeListFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeList does not exist."
             }
-        }){
-            "function kotlin.collections.List does not exist."
-        }
 
-        return builder.irCall(function)
+        return builder.irCall(bmFunction)
     }
 }

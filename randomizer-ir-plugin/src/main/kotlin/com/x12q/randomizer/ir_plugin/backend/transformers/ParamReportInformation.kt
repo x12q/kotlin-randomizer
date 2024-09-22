@@ -5,7 +5,9 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.dumpKotlinLike
 
-
+/**
+ * A class to hold information to construct a meaningful exception message.
+ */
 data class ParamMetaDataForReporting(
     val paramName:String?,
     val paramType:String,

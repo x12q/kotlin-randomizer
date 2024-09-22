@@ -179,7 +179,6 @@ NEXT:
   - must create a new random function that accept a RandomContext object, so that it is easier to pass RandomContext to random function called by another random function.
 
 BACKLOG:
-- visitCall can ignore modifiying randomizers={} in certain cases. Optimize this. 
 - randomizable enum
 - reconsider having RandomContextBuilder as an interface, a class is all it needs maybe
 - Randomize Pair
