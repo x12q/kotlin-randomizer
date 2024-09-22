@@ -38,3 +38,9 @@ fun <K, V> makePair(key: K, value: V): Pair<K, V> {
     return key to value
 }
 
+/**
+ * Adapter function to convert a list to a set. This is not meant to be used by anything other than the randomizer plugin.
+ */
+fun <T> listToSet(list:List<T>):Set<T>{
+    return list.toSet()
+}
