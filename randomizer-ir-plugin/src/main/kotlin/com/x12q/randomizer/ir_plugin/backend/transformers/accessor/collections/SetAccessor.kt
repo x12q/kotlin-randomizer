@@ -13,24 +13,24 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
-class ListAccessor @Inject constructor(
+class SetAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ): ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(List::class.qualifiedName!!)))) {
-            "kotlin.collections.List is not in the class path."
+        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Set::class.qualifiedName!!)))) {
+            "kotlin.collections.Set is not in the class path."
         }
     }
 
-    private val makeListFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("makeList"))
+    private val listToSetFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("listToSet"))
 
     /**
      * Get a reference to kotlin.to function.
      */
-    fun makeListFunctionCall(builder: IrBuilderWithScope):IrCall{
-        val bmFunction = pluginContext.referenceFunctions(makeListFunctionName).firstOrNull()
+    fun listToSetFunctionCall(builder: IrBuilderWithScope): IrCall {
+        val bmFunction = pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeList does not exist."
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.listToSet does not exist."
             }
 
         return builder.irCall(bmFunction)

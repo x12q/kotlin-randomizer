@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.companionObject
@@ -14,22 +15,25 @@ class DefaultRandomConfigAccessor @Inject constructor(
 ) : ClassAccessor() {
 
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.DefaultRandomConfig_ClassId)) {
-            "impossible, DefaultRandomConfig class must exist in the class path"
-        }
+        pluginContext.referenceClass(BaseObjects.DefaultRandomConfig_ClassId)
+            .crashOnNull {
+                "impossible, DefaultRandomConfig class must exist in the class path"
+            }
     }
 
     val defaultRandomConfigCompanionObject by lazy {
-        requireNotNull(clzz.owner.companionObject()) {
-            "impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must exist"
-        }
+        clzz.owner.companionObject()
+            .crashOnNull {
+                "impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must exist"
+            }
     }
 
     val getDefaultRandomConfigInstance by lazy {
         if (defaultRandomConfigCompanionObject.isObject) {
-            requireNotNull(defaultRandomConfigCompanionObject.getPropertyGetter("default")) {
-                "Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must contain a \"default\" variable"
-            }
+            defaultRandomConfigCompanionObject.getPropertyGetter("default")
+                .crashOnNull {
+                    "Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must contain a \"default\" variable"
+                }
         } else {
             throw IllegalArgumentException("Impossible, ${BaseObjects.defaultConfigClassShortName}.Companion must be an object")
         }

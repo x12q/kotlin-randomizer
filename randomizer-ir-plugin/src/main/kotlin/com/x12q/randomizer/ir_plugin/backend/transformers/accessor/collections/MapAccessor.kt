@@ -1,11 +1,17 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections
 
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
+import com.x12q.randomizer.ir_plugin.backend.utils.isClass
+import com.x12q.randomizer.ir_plugin.backend.utils.isClassType2
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.util.isClass
+import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -34,6 +40,20 @@ class MapAccessor @Inject constructor(
         ) {
             "function kotlin.collections.buildMap does not exist."
         }
+        return builder.irCall(bmFunction)
+    }
+
+    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("makeMap"))
+
+    /**
+     * Get a reference to kotlin.to function.
+     */
+    fun makeMapFunction(builder: IrBuilderWithScope): IrCall {
+        val bmFunction = pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeMap does not exist."
+            }
+
         return builder.irCall(bmFunction)
     }
 }

@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.ir_plugin.backend.utils.oneAgrFunction
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -16,7 +17,7 @@ class RandomizerContextBuilderAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomContextBuilder_Id)) {
+        pluginContext.referenceClass(BaseObjects.RandomContextBuilder_Id).crashOnNull {
             "RandomizerContextBuilder interface is not in the class path."
         }
     }
@@ -31,7 +32,7 @@ class RandomizerContextBuilderAccessor @Inject constructor(
 
     fun randomConfig(builder: DeclarationIrBuilder): IrCall {
         return builder.irCall(
-            requireNotNull(clzz.getPropertyGetter("randomConfig")) {
+            clzz.getPropertyGetter("randomConfig").crashOnNull {
                 "randomConfig property must exist in RandomContextBuilder. This is a bug by the developer."
             }
         )

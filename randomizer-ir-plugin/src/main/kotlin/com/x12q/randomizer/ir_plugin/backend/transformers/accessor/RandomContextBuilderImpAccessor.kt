@@ -1,5 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -16,22 +17,22 @@ class RandomContextBuilderImpAccessor @Inject constructor(
 ) : ClassAccessor() {
 
     private val classId = ClassId.topLevel(
-        FqName(
-            requireNotNull(RandomContextBuilderImp::class.qualifiedName){
+        FqName(RandomContextBuilderImp::class.qualifiedName
+            .crashOnNull {
                 "Class RandomContextBuilder interface does not exist in the class path"
             }
         )
     )
 
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(classId)) {
+        pluginContext.referenceClass(classId).crashOnNull {
             "RandomContextBuilderImp class is not in the class path."
         }
     }
 
     fun constructorFunction(builder: IrBuilderWithScope): IrConstructorCall {
-        val constructorSymbol =
-            requireNotNull(clzz.owner.primaryConstructor?.symbol) {
+        val constructorSymbol = clzz.owner.primaryConstructor?.symbol
+            .crashOnNull {
                 "RandomBuilderImp must have a no-arg primary constructor. This is a bug by the developer."
             }
 

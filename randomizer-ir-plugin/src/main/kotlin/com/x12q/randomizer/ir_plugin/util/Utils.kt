@@ -34,3 +34,12 @@ fun <T>Collection<T>.toMapWithIndex():Map<Int,T>{
 fun runSideEffect(sideEffect:()->Unit){
     sideEffect()
 }
+
+
+inline fun <T> T?.crashOnNull(msg:()->Any):T{
+    return requireNotNull(this,msg)
+}
+
+fun <T> T?.crashOnNull():T{
+    return requireNotNull(this)
+}

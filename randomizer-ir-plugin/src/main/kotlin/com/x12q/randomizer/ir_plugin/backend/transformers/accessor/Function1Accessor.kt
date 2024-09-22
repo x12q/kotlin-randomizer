@@ -1,5 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -12,18 +13,20 @@ import javax.inject.Inject
 
 class Function1Accessor @Inject constructor(
     private val pluginContext: IrPluginContext
-):ClassAccessor() {
+) : ClassAccessor() {
 
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))) {
-            "kotlin.Function1 class is not in the class path."
-        }
+        pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))
+            .crashOnNull {
+                "kotlin.Function1 class is not in the class path."
+            }
     }
 
     private val invokeFunction: IrSimpleFunctionSymbol by lazy {
         oneAgrFunction("invoke")
     }
-    fun invokeFunction(builder: IrBuilderWithScope):IrCall{
+
+    fun invokeFunction(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(invokeFunction)
     }
 

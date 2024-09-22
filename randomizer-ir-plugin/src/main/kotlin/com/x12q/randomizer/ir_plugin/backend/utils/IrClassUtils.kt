@@ -18,6 +18,10 @@ fun IrClass.isList():Boolean{
     return this.isClass(List::class)
 }
 
+fun IrClass.isSet():Boolean{
+    return this.isClass(Set::class)
+}
+
 fun IrClass.isClass(kClass: KClass<*>): Boolean {
     if(this.fqNameWhenAvailable?.asString() == kClass.qualifiedName){
         return true

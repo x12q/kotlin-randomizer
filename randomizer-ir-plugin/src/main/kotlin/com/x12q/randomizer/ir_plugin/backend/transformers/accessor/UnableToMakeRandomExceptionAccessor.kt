@@ -1,5 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.randomizer.lib.UnableToMakeRandomException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
@@ -13,14 +14,14 @@ class UnableToMakeRandomExceptionAccessor @Inject constructor(
     private val pluginContext: IrPluginContext,
 ) : ClassAccessor() {
 
-    val name = ClassId.topLevel(FqName(requireNotNull(UnableToMakeRandomException::class.qualifiedName){
+    val name = ClassId.topLevel(FqName(UnableToMakeRandomException::class.qualifiedName.crashOnNull {
         "Class UnableToMakeRandomException does not exist in the class path"
     }))
 
     override val clzz: IrClassSymbol by lazy { pluginContext.referenceClass(name)!! }
 
     fun primaryConstructor(): IrConstructor {
-        return requireNotNull(clzz.owner.primaryConstructor){
+        return clzz.owner.primaryConstructor.crashOnNull {
             "UnableToMakeRandomException must have a primary constructor. This is a bug by the developer."
         }
     }

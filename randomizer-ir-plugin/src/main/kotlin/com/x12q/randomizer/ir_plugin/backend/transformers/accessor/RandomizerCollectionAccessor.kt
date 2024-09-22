@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -16,7 +17,7 @@ class RandomizerCollectionAccessor @Inject constructor(
 ):ClassAccessor() {
 
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.RandomizerCollection_Id)) {
+        pluginContext.referenceClass(BaseObjects.RandomizerCollection_Id).crashOnNull {
             "ClassRandomizerCollection class is not in the class path."
         }
     }

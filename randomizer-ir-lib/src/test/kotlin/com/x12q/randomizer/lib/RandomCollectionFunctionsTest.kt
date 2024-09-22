@@ -25,6 +25,11 @@ class RandomCollectionFunctionsTest{
     }
 
     @Test
+    fun `randomMap nested`(){
+        val randomMap =  rdContext.randomMap<Map<Int,String>,Int>()
+    }
+
+    @Test
     fun randomMap(){
 
         val randomMap =  rdContext.randomMap<Int,String>()

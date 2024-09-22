@@ -2,6 +2,7 @@ package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
 
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -27,9 +28,10 @@ class RandomAccessor @Inject constructor(
 ) : ClassAccessor() {
 
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(BaseObjects.Random_ClassId)) {
-            "kotlin.random.Random class is not in the class path."
-        }
+        pluginContext.referenceClass(BaseObjects.Random_ClassId)
+            .crashOnNull {
+                "kotlin.random.Random class is not in the class path."
+            }
     }
 
 
