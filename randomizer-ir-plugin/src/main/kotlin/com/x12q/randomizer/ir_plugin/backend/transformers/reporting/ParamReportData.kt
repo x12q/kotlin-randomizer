@@ -14,6 +14,7 @@ data class ParamReportData(
     val clazzName: String?,
 ) : ReportData {
     companion object {
+        private const val errCode = "PARAM_ERR_1"
         fun fromIrElements(
             param: IrValueParameter?,
             irType: IrType,
@@ -29,7 +30,7 @@ data class ParamReportData(
 
     override fun makeMsg(): String {
         return """
-    Unable to generate random for:
+    $errCode: Unable to generate random for:
         class: $clazzName
         paramName: $paramName
         type: $paramType
