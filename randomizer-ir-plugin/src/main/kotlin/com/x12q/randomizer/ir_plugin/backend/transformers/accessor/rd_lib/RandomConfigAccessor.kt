@@ -1,5 +1,6 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib
 
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
 import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull

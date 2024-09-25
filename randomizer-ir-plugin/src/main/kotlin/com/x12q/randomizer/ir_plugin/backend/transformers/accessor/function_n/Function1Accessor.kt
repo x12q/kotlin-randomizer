@@ -1,8 +1,9 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n
 
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -11,22 +12,23 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import javax.inject.Inject
 
-class Function0Accessor @Inject constructor(
+class Function1Accessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
     override val clzz: IrClassSymbol by lazy {
-        pluginContext.referenceClass(ClassId.topLevel(FqName(Function0::class.qualifiedName!!)))
+        pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))
             .crashOnNull {
-                "kotlin.Function0 class is not in the class path."
+                "kotlin.Function1 class is not in the class path."
             }
     }
 
     private val invokeFunction: IrSimpleFunctionSymbol by lazy {
-        zeroAgrFunction("invoke")
+        oneAgrFunction("invoke")
     }
 
-    fun invokeFunction(builder: DeclarationIrBuilder): IrCall {
+    fun invokeFunction(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(invokeFunction)
     }
+
 }

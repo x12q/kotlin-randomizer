@@ -2,9 +2,12 @@ package com.x12q.randomizer.ir_plugin.backend.transformers
 
 import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.*
-import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.ListAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.MapAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.SetAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ListAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.MapAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.SetAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function0Accessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function1Accessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull

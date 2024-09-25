@@ -1,6 +1,5 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib
 
-import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
