@@ -21,6 +21,6 @@ inline fun <reified T:Any> RandomContext.randomOrThrow(): T{
         val resultFromRandomizer = randomizer.random()
         return resultFromRandomizer
     }else{
-        throw UnableToMakeRandomException(T::class.qualifiedName,null, type = typeOf<T>().toString())
+        throw UnableToMakeRandomException("Unable to make random of type ${typeOf<T>()}")
     }
 }

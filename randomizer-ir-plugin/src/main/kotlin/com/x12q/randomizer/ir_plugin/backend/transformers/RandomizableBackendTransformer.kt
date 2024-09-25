@@ -8,6 +8,8 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.colle
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function0Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function1Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
+import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.ReportData
+import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.ParamReportData
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
@@ -851,7 +853,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         getRandomContextExpr = getRandomContextExpr,
                         getRandomConfigExpr = getRandomConfigExpr,
                         typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                        optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(
+                        optionalParamMetaDataForReporting = ParamReportData.fromIrElements(
                             param, type, irClass
                         )
                     )
@@ -911,7 +913,6 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
 
-
         // get element type
         val elementTypes = extractTypeArgument(
             receivedTypeArgument = receivedTypeArguments, irType = irMapType
@@ -948,7 +949,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(null, keyType, irClass)
+                            optionalParamMetaDataForReporting = ParamReportData.fromIrElements(null, keyType, irClass)
                         )
                         +keyLambdaBuilder.irReturn(randomKey)
                     }
@@ -977,8 +978,8 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(
-                                null,valueType,irClass
+                            optionalParamMetaDataForReporting = ParamReportData.fromIrElements(
+                                null, valueType, irClass
                             )
                         )
                         +valueLambdaBuilder.irReturn(randomValue)
@@ -1323,7 +1324,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomContextExpr = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
             typeParamListOfRandomFunction = typeParamListOfRandomFunction,
-            optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(
+            optionalParamMetaDataForReporting = ParamReportData.fromIrElements(
                 paramFromConstructor, paramTypeWithTypeReplacement, enclosingClass
             )
         )
@@ -1410,7 +1411,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * This optional object is for generating error reporting expression.
          * If given, a more descriptive message can be generated, otherwise, the message will be based on [targetType]
          */
-        optionalParamMetaDataForReporting: ParamMetaDataForReporting,
+        optionalParamMetaDataForReporting: ParamReportData,
     ): IrExpression {
 
         val primitive = generateRandomPrimitive(
@@ -1479,7 +1480,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
-        optionalParamMetaDataForReporting: ParamMetaDataForReporting,
+        optionalParamMetaDataForReporting: ParamReportData,
     ): IrExpression {
         val actualParamType = receivedType ?: targetType
         val clazz = actualParamType.classOrNull?.owner
@@ -1567,7 +1568,7 @@ class RandomizableBackendTransformer @Inject constructor(
         targetType: IrType,
         builder: DeclarationIrBuilder,
         getRandomContextExpr: IrExpression,
-        optionalParamMetaDataForReporting: ParamMetaDataForReporting,
+        optionalParamMetaDataForReporting: ParamReportData,
     ): IrExpression {
         val paramTypeForRandomFunction = run {
             val actualTypeSymbol: IrTypeParameterSymbol =
@@ -1611,16 +1612,14 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomExpr: IrExpression,
         type: IrType,
-        metaData: ParamMetaDataForReporting,
+        metaData: ParamReportData,
     ): IrExpression {
         return builder.irBlock {
             val randomResult = irTemporary(randomExpr, "randomResult")
             val getRandomResult = irGet(randomResult)
             val throwExceptionExpr = throwUnableToRandomizeException(
                 builder = this,
-                paramName = metaData.paramName,
-                typeName = metaData.paramType,
-                enclosingClassName = metaData.clazzName
+                msg = metaData.makeMsg(),
             )
             +irIfNull(type, getRandomResult, throwExceptionExpr, getRandomResult)
         }
@@ -1630,17 +1629,11 @@ class RandomizableBackendTransformer @Inject constructor(
      * Construct and throw an instance of [UnableToMakeRandomException]
      */
     private fun throwUnableToRandomizeException(
-        builder: IrBuilderWithScope, paramName: String?, typeName: String, enclosingClassName: String?
+        builder: IrBuilderWithScope, msg: String?
     ): IrThrowImpl {
 
         return with(builder) {
-            irThrow(irCallConstructor(
-                callee = unableToMakeRandomExceptionAccessor.primaryConstructor().symbol,
-                typeArguments = emptyList()
-            ).withValueArgs(/*targetClassName:String*/ enclosingClassName?.let { irString(it) }
-                ?: irNull(),/*paramName:String*/
-                paramName?.let { irString(it) } ?: irNull(),/*paramType:String*/
-                irString(typeName)))
+            irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msg))
         }
     }
 
