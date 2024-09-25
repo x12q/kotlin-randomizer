@@ -907,6 +907,8 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
 
+
+
         // get element type
         val elementTypes = extractTypeArgument(
             receivedTypeArgument = receivedTypeArguments, irType = irMapType
@@ -943,7 +945,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            optionalParamMetaDataForReporting = ParamMetaDataForReporting(",", "", "")
+                            optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(null, keyType, irClass)
                         )
                         +keyLambdaBuilder.irReturn(randomKey)
                     }
@@ -972,7 +974,9 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            optionalParamMetaDataForReporting = ParamMetaDataForReporting(",", "", "")
+                            optionalParamMetaDataForReporting = ParamMetaDataForReporting.fromIrElements(
+                                null,valueType,irClass
+                            )
                         )
                         +valueLambdaBuilder.irReturn(randomValue)
                     }
@@ -1276,7 +1280,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWith(BaseObjects.randomizableFqName)) {
+        if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWithRandomizable()) {
             TODO("not supported yet")
         } else {
             return null

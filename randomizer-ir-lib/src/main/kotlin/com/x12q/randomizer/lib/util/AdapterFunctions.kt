@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections
+package com.x12q.randomizer.lib.util
 
 /**
  * Guide:

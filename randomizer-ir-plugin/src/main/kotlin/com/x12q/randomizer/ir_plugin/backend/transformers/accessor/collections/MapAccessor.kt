@@ -43,7 +43,7 @@ class MapAccessor @Inject constructor(
         return builder.irCall(bmFunction)
     }
 
-    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("makeMap"))
+    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeMap"))
 
     /**
      * Get a reference to kotlin.to function.

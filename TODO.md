@@ -167,7 +167,19 @@ NEXT:
     - Generate expression to construct randomizer for element type of such List at call side: OK
   - to generate random Map: OK
   - tidy up the generator code of list
-
+- need to check isClass function reasonining.
+- std class from std library implementations?
+  - I can write code to construct them, but how many class do I actually have to write code for?
+    - About ArrayList, HashMap, and other
+    - Date (kt + jvm)
+    - InputStream? -> no, this is service class, I should only care about data class
+    - 
+- Constructor selection logic: CONT
+  - Annotation on constructors -> pick a random one
+  - Annotation on class -> consider it as marked primary constructor
+  - Multiple constructors -> put the generation code in lambda -> pick a random lambda from the list, run it.
+    - Otherwise, use the normal one.
+  
 
 - Write random() function for built-in class such as:
   - List, Map, Set

@@ -1,10 +1,8 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
-import org.jetbrains.kotlin.backend.wasm.ir2wasm.hasInterfaceSuperClass
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.FqName
@@ -22,12 +20,12 @@ fun IrClass.isSet():Boolean{
     return this.isClass(Set::class)
 }
 
-fun IrClass.isClass(kClass: KClass<*>): Boolean {
-    if(this.fqNameWhenAvailable?.asString() == kClass.qualifiedName){
+fun IrClass.isClass(clazz: KClass<*>): Boolean {
+    if(this.fqNameWhenAvailable?.asString() == clazz.qualifiedName){
         return true
     }
     for (superClass in this.superTypes) {
-        if (superClass.classFqName?.asString() == kClass.qualifiedName) {
+        if (superClass.classFqName?.asString() == clazz.qualifiedName) {
             return true
         }
     }

@@ -22,7 +22,7 @@ class SetAccessor @Inject constructor(
         }
     }
 
-    private val listToSetFunctionName = CallableId(FqName("com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections"), Name.identifier("listToSet"))
+    private val listToSetFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("listToSet"))
 
     /**
      * Get a reference to kotlin.to function.
