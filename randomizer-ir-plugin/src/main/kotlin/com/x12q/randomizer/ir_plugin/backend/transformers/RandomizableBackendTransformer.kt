@@ -1411,7 +1411,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * This optional object is for generating error reporting expression.
          * If given, a more descriptive message can be generated, otherwise, the message will be based on [targetType]
          */
-        optionalParamMetaDataForReporting: ParamReportData,
+        optionalParamMetaDataForReporting: ReportData,
     ): IrExpression {
 
         val primitive = generateRandomPrimitive(
@@ -1480,7 +1480,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
-        optionalParamMetaDataForReporting: ParamReportData,
+        optionalParamMetaDataForReporting: ReportData,
     ): IrExpression {
         val actualParamType = receivedType ?: targetType
         val clazz = actualParamType.classOrNull?.owner
@@ -1546,7 +1546,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 }
             } else {
 
-                val paramNameText = optionalParamMetaDataForReporting.paramName?.let { "param $it:" } ?: ""
+                val paramNameText = param?.name?.let { "param $it:" } ?: ""
+
                 throw IllegalArgumentException(
                     "unable to construct an expression to generate a random instance for $paramNameText${clazz.name}"
                 )
@@ -1568,7 +1569,7 @@ class RandomizableBackendTransformer @Inject constructor(
         targetType: IrType,
         builder: DeclarationIrBuilder,
         getRandomContextExpr: IrExpression,
-        optionalParamMetaDataForReporting: ParamReportData,
+        optionalParamMetaDataForReporting: ReportData,
     ): IrExpression {
         val paramTypeForRandomFunction = run {
             val actualTypeSymbol: IrTypeParameterSymbol =
@@ -1612,7 +1613,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomExpr: IrExpression,
         type: IrType,
-        metaData: ParamReportData,
+        metaData: ReportData,
     ): IrExpression {
         return builder.irBlock {
             val randomResult = irTemporary(randomExpr, "randomResult")
