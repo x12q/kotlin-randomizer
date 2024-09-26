@@ -827,68 +827,30 @@ class RandomizableBackendTransformer @Inject constructor(
         ).firstOrNull()
 
         if (elementTypes != null) {
-            val type = elementTypes.typeOrNull.crashOnNull {
+
+            elementTypes.typeOrNull.crashOnNull {
                 val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
-                "$paramNamePrefix List's element type must be specified. It is null here."
+                "$paramNamePrefix Set's element type must be specified. It is null here."
             }
 
-            val randomElementLambdaExpr = run {
-
-                /**
-                 * This block generates the lambda that will be passed to makeList() function
-                 */
-
-                val lambdaDeclaration = makeLocalLambdaWithoutBody(type, {
-                    name = Name.special("<generateList_withinRandomFunction>")
-                }).apply {
-                    val lambdaFunction = this
-
-                    declarationParent?.also { parent = it }
-
-                    addValueParameter("index", pluginContext.irBuiltIns.intType)
-
-                    val lambdaBuilder = DeclarationIrBuilder(
-                        generatorContext = pluginContext,
-                        symbol = this.symbol,
-                    )
-                    val randomElementExpr = generateRandomType(
-                        declarationParent = lambdaFunction,
-                        param = null,
-                        enclosingClass = null,
-                        receivedTypeArgument = null,
-                        targetType = type,
-                        builder = builder,
-                        getRandomContextExpr = getRandomContextExpr,
-                        getRandomConfigExpr = getRandomConfigExpr,
-                        typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                        optionalParamMetaDataForReporting = ListReportData(
-                            valueType = type.dumpKotlinLike(),
-                            paramName = param?.name?.asString(),
-                            enclosingClassName = enclosingClass?.name?.asString(),
-                        )
-                    )
-                    body = lambdaBuilder.irBlockBody {
-                        +irReturn(randomElementExpr)
-                    }
-                }
-
-                makeIrFunctionExpr(
-                    lambda = lambdaDeclaration,
-                    functionType = pluginContext.irBuiltIns.functionN(1)
-                        .typeWith(pluginContext.irBuiltIns.intType, type)
-                )
-            }
-
-            val sizeExpr = getRandomConfigExpr.dotCall(
-                randomConfigAccessor.randomCollectionSize(builder)
+            val listExpr = generateList(
+                declarationParent = declarationParent,
+                receivedTypeArguments = receivedTypeArguments,
+                param = param,
+                enclosingClass = enclosingClass,
+                irListType = irListType,
+                listIrClass = listAccessor.clzz.owner,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                builder = builder,
+                typeParamOfRandomFunction = typeParamOfRandomFunction
             )
-
-            val rt = listAccessor.makeArrayListFunctionCall(builder)
-                .withValueArgs(sizeExpr, randomElementLambdaExpr)
-                .withTypeArgs(type)
-
-            return rt
-
+            if (listExpr != null) {
+                return listAccessor.makeArrayListFunctionCall(builder)
+                    .withValueArgs(listExpr)
+            } else {
+                return null
+            }
         } else {
             return null
         }

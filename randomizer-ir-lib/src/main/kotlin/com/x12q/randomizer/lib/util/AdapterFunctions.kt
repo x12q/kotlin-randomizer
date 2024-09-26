@@ -54,7 +54,6 @@ fun <T> listToSet(list: List<T>): Set<T> {
 }
 
 @ForGeneratedCodeOnly
-fun <T> makeArrayList(size: Int, makeElement: (index: Int) -> T): ArrayList<T> {
-    val rt = ArrayList<T>(makeList(size, makeElement))
-    return rt
+fun <T> makeArrayList(list:List<T>): ArrayList<T> {
+    return ArrayList(list)
 }

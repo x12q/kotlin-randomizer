@@ -42,6 +42,7 @@ class ListAccessor @Inject constructor(
                 "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArrayList does not exist."
             }
     }
+
     fun makeArrayListFunctionCall(builder: IrBuilderWithScope):IrCall{
         return builder.irCall(makeArrayListFunctionSymbol)
     }
