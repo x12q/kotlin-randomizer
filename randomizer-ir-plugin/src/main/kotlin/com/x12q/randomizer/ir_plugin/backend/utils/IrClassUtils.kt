@@ -10,38 +10,58 @@ import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.FqName
 import kotlin.reflect.KClass
 
+
+private val mapSig by lazy{
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Map")
+}
 fun IrClass.isMap():Boolean{
-    return this.hasSignature(
-        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Map")
-    )
+    return this.hasSignature(mapSig)
+}
+
+private val listSig by lazy{
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"List")
 }
 
 fun IrClass.isList():Boolean{
-    return this.hasSignature(
-        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"List")
-    )
+    return this.hasSignature(listSig)
+}
+
+private val collectionSig by lazy{
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Collection")
 }
 
 fun IrClass.isCollection():Boolean{
-    return this.hasSignature(
-        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Collection")
-    )
+    return this.hasSignature(collectionSig)
 }
 
+private val iterableSig by lazy{
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Iterable")
+}
 fun IrClass.isIterable():Boolean{
-    return this.hasSignature(
-        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Iterable")
-    )
+    return this.hasSignature(iterableSig)
+}
+
+
+private val ktArrayListSig by lazy {
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"ArrayList")
+}
+private val jvmArrayListSig by lazy{
+    getPublicSignature(FqName("java.util"),"ArrayList")
+}
+
+fun IrClass.isArrayList():Boolean{
+    return this.hasSignature(ktArrayListSig) || this.hasSignature(jvmArrayListSig)
 }
 
 fun IrClass.isListAssignable():Boolean{
     return isList() || isCollection() || isIterable()
 }
 
+private val setSig by lazy{
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Set")
+}
 fun IrClass.isSet():Boolean{
-    return this.hasSignature(
-        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Set")
-    )
+    return this.hasSignature(setSig)
 }
 @Deprecated("kept just in case")
 fun IrClass.isClass(clazz: KClass<*>): Boolean {
