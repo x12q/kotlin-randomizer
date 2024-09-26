@@ -10,11 +10,11 @@ import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.hasTopLevelEqualFqName
 
 
-internal fun IrType.isList():Boolean{
+internal fun IrType.isList(): Boolean {
     return this.classOrNull?.owner?.isList() == true
 }
 
-internal fun IrType.isMap():Boolean{
+internal fun IrType.isMap(): Boolean {
     return this.classOrNull?.owner?.isMap() == true
 }
 
@@ -184,8 +184,12 @@ internal fun IrType.isUByte2(nullable: Boolean): Boolean {
 }
 
 
-internal fun IrType.isNullableClassType2(signature: IdSignature.CommonSignature) =
-    isClassType2(signature, nullable = true)
+internal fun IrType.isNullableClassType2(
+    signature: IdSignature.CommonSignature
+): Boolean {
+    return isClassType2(signature, nullable = true)
+}
+
 
 internal fun IrType.isClassType2(signature: IdSignature.CommonSignature, nullable: Boolean? = null): Boolean {
     if (this !is IrSimpleType) return false

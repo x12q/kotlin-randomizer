@@ -1,6 +1,8 @@
 package com.x12q.randomizer.lib.util
 
 import com.x12q.randomizer.lib.ForGeneratedCodeOnly
+import com.x12q.randomizer.lib.RandomContext
+import com.x12q.randomizer.lib.random
 
 /**
  * Note:
@@ -15,8 +17,8 @@ import com.x12q.randomizer.lib.ForGeneratedCodeOnly
  * Adapter function for making List. This is not meant to be used by anything other than generated code.
  */
 @ForGeneratedCodeOnly
-fun <T> makeList(size:Int, makeElement:(index:Int)->T):List<T>{
-    return List(size,makeElement)
+fun <T> makeList(size: Int, makeElement: (index: Int) -> T): List<T> {
+    return List(size, makeElement)
 }
 
 /**
@@ -47,11 +49,12 @@ fun <K, V> makePair(key: K, value: V): Pair<K, V> {
  * Adapter function to convert a list to a set. This is not meant to be used by anything other than generated code
  */
 @ForGeneratedCodeOnly
-fun <T> listToSet(list:List<T>):Set<T>{
+fun <T> listToSet(list: List<T>): Set<T> {
     return list.toSet()
 }
 
 @ForGeneratedCodeOnly
-fun <T> makeArrayList():ArrayList<T>{
-    return ArrayList()
+fun <T> makeArrayList(size: Int, makeElement: (index: Int) -> T): ArrayList<T> {
+    val rt = ArrayList<T>(makeList(size, makeElement))
+    return rt
 }

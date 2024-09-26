@@ -107,10 +107,6 @@ Front end:
   - Class -> init it
     - find a way to store such instance in a variable so that it can be re-used ???
 
-- random built-in collection, array properties:
-  
-  - TODO()
-
 - randomize concrete class with abstract properties:
   
   - recognize randomizer in @Randomizable
@@ -170,19 +166,17 @@ NEXT:
 - need to check isClass function reasonining.
 - std class from std library implementations?
   - I can write code to construct them, but how many class do I actually have to write code for?
-    - About ArrayList, HashMap, and other
+    - ArrayList, HashMap, and other
     - Date (kt + jvm)
-    - InputStream? -> no, this is service class, I should only care about data class
-    - 
+    - Perhaps I need a mode modular architecture for this part to make it easier to add and remove the generator
+    
 - Constructor selection logic: CONT
   - Annotation on constructors -> pick a random one
   - Annotation on class -> consider it as marked primary constructor
   - Multiple constructors -> put the generation code in lambda -> pick a random lambda from the list, run it.
     - Otherwise, use the normal one.
-  
-- Write random() function for built-in class such as:
-  - List, Map, Set
-  - Int,String, etc
+- Inject custom randomizer via annotation:
+  - this one needs to be done after constructor selection logic? or before?
 
 - compile-time (on IDE) error reporting when use @Randomizable on abstract or interface?
 
