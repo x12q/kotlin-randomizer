@@ -1,10 +1,12 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.accessor
+package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib
 
 
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.builtins.StandardNames.COLLECTIONS_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
@@ -38,7 +40,7 @@ class RandomAccessor @Inject constructor(
     /**
      * Name for the family of random functions in the standard library that can be call on collections, arrays, etc
      */
-    private val kotlinCollectionRandomFunctionName = CallableId(FqName("kotlin.collections"), Name.identifier("random"))
+    private val kotlinCollectionRandomFunctionName = CallableId(COLLECTIONS_PACKAGE_FQ_NAME, Name.identifier("random"))
 
     /**
      * kotlin.collection.random on Collection<T>, that accept a [Random] argument

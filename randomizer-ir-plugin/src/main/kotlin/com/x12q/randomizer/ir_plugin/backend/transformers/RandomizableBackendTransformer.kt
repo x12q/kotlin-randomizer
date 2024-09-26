@@ -8,6 +8,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.colle
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function0Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function1Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects

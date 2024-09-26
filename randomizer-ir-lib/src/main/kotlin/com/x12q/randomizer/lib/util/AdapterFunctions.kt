@@ -50,3 +50,8 @@ fun <K, V> makePair(key: K, value: V): Pair<K, V> {
 fun <T> listToSet(list:List<T>):Set<T>{
     return list.toSet()
 }
+
+@ForGeneratedCodeOnly
+fun <T> makeArrayList():ArrayList<T>{
+    return ArrayList()
+}
