@@ -172,25 +172,24 @@ class RandomizableBackendTransformer @Inject constructor(
                                     typeParamOfRandomFunction = randomFunction.typeParameters,
                                 )
 
-                                for (makeRandomizerLambda in makeRandomizerLambdas) {
-                                    /**
-                                     * This call "addForTier2" function inside "randomizers" lambda
-                                     */
-                                    val addForTier2_FunctionCall = irGet(randomContextBuilder).dotCall(
-                                        randomContextBuilderAccessor.addForTier2Call(blockBodyBuilder)
-                                    ).apply {
-                                        putValueArgument(
-                                            index = 0, valueArgument = makeIrFunctionExpr(
-                                                makeRandomizerLambda,
-                                                pluginContext.irBuiltIns.functionN(1).typeWith(
-                                                    randomContextAccessor.irType,
-                                                    makeRandomizerLambda.returnType,
-                                                )
+
+                                /**
+                                 * This call "addForTier2" function inside "randomizers" lambda
+                                 */
+                                val addForTier2_FunctionCall = irGet(randomContextBuilder).dotCall(
+                                    randomContextBuilderAccessor.addForTier2Call(blockBodyBuilder)
+                                ).apply {
+                                    putValueArgument(
+                                        index = 0, valueArgument = makeIrFunctionExpr(
+                                            makeRandomizerLambdas,
+                                            pluginContext.irBuiltIns.functionN(1).typeWith(
+                                                randomContextAccessor.irType,
+                                                makeRandomizerLambdas.returnType,
                                             )
                                         )
-                                    }
-                                    +addForTier2_FunctionCall
+                                    )
                                 }
+                                +addForTier2_FunctionCall
                             }
                         }
 
@@ -211,81 +210,65 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * This build a lambda passed to "addForTier2"
-     * This lambda accept a RandomContext as its extension param, and return a ClassRandomizer<*>
-     * Like this
+     * This build lambdas passed to "addForTier2"
+     * These lambdas accept a RandomContext as their extension param, and return a ClassRandomizer<*>
+     * Like this:
      *     RandomContext.() -> ClassRandomizer<*>
      */
     private fun generate_makeClassRandomizer_Lambdas(
         randomizersLambda: IrDeclarationParent,
         randomType: IrType,
         typeParamOfRandomFunction: List<IrTypeParameter>,
-    ): List<IrSimpleFunction> {
+    ): IrSimpleFunction {
         val irSimpleType = (randomType as? IrSimpleType).crashOnNull()
-        val rdTypeList = run {
-            // if(randomType.isMap()){
-            //     (irSimpleType.arguments.mapNotNull{
-            //         val type = it.typeOrNull as? IrSimpleType
-            //         if(type?.isProvidedPrimitive(type.isNullable())==true){
-            //             null
-            //         }else{
-            //             type
-            //         }
-            //     } + irSimpleType)
-            // }else{
-            //     listOf(irSimpleType)
-            // }
-            listOf(irSimpleType)
-        }
 
-        val rt = rdTypeList.map { rdType ->
-
-            val generatedLambda =
-                makeLocalLambdaWithoutBody(
-                    returnType = classRandomizerAccessor.clzz.starProjectedType,
-                    beforeStandardConfig = {
-                        name = Name.special("<generate_makeClassRandomizer_Lambda>")
-                    }
-                ).buildBody { builder ->
-                    parent = randomizersLambda
-
-                    val makeClassRandomizerLambda = this
-                    makeClassRandomizerLambda.addExtensionReceiver(randomContextAccessor.irType)
-
-                    body = builder.irBlockBody {
-                        val randomContextParam = makeClassRandomizerLambda.extensionReceiverParameter.crashOnNull()
-                        val getRandomContextExpr = irGet(randomContextParam)
-
-                        /**
-                         * This lambda is: ()->[randomType]
-                         * - generates a random instance of [randomType].
-                         * - is passed to "factoryRandomizer" function
-                         */
-                        val makeRandomInstanceLambda = generate_makeRandom_Lambda(
-                            declarationParent = makeClassRandomizerLambda,
-                            randomTargetType = rdType,
-                            typeParamOfRandomFunction = typeParamOfRandomFunction,
-                            getRandomContextExpr = getRandomContextExpr,
-                        )
-
-                        val classRandomizerMakingCall =
-                            classRandomizerUtilAccessor.factoryClassRandomizerFunctionCall(builder).apply {
-                                putValueArgument(
-                                    index = 0, valueArgument = makeIrFunctionExpr(
-                                        lambda = makeRandomInstanceLambda,
-                                        functionType = pluginContext.irBuiltIns.functionN(0)
-                                            .typeWith(makeRandomInstanceLambda.returnType)
-                                    )
-                                )
-                                putTypeArgument(0, rdType)
-                            }
-
-                        +irReturn(classRandomizerMakingCall)
-                    }
+        val rdType = irSimpleType
+        val generatedLambda =
+            makeLocalLambdaWithoutBody(
+                returnType = classRandomizerAccessor.clzz.starProjectedType,
+                beforeStandardConfig = {
+                    name = Name.special("<generate_makeClassRandomizer_Lambda>")
                 }
-            generatedLambda
-        }
-        return rt
+            ).buildBody { builder ->
+                parent = randomizersLambda
+
+                val makeClassRandomizerLambda = this
+                makeClassRandomizerLambda.addExtensionReceiver(randomContextAccessor.irType)
+
+                body = builder.irBlockBody {
+                    val randomContextParam = makeClassRandomizerLambda.extensionReceiverParameter.crashOnNull()
+                    val getRandomContextExpr = irGet(randomContextParam)
+
+                    /**
+                     * This lambda is: ()->[randomType]
+                     * - generates a random instance of [randomType].
+                     * - is passed to "factoryRandomizer" function
+                     */
+                    val makeRandomInstanceLambda = generate_makeRandom_Lambda(
+                        declarationParent = makeClassRandomizerLambda,
+                        randomTargetType = rdType,
+                        typeParamOfRandomFunction = typeParamOfRandomFunction,
+                        getRandomContextExpr = getRandomContextExpr,
+                    )
+
+                    val classRandomizerMakingCall =
+                        classRandomizerUtilAccessor.factoryClassRandomizerFunctionCall(builder).apply {
+                            putValueArgument(
+                                index = 0, valueArgument = makeIrFunctionExpr(
+                                    lambda = makeRandomInstanceLambda,
+                                    functionType = pluginContext.irBuiltIns.functionN(0)
+                                        .typeWith(makeRandomInstanceLambda.returnType)
+                                )
+                            )
+                            putTypeArgument(0, rdType)
+                        }
+
+                    +irReturn(classRandomizerMakingCall)
+                }
+            }
+
+
+        return generatedLambda
     }
 
 
@@ -697,7 +680,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     declarationParent = declarationParent,
                     receivedTypeArgument = receivedTypeArguments,
                     param = param,
-                    enclosingClass=enclosingClass,
+                    enclosingClass = enclosingClass,
                     irType = irType,
                     irClass = irClass,
                     getRandomContextExpr = getRandomContextExpr,
@@ -711,7 +694,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
                     param = param,
-                    enclosingClass=enclosingClass,
+                    enclosingClass = enclosingClass,
                     irType = irType,
                     collectionIrClass = irClass,
                     getRandomContextExpr = getRandomContextExpr,
@@ -756,7 +739,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedTypeArguments,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 mapIrClass = collectionIrClass,
                 irMapType = irType,
                 getRandomContextExpr = getRandomContextExpr,
@@ -769,7 +752,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedTypeArguments,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 listIrClass = collectionIrClass,
                 irListType = irType,
                 getRandomContextExpr = getRandomContextExpr,
@@ -782,7 +765,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedTypeArguments,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 setIrClass = collectionIrClass,
                 irListType = irType,
                 getRandomContextExpr = getRandomContextExpr,
@@ -920,7 +903,6 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
 
-
         // get element type
         val elementTypes = extractTypeArgument(
             receivedTypeArgument = receivedTypeArguments, irType = irMapType
@@ -951,7 +933,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         val randomKey = generateRandomType(
                             declarationParent = keyLambda,
                             param = null,
-                            enclosingClass=enclosingClass,
+                            enclosingClass = enclosingClass,
                             receivedTypeArgument = null,
                             targetType = keyType,
                             builder = keyLambdaBuilder,
@@ -1054,7 +1036,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedTypeArguments,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 irListType = irListType,
                 listIrClass = listAccessor.clzz.owner,
                 getRandomContextExpr = getRandomContextExpr,
@@ -1458,7 +1440,7 @@ class RandomizableBackendTransformer @Inject constructor(
             return generateRandomTypeForTypelessGeneric(
                 receivedTypeClassifier = receivedTypeClassifier,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 typeSymbol = typeSymbol,
                 typeParamListOfRandomFunction = typeParamListOfRandomFunction,
                 targetType = targetType,
@@ -1472,7 +1454,7 @@ class RandomizableBackendTransformer @Inject constructor(
              */
             return generateRandomTypeWithDefinedType(
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 declarationParent = declarationParent,
                 receivedType = receivedType,
                 targetType = targetType,
@@ -1512,7 +1494,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedType?.arguments,
                 param = param,
-                enclosingClass=enclosingClass,
+                enclosingClass = enclosingClass,
                 irType = actualParamType,
                 irClass = clazz,
                 getRandomContextExpr = getRandomContextExpr,
