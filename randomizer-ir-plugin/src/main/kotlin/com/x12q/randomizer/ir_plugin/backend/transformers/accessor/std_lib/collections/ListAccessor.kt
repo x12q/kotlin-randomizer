@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 class ListAccessor @Inject constructor(
     val pluginContext: IrPluginContext
-): ClassAccessor() {
+) : ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
         requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(List::class.qualifiedName!!)))) {
             "kotlin.collections.List is not in the class path."
@@ -28,22 +28,25 @@ class ListAccessor @Inject constructor(
             .crashOnNull {
                 "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeList does not exist."
             }
-    }    /**
+    }
+
+    /**
      * Get a reference to kotlin.to function.
      */
-    fun makeListFunctionCall(builder: IrBuilderWithScope):IrCall{
+    fun makeListFunctionCall(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeListFunctionSymbol)
     }
 
     private val makeArrayListFunctionSymbol by lazy {
-        val makeArrayListFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeArrayList"))
+        val makeArrayListFunctionName =
+            CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeArrayList"))
         pluginContext.referenceFunctions(makeArrayListFunctionName).firstOrNull()
             .crashOnNull {
                 "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArrayList does not exist."
             }
     }
 
-    fun makeArrayListFunctionCall(builder: IrBuilderWithScope):IrCall{
+    fun makeArrayListFunctionCall(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeArrayListFunctionSymbol)
     }
 }

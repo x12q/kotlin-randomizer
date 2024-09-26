@@ -17,23 +17,25 @@ import javax.inject.Inject
 class MapAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
+
     override val clzz: IrClassSymbol by lazy {
         requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Map::class.qualifiedName!!)))) {
             "kotlin.collections.Map is not in the class path."
         }
     }
 
-    private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeMap"))
+    private val makeMapFunctionSymbol by lazy {
+        val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeMap"))
+        pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeMap does not exist."
+            }
+    }
 
     /**
      * Get a reference to kotlin.to function.
      */
     fun makeMapFunction(builder: IrBuilderWithScope): IrCall {
-        val bmFunction = pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
-            .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeMap does not exist."
-            }
-
-        return builder.irCall(bmFunction)
+        return builder.irCall(makeMapFunctionSymbol)
     }
 }
