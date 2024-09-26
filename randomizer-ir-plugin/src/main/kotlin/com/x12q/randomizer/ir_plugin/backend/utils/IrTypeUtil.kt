@@ -194,8 +194,3 @@ internal fun IrType.isClassType2(signature: IdSignature.CommonSignature, nullabl
             classifier.owner.let { it is IrClass && it.hasFqNameEqualToSignature2(signature) }
 }
 
-internal fun IrClass.hasFqNameEqualToSignature2(signature: IdSignature.CommonSignature): Boolean =
-    name.asString() == signature.shortName && hasTopLevelEqualFqName(
-        signature.packageFqName,
-        signature.declarationFqName
-    )

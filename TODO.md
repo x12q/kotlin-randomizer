@@ -180,12 +180,6 @@ NEXT:
   - Multiple constructors -> put the generation code in lambda -> pick a random lambda from the list, run it.
     - Otherwise, use the normal one.
   
-- Improve exception throwing.
-  - Make the meta data class into a seal class that can be mapped to multiple type of exception, for:
-    - param
-    - collection: list, map, set
-    - other thing.
-  - Add more expressive exception and accessors for them.
 - Write random() function for built-in class such as:
   - List, Map, Set
   - Int,String, etc
