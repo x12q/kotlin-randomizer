@@ -53,6 +53,9 @@ fun <T> listToSet(list: List<T>): Set<T> {
     return list.toSet()
 }
 
+/**
+ * Adapter function to construct an [ArrayList] from a list. This is not meant to be used by anything other than generated code
+ */
 @ForGeneratedCodeOnly
 fun <T> makeArrayList(list:List<T>): ArrayList<T> {
     return ArrayList(list)
