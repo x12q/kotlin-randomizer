@@ -307,7 +307,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         if (clzz.owner.isAbstract()) {
-            if (!clzz.owner.isList() && !clzz.owner.isMap() && !clzz.owner.isSet()) {
+            if (!clzz.owner.isListAssignable() && !clzz.owner.isMap() && !clzz.owner.isSet()) {
                 throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
             }
         }
@@ -818,7 +818,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        if (!listIrClass.isList()) {
+        if (!listIrClass.isListAssignable()) {
             return null
         }
 

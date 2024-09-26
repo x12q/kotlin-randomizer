@@ -133,6 +133,8 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                Iterable::class,
+                Collection::class,
                 ArrayList::class,
                 RandomContext::class,
                 LegalRandomConfigObject2::class,

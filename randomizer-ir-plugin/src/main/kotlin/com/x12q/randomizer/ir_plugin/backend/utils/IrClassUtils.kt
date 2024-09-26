@@ -22,6 +22,22 @@ fun IrClass.isList():Boolean{
     )
 }
 
+fun IrClass.isCollection():Boolean{
+    return this.hasSignature(
+        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Collection")
+    )
+}
+
+fun IrClass.isIterable():Boolean{
+    return this.hasSignature(
+        getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Iterable")
+    )
+}
+
+fun IrClass.isListAssignable():Boolean{
+    return isList() || isCollection() || isIterable()
+}
+
 fun IrClass.isSet():Boolean{
     return this.hasSignature(
         getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Set")
