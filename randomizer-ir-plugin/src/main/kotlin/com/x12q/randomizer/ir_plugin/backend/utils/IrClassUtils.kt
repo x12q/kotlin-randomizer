@@ -27,6 +27,18 @@ fun IrClass.isSet():Boolean{
         getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"Set")
     )
 }
+@Deprecated("kept just in case")
+fun IrClass.isClass(clazz: KClass<*>): Boolean {
+    if(this.fqNameWhenAvailable?.asString() == clazz.qualifiedName){
+        return true
+    }
+    for (superClass in this.superTypes) {
+        if (superClass.classFqName?.asString() == clazz.qualifiedName) {
+            return true
+        }
+    }
+    return false
+}
 
 fun IrClass.hasSignature(sig:IdSignature.CommonSignature): Boolean {
     return this.hasFqNameEqualToSignature2(sig)

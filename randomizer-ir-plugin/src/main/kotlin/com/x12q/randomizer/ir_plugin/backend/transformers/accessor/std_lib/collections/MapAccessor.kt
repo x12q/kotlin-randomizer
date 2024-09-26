@@ -22,21 +22,6 @@ class MapAccessor @Inject constructor(
             "kotlin.collections.Map is not in the class path."
         }
     }
-    private val buildMapFunctionName = CallableId(FqName("kotlin.collections"), Name.identifier("buildMap"))
-    fun buildMapFunction(builder: IrBuilderWithScope): IrCall {
-        val bmFunction = requireNotNull(
-            pluginContext.referenceFunctions(buildMapFunctionName).firstOrNull { function ->
-                val correctSize = function.owner.valueParameters.let {
-                    val correctArgCount = it.size == 1
-                    correctArgCount
-                }
-                correctSize
-            }
-        ) {
-            "function kotlin.collections.buildMap does not exist."
-        }
-        return builder.irCall(bmFunction)
-    }
 
     private val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeMap"))
 
