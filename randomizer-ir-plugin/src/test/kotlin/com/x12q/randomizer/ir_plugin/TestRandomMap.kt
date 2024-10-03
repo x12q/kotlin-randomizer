@@ -138,6 +138,53 @@ class TestRandomMap {
     }
 
     @Test
+    fun `Map in value param with custom randomizer}`() {
+
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<K,V>(override val data:Map<K,V>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<String,Double>(
+                            randomizers = {
+                                constant{"a"}
+                            }
+                        ))
+                    
+                        putData(QxC.random<Short,Double>(
+                            randomizers = {
+                                constant{buildMap {
+                                    put(1.toShort(),3.0)
+                                    put(1.toShort(),3.0)
+                                }}
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                val m = buildMap {
+                    repeat(mapSize){
+                        put("a",nextDouble())
+                    }
+                }
+                objectList shouldBe listOf(
+                    m,
+                    mapOf(1.toShort() to 3.0)
+                )
+            }
+        }
+    }
+
+
+    @Test
     fun `Map in value param - 2 nest`() {
 
         testGeneratedCodeUsingStandardPlugin(
@@ -432,6 +479,44 @@ class TestRandomMap {
                             )
                         }
                     },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `Map in type param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T:Any>(override val data:T):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                         putData(QxC.random<Map<Int,Double>>(
+                            randomizers = {
+                                constant(1)
+                                constant(2.0)
+                            }
+                         ))
+                         putData(QxC.random<Map<Int,Double>>(
+                            randomizers = {
+                               constant(mapOf(1 to 3.0, 3 to 4.0))
+                            }
+                         ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    mapOf(1 to 2.0),
+                    mapOf(1 to 3.0, 3 to 4.0)
                 )
             }
         }
