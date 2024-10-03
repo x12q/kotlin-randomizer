@@ -4,11 +4,13 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
+import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.utils.addToStdlib.constant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -413,9 +415,70 @@ class TestRandomArrayList {
         }
     }
 
+    @Test
+    fun `list in value param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:ArrayList<T1>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomizers = {
+                             constant(123)
+                        }))
+                        putData(QxC.random<Int>(randomizers = {
+                             constant<ArrayList<Int>>(ArrayList(listOf(1)))
+                        }))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                factory{999f}
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant<Qx2<Float>>(Qx2(222f))
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant<ArrayList<Qx2<Float>>>{ ArrayList(listOf(Qx2(1f))) }
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    makeList(size,{rdConfig.resetRandomState()}) { 123 },
+                    ArrayList(listOf(1)),
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(999f) },
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(222f) },
+                    ArrayList(listOf(Qx2(1f))),
+                )
+
+            }
+        }
+    }
+
 
     private fun <T> makeList(size: Int, sideEffect:()->Unit,makeElement:()->T):List<T>{
         sideEffect()
         return List(size){ makeElement() }
+    }
+
+
+    @Test
+    fun qwe(){
+        val r1 = ConstantClassRandomizer.of<ArrayList<Int>>(ArrayList(listOf(123)))
+        println(r1.returnType)
+        val r2 = ConstantClassRandomizer.of(ArrayList<Int>(listOf(123)))
+        println(r2.returnType)
+        // r1.returnType shouldBe r2.returnType
     }
 }

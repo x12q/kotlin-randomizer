@@ -63,10 +63,10 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private var builtRandomizerCollection: RandomizerCollection? = null
 
-    private fun buildRandomizerCollection() {
-        if (builtRandomizerCollection == null) {
-            // builtRandomizerCollection = RandomizerCollectionImp(randomizersMap.toMap())
-            builtRandomizerCollection = MutableRandomizerCollection(randomizersMap.toMap())
+    private fun addTier1Randomizers() {
+        val rdCollection = getOrInitRdCollection()
+        randomizersMap.forEach { (rdmKey, randomizer) ->
+            rdCollection.add(rdmKey, randomizer)
         }
     }
 
@@ -75,27 +75,28 @@ class RandomContextBuilderImp : RandomContextBuilder {
             "_randomConfig is not set yet. This is a bug by the developer."
         }
 
+    private fun addTier2Randomizers(rdContext: RandomContext){
+        val rdCollection = getOrInitRdCollection()
+        for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
+            val t2Randomizer = makeRandomizer(rdContext)
+            rdCollection.add(t2Randomizer.returnType, t2Randomizer)
+        }
+    }
+
+    private fun getOrInitRdCollection(): RandomizerCollection {
+        val rdCollection = (builtRandomizerCollection ?: MutableRandomizerCollection(emptyMap())).also {
+            builtRandomizerCollection = it
+        }
+        return rdCollection
+    }
 
     override fun build(): RandomContext {
         val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
-
-        if (builtRandomizerCollection == null) {
-            buildRandomizerCollection()
-        }
-
-        val rdCollection = builtRandomizerCollection!!
-
-        val randomContext1 = RandomContextImp(
-            baseRandomConfig, rdCollection
-        )
-
-        if (tier2RandomizerFactoryFunctionList.isNotEmpty()) {
-            for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
-                val t2Randomizer = makeRandomizer(randomContext1)
-                rdCollection.add(t2Randomizer.returnType, t2Randomizer)
-            }
-        }
-        return randomContext1
+        val rdCollection = getOrInitRdCollection()
+        val rt = RandomContextImp(baseRandomConfig, rdCollection)
+        addTier2Randomizers(rt)
+        addTier1Randomizers()
+        return rt
     }
 
 }

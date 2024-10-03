@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.randomizer.ir_plugin.TestRandomArrayList.Qx2
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
@@ -38,13 +39,13 @@ class TestRandomListAssignable_List {
     private val rdConfig = TestRandomConfig()
     lateinit var rdContext: RandomContext
 
-    val size get()= rdContext.randomCollectionSize()
-    val int get()= rdContext.nextInt()
-    val boolean get()= rdContext.nextInt()
-    val float get()= rdContext.nextFloat()
-    val str get()= rdContext.nextString()
-    val double get()= rdContext.nextDouble()
-    val short get()= rdContext.nextShort()
+    val size get() = rdContext.randomCollectionSize()
+    val int get() = rdContext.nextInt()
+    val boolean get() = rdContext.nextInt()
+    val float get() = rdContext.nextFloat()
+    val str get() = rdContext.nextString()
+    val double get() = rdContext.nextDouble()
+    val short get() = rdContext.nextShort()
 
 
     @BeforeTest
@@ -124,25 +125,139 @@ class TestRandomListAssignable_List {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(float) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(int, str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { double } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(float) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    int,
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    Qx4(str)
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    str,
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    Qx2(str),
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    Qx6(int),
+                                    Qx4(str),
+                                    Qx2(double)
+                                )
+                            }
+                        }
+                    },
 
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(float) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(int, str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { double } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(float) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    int,
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    Qx4(str)
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    str,
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    Qx2(str),
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    Qx6(int),
+                                    Qx4(str),
+                                    Qx2(double)
+                                )
+                            }
+                        }
+                    },
                 )
             }
         }
@@ -188,25 +303,57 @@ class TestRandomListAssignable_List {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(float) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(int, str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, str, double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { double } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(float) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(int, str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { ThreeGeneric(int, str, double) } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                int,
+                                Qx2(str),
+                                double
+                            )
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                Qx6(int),
+                                Qx4(str),
+                                Qx2(double)
+                            )
+                        }
+                    },
 
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(float) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(int, str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, str, double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { double } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(float) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(int, str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { ThreeGeneric(int, str, double) } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                int,
+                                Qx2(str),
+                                double
+                            )
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                Qx6(int),
+                                Qx4(str),
+                                Qx2(double)
+                            )
+                        }
+                    },
                 )
             }
         }
@@ -252,25 +399,139 @@ class TestRandomListAssignable_List {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(float) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(int, str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { double } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(float) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    int,
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    Qx4(str)
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    str,
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    Qx2(str),
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    Qx6(int),
+                                    Qx4(str),
+                                    Qx2(double)
+                                )
+                            }
+                        }
+                    },
 
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(float) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { Qx2(Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(int, str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), str) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, str, double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(int, Qx2(str), double) } } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { double } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(float) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { List(size) { Qx2(Qx4(str)) } } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    int,
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    str
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                TwoGeneric(
+                                    Qx2(int),
+                                    Qx4(str)
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    str,
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    int,
+                                    Qx2(str),
+                                    double
+                                )
+                            }
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            List(size) {
+                                ThreeGeneric(
+                                    Qx6(int),
+                                    Qx4(str),
+                                    Qx2(double)
+                                )
+                            }
+                        }
+                    },
                 )
             }
         }
@@ -318,25 +579,57 @@ class TestRandomListAssignable_List {
                 val objectList = result.runRunTest().getObjs()
 
                 objectList shouldBe listOf(
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(float) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(int, str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, str, double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { double } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(float) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(int, str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { ThreeGeneric(int, str, double) } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                int,
+                                Qx2(str),
+                                double
+                            )
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                Qx6(int),
+                                Qx4(str),
+                                Qx2(double)
+                            )
+                        }
+                    },
 
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(float) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { Qx2(Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(int, str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), str) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, str, double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(int, Qx2(str), double) } },
-                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { double } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(float) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { Qx2(Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(int, str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), str) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { TwoGeneric(Qx2(int), Qx4(str)) } },
+                    makeList(size, { rdConfig.resetRandomState() }) { List(size) { ThreeGeneric(int, str, double) } },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                int,
+                                Qx2(str),
+                                double
+                            )
+                        }
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        List(size) {
+                            ThreeGeneric(
+                                Qx6(int),
+                                Qx4(str),
+                                Qx2(double)
+                            )
+                        }
+                    },
                 )
             }
         }
@@ -384,18 +677,18 @@ class TestRandomListAssignable_List {
                 val objectList = result.runRunTest().getObjs()
 
                 val e1 = listOf(
-                    makeList(size,{rdConfig.resetRandomState()}) { int },
-                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(float) },
-                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(Qx4(str)) },
-                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(int, str) },
-                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), str) },
-                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), Qx4(str)) },
-                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, str, double) },
-                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, Qx2(str), double) },
-                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { int },
+                    makeList(size, { rdConfig.resetRandomState() }) { Qx2(float) },
+                    makeList(size, { rdConfig.resetRandomState() }) { Qx2(Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(int, str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { ThreeGeneric(int, str, double) },
+                    makeList(size, { rdConfig.resetRandomState() }) { ThreeGeneric(int, Qx2(str), double) },
+                    makeList(size, { rdConfig.resetRandomState() }) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
                 )
                 rdConfig.resetRandomState()
-                val e2 =  listOf(
+                val e2 = listOf(
                     List(size) { int },
                     List(size) { Qx2(float) },
                     List(size) { Qx2(Qx4(str)) },
@@ -407,15 +700,69 @@ class TestRandomListAssignable_List {
                     List(size) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) },
                 )
 
-                val expectation = e1+e2
+                val expectation = e1 + e2
                 objectList shouldBe expectation
             }
         }
     }
 
+    @Test
+    fun `list in value param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
 
-    private fun <T> makeList(size: Int, sideEffect:()->Unit,makeElement:()->T):List<T>{
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:List<T1>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomizers = {
+                             constant(123)
+                        }))
+                        putData(QxC.random<Int>(randomizers = {
+                             constant(listOf(1))
+                        }))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                factory{999f}
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant(Qx2(222f))
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant{ listOf(Qx2(1f)) }
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    makeList(size, { rdConfig.resetRandomState() }) { 123 },
+                    listOf(1),
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        Qx2(999f)
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        Qx2(222f)
+                    },
+                    listOf(Qx2(1f)),
+                )
+
+            }
+        }
+    }
+
+    private fun <T> makeList(size: Int, sideEffect: () -> Unit, makeElement: () -> T): List<T> {
         sideEffect()
-        return List(size){ makeElement() }
+        return List(size) { makeElement() }
     }
 }

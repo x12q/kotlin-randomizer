@@ -828,10 +828,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         if (elementTypes != null) {
 
-            elementTypes.typeOrNull.crashOnNull {
-                val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
-                "$paramNamePrefix Set's element type must be specified. It is null here."
-            }
+
 
             val listExpr = generateList(
                 declarationParent = declarationParent,
@@ -846,7 +843,12 @@ class RandomizableBackendTransformer @Inject constructor(
                 typeParamOfRandomFunction = typeParamOfRandomFunction
             )
             if (listExpr != null) {
+                val tt = elementTypes.typeOrNull.crashOnNull {
+                    val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
+                    "$paramNamePrefix Set's element type must be specified. It is null here."
+                }
                 return listAccessor.makeArrayListFunctionCall(builder)
+                    .withTypeArgs(tt)
                     .withValueArgs(listExpr)
             } else {
                 return null
