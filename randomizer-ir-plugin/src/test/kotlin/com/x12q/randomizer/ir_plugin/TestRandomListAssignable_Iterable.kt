@@ -1,6 +1,7 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.randomizer.ir_plugin.TestRandomListAssignable_List.Qx2
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
@@ -413,6 +414,99 @@ class TestRandomListAssignable_Iterable {
         }
     }
 
+    @Test
+    fun `list in value param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:Iterable<T1>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Int>(randomizers = {
+                             constant(123)
+                        }))
+                        putData(QxC.random<Int>(randomizers = {
+                             constant<Iterable<Int>>(listOf(1))
+                        }))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                factory{999f}
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant(Qx2(222f))
+                            }
+                        ))
+                        putData(QxC.random<Qx2<Float>>(
+                            randomizers = {
+                                constant<Iterable<Qx2<Float>>>{ listOf(Qx2(1f)) }
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    makeList(size, { rdConfig.resetRandomState() }) { 123 },
+                    listOf(1),
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        Qx2(999f)
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        Qx2(222f)
+                    },
+                    listOf(Qx2(1f)),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `list in type param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<Iterable<Iterable<Double>>>(
+                            randomizers = {
+                                constant<Iterable<Iterable<Double>>>{listOf((listOf(123.0)))}
+                            }
+                        ))
+                        putData(QxC.random<Iterable<Qx2<Float>>>(
+                            randomizers = {
+                                constant<Iterable<Qx2<Float>>>{listOf(Qx2(123f),Qx2(222f))}
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    listOf(listOf(123.0)),
+                    listOf(
+                        Qx2(123f),
+                        Qx2(222f),
+                    )
+                )
+            }
+        }
+    }
 
     private fun <T> makeList(size: Int, sideEffect:()->Unit,makeElement:()->T):List<T>{
         sideEffect()

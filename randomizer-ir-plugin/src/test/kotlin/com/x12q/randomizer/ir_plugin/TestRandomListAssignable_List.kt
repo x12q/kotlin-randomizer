@@ -760,6 +760,45 @@ class TestRandomListAssignable_List {
             }
         }
     }
+    @Test
+    fun `list in type param with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<List<List<Double>>>(
+                            randomizers = {
+                                constant{listOf((listOf(123.0)))}
+                            }
+                        ))
+                        putData(QxC.random<List<Qx2<Float>>>(
+                            randomizers = {
+                                constant{listOf(Qx2(123f),Qx2(222f))}
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    listOf(listOf(123.0)),
+                    listOf(
+                        Qx2(123f),
+                        Qx2(222f),
+                    )
+                )
+            }
+        }
+    }
 
     private fun <T> makeList(size: Int, sideEffect: () -> Unit, makeElement: () -> T): List<T> {
         sideEffect()
