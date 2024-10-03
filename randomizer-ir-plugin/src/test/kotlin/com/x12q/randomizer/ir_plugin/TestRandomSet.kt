@@ -149,6 +149,43 @@ class TestRandomSet {
         }
     }
 
+    @Test
+    fun `set in type param - 3 nested - with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<Set<Set<Set<Double>>>>(
+                            randomizers = {
+                                constant{333.222}
+                            }
+                        ))
+                        putData(QxC.random<Set<Set<Set<Double>>>>(
+                            randomizers = {
+                                constant{setOf(setOf(setOf(1.0),setOf(2.0)),setOf(setOf(3.0),setOf(4.0)))}
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { 333.222 }.toSet() }.toSet() }.toSet(),
+                    setOf(setOf(setOf(1.0),setOf(2.0)),setOf(setOf(3.0),setOf(4.0)))
+                )
+            }
+        }
+    }
+
 
     @Test
     fun `set in type param - 2 nested`() {
@@ -213,9 +250,110 @@ class TestRandomSet {
         }
     }
 
+    @Test
+    fun `set in type param - 2 nested - with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<Set<Set<Double>>>(
+                            randomizers = {
+                                constant{1.0}
+                            }
+                        ))
+                        putData(QxC.random<Set<Set<Double>>>(
+                            randomizers = {
+                                constant{setOf(setOf(1.0),setOf(2.0))}
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { 1.0 }.toSet() }.toSet(),
+                    setOf(setOf(1.0),setOf(2.0)),
+                )
+            }
+        }
+    }
 
     @Test
-    fun `set in value param with 3 nested layer`() {
+    fun `set in type param`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<Set<Double>>())
+                        putData(QxC.random<Set<Qx2<Float>>>())
+                        putData(QxC.random<Set<Qx2<Qx4<String>>>>())
+                        putData(QxC.random<Set<TwoGeneric<Int, String>>>())
+                        putData(QxC.random<Set<TwoGeneric<Qx2<Int>, String>>>())
+                        putData(QxC.random<Set<TwoGeneric<Qx2<Int>, Qx4<String>>>>())
+                        putData(QxC.random<Set<ThreeGeneric<Int, String, Double>>>())
+                        putData(QxC.random<Set<ThreeGeneric<Int, Qx2<String>, Double>>>())
+                        putData(QxC.random<Set<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>())
+                        
+                        putData(QxC.random<Set<Double>>(TestRandomConfig()))
+                        putData(QxC.random<Set<Qx2<Float>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<Qx2<Qx4<String>>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<TwoGeneric<Int, String>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<TwoGeneric<Qx2<Int>, String>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<TwoGeneric<Qx2<Int>, Qx4<String>>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<ThreeGeneric<Int, String, Double>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<ThreeGeneric<Int, Qx2<String>, Double>>>(TestRandomConfig()))
+                        putData(QxC.random<Set<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>(TestRandomConfig()))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    makeList(size,{rdConfig.resetRandomState()}) { double }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(float) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(Qx4(str)) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(int, str) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), str) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), Qx4(str)) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, str, double) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, Qx2(str), double) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) }.toSet(),
+
+                    makeList(size,{rdConfig.resetRandomState()}) { double }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(float) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { Qx2(Qx4(str)) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(int, str) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), str) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { TwoGeneric(Qx2(int), Qx4(str)) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, str, double) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(int, Qx2(str), double) }.toSet(),
+                    makeList(size,{rdConfig.resetRandomState()}) { ThreeGeneric(Qx6(int), Qx4(str), Qx2(double)) }.toSet(),
+
+                    )
+            }
+        }
+    }
+
+
+    @Test
+    fun `set in value param - 3 nested layers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -277,11 +415,48 @@ class TestRandomSet {
         }
     }
 
+    @Test
+    fun `set in value param - 3 nested layer - with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1>(override val data:Set<Set<Set<T1>>>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC.random<Double>(
+                            randomizers = {
+                                constant(123.222)
+                            }
+                        ))
+                        putData(QxC.random<Double>(
+                            randomizers = {
+                                constant(setOf(setOf(setOf(333.1111))))
+                            }
+                        ))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+
+                objectList shouldBe listOf(
+                    makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { 123.222 }.toSet() }.toSet() }.toSet(),
+                    setOf(setOf(setOf(333.1111))),
+                )
+            }
+        }
+    }
+
     /**
      * something like this: random<Int>() ~> param:List<Int>
      */
     @Test
-    fun `set in value param with 2 nested layers`() {
+    fun `set in value param - 2 nested layers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -343,7 +518,7 @@ class TestRandomSet {
     }
 
     @Test
-    fun `set in value param with 2 nested layers - with custom randomizer`() {
+    fun `set in value param - 2 nested layers - with custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -445,7 +620,7 @@ class TestRandomSet {
     }
 
     @Test
-    fun `set in value param with custom randomizer`() {
+    fun `set in value param - with custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
