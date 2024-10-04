@@ -14,6 +14,42 @@ import com.x12q.randomizer.lib.random
 
 
 /**
+ * Adapter function for making LinkedHashSet. This is not meant to be used by anything other than generated code.
+ */
+@ForGeneratedCodeOnly
+fun <T> makeLinkedHashSet(list: List<T>): LinkedHashSet<T> {
+    return LinkedHashSet(list)
+}
+
+/**
+ * Adapter function for making HashSet. This is not meant to be used by anything other than generated code.
+ */
+@ForGeneratedCodeOnly
+fun <T> makeHashSet(list: List<T>): HashSet<T> {
+    return HashSet(list)
+}
+
+/**
+ * Adapter function for making LinkedHashMap. This is not meant to be used by anything other than generated code.
+ */
+@ForGeneratedCodeOnly
+fun <K,V> makeLinkedHashMap(
+    map:Map<K,V>
+):LinkedHashMap<K,V>{
+    return LinkedHashMap(map)
+}
+
+/**
+ * Adapter function for making HashMap. This is not meant to be used by anything other than generated code.
+ */
+@ForGeneratedCodeOnly
+fun <K, V> makeHashMap(
+    map:Map<K,V>
+): HashMap<K, V> {
+    return HashMap(map)
+}
+
+/**
  * Adapter function for making List. This is not meant to be used by anything other than generated code.
  */
 @ForGeneratedCodeOnly
@@ -57,6 +93,6 @@ fun <T> listToSet(list: List<T>): Set<T> {
  * Adapter function to construct an [ArrayList] from a list. This is not meant to be used by anything other than generated code
  */
 @ForGeneratedCodeOnly
-fun <T> makeArrayList(list:List<T>): ArrayList<T> {
+fun <T> makeArrayList(list: List<T>): ArrayList<T> {
     return ArrayList(list)
 }

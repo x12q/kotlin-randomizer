@@ -5,3 +5,18 @@
   - To fix this: specify the type explicitly like this:
     - ConstantClassRandomizer.of(ArrayList<Int>(listOf(123)))
     - ConstantClassRandomizer.of<ArrayList<Int>>(ArrayList(listOf(123)))
+# Support built-in types:
+  - Int, Long, Byte, Short
+  - UInt, ULong, UShort, UByte
+  - Float, Double, Number
+  - Boolean, Char
+  - String, Unit, Any
+  - List, Map, Set
+  - ArrayList (work with native)
+  - Kotlin datetime?
+  - Jvm types:
+    - Array?
+    - HashMap?
+    - LinkedHashMap
+    - HashSet?
+    - LinkedHashSet

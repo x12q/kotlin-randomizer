@@ -75,7 +75,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
             "_randomConfig is not set yet. This is a bug by the developer."
         }
 
-    private fun addTier2Randomizers(rdContext: RandomContext){
+    private fun addTier2Randomizers(rdContext: RandomContext) {
         val rdCollection = getOrInitRdCollection()
         for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
             val t2Randomizer = makeRandomizer(rdContext)

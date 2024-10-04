@@ -12,14 +12,14 @@ interface RandomConfig {
 
     val charRange: CharRange
 
-    val stringSize:IntRange
-    val stringCandidates:List<Char>
+    val stringSize: IntRange
+    val stringCandidates: List<Char>
 
     fun randomCollectionSize(): Int {
         return collectionSizeRange.random(random)
     }
 
-    fun randomStringSize():Int{
+    fun randomStringSize(): Int {
         return stringSize.random(random)
     }
 
@@ -93,11 +93,29 @@ interface RandomConfig {
     fun nextString(): String {
         val strBuilder = StringBuilder()
         val strSize = randomStringSize()
-        repeat(strSize){
+        repeat(strSize) {
             strBuilder.append(stringCandidates.random(random))
         }
         return strBuilder.toString()
     }
+
+    // fun nextCalendar(): Calendar {
+    //     return Calendar.getInstance().apply {
+    //         val currentYear = this.get(Calendar.YEAR)
+    //         set(
+    //             (currentYear-20 .. currentYear).random(random),
+    //             (0 .. 11).random(random),
+    //             (1 .. 28).random(random),
+    //             (0 .. 24).random(random),
+    //             (0 .. 60).random(random),
+    //             (0 .. 60).random(random),
+    //         )
+    //     }
+    // }
+    //
+    // fun nextDate():Date{
+    //     return nextCalendar().time
+    // }
 
     fun nextUnit(): Unit {
         return Unit

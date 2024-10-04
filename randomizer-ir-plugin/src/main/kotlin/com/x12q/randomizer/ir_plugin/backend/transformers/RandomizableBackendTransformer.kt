@@ -827,9 +827,6 @@ class RandomizableBackendTransformer @Inject constructor(
         ).firstOrNull()
 
         if (elementTypes != null) {
-
-
-
             val listExpr = generateList(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedTypeArguments,
