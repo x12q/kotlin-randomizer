@@ -757,7 +757,36 @@ class RandomizableBackendTransformer @Inject constructor(
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
                 )
-            }, {
+            },
+            {
+                generateHashMap(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    mapIrClass = collectionIrClass,
+                    irMapType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
+                generateLinkedHashMap(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    mapIrClass = collectionIrClass,
+                    irMapType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
                 generateMap(
                     declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
@@ -1110,9 +1139,80 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-    private fun generateMapTemplate(
-        makeMapFunctionCall: IrCall,
+
+    private fun generateHashMap(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the map
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irMapType: IrType?,
+        mapIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ):IrExpression?{
+        val rt = templateToGenerateMap(
+            isMapCheck = {mapIrClass.isHashMap()},
+            makeMapFunctionCall = mapAccessor.makeHashMapFunction(builder),
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irMapType = irMapType,
+            mapIrClass = mapIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction
+        )
+        return rt
+    }
+
+    private fun generateLinkedHashMap(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the map
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irMapType: IrType?,
+        mapIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ):IrExpression?{
+        return templateToGenerateMap(
+            isMapCheck = {mapIrClass.isLinkedHashMap()},
+            makeMapFunctionCall = mapAccessor.makeLinkedHashMapFunction(builder),
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irMapType = irMapType,
+            mapIrClass = mapIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction
+        )
+    }
+
+
+    private fun templateToGenerateMap(
         isMapCheck: () -> Boolean,
+        makeMapFunctionCall: IrCall,
         declarationParent: IrDeclarationParent?,
         /**
          * Typed received externally
@@ -1139,7 +1239,7 @@ class RandomizableBackendTransformer @Inject constructor(
             param = param,
             enclosingClass = enclosingClass,
             irMapType = irMapType,
-            mapIrClass = mapIrClass,
+            mapIrClass = mapAccessor.clzz.owner,
             getRandomContextExpr = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,

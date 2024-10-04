@@ -664,7 +664,6 @@ class TestRandomLinkedHashSet {
     }
 
 
-
     private fun <T>  Iterable<T>.toLinkedHashSet(): LinkedHashSet<T> {
         return LinkedHashSet(this.toSet())
     }
