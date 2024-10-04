@@ -12,11 +12,13 @@
   - Boolean, Char
   - String, Unit, Any
   - List, Map, Set
-  - ArrayList (work with native)
+  - ArrayList
+  - HashMap
+  - LinkedHashMap
+  - HashSet
+  - LinkedHashSet
+  - 
   - Kotlin datetime?
   - Jvm types:
     - Array?
-    - HashMap?
-    - LinkedHashMap
-    - HashSet?
-    - LinkedHashSet
+    
