@@ -799,6 +799,20 @@ class RandomizableBackendTransformer @Inject constructor(
                 )
             },
             {
+                generateLinkedHashSet(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    setIrClass = collectionIrClass,
+                    irListType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
                 generateSet(
                     declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
@@ -1213,6 +1227,41 @@ class RandomizableBackendTransformer @Inject constructor(
             typeParamOfRandomFunction = typeParamOfRandomFunction
         )
     }
+
+    private fun generateLinkedHashSet(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irListType: IrType?,
+        setIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        return templateToGenerateSet(
+            setCheck = { setIrClass.isLinkedHashSet() },
+            listToSetFunctionCall = { setAccessor.makeLinkedHashSetCall(builder) },
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irListType = irListType,
+            setIrClass = setIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction
+        )
+    }
+
 
 
     private fun templateToGenerateSet(

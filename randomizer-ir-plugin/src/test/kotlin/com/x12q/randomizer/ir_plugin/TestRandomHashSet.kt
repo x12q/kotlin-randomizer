@@ -657,7 +657,7 @@ class TestRandomHashSet {
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { 3 }.toHashSet(),
-                    hashSetOf(1,2,3),
+                    linkedSetOf(1,2,3),
                     makeList(size,{rdConfig.resetRandomState()}) { Qx2(12f) }.toHashSet(),
                 )
             }
