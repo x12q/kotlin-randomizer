@@ -38,4 +38,35 @@ class MapAccessor @Inject constructor(
     fun makeMapFunction(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeMapFunctionSymbol)
     }
+
+    private val makeHashMapFunctionSymbol by lazy {
+        val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeHashMap"))
+        pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeHashMap does not exist."
+            }
+    }
+
+    /**
+     * Get a reference to kotlin.to function.
+     */
+    fun makeHashMapFunction(builder: IrBuilderWithScope): IrCall {
+        return builder.irCall(makeHashMapFunctionSymbol)
+    }
+
+    private val makeLinkedHashMapFunctionSymbol by lazy {
+        val makeMapFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeLinkedHashMap"))
+        pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeLinkedHashMap does not exist."
+            }
+    }
+
+    /**
+     * Get a reference to kotlin.to function.
+     */
+    fun makeLinkedHashMapFunction(builder: IrBuilderWithScope): IrCall {
+        return builder.irCall(makeLinkedHashMapFunctionSymbol)
+    }
+
 }

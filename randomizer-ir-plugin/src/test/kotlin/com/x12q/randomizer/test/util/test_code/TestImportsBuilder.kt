@@ -8,6 +8,7 @@ import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
 import com.x12q.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
+import com.x12q.randomizer.test.util.makeList
 import com.x12q.randomizer.test.util.withTestOutput
 import io.mockk.declaringKotlinFile
 import kotlin.reflect.KClass
@@ -39,6 +40,11 @@ data class TestImportsBuilder(
         }
     }
 
+    fun literalImport(imp:String):TestImportsBuilder{
+        return this.copy(
+            literalImports =  literalImports + imp
+        )
+    }
     /**
      * Instruct this builder to make import statement for [packageName]
      */
@@ -133,6 +139,10 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                HashSet::class,
+                LinkedHashSet::class,
+                HashMap::class,
+                LinkedHashMap::class,
                 Iterable::class,
                 Collection::class,
                 ArrayList::class,
@@ -160,6 +170,7 @@ data class TestImportsBuilder(
             functionList = listOf(
                 ::withTestOutput,
                 ::constantRandomizer,
+
             ),
             packages = listOf(
                 "kotlin.collections",
@@ -170,6 +181,8 @@ data class TestImportsBuilder(
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.randomizer.lib.RandomContextBuilderFunctions.factory",
                 "kotlin.random.Random",
+                "com.x12q.randomizer.test.util.makeList",
+                "com.x12q.randomizer.test.util.hashSetOf",
             )
         )
     }

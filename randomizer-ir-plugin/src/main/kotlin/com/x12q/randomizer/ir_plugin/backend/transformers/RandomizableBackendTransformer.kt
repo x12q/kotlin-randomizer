@@ -288,12 +288,17 @@ class RandomizableBackendTransformer @Inject constructor(
         checkNotNull(clzz) {
             "generate_factoryLambda only works with valid class"
         }
+        val cl = clzz.owner
 
-        if (clzz.owner.isAbstract()) {
-            if (!clzz.owner.isListAssignable() &&
-                !clzz.owner.isMap() &&
-                !clzz.owner.isSet() &&
-                !clzz.owner.isArrayList()
+        if (cl.isAbstract()) {
+            if (!cl.isListAssignable() &&
+                !cl.isMap() &&
+                !cl.isSet() &&
+                !cl.isArrayList() &&
+                !cl.isHashSet() &&
+                !cl.isLinkedHashSet() &&
+                !cl.isHashMap() &&
+                !cl.isLinkedHashMap()
             ) {
                 throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
             }
@@ -752,51 +757,66 @@ class RandomizableBackendTransformer @Inject constructor(
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
                 )
+            }, {
+                generateMap(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    mapIrClass = collectionIrClass,
+                    irMapType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            }, {
+                generateList(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    listIrClass = collectionIrClass,
+                    irListType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
+                generateHashSet(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    setIrClass = collectionIrClass,
+                    irListType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
+                generateSet(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    setIrClass = collectionIrClass,
+                    irListType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
             }
-            ,{
-            generateMap(
-                declarationParent = declarationParent,
-                receivedTypeArguments = receivedTypeArguments,
-                param = param,
-                enclosingClass = enclosingClass,
-                mapIrClass = collectionIrClass,
-                irMapType = irType,
-                getRandomContextExpr = getRandomContextExpr,
-                getRandomConfigExpr = getRandomConfigExpr,
-                builder = builder,
-                typeParamOfRandomFunction = typeParamOfRandomFunction,
-            )
-        }, {
-            generateList(
-                declarationParent = declarationParent,
-                receivedTypeArguments = receivedTypeArguments,
-                param = param,
-                enclosingClass = enclosingClass,
-                listIrClass = collectionIrClass,
-                irListType = irType,
-                getRandomContextExpr = getRandomContextExpr,
-                getRandomConfigExpr = getRandomConfigExpr,
-                builder = builder,
-                typeParamOfRandomFunction = typeParamOfRandomFunction,
-            )
-        }, {
-            generateSet(
-                declarationParent = declarationParent,
-                receivedTypeArguments = receivedTypeArguments,
-                param = param,
-                enclosingClass = enclosingClass,
-                setIrClass = collectionIrClass,
-                irListType = irType,
-                getRandomContextExpr = getRandomContextExpr,
-                getRandomConfigExpr = getRandomConfigExpr,
-                builder = builder,
-                typeParamOfRandomFunction = typeParamOfRandomFunction,
-            )
-        }
 
         )
         return rt
     }
+
     /**
      * Generate an expression that will invoke List{} function to create a list of random size, holding random elements.
      */
@@ -1075,6 +1095,57 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+
+    private fun generateMapTemplate(
+        makeMapFunctionCall: IrCall,
+        isMapCheck: () -> Boolean,
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the map
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irMapType: IrType?,
+        mapIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        if (!isMapCheck()) {
+            return null
+        }
+        val mapExpr = generateMap(
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irMapType = irMapType,
+            mapIrClass = mapIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction,
+        )
+        if (mapExpr != null) {
+            val elementTypes = extractTypeArgument(
+                receivedTypeArgument = receivedTypeArguments, irType = irMapType
+            ).take(2)
+            val keyTypeArg = elementTypes[0]
+            val valueTypeArg = elementTypes[1]
+            return makeMapFunctionCall
+                .withTypeArgs(keyTypeArg.typeOrFail, valueTypeArg.typeOrFail)
+                .withValueArgs(mapExpr)
+        } else {
+            return null
+        }
+    }
+
+
     private fun generateSet(
         declarationParent: IrDeclarationParent?,
         /**
@@ -1093,17 +1164,88 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        if (!setIrClass.isSet()) {
+        return templateToGenerateSet(
+            setCheck = { setIrClass.isSet() },
+            listToSetFunctionCall = { setAccessor.listToSetFunctionCall(builder) },
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irListType = irListType,
+            setIrClass = setIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction
+        )
+    }
+
+    private fun generateHashSet(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irListType: IrType?,
+        setIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        return templateToGenerateSet(
+            setCheck = { setIrClass.isHashSet() },
+            listToSetFunctionCall = { setAccessor.makeHashSetCall(builder) },
+            declarationParent = declarationParent,
+            receivedTypeArguments = receivedTypeArguments,
+            param = param,
+            enclosingClass = enclosingClass,
+            irListType = irListType,
+            setIrClass = setIrClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            typeParamOfRandomFunction = typeParamOfRandomFunction
+        )
+    }
+
+
+    private fun templateToGenerateSet(
+        setCheck: () -> Boolean,
+        listToSetFunctionCall: () -> IrCall,
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irListType: IrType?,
+        setIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        if (!setCheck()) {
             return null
         }
 
-        val elementTypes = extractTypeArgument(
+        val elementTypeArg = extractTypeArgument(
             receivedTypeArgument = receivedTypeArguments, irType = irListType
         ).firstOrNull()
 
-        if (elementTypes != null) {
+        if (elementTypeArg != null) {
 
-            elementTypes.typeOrNull.crashOnNull {
+            val elementType = elementTypeArg.typeOrNull.crashOnNull {
                 val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
                 "$paramNamePrefix Set's element type must be specified. It is null here."
             }
@@ -1121,7 +1263,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 typeParamOfRandomFunction = typeParamOfRandomFunction
             )
             if (listExpr != null) {
-                return setAccessor.listToSetFunctionCall(builder)
+                return listToSetFunctionCall()
+                    .withTypeArgs(elementType)
                     .withValueArgs(listExpr)
             } else {
                 return null
@@ -1130,6 +1273,7 @@ class RandomizableBackendTransformer @Inject constructor(
             return null
         }
     }
+
 
     private fun generateRandomObj(
         irClass: IrClass,
@@ -1209,8 +1353,14 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunctionList: List<IrTypeParameter>,
     ): IrExpression? {
-        if(irClass.isArrayList()){
-            return null        }
+        if (irClass.isArrayList() ||
+            irClass.isHashSet() ||
+            irClass.isLinkedHashSet() ||
+            irClass.isHashMap() ||
+            irClass.isLinkedHashMap()
+        ) {
+            return null
+        }
         if (irClass.isFinalOrOpenConcrete() && !irClass.isObject && !irClass.isEnumClass) {
 
             val randomPrimitiveExpr = generateRandomPrimitive(

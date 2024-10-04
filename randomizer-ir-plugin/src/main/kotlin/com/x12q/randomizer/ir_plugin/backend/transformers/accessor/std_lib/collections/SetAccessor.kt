@@ -37,4 +37,28 @@ class SetAccessor @Inject constructor(
     fun listToSetFunctionCall(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(listToSetFunctionSymbol)
     }
+
+    private val makeHashSetFunctionSymbol by lazy {
+        val listToSetFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeHashSet"))
+        pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeHashSet does not exist."
+            }
+    }
+
+    fun makeHashSetCall(builder: IrBuilderWithScope):IrCall{
+        return builder.irCall(makeHashSetFunctionSymbol)
+    }
+
+    private val makeLinkedHashSetFunctionSymbol by lazy {
+        val listToSetFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeLinkedHashSet"))
+        pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
+            .crashOnNull {
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeLinkedHashSet does not exist."
+            }
+    }
+
+    fun makeLinkedHashSetCall(builder: IrBuilderWithScope):IrCall{
+        return builder.irCall(makeLinkedHashSetFunctionSymbol)
+    }
 }

@@ -63,6 +63,51 @@ private val setSig by lazy{
 fun IrClass.isSet():Boolean{
     return this.hasSignature(setSig)
 }
+
+private val ktHashSetSig by lazy {
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"HashSet")
+}
+
+private val jvmHashSetSig by lazy{
+    getPublicSignature(FqName("java.util"),"HashSet")
+}
+
+fun IrClass.isHashSet():Boolean{
+    return this.hasSignature(ktHashSetSig) || this.hasSignature(jvmHashSetSig)
+}
+
+private val ktLinkedHashSetSig by lazy {
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"LinkedHashSet")
+}
+private val jvmLinkedHashSetSig by lazy{
+    getPublicSignature(FqName("java.util"),"LinkedHashSet")
+}
+fun IrClass.isLinkedHashSet():Boolean{
+    return this.hasSignature(ktLinkedHashSetSig) || this.hasSignature(jvmLinkedHashSetSig)
+}
+
+
+private val ktLinkedHashMapSig by lazy {
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"LinkedHashMap")
+}
+private val jvmLinkedHashMapSig by lazy{
+    getPublicSignature(FqName("java.util"),"LinkedHashMap")
+}
+fun IrClass.isLinkedHashMap():Boolean{
+    return this.hasSignature(ktLinkedHashMapSig) || this.hasSignature(jvmLinkedHashMapSig)
+}
+
+
+private val ktHashMapSig by lazy {
+    getPublicSignature(COLLECTIONS_PACKAGE_FQ_NAME,"HashMap")
+}
+private val jvmHashMapSig by lazy{
+    getPublicSignature(FqName("java.util"),"HashMap")
+}
+fun IrClass.isHashMap():Boolean{
+    return this.hasSignature(ktHashMapSig) || this.hasSignature(jvmHashMapSig)
+}
+
 @Deprecated("kept just in case")
 fun IrClass.isClass(clazz: KClass<*>): Boolean {
     if(this.fqNameWhenAvailable?.asString() == clazz.qualifiedName){
