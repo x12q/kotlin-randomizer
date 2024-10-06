@@ -85,7 +85,7 @@ class TestRandomArray {
     }
 
     @Test
-    fun `list in type param - 3 nested`() {
+    fun `array in type param - 3 nested`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -149,7 +149,7 @@ class TestRandomArray {
 
 
     @Test
-    fun `list in type param - 2 nested`() {
+    fun `array in type param - 2 nested`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -213,7 +213,7 @@ class TestRandomArray {
 
 
     @Test
-    fun `list in value param with 3 nested list`() {
+    fun `array in value param with 3 nested list`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -279,7 +279,7 @@ class TestRandomArray {
      * something like this: random<Int>() ~> param:Array<Int>
      */
     @Test
-    fun `list in value param with 2 nested list`() {
+    fun `array in value param with 2 nested list`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -345,7 +345,7 @@ class TestRandomArray {
      * something like this: random<Int>() ~> param:Array<Int>
      */
     @Test
-    fun `list in value param`() {
+    fun `array in value param`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -413,7 +413,7 @@ class TestRandomArray {
     }
 
     @Test
-    fun `list in value param with custom randomizer`() {
+    fun `array in value param with custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -464,7 +464,7 @@ class TestRandomArray {
     }
 
     @Test
-    fun `list in type param with custom randomizer`() {
+    fun `array in type param with custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
