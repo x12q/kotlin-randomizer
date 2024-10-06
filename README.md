@@ -98,3 +98,18 @@ The library support the following built-in types:
 - `LinkedHashSet`
 - `Array`
 
+# Provide a custom Random object
+A custom `Random` object can be via a `RandomConfig` object passed to `random()` function
+
+```kotlin
+import kotlin.random.Random
+
+@Randomizable
+class ExampleClass
+
+val yourRandomObj: Random = Random(123)
+        
+val instance = ExampleClass.random(
+    randomConfig = DefaultRandomConfig.default(random = yourRandomObj)
+)
+```

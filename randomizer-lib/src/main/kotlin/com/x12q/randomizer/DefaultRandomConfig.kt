@@ -3,7 +3,7 @@ package com.x12q.randomizer
 import com.x12q.randomizer.util.randomUUIDStr
 import kotlin.random.Random
 
-class DefaultRandomConfig(
+data class DefaultRandomConfig(
     override val random: Random,
     override val collectionSizeRange: IntRange,
     override val charRange: CharRange
