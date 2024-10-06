@@ -139,6 +139,7 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                Array::class,
                 HashSet::class,
                 LinkedHashSet::class,
                 HashMap::class,

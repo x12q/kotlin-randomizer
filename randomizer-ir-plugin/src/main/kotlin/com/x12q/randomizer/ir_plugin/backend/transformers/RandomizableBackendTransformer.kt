@@ -300,7 +300,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 !cl.isHashSet() &&
                 !cl.isLinkedHashSet() &&
                 !cl.isHashMap() &&
-                !cl.isLinkedHashMap()
+                !cl.isLinkedHashMap() &&
+                !arrayAccessor.isArray(cl)
             ) {
                 throw IllegalArgumentException("generate_factoryLambda only works with concrete class")
             }
@@ -747,6 +748,20 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         val rt = stopAtFirstNotNull(
             {
+                generateArray(
+                    declarationParent = declarationParent,
+                    receivedTypeArguments = receivedTypeArguments,
+                    param = param,
+                    enclosingClass = enclosingClass,
+                    arrayIrClass = collectionIrClass,
+                    irListType = irType,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    builder = builder,
+                    typeParamOfRandomFunction = typeParamOfRandomFunction,
+                )
+            },
+            {
                 generateArrayList(
                     declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
@@ -883,44 +898,62 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        if (!listIrClass.isArrayList()) {
-            return null
-        }
-
-        val elementTypes = extractTypeArgument(
-            receivedTypeArgument = receivedTypeArguments, irType = irListType
-        ).firstOrNull()
-
-        if (elementTypes != null) {
-            val listExpr = generateList(
-                declarationParent = declarationParent,
-                receivedTypeArguments = receivedTypeArguments,
-                param = param,
-                enclosingClass = enclosingClass,
-                irListType = irListType,
-                listIrClass = listAccessor.clzz.owner,
-                getRandomContextExpr = getRandomContextExpr,
-                getRandomConfigExpr = getRandomConfigExpr,
-                builder = builder,
-                typeParamOfRandomFunction = typeParamOfRandomFunction
-            )
-            if (listExpr != null) {
-                val tt = elementTypes.typeOrNull.crashOnNull {
-                    val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
-                    "$paramNamePrefix Set's element type must be specified. It is null here."
-                }
-                return listAccessor.makeArrayList(builder)
-                    .withTypeArgs(tt)
-                    .withValueArgs(listExpr)
-            } else {
-                return null
-            }
-        } else {
-            return null
-        }
+        return templateGenerateListDerivative(
+            classCheck = { listIrClass.isArrayList() },
+            factoryFunctionCall = listAccessor.makeArrayList(builder),
+            declarationParent,
+            receivedTypeArguments,
+            param,
+            enclosingClass,
+            irListType,
+            listIrClass,
+            getRandomContextExpr,
+            getRandomConfigExpr,
+            builder,
+            typeParamOfRandomFunction
+        )
     }
 
     private fun generateArray(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irListType: IrType?,
+        arrayIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        return templateGenerateListDerivative(
+            classCheck = { arrayAccessor.isArray(arrayIrClass) },
+            factoryFunctionCall = arrayAccessor.makeArray(builder),
+            declarationParent,
+            receivedTypeArguments,
+            param,
+            enclosingClass,
+            irListType,
+            arrayIrClass,
+            getRandomContextExpr,
+            getRandomConfigExpr,
+            builder,
+            typeParamOfRandomFunction
+        )
+    }
+
+    /**
+     * A template to generate collection derived from [List]
+     */
+    private fun templateGenerateListDerivative(
+        classCheck: () -> Boolean,
+        factoryFunctionCall: IrCall,
         declarationParent: IrDeclarationParent?,
         /**
          * Typed received externally
@@ -938,7 +971,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
     ): IrExpression? {
-        if (!listIrClass.isArrayList()) {
+        if (!classCheck()) {
             return null
         }
 
@@ -964,7 +997,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
                     "$paramNamePrefix Set's element type must be specified. It is null here."
                 }
-                return listAccessor.makeArrayList(builder)
+                return factoryFunctionCall
                     .withTypeArgs(tt)
                     .withValueArgs(listExpr)
             } else {
@@ -1195,7 +1228,6 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-
     private fun generateHashMap(
         declarationParent: IrDeclarationParent?,
         /**
@@ -1213,9 +1245,9 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
-    ):IrExpression?{
+    ): IrExpression? {
         val rt = templateToGenerateMap(
-            isMapCheck = {mapIrClass.isHashMap()},
+            isMapCheck = { mapIrClass.isHashMap() },
             makeMapFunctionCall = mapAccessor.makeHashMap(builder),
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
@@ -1248,9 +1280,9 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
         typeParamOfRandomFunction: List<IrTypeParameter>,
-    ):IrExpression?{
+    ): IrExpression? {
         return templateToGenerateMap(
-            isMapCheck = {mapIrClass.isLinkedHashMap()},
+            isMapCheck = { mapIrClass.isLinkedHashMap() },
             makeMapFunctionCall = mapAccessor.makeLinkedHashMap(builder),
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
@@ -1419,7 +1451,6 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
 
-
     private fun templateToGenerateSet(
         setCheck: () -> Boolean,
         listToSetFunctionCall: () -> IrCall,
@@ -1562,7 +1593,8 @@ class RandomizableBackendTransformer @Inject constructor(
             irClass.isHashSet() ||
             irClass.isLinkedHashSet() ||
             irClass.isHashMap() ||
-            irClass.isLinkedHashMap()
+            irClass.isLinkedHashMap() ||
+            arrayAccessor.isArray(irClass)
         ) {
             return null
         }

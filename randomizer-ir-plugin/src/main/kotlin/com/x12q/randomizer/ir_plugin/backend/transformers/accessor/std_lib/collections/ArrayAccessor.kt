@@ -19,8 +19,8 @@ class ArrayAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(List::class.qualifiedName!!)))) {
-            "kotlin.collections.List is not in the class path."
+        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Array::class.qualifiedName!!)))) {
+            "kotlin.collections.Array is not in the class path."
         }
     }
 
