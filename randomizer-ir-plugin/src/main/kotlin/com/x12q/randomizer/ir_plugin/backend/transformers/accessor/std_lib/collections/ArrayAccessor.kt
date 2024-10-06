@@ -1,10 +1,12 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections
 
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
+import com.x12q.randomizer.ir_plugin.backend.utils.hasSignature
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.name.CallableId
@@ -13,7 +15,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
-class ListAccessor @Inject constructor(
+class ArrayAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
     override val clzz: IrClassSymbol by lazy {
@@ -22,31 +24,22 @@ class ListAccessor @Inject constructor(
         }
     }
 
-    private val makeListFunctionSymbol by lazy {
-        val makeListFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeList"))
+    fun isArray(irClass: IrClass):Boolean{
+        return irClass.symbol == clzz
+    }
+
+    private val makeArrayFunctionSymbol by lazy {
+        val makeListFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeArray"))
         pluginContext.referenceFunctions(makeListFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeList does not exist."
+                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArray does not exist."
             }
     }
 
     /**
-     * Construct an ir call for [com.x12q.randomizer.lib.util.makeList]
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeArray]
      */
-    fun makeList(builder: IrBuilderWithScope): IrCall {
-        return builder.irCall(makeListFunctionSymbol)
-    }
-
-    private val makeArrayListFunctionSymbol by lazy {
-        val makeArrayListFunctionName =
-            CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeArrayList"))
-        pluginContext.referenceFunctions(makeArrayListFunctionName).firstOrNull()
-            .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArrayList does not exist."
-            }
-    }
-
-    fun makeArrayList(builder: IrBuilderWithScope): IrCall {
-        return builder.irCall(makeArrayListFunctionSymbol)
+    fun makeArray(builder: IrBuilderWithScope): IrCall {
+        return builder.irCall(makeArrayFunctionSymbol)
     }
 }

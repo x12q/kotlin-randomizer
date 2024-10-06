@@ -33,7 +33,7 @@ class MapAccessor @Inject constructor(
     }
 
     /**
-     * Get a reference to kotlin.to function.
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeMap]
      */
     fun makeMapFunction(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeMapFunctionSymbol)
@@ -48,9 +48,9 @@ class MapAccessor @Inject constructor(
     }
 
     /**
-     * Get a reference to kotlin.to function.
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeHashMap]
      */
-    fun makeHashMapFunction(builder: IrBuilderWithScope): IrCall {
+    fun makeHashMap(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeHashMapFunctionSymbol)
     }
 
@@ -63,9 +63,9 @@ class MapAccessor @Inject constructor(
     }
 
     /**
-     * Get a reference to kotlin.to function.
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeLinkedHashMap]
      */
-    fun makeLinkedHashMapFunction(builder: IrBuilderWithScope): IrCall {
+    fun makeLinkedHashMap(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(makeLinkedHashMapFunctionSymbol)
     }
 

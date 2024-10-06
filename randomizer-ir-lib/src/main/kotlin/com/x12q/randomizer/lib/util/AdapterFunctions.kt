@@ -12,6 +12,10 @@ import com.x12q.randomizer.lib.random
  * - If there's a need for overloading, use a unique new name instead. That way, the plugin can avoid perform filter by itself.
  */
 
+@ForGeneratedCodeOnly
+inline fun <reified T> makeArray(list:List<T>):Array<T>{
+    return list.toTypedArray()
+}
 
 /**
  * Adapter function for making LinkedHashSet. This is not meant to be used by anything other than generated code.

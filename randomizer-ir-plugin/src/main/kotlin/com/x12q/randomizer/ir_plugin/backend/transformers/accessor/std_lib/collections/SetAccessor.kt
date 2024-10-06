@@ -32,9 +32,9 @@ class SetAccessor @Inject constructor(
     }
 
     /**
-     * Get a reference to kotlin.to function.
+     * Construct an ir call for [com.x12q.randomizer.lib.util.listToSet]
      */
-    fun listToSetFunctionCall(builder: IrBuilderWithScope): IrCall {
+    fun listToSet(builder: IrBuilderWithScope): IrCall {
         return builder.irCall(listToSetFunctionSymbol)
     }
 
@@ -45,8 +45,10 @@ class SetAccessor @Inject constructor(
                 "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeHashSet does not exist."
             }
     }
-
-    fun makeHashSetCall(builder: IrBuilderWithScope):IrCall{
+    /**
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeHashSet]
+     */
+    fun makeHashSet(builder: IrBuilderWithScope):IrCall{
         return builder.irCall(makeHashSetFunctionSymbol)
     }
 
@@ -57,8 +59,10 @@ class SetAccessor @Inject constructor(
                 "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeLinkedHashSet does not exist."
             }
     }
-
-    fun makeLinkedHashSetCall(builder: IrBuilderWithScope):IrCall{
+    /**
+     * Construct an ir call for [com.x12q.randomizer.lib.util.makeLinkedHashSet]
+     */
+    fun makeLinkedHashSet(builder: IrBuilderWithScope):IrCall{
         return builder.irCall(makeLinkedHashSetFunctionSymbol)
     }
 }

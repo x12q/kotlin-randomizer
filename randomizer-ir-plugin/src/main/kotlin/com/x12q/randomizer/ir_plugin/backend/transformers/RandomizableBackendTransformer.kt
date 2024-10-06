@@ -9,6 +9,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Fu
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function1Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.RandomAccessor
+import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ArrayAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
@@ -64,6 +65,7 @@ class RandomizableBackendTransformer @Inject constructor(
     private val listAccessor: ListAccessor,
     private val mapAccessor: MapAccessor,
     private val setAccessor: SetAccessor,
+    private val arrayAccessor: ArrayAccessor,
 ) : RDBackendTransformer() {
 
     override fun visitClassNew(declaration: IrClass): IrStatement {
@@ -907,7 +909,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
                     "$paramNamePrefix Set's element type must be specified. It is null here."
                 }
-                return listAccessor.makeArrayListFunctionCall(builder)
+                return listAccessor.makeArrayList(builder)
                     .withTypeArgs(tt)
                     .withValueArgs(listExpr)
             } else {
@@ -918,6 +920,60 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    private fun generateArray(
+        declarationParent: IrDeclarationParent?,
+        /**
+         * Typed received externally
+         */
+        receivedTypeArguments: List<IrTypeArgument>?,
+        /**
+         * The param that holds the list
+         */
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        irListType: IrType?,
+        listIrClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        typeParamOfRandomFunction: List<IrTypeParameter>,
+    ): IrExpression? {
+        if (!listIrClass.isArrayList()) {
+            return null
+        }
+
+        val elementTypes = extractTypeArgument(
+            receivedTypeArgument = receivedTypeArguments, irType = irListType
+        ).firstOrNull()
+
+        if (elementTypes != null) {
+            val listExpr = generateList(
+                declarationParent = declarationParent,
+                receivedTypeArguments = receivedTypeArguments,
+                param = param,
+                enclosingClass = enclosingClass,
+                irListType = irListType,
+                listIrClass = listAccessor.clzz.owner,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                builder = builder,
+                typeParamOfRandomFunction = typeParamOfRandomFunction
+            )
+            if (listExpr != null) {
+                val tt = elementTypes.typeOrNull.crashOnNull {
+                    val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
+                    "$paramNamePrefix Set's element type must be specified. It is null here."
+                }
+                return listAccessor.makeArrayList(builder)
+                    .withTypeArgs(tt)
+                    .withValueArgs(listExpr)
+            } else {
+                return null
+            }
+        } else {
+            return null
+        }
+    }
 
     /**
      * Generate an expression that will invoke List{} function to create a list of random size, holding random elements.
@@ -1005,7 +1061,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 randomConfigAccessor.randomCollectionSize(builder)
             )
 
-            val rt = listAccessor.makeListFunctionCall(builder)
+            val rt = listAccessor.makeList(builder)
                 .withValueArgs(sizeExpr, randomElementLambdaExpr)
                 .withTypeArgs(type)
 
@@ -1160,7 +1216,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ):IrExpression?{
         val rt = templateToGenerateMap(
             isMapCheck = {mapIrClass.isHashMap()},
-            makeMapFunctionCall = mapAccessor.makeHashMapFunction(builder),
+            makeMapFunctionCall = mapAccessor.makeHashMap(builder),
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
             param = param,
@@ -1195,7 +1251,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ):IrExpression?{
         return templateToGenerateMap(
             isMapCheck = {mapIrClass.isLinkedHashMap()},
-            makeMapFunctionCall = mapAccessor.makeLinkedHashMapFunction(builder),
+            makeMapFunctionCall = mapAccessor.makeLinkedHashMap(builder),
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
             param = param,
@@ -1280,7 +1336,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isSet() },
-            listToSetFunctionCall = { setAccessor.listToSetFunctionCall(builder) },
+            listToSetFunctionCall = { setAccessor.listToSet(builder) },
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
             param = param,
@@ -1314,7 +1370,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isHashSet() },
-            listToSetFunctionCall = { setAccessor.makeHashSetCall(builder) },
+            listToSetFunctionCall = { setAccessor.makeHashSet(builder) },
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
             param = param,
@@ -1348,7 +1404,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isLinkedHashSet() },
-            listToSetFunctionCall = { setAccessor.makeLinkedHashSetCall(builder) },
+            listToSetFunctionCall = { setAccessor.makeLinkedHashSet(builder) },
             declarationParent = declarationParent,
             receivedTypeArguments = receivedTypeArguments,
             param = param,
@@ -2191,7 +2247,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 this.putValueArgument(0, strContent)
             }
         }
-
         return printlnCall!!
     }
 }
