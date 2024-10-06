@@ -507,14 +507,4 @@ class TestRandomArrayList {
         sideEffect()
         return List(size){ makeElement() }
     }
-
-
-    @Test
-    fun qwe(){
-        val r1 = ConstantClassRandomizer.of<ArrayList<Int>>(ArrayList(listOf(123)))
-        println(r1.returnType)
-        val r2 = ConstantClassRandomizer.of(ArrayList<Int>(listOf(123)))
-        println(r2.returnType)
-        // r1.returnType shouldBe r2.returnType
-    }
 }

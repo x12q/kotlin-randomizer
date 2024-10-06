@@ -56,10 +56,10 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput {
                     return withTestOutput{
                         putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        // putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
-                        // putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
-                        // putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
-                        // putData(QxC.random<TwoGeneric<Double,String>>())
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
+                        putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
+                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
+                        putData(QxC.random<TwoGeneric<Double,String>>())
                         
                     }
                 }
@@ -70,10 +70,10 @@ class TestRandomGenericProperty {
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
                     TwoGeneric(Qx2(int), Qx4(LegalRandomConfigObject.nextString())),
-                    // ThreeGeneric(Qx2(int), Qx4(str), float),
-                    // ThreeGeneric(double, str, Qx4(LegalRandomConfigObject.nextShort())),
-                    // ThreeGeneric(Qx2(int), Qx4(str), Qx4(Qx2(Qx4(int)))),
-                    // TwoGeneric(double, str),
+                    ThreeGeneric(Qx2(int), Qx4(str), float),
+                    ThreeGeneric(double, str, Qx4(LegalRandomConfigObject.nextShort())),
+                    ThreeGeneric(Qx2(int), Qx4(str), Qx4(Qx2(Qx4(int)))),
+                    TwoGeneric(double, str),
                 )
             }
         }
