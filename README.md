@@ -2,6 +2,9 @@
 
 Generate random instance of (kinda) any class, interface, object, and enum, for testing and prototyping.
 
+:warning: **If you are using mobile browser**: Be very careful here!
+
+## :construction: :construction: :construction: Work in progress :construction: :construction: :construction: 
 
 ⚠️ Note:
 - It is noted that, this library is best used to randomize classes that only contain data.

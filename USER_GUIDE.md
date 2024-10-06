@@ -17,7 +17,4 @@
   - LinkedHashMap
   - HashSet
   - LinkedHashSet
-  - 
-  - Kotlin datetime?
-  - Jvm types:
-    - Array?
+  - Array
