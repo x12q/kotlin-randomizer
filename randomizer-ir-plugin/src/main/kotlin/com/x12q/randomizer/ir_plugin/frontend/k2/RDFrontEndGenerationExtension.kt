@@ -307,6 +307,8 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
         }
         val paramName = BaseObjects.randomContextBuilderConfigFunctionParamName
 
+
+
         /**
          * Construct the parameter to store the randomizer builder config lambda function.
          */
@@ -315,7 +317,12 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
             moduleData = session.moduleData
             origin = BaseObjects.Fir.firDeclarationOrigin
             symbol = FirValueParameterSymbol(paramName)
-            returnTypeRef = rdmBuilderConfigFunctionType.toFirResolvedTypeRef()
+            // returnTypeRef = rdmBuilderConfigFunctionType.toFirResolvedTypeRef()
+            returnTypeRef = buildResolvedTypeRef {
+                source = null
+                delegatedTypeRef=null
+                type = rdmBuilderConfigFunctionType
+            }
             containingFunctionSymbol = randomFunction.symbol
             isCrossinline = false
             isNoinline = true

@@ -4,6 +4,8 @@ plugins {
     kotlin("jvm") version "2.0.0"
     id("com.x12q.randomizer") version "1.0.0-alpha.7"
     kotlin("plugin.serialization") version "2.0.0"
+    // id("com.javiersc.kotlin.kopy") version "0.11.0+2.0.20"
+    // id("org.jetbrains.kotlin.plugin.atomicfu") version "2.0.0"
 }
 
 
