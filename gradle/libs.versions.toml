@@ -1,5 +1,12 @@
 [versions]
-kotlin="1.9.20"
+groupId="com.x12q"
+version="1.0.0-alpha.7"
+irPluginId="com.x12q.randomizer.ir.plugin"
+irPluginArtifactId = "randomizer-ir-plugin"
+gradlePluginId = "com.x12q.randomizer"
+
+#kotlin="1.9.24"
+kotlin="2.0.0"
 jvmVersion = "8"
 dagger2Version = "2.46.1"
 
@@ -13,7 +20,14 @@ dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = 
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
 
+#kotlin-compile-test = {module = "com.github.tschuchortdev:kotlin-compile-testing-ksp", version = "1.6.0"}
+kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version = "0.5.1"}
+
+kotlin-compiler-embeddable = {module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin"}
+
 
 [plugins]
 anvil = { id = "com.squareup.anvil", version="2.4.9" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version="0.28.0" }
+buildConfig = {id = "com.github.gmazzo.buildconfig", version="5.3.5"}
+gradle-publish = {id="com.gradle.plugin-publish", version="1.0.0"}
