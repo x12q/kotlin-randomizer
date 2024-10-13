@@ -325,7 +325,7 @@ class RandomizableBackendTransformer @Inject constructor(
              */
             val newBody = innerBuilder.irBlockBody {
                 +irReturn(irBlock {
-                    val generateExpr = generateRandomClass(
+                    val generateExpr = generateRandomInstanceOfClass(
                         declarationParent = function,
                         receivedTypeArguments = randomTargetType.arguments,
                         irType = randomTargetType,
@@ -418,7 +418,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val getRandomContext = builder.irGet(randomContextVar)
 
-        val constructorCall = generateRandomClass(
+        val constructorCall = generateRandomInstanceOfClass(
             declarationParent = randomFunction,
             receivedTypeArguments = emptyList(),
             irType = null,
@@ -666,7 +666,7 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Generate an [IrExpression] that can return a random instance of [irClass]
      */
-    private fun generateRandomClass(
+    private fun generateRandomInstanceOfClass(
         /**
          * Declaration parent for generated lambda downstream
          */
@@ -1612,29 +1612,35 @@ class RandomizableBackendTransformer @Inject constructor(
             }
 
             val constructor = getConstructor(irClass)
+            if(constructor!=null){
+                val typeArgumentList: List<IrTypeArgument> = extractTypeArgument(
+                    receivedTypeArgument = receivedTypeArgument, irType = irType
+                )
 
-            val typeArgumentList: List<IrTypeArgument> = extractTypeArgument(
-                receivedTypeArgument = receivedTypeArgument, irType = irType
-            )
+                val paramExpressions = constructor.valueParameters.withIndex().map { (_, _param) ->
+                    val typeIndex = (_param.type.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index
+                    val receivedTypeArg = typeIndex?.let { typeArgumentList.getOrNull(it) }
+                    generateRandomParam(
+                        declarationParent = declarationParent,
+                        receivedTypeArgument = receivedTypeArg,
+                        paramFromConstructor = _param,
+                        enclosingClass = irClass,
+                        builder = builder,
+                        getRandomContextExpr = getRandomContextExpr,
+                        getRandomConfigExpr = getRandomConfigExpr,
+                        typeParamListOfRandomFunction = typeParamOfRandomFunctionList,
+                    )
+                }
 
-            val paramExpressions = constructor.valueParameters.withIndex().map { (_, _param) ->
-                val typeIndex = (_param.type.classifierOrNull as? IrTypeParameterSymbol)?.owner?.index
-                generateRandomParam(
-                    declarationParent = declarationParent,
-                    receivedTypeArgument = typeIndex?.let { typeArgumentList.getOrNull(it) },
-                    paramFromConstructor = _param,
-                    enclosingClass = irClass,
-                    builder = builder,
-                    getRandomContextExpr = getRandomContextExpr,
-                    getRandomConfigExpr = getRandomConfigExpr,
-                    typeParamListOfRandomFunction = typeParamOfRandomFunctionList,
+                val constructorCall = builder.irCallConstructor(
+                    callee = constructor.symbol, typeArguments = emptyList()
+                ).withValueArgs(paramExpressions)
+                return constructorCall
+            }else{
+                return throwUnableToRandomizeException(
+                    builder,"${irClass.name} does not have a usable constructor"
                 )
             }
-
-            val constructorCall = builder.irCallConstructor(
-                callee = constructor.symbol, typeArguments = emptyList()
-            ).withValueArgs(paramExpressions)
-            return constructorCall
         } else {
             return null
         }
@@ -1955,7 +1961,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         if (clazz != null) {
 
-            val randomInstanceExpr = generateRandomClass(
+            val randomInstanceExpr = generateRandomInstanceOfClass(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedType?.arguments,
                 param = param,
@@ -2113,12 +2119,12 @@ class RandomizableBackendTransformer @Inject constructor(
      *  - prioritize annotated constructors
      *  - pick randomly
      */
-    private fun getConstructor(targetClass: IrClass): IrConstructor {
+    private fun getConstructor(targetClass: IrClass): IrConstructor? {
         val primary = targetClass.primaryConstructor
         if (primary != null) {
             return primary
         } else {
-            throw IllegalArgumentException("${targetClass.name} does not have a constructor")
+            return null
         }
     }
 

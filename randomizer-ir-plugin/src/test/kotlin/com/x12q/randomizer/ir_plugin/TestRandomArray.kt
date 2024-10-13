@@ -9,6 +9,7 @@ import com.x12q.randomizer.test.util.assertions.runRunTest
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import java.util.Date
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -24,6 +25,7 @@ class TestRandomArray {
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
     data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
     data class QxArray<TL>(val listT: Array<TL>)
+    data class HI(val i:Int)
 
     private val imports = TestImportsBuilder.stdImport
         .import(Qx::class)
@@ -34,6 +36,7 @@ class TestRandomArray {
         .import(TwoGeneric::class)
         .import(ThreeGeneric::class)
         .import(QxArray::class)
+        .import(HI::class)
 
     private val rdConfig = TestRandomConfig()
     lateinit var rdContext: RandomContext

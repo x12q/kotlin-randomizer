@@ -6,7 +6,7 @@ import com.x12q.randomizer.lib.annotations.Randomizable
 import java.util.Date
 
 @Randomizable
-data class Qx<T,E>(val qxParam:T, val map:Map<Double,String>, val l:List<E>)
+data class Qx<T,E>(val qxParam:T, val map:Map<Double,String>, val l:List<E>, val q: Date)
 
 fun main(){
     println(Qx.random<Int,Long>(randomizers={

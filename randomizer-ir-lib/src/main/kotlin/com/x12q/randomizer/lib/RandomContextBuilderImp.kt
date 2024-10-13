@@ -2,6 +2,7 @@ package com.x12q.randomizer.lib
 
 import com.x12q.randomizer.lib.randomizer.ClassRandomizer
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
+import java.util.Date
 
 
 class RandomContextBuilderImp : RandomContextBuilder {
@@ -48,6 +49,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
             factoryRandomizer { randomConfig.nextString() },
             factoryRandomizer { randomConfig.nextUnit() },
             factoryRandomizer { randomConfig.nextAny() },
+            factoryRandomizer { Date() }
         )
         randomizersMap.putAll(stdRdm.associateBy { it.returnType })
     }

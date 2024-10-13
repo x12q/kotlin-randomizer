@@ -11,6 +11,7 @@ import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.makeList
 import com.x12q.randomizer.test.util.withTestOutput
 import io.mockk.declaringKotlinFile
+import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 
@@ -139,6 +140,7 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                Date::class,
                 Array::class,
                 HashSet::class,
                 LinkedHashSet::class,
