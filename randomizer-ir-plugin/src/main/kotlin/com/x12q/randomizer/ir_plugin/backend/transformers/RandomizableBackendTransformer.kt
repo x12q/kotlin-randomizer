@@ -166,24 +166,26 @@ class RandomizableBackendTransformer @Inject constructor(
                              * - type that is NOT primitives because primitives already have built-in randomizers.
                              */
                             if (typeArg != null && !typeArg.isProvidedPrimitive(typeArg.isNullable())) {
+
+                                val companionObjOfRandomFunction = (randomFunction.parent as? IrClass).crashOnNull {
+                                    developerErrorMsg("Random function must be declared inside a valid companion object")
+                                }
+
+                                val parentClass = (companionObjOfRandomFunction.parent as? IrClass).crashOnNull {
+                                    developerErrorMsg("Random function must be declared inside a valid companion object that is within a valid class")
+                                }
+
                                 /**
                                  * These lambdas are: RandomContext.() -> ClassRandomizer<*>
                                  */
                                 val makeRandomizerLambdas = generate_makeClassRandomizer_Lambdas(
                                     randomizersLambda = randomizersLambda,
                                     randomType = typeArg,
-                                    // typeParamOfRandomFunction = randomFunction.typeParameters,
                                     randomFunctionMetaData= RandomFunctionMetaData.make(
                                         randomFunctionTypes = randomFunction.typeParameters,
-                                        classTypes = run {
-                                            val companionObjOfRandomFunction = (randomFunction.parent as? IrClass).crashOnNull {
-                                                developerErrorMsg("Random function must be declared inside a valid companion object")
-                                            }
-                                            val classParamList = (companionObjOfRandomFunction.parent as? IrClass)?.typeParameters.crashOnNull {
-                                                developerErrorMsg("Random function must be declared inside a valid companion object that is within a valid class")
-                                            }
-                                            classParamList
-                                        },
+                                        classTypes = parentClass.typeParameters,
+                                        parentClass = parentClass,
+                                        companionObj = companionObjOfRandomFunction,
                                     ),
                                 )
 
@@ -390,7 +392,9 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val randomFunctionMetaData = RandomFunctionMetaData.make(
                 randomFunctionTypes = randomFunction.typeParameters,
-                classTypes = target.typeParameters
+                classTypes = target.typeParameters,
+                parentClass = target,
+                companionObj = companionObj
             )
 
             val getRandomConfigExpr = makeGetRandomConfigExpressionFromAnnotation(annotation, builder)
@@ -581,7 +585,9 @@ class RandomizableBackendTransformer @Inject constructor(
             val getBaseRandomConfigExpr = builder.irGet(randomConfigParam)
             val randomFunctionMetaData = RandomFunctionMetaData.make(
                 randomFunctionTypes = randomFunction.typeParameters,
-                classTypes = target.typeParameters
+                classTypes = target.typeParameters,
+                parentClass = target,
+                companionObj = companionObj,
             )
 
             val randomContextBuilderConfigFunctionParam = randomFunction.valueParameters.lastOrNull().crashOnNull {
@@ -613,10 +619,9 @@ class RandomizableBackendTransformer @Inject constructor(
 
         if (providedArgument != null) {
 
-            val providedArgumentClassSymbol = (providedArgument as? IrClassReference)?.classType?.classOrNull
-                .crashOnNull {
-                    "$providedArgument must be a KClass"
-                }
+            val providedArgumentClassSymbol = (providedArgument as? IrClassReference)?.classType
+                ?.classOrNull
+                .crashOnNull { "$providedArgument must be a KClass" }
 
             val providedClassIsDefaultRandomConfigClass =
                 providedArgumentClassSymbol.owner.classId == BaseObjects.DefaultRandomConfig_ClassId
