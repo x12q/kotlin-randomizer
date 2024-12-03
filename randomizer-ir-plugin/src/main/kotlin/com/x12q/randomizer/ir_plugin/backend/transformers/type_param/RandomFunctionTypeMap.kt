@@ -12,4 +12,10 @@ class RandomFunctionTypeMap(
 
     val randomFunctionTypeList = typeMap.values.toList()
     val classTypeList = typeMap.keys.toList()
+
+    companion object{
+        val emptyTODO by lazy {
+            RandomFunctionTypeMap(emptyList(),emptyList())
+        }
+    }
 }
