@@ -106,6 +106,9 @@ class TestTypePassing {
             .build()
     }
 
+    /**
+     * Test passing generic param from random function to generic in property
+     */
     @Test
     fun `test generic from param`() {
         testGeneratedCodeUsingStandardPlugin(
