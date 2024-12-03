@@ -11,7 +11,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ArrayAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
-import com.x12q.randomizer.ir_plugin.backend.transformers.type_param.RandomFunctionTypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.RandomFunctionMetaData
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
@@ -118,7 +118,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 val providedRandomizersArgument = expression.getValueArgument(randomizersParam.index)
 
                 /**
-                 * Extract the randomizers lambda, use the default if none is available
+                 * Extract the randomizers lambda from the random function, use the default if none is available.
                  * this lambda signature is: randomizers = RandomContextBuilder.{}
                  */
                 val randomizersLambda = if (providedRandomizersArgument != null) {
@@ -166,7 +166,6 @@ class RandomizableBackendTransformer @Inject constructor(
                              * - type that is NOT primitives because primitives already have built-in randomizers.
                              */
                             if (typeArg != null && !typeArg.isProvidedPrimitive(typeArg.isNullable())) {
-
                                 /**
                                  * These lambdas are: RandomContext.() -> ClassRandomizer<*>
                                  */
@@ -174,7 +173,18 @@ class RandomizableBackendTransformer @Inject constructor(
                                     randomizersLambda = randomizersLambda,
                                     randomType = typeArg,
                                     typeParamOfRandomFunction = randomFunction.typeParameters,
-                                    randomFunctionTypeMap= RandomFunctionTypeMap.emptyTODO,
+                                    randomFunctionMetaData= RandomFunctionMetaData.make(
+                                        randomFunctionTypes = randomFunction.typeParameters,
+                                        classTypes = run {
+                                            val companionObjOfRandomFunction = (randomFunction.parent as? IrClass).crashOnNull {
+                                                developerErrorMsg("Random function must be declared inside a valid companion object")
+                                            }
+                                            val classParamList = (companionObjOfRandomFunction.parent as? IrClass)?.typeParameters.crashOnNull {
+                                                developerErrorMsg("Random function must be declared inside a valid companion object that is within a valid class")
+                                            }
+                                            classParamList
+                                        },
+                                    ),
                                 )
 
 
@@ -227,7 +237,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrSimpleFunction {
         val irSimpleType = (randomType as? IrSimpleType).crashOnNull()
 
@@ -258,7 +268,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         randomTargetType = rdType,
                         typeParamOfRandomFunction = typeParamOfRandomFunction,
                         getRandomContextExpr = getRandomContextExpr,
-                        randomFunctionTypeMap = randomFunctionTypeMap,
+                        randomFunctionMetaData = randomFunctionMetaData,
                     )
 
                     val classRandomizerMakingCall =
@@ -294,7 +304,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
         getRandomContextExpr: IrExpression,
     ): IrSimpleFunction {
 
@@ -348,7 +358,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         getRandomConfigExpr = getRandomContextExpr,
                         builder = innerBuilder,
                         typeParamOfRandomFunction = typeParamOfRandomFunction,
-                        randomFunctionTypeMap = randomFunctionTypeMap
+                        randomFunctionMetaData = randomFunctionMetaData
                     )
                     if (generateExpr != null) {
                         +generateExpr
@@ -390,7 +400,7 @@ class RandomizableBackendTransformer @Inject constructor(
             )
             val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunction.typeParameters
 
-            val randomFunctionTypeMap = RandomFunctionTypeMap(
+            val randomFunctionMetaData = RandomFunctionMetaData.make(
                 randomFunctionTypes = typeParamOfRandomFunction,
                 classTypes = target.typeParameters
             )
@@ -407,7 +417,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 randomFunction = randomFunction,
                 getRandomConfigExpr = getRandomConfigExpr,
                 target = target,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
             println("z12: ${randomFunction.dumpKotlinLike()}")
         }
@@ -422,9 +432,9 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrBlockBody {
-        val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunctionTypeMap.randomFunctionTypeList
+        val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunctionMetaData.randomFunctionTypeList
         val randomConfigVar = makeRandomConfigVar(randomFunction, getRandomConfigExpr)
         val getRandomConfigFromVar = builder.irGet(randomConfigVar)
 
@@ -448,7 +458,7 @@ class RandomizableBackendTransformer @Inject constructor(
             typeParamOfRandomFunction = typeParamOfRandomFunction,
             param = null,
             enclosingClass = null,
-            randomFunctionTypeMap = randomFunctionTypeMap,
+            randomFunctionMetaData = randomFunctionMetaData,
         )
         if (constructorCall != null) {
             return builder.irBlockBody {
@@ -588,7 +598,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val getBaseRandomConfigExpr = builder.irGet(randomConfigParam)
             val typeParamOfRandomFunction: List<IrTypeParameter> = randomFunction.typeParameters
 
-            val randomFunctionTypeMap = RandomFunctionTypeMap(
+            val randomFunctionMetaData = RandomFunctionMetaData.make(
                 randomFunctionTypes = typeParamOfRandomFunction,
                 classTypes = target.typeParameters
             )
@@ -602,7 +612,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 randomFunction = randomFunction,
                 getRandomConfigExpr = getBaseRandomConfigExpr,
                 target = target,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
         }
     }
@@ -714,7 +724,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (irClass.isInner) {
             throw IllegalArgumentException("Inner class is not supported for now.")
@@ -734,7 +744,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunctionList = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -749,7 +759,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -785,7 +795,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         val rt = stopAtFirstNotNull(
             {
@@ -800,7 +810,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -815,7 +825,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -830,7 +840,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -845,7 +855,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -860,7 +870,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap = randomFunctionTypeMap,
+                    randomFunctionMetaData = randomFunctionMetaData,
                 )
             }, {
                 generateList(
@@ -874,7 +884,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap = randomFunctionTypeMap,
+                    randomFunctionMetaData = randomFunctionMetaData,
                 )
             },
             {
@@ -889,7 +899,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -904,7 +914,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             },
             {
@@ -919,7 +929,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     getRandomConfigExpr = getRandomConfigExpr,
                     builder = builder,
                     typeParamOfRandomFunction = typeParamOfRandomFunction,
-                    randomFunctionTypeMap=randomFunctionTypeMap,
+                    randomFunctionMetaData=randomFunctionMetaData,
                 )
             }
 
@@ -950,7 +960,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateGenerateListDerivative(
             classCheck = { listIrClass.isArrayList() },
@@ -965,7 +975,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -989,7 +999,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateGenerateListDerivative(
             classCheck = { arrayAccessor.isArray(arrayIrClass) },
@@ -1004,7 +1014,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -1033,7 +1043,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (!classCheck()) {
             return null
@@ -1055,7 +1065,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomConfigExpr = getRandomConfigExpr,
                 builder = builder,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
             if (listExpr != null) {
                 val tt = elementTypes.typeOrNull.crashOnNull {
@@ -1096,7 +1106,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (!listIrClass.isListAssignable()) {
             return null
@@ -1141,7 +1151,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         getRandomContextExpr = getRandomContextExpr,
                         getRandomConfigExpr = getRandomConfigExpr,
                         typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                        randomFunctionTypeMap = randomFunctionTypeMap,
+                        randomFunctionMetaData = randomFunctionMetaData,
                         optionalParamMetaDataForReporting = ListReportData(
                             valueType = type.dumpKotlinLike(),
                             paramName = param?.name?.asString(),
@@ -1199,7 +1209,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (!mapIrClass.isMap()) {
             return null
@@ -1242,7 +1252,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            randomFunctionTypeMap = randomFunctionTypeMap,
+                            randomFunctionMetaData = randomFunctionMetaData,
                             optionalParamMetaDataForReporting = MapKeyReportData(
                                 keyType = keyType.dumpKotlinLike(),
                                 paramName = param?.name?.asString(),
@@ -1277,7 +1287,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
                             typeParamListOfRandomFunction = typeParamOfRandomFunction,
-                            randomFunctionTypeMap = randomFunctionTypeMap,
+                            randomFunctionMetaData = randomFunctionMetaData,
                             optionalParamMetaDataForReporting = MapValueReportData(
                                 valueType = valueType.dumpKotlinLike(),
                                 paramName = param?.name?.asString(),
@@ -1324,7 +1334,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         val rt = templateToGenerateMap(
             isMapCheck = { mapIrClass.isHashMap() },
@@ -1339,7 +1349,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
         return rt
     }
@@ -1364,7 +1374,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateToGenerateMap(
             isMapCheck = { mapIrClass.isLinkedHashMap() },
@@ -1379,7 +1389,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -1406,7 +1416,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (!isMapCheck()) {
             return null
@@ -1422,7 +1432,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
         if (mapExpr != null) {
             val elementTypes = extractTypeArgument(
@@ -1459,7 +1469,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isSet() },
@@ -1474,7 +1484,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -1498,7 +1508,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isHashSet() },
@@ -1513,7 +1523,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -1537,7 +1547,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isLinkedHashSet() },
@@ -1552,7 +1562,7 @@ class RandomizableBackendTransformer @Inject constructor(
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
             typeParamOfRandomFunction = typeParamOfRandomFunction,
-            randomFunctionTypeMap=randomFunctionTypeMap,
+            randomFunctionMetaData=randomFunctionMetaData,
         )
     }
 
@@ -1579,7 +1589,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (!setCheck()) {
             return null
@@ -1607,7 +1617,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomConfigExpr = getRandomConfigExpr,
                 builder = builder,
                 typeParamOfRandomFunction = typeParamOfRandomFunction,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
             if (listExpr != null) {
                 return listToSetFunctionCall()
@@ -1702,7 +1712,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression? {
         if (irClass.isArrayList() ||
             irClass.isHashSet() ||
@@ -1744,7 +1754,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         getRandomContextExpr = getRandomContextExpr,
                         getRandomConfigExpr = getRandomConfigExpr,
                         typeParamListOfRandomFunction = typeParamOfRandomFunctionList,
-                        randomFunctionTypeMap=randomFunctionTypeMap,
+                        randomFunctionMetaData=randomFunctionMetaData,
                     )
                 }
 
@@ -1900,7 +1910,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression {
         val paramType = paramFromConstructor.type as? IrSimpleTypeImpl
         val paramTypeWithTypeReplacement = replaceTypeArgument(paramType!!, typeParamListOfRandomFunction)
@@ -1917,7 +1927,7 @@ class RandomizableBackendTransformer @Inject constructor(
             optionalParamMetaDataForReporting = ParamReportData.fromIrElements(
                 paramFromConstructor, paramTypeWithTypeReplacement, enclosingClass
             ),
-            randomFunctionTypeMap = randomFunctionTypeMap,
+            randomFunctionMetaData = randomFunctionMetaData,
         )
     }
 
@@ -2007,7 +2017,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression {
 
         val primitive = generateRandomPrimitive(
@@ -2059,7 +2069,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomConfigExpr = getRandomConfigExpr,
                 typeParamOfRandomFunctionList = typeParamListOfRandomFunction,
                 optionalParamMetaDataForReporting = optionalParamMetaDataForReporting,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
         }
     }
@@ -2084,7 +2094,7 @@ class RandomizableBackendTransformer @Inject constructor(
         /**
          * This is a mapping of type param (not type arg) in [target] to type in the random function.
          */
-        randomFunctionTypeMap: RandomFunctionTypeMap,
+        randomFunctionMetaData: RandomFunctionMetaData,
     ): IrExpression {
         val actualParamType = receivedType ?: targetType
         val clazz = actualParamType.classOrNull?.owner
@@ -2102,7 +2112,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomConfigExpr = getRandomConfigExpr,
                 builder = builder,
                 typeParamOfRandomFunction = typeParamOfRandomFunctionList,
-                randomFunctionTypeMap = randomFunctionTypeMap,
+                randomFunctionMetaData = randomFunctionMetaData,
             )
 
             if (randomInstanceExpr != null) {
