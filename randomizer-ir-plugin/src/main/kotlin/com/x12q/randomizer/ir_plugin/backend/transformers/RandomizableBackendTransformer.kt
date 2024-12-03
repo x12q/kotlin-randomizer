@@ -1828,15 +1828,13 @@ class RandomizableBackendTransformer @Inject constructor(
 
     /**
      * Replace generic type of [irType] with generic type from random() function.
-     * The typed is mapped using their index.
-     * List<List<T>> -> List<List<T_R>>
      */
     private fun replaceTypeArgument(
         irType: IrSimpleType,
         randomFunctionMetaData: RandomFunctionMetaData
     ): IrSimpleType {
         val originalTypeArgs = irType.arguments
-        val newArg = originalTypeArgs.map { arg ->
+        val newArgs: List<IrTypeArgument> = originalTypeArgs.map { arg ->
 
             val argType = arg.typeOrNull
             val argClassifier = argType?.classifierOrNull
@@ -1869,20 +1867,25 @@ class RandomizableBackendTransformer @Inject constructor(
                         arg
                     }
                 }
-
-                else -> arg
+                else -> {
+                    arg
+                }
             }
             newArg
         }
-        val rt = IrSimpleTypeImpl(
-            kotlinType = irType.originalKotlinType,
-            classifier = irType.classifier,
-            nullability = irType.nullability,
-            arguments = newArg,
-            annotations = irType.annotations,
-            abbreviation = irType.abbreviation
-        )
-        return rt
+        if(newArgs == originalTypeArgs){
+            return irType
+        }else{
+            val rt = IrSimpleTypeImpl(
+                kotlinType = irType.originalKotlinType,
+                classifier = irType.classifier,
+                nullability = irType.nullability,
+                arguments = newArgs,
+                annotations = irType.annotations,
+                abbreviation = irType.abbreviation
+            )
+            return rt
+        }
     }
 
     private fun generateRandomType(
