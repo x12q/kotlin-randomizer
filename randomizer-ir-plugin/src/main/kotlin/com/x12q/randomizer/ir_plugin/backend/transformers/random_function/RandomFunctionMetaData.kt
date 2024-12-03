@@ -4,25 +4,28 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 
 class RandomFunctionMetaData(
-    val typeMap: Map<IrTypeParameter, IrTypeParameter>,
-    val parentClass: IrClass,
+    val classTypeToRandomFunctionTypeMap: Map<IrTypeParameter, IrTypeParameter>,
+    val targetClass: IrClass,
     val companionObj: IrClass,
 ) {
-    val randomFunctionTypeList = typeMap.values.toList()
-    val classTypeList = typeMap.keys.toList()
+    val randomFunctionTypeList = classTypeToRandomFunctionTypeMap.values.toList()
+    val classTypeList = classTypeToRandomFunctionTypeMap.keys.toList()
 
     companion object {
         fun make(
             randomFunctionTypes: List<IrTypeParameter>,
             classTypes: List<IrTypeParameter>,
-            parentClass: IrClass,
+            /**
+             * target class is the type that is returned by the random function
+             */
+            targetClass: IrClass,
             companionObj: IrClass,
         ): RandomFunctionMetaData {
             return RandomFunctionMetaData(
-                typeMap = classTypes.withIndex().map { (i, typeParam) ->
+                classTypeToRandomFunctionTypeMap = classTypes.withIndex().map { (i, typeParam) ->
                     typeParam to randomFunctionTypes[i]
                 }.toMap(),
-                parentClass = parentClass,
+                targetClass = targetClass,
                 companionObj = companionObj
             )
         }
