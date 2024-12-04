@@ -4,6 +4,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.Generi
 import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
 import org.jetbrains.kotlin.ir.types.classOrNull
@@ -52,6 +53,25 @@ fun makeLocalTypeMap(
 
     } else {
         // no type param from the class of the param -> no need to construct local type map
+        return null
+    }
+}
+
+
+
+/**
+ * Check an [IrValueParameter]
+ */
+fun IrValueParameter.isGeneric(): Boolean{
+    val classifier = this.type.classifierOrNull
+    return classifier is IrTypeParameterSymbol
+}
+
+
+fun IrValueParameter.getTypeParamFromGenericParam(): IrTypeParameter?{
+    if(this.isGeneric()){
+        return this.type.classifierOrNull?.owner as? IrTypeParameter
+    }else{
         return null
     }
 }
