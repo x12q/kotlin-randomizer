@@ -38,9 +38,15 @@ class TestTypePassing {
         val q:B_V
     )
 
+    data class Bx2<B_V,B_M>(
+        val v:B_V,
+        val m:B_M
+    )
+
+
     @Randomizable
     data class Ax<A_K>(
-        val bx:Bx<Float,A_K>,
+        val bx:Bx2<Float,A_K>,
         val ak:A_K,
     )
 
@@ -48,6 +54,7 @@ class TestTypePassing {
         .import(Cx::class)
         .import(Ax::class)
         .import(Bx::class)
+        .import(Bx2::class)
         .import(Qx::class)
         .import(Qx2::class)
         .import(Qx3::class)
