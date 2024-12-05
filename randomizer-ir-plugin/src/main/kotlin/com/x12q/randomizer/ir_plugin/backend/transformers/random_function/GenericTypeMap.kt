@@ -9,7 +9,7 @@ import kotlin.collections.component2
  * A mapping of some type to original class type param
  */
 class GenericTypeMap(
-    val tm: Map<IrTypeParameter, IrTypeParameter>,
+    val tm: Map<IrTypeParameter, TypeParamOrArg>
 ) {
     /**
      * replace VALUES inside [tm] with whatever can be found in [anotherTypeMapX] using the VALUEs inside [tm] as key
@@ -19,11 +19,13 @@ class GenericTypeMap(
         val localTypeMap: GenericTypeMap = this
 
         val newMap = localTypeMap.tm.mapNotNull { (k, v) ->
-            val newV = prevTypeMap.tm[v]
+            val typeParam_of_v = v.getTypeParamOrNull()
+            val newV = prevTypeMap.tm[typeParam_of_v]
             if (newV != null) {
                 k to newV
             } else {
-                throw IllegalArgumentException(developerErrorMsg("Illegal type map"))
+                // keep intact in case cannot find a new target for k
+                k to v
             }
         }.toMap()
         val rt = GenericTypeMap(newMap)
@@ -38,13 +40,22 @@ class GenericTypeMap(
 
         fun make(
             keyList: List<IrTypeParameter>,
-            valueList: List<IrTypeParameter?>
+            valueList: List<IrTypeParameter>
         ): GenericTypeMap {
 
             val tm = keyList.zip(valueList)
-                .filter { (_, v) -> v != null }
-                .map { (k, v) -> k to v!! }
+                .map { (k, v) -> k to TypeParamOrArg.Param(v,null) }
                 .toMap()
+            return GenericTypeMap(
+                tm = tm
+            )
+        }
+
+        fun make2(
+            keyList: List<IrTypeParameter>,
+            valueList: List<TypeParamOrArg>
+        ): GenericTypeMap {
+            val tm = keyList.zip(valueList).toMap()
             return GenericTypeMap(
                 tm = tm
             )

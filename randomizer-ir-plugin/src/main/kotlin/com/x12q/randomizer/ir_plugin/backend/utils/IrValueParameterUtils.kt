@@ -44,10 +44,10 @@ fun makeLocalTypeMap(
     val typeParam_from_ParamClass = param.getTypeParamsFromClass()
     if (typeParam_from_ParamClass != null) {
         val typeParamOrArgList: List<TypeParamOrArg> = param.getGenericTypeParamFromTypeArgs()
-        val typeParam_from_TypeArg: List<IrTypeParameter?> = TypeParamOrArg.extractParam(typeParamOrArgList)
-        val localTypeMap = GenericTypeMap.make(
+
+        val localTypeMap = GenericTypeMap.make2(
             keyList = typeParam_from_ParamClass,
-            valueList = typeParam_from_TypeArg
+            valueList = typeParamOrArgList
         )
         return localTypeMap
 

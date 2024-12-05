@@ -13,6 +13,7 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.colle
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.RandomFunctionMetaData
 import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.GenericTypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull
@@ -1882,11 +1883,21 @@ class RandomizableBackendTransformer @Inject constructor(
                 is IrTypeParameterSymbol -> {
                     val typeParam = argClassifier.owner
                     val typeParamFromRandomFunction = randomFunctionMetaData.initTypeMap.tm[typeParam]
+
+
+
+
                     val argSimpleType = (arg as? IrSimpleType)
                     if (argSimpleType != null && typeParamFromRandomFunction != null) {
+                        val classifier =
+                            when(typeParamFromRandomFunction){
+                                is TypeParamOrArg.Arg -> typeParamFromRandomFunction.typeArg.typeOrNull?.classifierOrNull!!
+                                is TypeParamOrArg.Param -> typeParamFromRandomFunction.typeParam.symbol
+                            }
+
                         val alteredArg = IrSimpleTypeImpl(
                             kotlinType = arg.originalKotlinType,
-                            classifier = typeParamFromRandomFunction.symbol,
+                            classifier = classifier,
                             nullability = arg.nullability,
                             arguments = argSimpleType.arguments,
                             annotations = arg.annotations,

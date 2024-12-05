@@ -5,8 +5,17 @@ import org.jetbrains.kotlin.ir.types.IrTypeArgument
 
 sealed class TypeParamOrArg {
 
-    data class Param(val typeParam: IrTypeParameter?, val typeArg: IrTypeArgument) : TypeParamOrArg()
-    data class Arg(val typeArg: IrTypeArgument) : TypeParamOrArg()
+    data class Param(val typeParam: IrTypeParameter, val typeArg: IrTypeArgument?) : TypeParamOrArg() {
+        override fun getTypeParamOrNull(): IrTypeParameter? {
+            return typeParam
+        }
+    }
+
+    data class Arg(val typeArg: IrTypeArgument) : TypeParamOrArg() {
+        override fun getTypeParamOrNull(): IrTypeParameter? = null
+    }
+
+    abstract fun getTypeParamOrNull(): IrTypeParameter?
 
     companion object {
         fun make(typeParam: IrTypeParameter?, typeArg: IrTypeArgument): TypeParamOrArg {
@@ -17,9 +26,9 @@ sealed class TypeParamOrArg {
             }
         }
 
-        fun extractParam(l:List<TypeParamOrArg>):List<IrTypeParameter?>{
-            val rt = l.map { q: TypeParamOrArg->
-                when(q){
+        fun extractParam(l: List<TypeParamOrArg>): List<IrTypeParameter?> {
+            val rt = l.map { q: TypeParamOrArg ->
+                when (q) {
                     is Arg -> null
                     is Param -> q.typeParam
                 }

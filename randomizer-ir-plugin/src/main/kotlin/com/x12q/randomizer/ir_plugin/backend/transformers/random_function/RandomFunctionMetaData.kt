@@ -14,8 +14,9 @@ class RandomFunctionMetaData(
     val targetClass: IrClass,
     val companionObj: IrClass,
 ) {
-    val randomFunctionTypeList = initTypeMap.tm.values.toList()
-    val classTypeList = initTypeMap.tm.keys.toList()
+    // TODO this look bad but it is actually safe
+    val randomFunctionTypeList:List<IrTypeParameter> = initTypeMap.tm.values.map { it.getTypeParamOrNull()!! }
+    val classTypeList:List<IrTypeParameter> = initTypeMap.tm.keys.toList()
 
     companion object {
         fun make(
