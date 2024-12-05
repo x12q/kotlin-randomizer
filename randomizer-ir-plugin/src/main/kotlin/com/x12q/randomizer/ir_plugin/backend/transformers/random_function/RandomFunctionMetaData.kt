@@ -7,7 +7,7 @@ class RandomFunctionMetaData(
     /**
      * mapping from [targetClass] type param -> random function type params
      */
-    val initTypeMap: GenericTypeMap,
+    val initTypeMap: TypeMap,
     /**
      * target class is the type that is returned by the random function
      */
@@ -26,7 +26,7 @@ class RandomFunctionMetaData(
             companionObj: IrClass,
         ): RandomFunctionMetaData {
             return RandomFunctionMetaData(
-                initTypeMap = GenericTypeMap.make(classTypes,randomFunctionTypes),
+                initTypeMap = TypeMap.make(classTypes,randomFunctionTypes),
                 targetClass = targetClass,
                 companionObj = companionObj
             )
