@@ -1,6 +1,6 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.ClassTypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeMap
 import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -10,6 +10,10 @@ import org.jetbrains.kotlin.ir.types.IrTypeArgument
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 
+/**
+ * Attempt to get a list of type parameter from class of a particular param.
+ * When the param is not backed by a class (such as when it backed by a generic), this will return null.
+ */
 fun IrValueParameter.getTypeParamsFromClass(): List<IrTypeParameter>? {
     // val rt = (this.type as? IrSimpleType)?.arguments?.mapNotNull { ((it as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.owner}
     val rt = this.type.classOrNull?.owner?.typeParameters
@@ -35,17 +39,21 @@ fun IrValueParameter.getGenericTypeParamFromTypeArgs(): List<TypeParamOrArg> {
 }
 
 /**
- * Construct a local type map from a [param].
- * Return null in case it is not
+ * Construct a [TypeMap] from a [IrValueParameter].
  */
-fun makeLocalTypeMap(
-    param: IrValueParameter,
-): ClassTypeMap? {
+fun IrValueParameter.makeTypeMap(): TypeMap {
+
+    /**
+     * type params is gotten from the class backing the [IrValueParamter]
+     * type args are gotten from the type obj backing the [IrValueParamter]
+     */
+
+    val param = this
     val typeParam_from_ParamClass = param.getTypeParamsFromClass()
     if (typeParam_from_ParamClass != null) {
         val typeParamOrArgList: List<TypeParamOrArg> = param.getGenericTypeParamFromTypeArgs()
 
-        val localTypeMap = ClassTypeMap.make2(
+        val localTypeMap = TypeMap.make2(
             keyList = typeParam_from_ParamClass,
             valueList = typeParamOrArgList
         )
@@ -53,7 +61,7 @@ fun makeLocalTypeMap(
 
     } else {
         // no type param from the class of the param -> no need to construct local type map
-        return null
+        return TypeMap.empty
     }
 }
 

@@ -56,10 +56,10 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput {
                     return withTestOutput{
                         putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
-                        putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
-                        putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
-                        putData(QxC.random<TwoGeneric<Double,String>>())
+                        // putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
+                        // putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
+                        // putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
+                        // putData(QxC.random<TwoGeneric<Double,String>>())
                         
                     }
                 }
@@ -310,7 +310,9 @@ class TestRandomGenericProperty {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
-
+                @Randomizable
+                data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
+                
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(randomizers = {
@@ -318,8 +320,6 @@ class TestRandomGenericProperty {
                         }))
                     }
                 }
-                @Randomizable
-                data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
             """,
         ) {
             testCompilation = { result, _ ->

@@ -1,10 +1,15 @@
 package com.x12q.randomizer.ir_plugin.backend.transformers.random_function
 
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
+import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.typeOrNull
+import org.jetbrains.kotlin.ir.util.dumpKotlinLike
 
 sealed class TypeParamOrArg {
 
@@ -14,13 +19,20 @@ sealed class TypeParamOrArg {
         override fun getIrTypeOrNull(): IrType {
             return typeParam.defaultType
         }
+
+        override fun toString(): String {
+            return typeParam.dumpKotlinLike()
+        }
     }
 
     data class Arg(val typeArg: IrTypeArgument) : TypeParamOrArg() {
-        override fun getTypeParamOrNull(): IrTypeParameter? = null
+        override fun getTypeParamOrNull(): IrTypeParameter? = (typeArg.typeOrNull?.classifierOrNull as? IrTypeParameterSymbol)?.owner
         override fun getTypeArgOrNull(): IrTypeArgument? = typeArg
         override fun getIrTypeOrNull(): IrType? {
             return typeArg.typeOrNull
+        }
+        override fun toString(): String {
+            return typeArg.dumpKotlinLike()
         }
     }
 

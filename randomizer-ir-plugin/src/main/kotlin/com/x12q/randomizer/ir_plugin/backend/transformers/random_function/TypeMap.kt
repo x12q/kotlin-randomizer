@@ -7,15 +7,32 @@ import kotlin.collections.component2
 /**
  * A mapping of type parameters of a **class** to some other type parameters or type arguments
  */
-class ClassTypeMap(
+class TypeMap private constructor(
     val tm: Map<IrTypeParameter, TypeParamOrArg>
 ) {
     /**
+     * Merge and overwrite data of this type map with data from [other] type map.
+     */
+    fun mergeAndOverwriteWith(other: TypeMap): TypeMap{
+        return TypeMap(this.tm + other.tm)
+    }
+
+    fun get(typeParam:IrTypeParameter?):TypeParamOrArg?{
+        return tm[typeParam]
+    }
+
+    override fun toString(): String {
+        return tm.map { (k,v)->
+            k.name to v.toString()
+        }.toString()
+    }
+
+    /**
      * replace VALUES inside [tm] with whatever can be found in [anotherTypeMapX] using the VALUEs inside [tm] as key
      */
-    fun bridgeTypeValue(anotherTypeMapX: ClassTypeMap): ClassTypeMap {
-        val prevTypeMap: ClassTypeMap = anotherTypeMapX
-        val localTypeMap: ClassTypeMap = this
+    fun bridgeTypeValue(anotherTypeMapX: TypeMap): TypeMap {
+        val prevTypeMap: TypeMap = anotherTypeMapX
+        val localTypeMap: TypeMap = this
 
         val newMap = localTypeMap.tm.mapNotNull { (k, v) ->
             val typeParam_of_v = v.getTypeParamOrNull()
@@ -27,25 +44,25 @@ class ClassTypeMap(
                 k to v
             }
         }.toMap()
-        val rt = ClassTypeMap(newMap)
+        val rt = TypeMap(newMap)
         return rt
     }
 
     companion object {
 
-        val emptyTODO = ClassTypeMap(emptyMap())
+        val emptyTODO = TypeMap(emptyMap())
 
-        val empty = ClassTypeMap(emptyMap())
+        val empty = TypeMap(emptyMap())
 
         fun make(
             keyList: List<IrTypeParameter>,
             valueList: List<IrTypeParameter>
-        ): ClassTypeMap {
+        ): TypeMap {
 
             val tm = keyList.zip(valueList)
                 .map { (k, v) -> k to TypeParamOrArg.Param(v,null) }
                 .toMap()
-            return ClassTypeMap(
+            return TypeMap(
                 tm = tm
             )
         }
@@ -53,9 +70,9 @@ class ClassTypeMap(
         fun make2(
             keyList: List<IrTypeParameter>,
             valueList: List<TypeParamOrArg>
-        ): ClassTypeMap {
+        ): TypeMap {
             val tm = keyList.zip(valueList).toMap()
-            return ClassTypeMap(
+            return TypeMap(
                 tm = tm
             )
         }
