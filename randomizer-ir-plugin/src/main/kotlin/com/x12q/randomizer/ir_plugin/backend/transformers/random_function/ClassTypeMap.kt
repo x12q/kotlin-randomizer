@@ -5,17 +5,17 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 
 /**
- * A mapping of some type to original class type param
+ * A mapping of type parameters of a **class** to some other type parameters or type arguments
  */
-class TypeMap(
+class ClassTypeMap(
     val tm: Map<IrTypeParameter, TypeParamOrArg>
 ) {
     /**
      * replace VALUES inside [tm] with whatever can be found in [anotherTypeMapX] using the VALUEs inside [tm] as key
      */
-    fun bridgeTypeValue(anotherTypeMapX: TypeMap): TypeMap {
-        val prevTypeMap: TypeMap = anotherTypeMapX
-        val localTypeMap: TypeMap = this
+    fun bridgeTypeValue(anotherTypeMapX: ClassTypeMap): ClassTypeMap {
+        val prevTypeMap: ClassTypeMap = anotherTypeMapX
+        val localTypeMap: ClassTypeMap = this
 
         val newMap = localTypeMap.tm.mapNotNull { (k, v) ->
             val typeParam_of_v = v.getTypeParamOrNull()
@@ -27,25 +27,25 @@ class TypeMap(
                 k to v
             }
         }.toMap()
-        val rt = TypeMap(newMap)
+        val rt = ClassTypeMap(newMap)
         return rt
     }
 
     companion object {
 
-        val emptyTODO = TypeMap(emptyMap())
+        val emptyTODO = ClassTypeMap(emptyMap())
 
-        val empty = TypeMap(emptyMap())
+        val empty = ClassTypeMap(emptyMap())
 
         fun make(
             keyList: List<IrTypeParameter>,
             valueList: List<IrTypeParameter>
-        ): TypeMap {
+        ): ClassTypeMap {
 
             val tm = keyList.zip(valueList)
                 .map { (k, v) -> k to TypeParamOrArg.Param(v,null) }
                 .toMap()
-            return TypeMap(
+            return ClassTypeMap(
                 tm = tm
             )
         }
@@ -53,9 +53,9 @@ class TypeMap(
         fun make2(
             keyList: List<IrTypeParameter>,
             valueList: List<TypeParamOrArg>
-        ): TypeMap {
+        ): ClassTypeMap {
             val tm = keyList.zip(valueList).toMap()
-            return TypeMap(
+            return ClassTypeMap(
                 tm = tm
             )
         }

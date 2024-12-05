@@ -26,32 +26,37 @@ class TestTypePassing {
     data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
     data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
     data class QxArray<TL>(val listT: Array<TL>)
-    data class HI(val i:Int)
+    data class HI(val i: Int)
 
-    data class Cx<C_T,C_M>(
-        val ct:C_T,
-        val cm:C_M
+
+    data class Bx2<B_V, B_M>(
+        val cx2: Cx2<B_V>,
+        val m: B_M
     )
 
-    data class Bx<B_V,B_M>(
-        val cx:Cx<B_M,Int>,
-        val q:B_V
+    data class Cx2<C_T>(
+        val ct: C_T,
     )
 
-    data class Bx2<B_V,B_M>(
-        val v:B_V,
-        val m:B_M
+    data class Cx<C_T, C_M>(
+        val ct: C_T,
+        val cm: C_M
     )
 
+    data class Bx<B_V, B_M>(
+        val cx: Cx<B_M, Int>,
+        val q: B_V
+    )
 
     @Randomizable
     data class Ax<A_K>(
-        val bx:Bx2<Float,A_K>,
-        val ak:A_K,
+        val bx: Bx<Float, A_K>,
+        val ak: A_K,
     )
 
     private val imports = TestImportsBuilder.stdImport
         .import(Cx::class)
+        .import(Cx2::class)
         .import(Ax::class)
         .import(Bx::class)
         .import(Bx2::class)
@@ -68,13 +73,13 @@ class TestTypePassing {
     private val rdConfig = TestRandomConfig()
     lateinit var rdContext: RandomContext
 
-    val size get()= rdContext.randomCollectionSize()
-    val int get()= rdContext.nextInt()
-    val boolean get()= rdContext.nextInt()
-    val float get()= rdContext.nextFloat()
-    val str get()= rdContext.nextString()
-    val double get()= rdContext.nextDouble()
-    val short get()= rdContext.nextShort()
+    val size get() = rdContext.randomCollectionSize()
+    val int get() = rdContext.nextInt()
+    val boolean get() = rdContext.nextInt()
+    val float get() = rdContext.nextFloat()
+    val str get() = rdContext.nextString()
+    val double get() = rdContext.nextDouble()
+    val short get() = rdContext.nextShort()
 
     @BeforeTest
     fun bt() {
