@@ -1092,7 +1092,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         declarationParent = lambdaFunction,
                         constructorParam = null,
                         enclosingClass = null,
-                        receivedTypeX = null,
+                        receivedTypeX = type,
                         targetType = type,
                         builder = builder,
                         getRandomContextExpr = getRandomContextExpr,
@@ -1190,7 +1190,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             declarationParent = keyLambda,
                             constructorParam = null,
                             enclosingClass = enclosingClass,
-                            receivedTypeX = null,
+                            receivedTypeX = keyType,
                             targetType = keyType,
                             builder = keyLambdaBuilder,
                             getRandomContextExpr = getRandomContextExpr,
@@ -1226,7 +1226,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             declarationParent = valueLambda,
                             constructorParam = null,
                             enclosingClass = enclosingClass,
-                            receivedTypeX = null,
+                            receivedTypeX = valueType,
                             targetType = valueType,
                             builder = valueLambdaBuilder,
                             getRandomContextExpr = getRandomContextExpr,
@@ -2155,9 +2155,6 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression {
         return builder.irBlock {
             val nameHint = "randomResult_${tempVarName?:""}"
-            if(nameHint == "randomResult_ct"){
-                "zxc"
-            }
             val randomResultVar = irTemporary(randomExpr, nameHint)
             val getRandomResult = irGet(randomResultVar)
             val throwExceptionExpr = throwUnableToRandomizeException(
