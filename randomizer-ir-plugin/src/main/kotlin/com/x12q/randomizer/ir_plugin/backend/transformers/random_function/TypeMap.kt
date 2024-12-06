@@ -21,6 +21,10 @@ class TypeMap private constructor(
         return tm[typeParam]
     }
 
+    fun remove(typeParam:IrTypeParameter): TypeMap{
+        return TypeMap(tm - typeParam)
+    }
+
     override fun toString(): String {
         return tm.map { (k,v)->
             k.name to v.toString()

@@ -216,7 +216,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         }
                     }
                     randomizersLambda.body = newBody
-                    println("z14: ${newBody.dumpKotlinLike()}")
+                    // println("z14: ${newBody.dumpKotlinLike()}")
                 }
             }
         }
@@ -1643,7 +1643,8 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val typeMapFromType = irType?.makeTypeMap() ?: TypeMap.empty
             val constructor = getConstructor(irClass)
-
+            var baseTypeMap = typeMap
+            baseTypeMap = randomFunctionMetaData.initTypeMap
             if (constructor != null) {
                 val constructorParamsWithIndex: Iterable<IndexedValue<IrValueParameter>> = constructor.valueParameters.withIndex()
                 val paramExpressions: List<IrExpression> = constructorParamsWithIndex.map { (_, param) ->
@@ -1654,8 +1655,8 @@ class RandomizableBackendTransformer @Inject constructor(
                     }
 
                     val paramTypeMap:TypeMap = run {
-                        val bridgedTypeMap = localTypeMap.bridgeTypeValue(typeMap)
-                        bridgedTypeMap.mergeAndOverwriteWith(typeMap)
+                        val bridgedTypeMap = localTypeMap.bridgeTypeValue(baseTypeMap)
+                        bridgedTypeMap.mergeAndOverwriteWith(baseTypeMap)
                     }
 
                     val receivedType = if(param.isGeneric()){
@@ -1982,8 +1983,13 @@ class RandomizableBackendTransformer @Inject constructor(
                      * - a null check
                      * - else branch of an if-else below
                      */
+
+                    val nameHint = "randomFromContextVar_${param?.name?.asString() ?: ""}"
+                    if(nameHint == "randomFromContextVar_data"){
+                        "zxc"
+                    }
                     val varRandomFromRandomContext =
-                        irTemporary(randomFromRandomContextCall, "randomFromContext").apply {
+                        irTemporary(randomFromRandomContextCall, nameHint).apply {
                             this.type = actualParamType.makeNullable()
                         }
 
@@ -2064,6 +2070,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 metaData = optionalParamMetaDataForReporting
             )
         }
+        println("z16: ${rt.dumpKotlinLike()}")
         return rt
     }
 
