@@ -1,15 +1,12 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeMap
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
 import com.x12q.randomizer.ir_plugin.util.stopAtFirst
-import org.jetbrains.kotlin.backend.jvm.ir.firstSuperMethodFromKotlin
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.IdSignature
-import org.jetbrains.kotlin.ir.util.defaultType
-import org.jetbrains.kotlin.ir.util.hasTopLevelEqualFqName
 
 
 /**

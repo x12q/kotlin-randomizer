@@ -11,9 +11,9 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ArrayAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.RandomFunctionMetaData
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeMap
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.RandomFunctionMetaData
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
 import com.x12q.randomizer.ir_plugin.backend.utils.*
 import com.x12q.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.randomizer.ir_plugin.util.crashOnNull

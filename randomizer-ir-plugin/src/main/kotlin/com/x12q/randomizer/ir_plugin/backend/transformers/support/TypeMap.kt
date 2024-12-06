@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.random_function
+package com.x12q.randomizer.ir_plugin.backend.transformers.support
 
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import kotlin.collections.component1
