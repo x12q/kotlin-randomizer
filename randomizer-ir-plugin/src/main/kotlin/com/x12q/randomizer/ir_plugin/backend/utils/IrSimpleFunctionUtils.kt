@@ -9,12 +9,12 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.util.statements
 
 /**
- * Make a clone of [originalFunction] object. The original object is kept intact.
+ * Make an identical clone of [originalFunction] object. The original object is kept intact.
  */
-fun cloneFunction(
-    originalFunction: IrSimpleFunction,
+fun IrSimpleFunction.cloneFunction(
     pluginContext: IrPluginContext,
 ): IrSimpleFunction {
+    val originalFunction = this
     val rt = pluginContext.irFactory.buildFun {
         name = originalFunction.name
         origin = originalFunction.origin

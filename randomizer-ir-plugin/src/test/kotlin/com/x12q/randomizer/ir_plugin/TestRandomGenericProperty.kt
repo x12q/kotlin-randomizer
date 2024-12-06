@@ -44,8 +44,11 @@ class TestRandomGenericProperty {
     val short = LegalRandomConfigObject.nextShort()
 
 
+    /**
+     * A test in which a class is used multiple times in a generic declaration and nest itself in that.
+     */
     @Test
-    fun `multi generic with NO randomizers `() {
+    fun `repeat multi generic with NO randomizers lambda`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -55,11 +58,43 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput {
                     return withTestOutput{
+                        putData(QxC.random<Qx2<Qx2<String>>>())
+                        putData(QxC.random<Qx2<Qx2<Qx2<String>>>>())
+                        putData(QxC.random<Qx2<Qx2<Qx2<Qx4<Qx2<String>>>>>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.runRunTest().getObjs()
+                objectList shouldBe listOf(
+                    Qx2(Qx2(LegalRandomConfigObject.nextString())),
+                    Qx2(Qx2(Qx2(LegalRandomConfigObject.nextString()))),
+                    Qx2(Qx2(Qx2(Qx4(Qx2(LegalRandomConfigObject.nextString()))))),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `multi generic with NO randomizers lambda`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput{
+                        putData(QxC.random<Qx2<Qx2<String>>>())
                         putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
                         putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Float>>())
                         putData(QxC.random<ThreeGeneric<Double,String,Qx4<Short>>>())
                         putData(QxC.random<ThreeGeneric<Qx2<Int>,Qx4<String>,Qx4<Qx2<Qx4<Int>>>>>())
                         putData(QxC.random<TwoGeneric<Double,String>>())
+                        
                         
                     }
                 }
@@ -69,6 +104,7 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.runRunTest().getObjs()
                 objectList shouldBe listOf(
+                    Qx2(Qx2(LegalRandomConfigObject.nextString())),
                     TwoGeneric(Qx2(int), Qx4(LegalRandomConfigObject.nextString())),
                     ThreeGeneric(Qx2(int), Qx4(str), float),
                     ThreeGeneric(double, str, Qx4(LegalRandomConfigObject.nextShort())),
@@ -310,7 +346,9 @@ class TestRandomGenericProperty {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
-
+                @Randomizable
+                data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
+                
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(randomizers = {
@@ -318,8 +356,6 @@ class TestRandomGenericProperty {
                         }))
                     }
                 }
-                @Randomizable
-                data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
             """,
         ) {
             testCompilation = { result, _ ->
