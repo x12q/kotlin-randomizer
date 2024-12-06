@@ -119,7 +119,7 @@ class TestTypePassing {
     }
 
     /**
-     * Test passing generic param from random function to generic in property
+     * Test passing generic param from random function to generic within property
      */
     @Test
     fun `test generic from param`() {
