@@ -4,7 +4,6 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
-import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
@@ -28,6 +27,29 @@ class TestTypePassing {
     data class QxArray<TL>(val listT: Array<TL>)
     data class HI(val i: Int)
 
+    // ###
+
+    data class Ax<A_K>(
+        val bx: Bx<Float, A_K>,
+        val ak: A_K,
+    )
+
+    data class Bx<B_V, B_M>(
+        val cx: Cx<B_M, Int>,
+        val q: B_V
+    )
+
+    data class Cx<C_T, C_M>(
+        val ct: C_T,
+        val cm: C_M
+    )
+
+    // ###
+
+    data class Ax2<A2_K>(
+        val bx2: Bx2<Float, A2_K>,
+        val ak: A2_K,
+    )
 
     data class Bx2<B2_V, B2_M>(
         val cx2: Cx2<B2_V>,
@@ -38,31 +60,7 @@ class TestTypePassing {
         val ct: C2_T,
     )
 
-    @Randomizable
-    data class Ax2<A2_K>(
-        val bx2: Bx2<Float, A2_K>,
-        val ak: A2_K,
-    )
-
-    //=========
-
-    data class Cx<C_T, C_M>(
-        val ct: C_T,
-        val cm: C_M
-    )
-
-    data class Bx<B_V, B_M>(
-        val cx: Cx<B_M, Int>,
-        val q: B_V
-    )
-
-    @Randomizable
-    data class Ax<A_K>(
-        val bx: Bx<Float, A_K>,
-        val ak: A_K,
-    )
-
-
+    // ###
 
     private val imports = TestImportsBuilder.stdImport
         .import(Cx::class)
@@ -130,10 +128,11 @@ class TestTypePassing {
     }
 
     /**
-     * Test passing generic param from random function to generic within property
+     * Test passing generic param from "random" function to generic with a property.
+     * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun `test generic from param`() {
+    fun test1() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -151,13 +150,29 @@ class TestTypePassing {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
-                val z = objectList.first()
-                z.shouldBeInstanceOf<Ax<Double>>()
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax<Double>>()
+                ax.ak.shouldBeInstanceOf<Double>()
+
+                val bx = ax.bx
+                bx.shouldBeInstanceOf<Bx<Float,Double>>()
+                bx.q.shouldBeInstanceOf<Float>()
+
+                val cx = bx.cx
+                cx.shouldBeInstanceOf<Cx<Double,Int>>()
+                cx.ct.shouldBeInstanceOf<Double>()
+                cx.cm.shouldBeInstanceOf<Int>()
             }
         }
     }
+
+    /**
+     * Similar to [test1], but with slightly different class structure.
+     * Test passing generic param from "random" function to generic with a property.
+     * The generic type is further passed down to deeper layer within the class of that property.
+     */
     @Test
-    fun `test generic from param 2`() {
+    fun test2() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
