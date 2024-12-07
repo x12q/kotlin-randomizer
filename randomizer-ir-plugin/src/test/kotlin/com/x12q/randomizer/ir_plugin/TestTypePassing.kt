@@ -168,7 +168,7 @@ class TestTypePassing {
     }
 
     /**
-     * Similar to [test passing generic to property], but with slightly different class structure.
+     * Similar to [`test passing generic to property`], but with slightly different class structure.
      * Test passing generic param from "random" function to generic with a property.
      * The generic type is further passed down to deeper layer within the class of that property.
      */
