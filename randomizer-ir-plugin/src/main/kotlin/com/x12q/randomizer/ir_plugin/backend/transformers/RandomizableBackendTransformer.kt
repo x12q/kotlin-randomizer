@@ -879,7 +879,8 @@ class RandomizableBackendTransformer @Inject constructor(
                     builder = builder,
                     randomFunctionMetaData = randomFunctionMetaData,
                 )
-            }, {
+            },
+            {
                 generateList(
                     declarationParent = declarationParent,
                     receivedTypeArguments = receivedTypeArguments,
