@@ -1861,7 +1861,16 @@ class RandomizableBackendTransformer @Inject constructor(
         )
     }
 
+    /**
+     * Generate random for either [targetType] or [receivedType]
+     */
     private fun generateRandomType(
+        targetType: IrType,
+        /**
+         * Received type argument is generic type information passed down from higher level or wherever.
+         * This can be used to look-up type (could be concrete or intermediate generic) for [targetType].
+         */
+        receivedType: IrType?,
         declarationParent: IrDeclarationParent?,
         /**
          * [constructorParam] is the constructor param holding whatever returned by this
@@ -1871,12 +1880,6 @@ class RandomizableBackendTransformer @Inject constructor(
          * this is the class enclosing the [constructorParam]
          */
         enclosingClass: IrClass?,
-        /**
-         * Received type argument is generic type information passed down from higher level or wherever.
-         * This can be used to look-up type (could be concrete or intermediate generic) for [targetType].
-         */
-        receivedType: IrType?,
-        targetType: IrType,
         builder: DeclarationIrBuilder,
         /**
          * An expression that return a [RandomContext]
@@ -1963,7 +1966,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression {
         var actualParamType = receivedType ?: targetType
         // TODO this is not good !!!!
-        actualParamType = (actualParamType as? IrSimpleType)?.let { replaceTypeArgument2(it,typeMap) }!!
+        actualParamType = (actualParamType as? IrSimpleType)?.let { replaceTypeArgument(it,typeMap) }!!
         val clazz = actualParamType.classOrNull?.owner
         if (clazz != null) {
 
@@ -2041,7 +2044,11 @@ class RandomizableBackendTransformer @Inject constructor(
             throw IllegalArgumentException("$targetType cannot provide a class.")
         }
     }
-    private fun replaceTypeArgument2(
+
+    /**
+     * TODO This function is highly problematic by its nature. Try to find a better way to swap type without resolving to recursive call.
+     */
+    private fun replaceTypeArgument(
         irType: IrSimpleType,
         typeMap: TypeMap
     ): IrSimpleType {
@@ -2054,7 +2061,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 is IrClassSymbol -> {
                     val spType = argType as? IrSimpleType
                     if (spType != null) {
-                        replaceTypeArgument2(argType, typeMap)
+                        replaceTypeArgument(argType, typeMap)
                     } else {
                         arg
                     }
