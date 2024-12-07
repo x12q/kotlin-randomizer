@@ -725,6 +725,8 @@ class RandomizableBackendTransformer @Inject constructor(
      * Generate an [IrExpression] that can return a random instance of [irClass]
      */
     private fun generateRandomInstanceOfClass(
+        irClass: IrClass,
+        irType: IrType?,
         /**
          * Declaration parent for generated lambda downstream
          */
@@ -735,8 +737,6 @@ class RandomizableBackendTransformer @Inject constructor(
          */
         param: IrValueParameter?,
         enclosingClass: IrClass?,
-        irType: IrType?,
-        irClass: IrClass,
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
@@ -747,7 +747,8 @@ class RandomizableBackendTransformer @Inject constructor(
             throw IllegalArgumentException("Inner class is not supported for now.")
         }
 
-        val rt = stopAtFirstNotNull({ generateRandomObj(irClass, builder) },
+        val rt = stopAtFirstNotNull(
+            { generateRandomObj(irClass, builder) },
             { generateRandomEnum(irClass, getRandomContextExpr, builder) },
             {
                 generateRandomConcreteClass(
