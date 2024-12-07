@@ -132,7 +132,7 @@ class TestTypePassing {
      * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun test1() {
+    fun `test passing generic to property`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -148,6 +148,7 @@ class TestTypePassing {
             """,
         ) {
             testCompilation = { result, _ ->
+                1 shouldBe 2
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
                 val ax = objectList.first()
@@ -167,12 +168,12 @@ class TestTypePassing {
     }
 
     /**
-     * Similar to [test1], but with slightly different class structure.
+     * Similar to [test passing generic to property], but with slightly different class structure.
      * Test passing generic param from "random" function to generic with a property.
      * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun test2() {
+    fun `test passing generic to property 2`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
