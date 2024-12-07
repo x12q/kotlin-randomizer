@@ -10,23 +10,21 @@ import org.jetbrains.kotlin.ir.util.IdSignature
 
 
 /**
- * Make a [TypeMap] from information from an [IrType]
+ * Make a [TypeMap] from information of an [IrType]
  */
-fun IrType.makeTypeMap(): TypeMap{
+fun IrType.makeTypeMap(): TypeMap {
     val clazz = this.classOrNull?.owner
-    if(clazz!=null){
-        val typeArgs = (this as? IrSimpleType)?.arguments
-        if(typeArgs!=null){
-            val typeParams = clazz.typeParameters
-            return TypeMap.make(
-                keyList = typeParams,
-                valueList = typeArgs.map { TypeParamOrArg.Arg(it) }
-            )
-        }else{
-            return TypeMap.empty
-        }
-    }else{
+    val typeParams = clazz?.typeParameters
+    val typeArgs = (this as? IrSimpleType)?.arguments
+
+    if (typeParams==null || typeParams.isEmpty()
+        || typeArgs == null || typeArgs.isEmpty()) {
         return TypeMap.empty
+    } else {
+        return TypeMap.make(
+            typeParams = typeParams,
+            valueList = typeArgs.map { TypeParamOrArg.Arg(it) }
+        )
     }
 }
 

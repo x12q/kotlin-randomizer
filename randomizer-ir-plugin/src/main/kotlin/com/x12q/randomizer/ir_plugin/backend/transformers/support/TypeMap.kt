@@ -8,7 +8,7 @@ import kotlin.collections.component2
  * A mapping of type parameters of a **class** to some other type parameters or type arguments
  */
 class TypeMap private constructor(
-    val tm: Map<IrTypeParameter, TypeParamOrArg>
+    private val tm: Map<IrTypeParameter, TypeParamOrArg>
 ) {
     /**
      * Merge and overwrite data of this type map with data from [other] type map.
@@ -19,10 +19,6 @@ class TypeMap private constructor(
 
     fun get(typeParam:IrTypeParameter?):TypeParamOrArg?{
         return tm[typeParam]
-    }
-
-    fun remove(typeParam:IrTypeParameter): TypeMap{
-        return TypeMap(tm - typeParam)
     }
 
     override fun toString(): String {
@@ -72,10 +68,10 @@ class TypeMap private constructor(
         }
 
         fun make(
-            keyList: List<IrTypeParameter>,
+            typeParams: List<IrTypeParameter>,
             valueList: List<TypeParamOrArg>
         ): TypeMap {
-            val tm = keyList.zip(valueList).toMap()
+            val tm = typeParams.zip(valueList).toMap()
             return TypeMap(
                 tm = tm
             )

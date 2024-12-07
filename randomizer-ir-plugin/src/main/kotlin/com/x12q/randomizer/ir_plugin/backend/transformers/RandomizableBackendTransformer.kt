@@ -753,10 +753,8 @@ class RandomizableBackendTransformer @Inject constructor(
                 generateRandomConcreteClass(
                     irClass = irClass,
                     irType = irType,
-                    param = param,
                     builder = builder,
                     declarationParent = declarationParent,
-                    enclosingClass = enclosingClass,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
                     randomFunctionMetaData = randomFunctionMetaData,
@@ -1649,14 +1647,6 @@ class RandomizableBackendTransformer @Inject constructor(
      */
     private fun generateRandomConcreteClass(
         declarationParent: IrDeclarationParent?,
-        /**
-         * this param is the one to hold an instance of [irClass]
-         */
-        param: IrValueParameter?,
-        enclosingClass: IrClass?,
-        /**
-         * type of [param]
-         */
         irType: IrType?,
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
@@ -1690,8 +1680,8 @@ class RandomizableBackendTransformer @Inject constructor(
             return randomPrimitiveExpr
         }
 
-        val typeMapFromType: TypeMap = irType?.makeTypeMap() ?: TypeMap.empty
         val baseTypeMap: TypeMap = randomFunctionMetaData.initTypeMap
+        val typeMapFromType: TypeMap = irType?.makeTypeMap() ?: TypeMap.empty
 
         val constructor = getConstructor(irClass)
 
@@ -1857,9 +1847,8 @@ class RandomizableBackendTransformer @Inject constructor(
 
     private fun generateRandomConstructorParam(
         /**
-         * parameter directly from a constructor.
-         * In case of generic param, this object only contains the direct generic type from its constructor.
-         * If there's a [receivedType], then [receivedType] it must be prioritized over this, because this one does not contain enough information to construct the correct call.
+         * In case of generic param, this object only contains the generic type from its constructor.
+         * If there's a [receivedType], then [receivedType] it must be prioritized over this, because this one does not contain enough information to generate the correct call.
          */
         param: IrValueParameter,
         /**

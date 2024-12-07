@@ -11,6 +11,10 @@ import org.jetbrains.kotlin.ir.util.dumpKotlinLike
 
 sealed class TypeParamOrArg {
 
+    abstract fun getTypeParamOrNull(): IrTypeParameter?
+    abstract fun getTypeArgOrNull(): IrTypeArgument?
+    abstract fun getIrTypeOrNull(): IrType?
+
     data class Param(val typeParam: IrTypeParameter, val typeArg: IrTypeArgument?) : TypeParamOrArg() {
         override fun getTypeParamOrNull(): IrTypeParameter? = typeParam
         override fun getTypeArgOrNull(): IrTypeArgument? = typeArg
@@ -33,11 +37,6 @@ sealed class TypeParamOrArg {
             return typeArg.dumpKotlinLike()
         }
     }
-
-    abstract fun getTypeParamOrNull(): IrTypeParameter?
-    abstract fun getTypeArgOrNull(): IrTypeArgument?
-    abstract fun getIrTypeOrNull(): IrType?
-
 
     companion object {
         fun make(typeParam: IrTypeParameter?, typeArg: IrTypeArgument): TypeParamOrArg {
