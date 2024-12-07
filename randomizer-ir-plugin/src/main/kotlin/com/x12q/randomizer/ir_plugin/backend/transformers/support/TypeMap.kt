@@ -32,10 +32,10 @@ class TypeMap private constructor(
     }
 
     /**
-     * replace VALUES inside [tm] with whatever can be found in [anotherTypeMapX] using the VALUEs inside [tm] as key
+     * replace VALUES inside [tm] with whatever can be found in [anotherTypeMap] using the VALUEs inside [tm] as key
      */
-    fun bridgeTypeValue(anotherTypeMapX: TypeMap): TypeMap {
-        val prevTypeMap: TypeMap = anotherTypeMapX
+    fun bridgeType(anotherTypeMap: TypeMap): TypeMap {
+        val prevTypeMap: TypeMap = anotherTypeMap
         val localTypeMap: TypeMap = this
 
         val newMap = localTypeMap.tm.mapNotNull { (k, v) ->
@@ -44,7 +44,7 @@ class TypeMap private constructor(
             if (newV != null) {
                 k to newV
             } else {
-                // keep intact in case cannot find a new target for k
+                // keep the old mapping intact in case cannot find a new target for k
                 k to v
             }
         }.toMap()
