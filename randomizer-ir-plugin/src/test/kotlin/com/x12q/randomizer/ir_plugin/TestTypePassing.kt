@@ -40,7 +40,7 @@ class TestTypePassing {
 
     @Randomizable
     data class Ax2<A2_K>(
-        val bx: Bx2<Float, A2_K>,
+        val bx2: Bx2<Float, A2_K>,
         val ak: A2_K,
     )
 
@@ -163,7 +163,7 @@ class TestTypePassing {
                 $imports
 
                 @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC2<K_Q>(override val data:Ax2<K_Q>):WithData
+                data class QxC2<K_Q2>(override val data:Ax2<K_Q2>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
@@ -175,8 +175,18 @@ class TestTypePassing {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
-                val z = objectList.first()
-                z.shouldBeInstanceOf<Ax2<Double>>()
+
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax2<Double>>()
+                ax.ak.shouldBeInstanceOf<Double>()
+
+                val bx2 = ax.bx2
+                bx2.shouldBeInstanceOf<Bx2<Float,Double>>()
+                bx2.m.shouldBeInstanceOf<Double>()
+
+                val cx2 = bx2.cx2
+                cx2.shouldBeInstanceOf<Cx2<Float>>()
+                cx2.ct.shouldBeInstanceOf<Float>()
             }
         }
     }
