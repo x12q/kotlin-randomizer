@@ -3,7 +3,7 @@ package com.x12q.randomizer.test.util.test_code
 import com.x12q.randomizer.ir_plugin.mock_objects.*
 import com.x12q.randomizer.lib.*
 import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
+import com.x12q.randomizer.lib.randomizer.ConstantRandomizer
 import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
 import com.x12q.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.randomizer.test.util.TestOutput
@@ -156,7 +156,7 @@ data class TestImportsBuilder(
                 LegalRandomConfigWithOppositeInt::class,
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
-                ConstantClassRandomizer::class,
+                ConstantRandomizer::class,
                 MutableRandomizerCollection::class,
                 RandomizerCollection::class,
                 RandomContextBuilder::class,

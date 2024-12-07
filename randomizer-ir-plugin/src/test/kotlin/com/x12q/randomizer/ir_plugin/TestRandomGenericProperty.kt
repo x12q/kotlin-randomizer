@@ -436,7 +436,7 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random<Int>(randomizers = {
-                            val rdm = ConstantClassRandomizer<Int>(-99,TypeKey.of<Int>())
+                            val rdm = ConstantRandomizer<Int>(-99,TypeKey.of<Int>())
                             add(rdm)
                         }))
                     }

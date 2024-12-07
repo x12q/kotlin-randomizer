@@ -1,10 +1,6 @@
 Current order of priority:
 generic factory function > random context > lv1 random
 
-
-
-
-
 # Maintain reflection randomizer
 - Some built in class need special treatment when call their constructors:
   - Date(). Number passed to constructor must not be null
@@ -143,7 +139,7 @@ Front end:
   - randomizer-reflection: contains reflection code
 
 
-DEBATE:
+# DEBATE:
 - so, use random function VS not for nested classes?
   - I can check if a nested class is annotated or not, then call the random function instead of constructor.
     - Additional work
@@ -154,8 +150,13 @@ DEBATE:
         - Need to construct the correct Ir param to pass to them. For generic this can be a real hassle because it involve type look up + resolution.
     - Effect: the effect will be exactly as calling constructor, because when I call constructor, I already use all the random config and whatever
   - Conclusion, no need to call random function of nested class
-
-NEXT:
+# TODO:
+- TODO: cleanup the dangerous code of the new type passing feature
+- TODO: at the moment, it is not possible to use custom randomizer with nullable type.
+  - Nullable type is being generated based on non-null type and a boolean check from RandomConfig.
+  - It should be that nullable randomizer can be declared directly within custom randomizer list.
+- Reconsider default Random config creation. Should a new seed be used each time, should all random() of all class shared 1 random config or have their own?
+# NEXT:
 
 - randomizable list, map, set: ...
   - to generate a random List, I need to: OK
@@ -163,7 +164,10 @@ NEXT:
     - Generate expression to construct randomizer for element type of such List at call side: OK
   - to generate random Map: OK
   - tidy up the generator code of list
+
+
 - need to check isClass function reasonining.
+
 - std class from std library implementations?
   - I can write code to construct them, but how many class do I actually have to write code for?
     - ArrayList, HashMap, and other
@@ -183,11 +187,11 @@ NEXT:
 - invoke random functions if param is from a class that is annotated with @Randomizable
   - must create a new random function that accept a RandomContext object, so that it is easier to pass RandomContext to random function called by another random function.
 
-BACKLOG:
+# BACKLOG:
 - randomizable enum
 - reconsider having RandomContextBuilder as an interface, a class is all it needs maybe
 - Randomize Pair
 - Inner class pose a challenge because it require an instance of outer class before it can do anything.
   - Generator code must init an outer instance, then use that to construct the inner.
   - Random function on inner class must accept an optional outer instance
-- Reconsider default Random config creation. Should a new seed be used each time, should all random() of all class shared 1 random config or have their own?
+

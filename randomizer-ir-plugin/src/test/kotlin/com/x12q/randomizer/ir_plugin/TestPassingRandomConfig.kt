@@ -20,6 +20,7 @@ class TestPassingRandomConfig{
 
     data class Q123(val i:Int)
     val imports = TestImportsBuilder.stdImport.import(Q123::class)
+
     @Test
     fun `class with no RandomConfig`() {
         testGeneratedCodeUsingStandardPlugin(
