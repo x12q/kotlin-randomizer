@@ -4,13 +4,11 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
-import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.utils.addToStdlib.constant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -123,7 +121,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
@@ -187,7 +185,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
@@ -251,7 +249,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double } } },
@@ -317,7 +315,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { double } },
@@ -383,7 +381,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 val e1 = listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { int },
@@ -453,7 +451,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { 123 },
                     ArrayList(listOf(1)),
@@ -493,7 +491,7 @@ class TestRandomArrayList {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     ArrayList(listOf(ArrayList(listOf(123.0)))),

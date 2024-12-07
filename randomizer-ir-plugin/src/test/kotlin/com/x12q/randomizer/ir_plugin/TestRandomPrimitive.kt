@@ -4,7 +4,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.NonNullRandomConfig
 import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -49,7 +49,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest { output ->
+                result.executeRunTestFunction { output ->
                     output.getObjs() shouldBe listOf(
                         PrimitivesContainer(
                             LegalRandomConfigObject.nextBoolean(),
@@ -97,7 +97,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {output->
+                result.executeRunTestFunction { output->
                     output.getObjs() shouldBe listOf(
                         UPrimitivies(
                             LegalRandomConfigObject.nextUInt(),
@@ -150,7 +150,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest { output->
+                result.executeRunTestFunction { output->
                         output.getObjs() shouldBe   listOf(
                         NullablePrimitives(null,null,null,null,null,null,null,null,null,null,null,null,),
 //                        NullablePrimitives(
@@ -256,7 +256,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {output->
+                result.executeRunTestFunction { output->
                     output.getObjs() shouldBe listOf(
                         NullableUPrim(null,null,null,null),
                         NullableUPrim(

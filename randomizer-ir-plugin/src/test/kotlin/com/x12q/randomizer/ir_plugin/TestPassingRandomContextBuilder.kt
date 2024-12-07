@@ -5,7 +5,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
 import com.x12q.randomizer.lib.RandomContextBuilder
 import com.x12q.randomizer.lib.TypeKey
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -38,7 +38,7 @@ class TestPassingRandomContextBuilder {
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Dt(AlwaysTrueRandomConfig.nextInt())
                     )
@@ -67,7 +67,7 @@ class TestPassingRandomContextBuilder {
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(Dt(-999))
                 }
             }
@@ -166,7 +166,7 @@ class TestPassingRandomContextBuilder {
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         expectation
                     )

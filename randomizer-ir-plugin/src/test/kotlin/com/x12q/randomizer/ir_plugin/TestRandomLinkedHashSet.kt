@@ -5,7 +5,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.makeList
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -123,7 +123,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double }.toLinkedHashSet() }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -177,7 +177,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { 333.222 }.toLinkedHashSet() }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -224,7 +224,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { double }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -278,7 +278,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { 1.0 }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -324,7 +324,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { double }.toLinkedHashSet(),
@@ -389,7 +389,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { double }.toLinkedHashSet() }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -443,7 +443,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { List(size) { 123.222 }.toLinkedHashSet() }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -492,7 +492,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { double }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -545,7 +545,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { List(size) { 3.11 }.toLinkedHashSet() }.toLinkedHashSet(),
@@ -594,7 +594,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { int }.toLinkedHashSet(),
@@ -652,7 +652,7 @@ class TestRandomLinkedHashSet {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     makeList(size,{rdConfig.resetRandomState()}) { 3 }.toLinkedHashSet(),

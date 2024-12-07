@@ -58,7 +58,7 @@ class TypeMap private constructor(
 
         val empty = TypeMap(emptyMap())
 
-        fun make(
+        fun makeFromTypeParams(
             keyList: List<IrTypeParameter>,
             valueList: List<IrTypeParameter>
         ): TypeMap {
@@ -71,7 +71,7 @@ class TypeMap private constructor(
             )
         }
 
-        fun make2(
+        fun make(
             keyList: List<IrTypeParameter>,
             valueList: List<TypeParamOrArg>
         ): TypeMap {

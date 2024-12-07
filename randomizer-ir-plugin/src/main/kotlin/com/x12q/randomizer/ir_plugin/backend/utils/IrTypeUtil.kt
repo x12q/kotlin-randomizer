@@ -18,7 +18,7 @@ fun IrType.makeTypeMap(): TypeMap{
         val typeArgs = (this as? IrSimpleType)?.arguments
         if(typeArgs!=null){
             val typeParams = clazz.typeParameters
-            return TypeMap.make2(
+            return TypeMap.make(
                 keyList = typeParams,
                 valueList = typeArgs.map { TypeParamOrArg.Arg(it) }
             )

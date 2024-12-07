@@ -47,15 +47,5 @@ sealed class TypeParamOrArg {
                 return Arg(typeArg)
             }
         }
-
-        fun extractParam(l: List<TypeParamOrArg>): List<IrTypeParameter?> {
-            val rt = l.map { q: TypeParamOrArg ->
-                when (q) {
-                    is Arg -> null
-                    is Param -> q.typeParam
-                }
-            }
-            return rt
-        }
     }
 }

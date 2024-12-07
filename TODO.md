@@ -190,3 +190,4 @@ BACKLOG:
 - Inner class pose a challenge because it require an instance of outer class before it can do anything.
   - Generator code must init an outer instance, then use that to construct the inner.
   - Random function on inner class must accept an optional outer instance
+- Reconsider default Random config creation. Should a new seed be used each time, should all random() of all class shared 1 random config or have their own?

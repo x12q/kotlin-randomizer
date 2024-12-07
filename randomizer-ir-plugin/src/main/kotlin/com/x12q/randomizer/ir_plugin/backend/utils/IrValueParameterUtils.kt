@@ -53,7 +53,7 @@ fun IrValueParameter.makeTypeMap(): TypeMap {
     if (typeParam_from_ParamClass != null) {
         val typeParamOrArgList: List<TypeParamOrArg> = param.getGenericTypeParamFromTypeArgs()
 
-        val localTypeMap = TypeMap.make2(
+        val localTypeMap = TypeMap.make(
             keyList = typeParam_from_ParamClass,
             valueList = typeParamOrArgList
         )

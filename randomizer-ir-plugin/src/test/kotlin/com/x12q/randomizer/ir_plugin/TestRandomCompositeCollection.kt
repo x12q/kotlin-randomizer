@@ -5,7 +5,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -107,7 +107,7 @@ class TestRandomCompositeCollection {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
                 val q = makeList(cSize, { rdConfig.resetRandomState() }) {
                     List(cSize) {
                         buildMap {
@@ -162,7 +162,7 @@ class TestRandomCompositeCollection {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
                 objectList shouldBe listOf<Any>(
                     makeList(cSize, { rdConfig.resetRandomState() }) {
                         buildMap {

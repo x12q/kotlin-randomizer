@@ -6,7 +6,7 @@ import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import com.x12q.randomizer.lib.random
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -104,7 +104,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
 
@@ -171,7 +171,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
                 val m = HashMap(buildMap {
                     repeat(mapSize) {
                         put("a", nextDouble())
@@ -208,7 +208,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     buildMap {
@@ -292,7 +292,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
 
                 objectList shouldBe listOf(
@@ -410,7 +410,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
 
                 objectList shouldBe listOf(
@@ -514,7 +514,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
                     HashMap(mapOf(1 to 2.0)),
@@ -544,7 +544,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
                 val m1:HashMap<HashMap<Int,Double>,HashMap<Int,Double>> = buildHashMap {
                     rdConfig.resetRandomState()
@@ -599,7 +599,7 @@ class TestRandomHashMap {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
 
 
                 val m: HashMap<HashMap<HashMap<Short, Double>, String>, HashMap<HashMap<Short, Double>, Float>> =

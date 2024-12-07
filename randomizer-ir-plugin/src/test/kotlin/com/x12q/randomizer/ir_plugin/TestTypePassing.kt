@@ -6,7 +6,7 @@ import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
 import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -29,14 +29,22 @@ class TestTypePassing {
     data class HI(val i: Int)
 
 
-    data class Bx2<B_V, B_M>(
-        val cx2: Cx2<B_V>,
-        val m: B_M
+    data class Bx2<B2_V, B2_M>(
+        val cx2: Cx2<B2_V>,
+        val m: B2_M
     )
 
-    data class Cx2<C_T>(
-        val ct: C_T,
+    data class Cx2<C2_T>(
+        val ct: C2_T,
     )
+
+    @Randomizable
+    data class Ax2<A2_K>(
+        val bx: Bx2<Float, A2_K>,
+        val ak: A2_K,
+    )
+
+    //=========
 
     data class Cx<C_T, C_M>(
         val ct: C_T,
@@ -54,10 +62,13 @@ class TestTypePassing {
         val ak: A_K,
     )
 
+
+
     private val imports = TestImportsBuilder.stdImport
         .import(Cx::class)
         .import(Cx2::class)
         .import(Ax::class)
+        .import(Ax2::class)
         .import(Bx::class)
         .import(Bx2::class)
         .import(Qx::class)
@@ -139,10 +150,33 @@ class TestTypePassing {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
+                val objectList = result.executeRunTestFunction().getObjs()
                 val z = objectList.first()
                 z.shouldBeInstanceOf<Ax<Double>>()
-                println(z)
+            }
+        }
+    }
+    @Test
+    fun `test generic from param 2`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC2<K_Q>(override val data:Ax2<K_Q>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC2.random<Double>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+                val z = objectList.first()
+                z.shouldBeInstanceOf<Ax2<Double>>()
             }
         }
     }

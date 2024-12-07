@@ -33,20 +33,37 @@ fun JvmCompilationResult.runMain(packageName:String? = null, testOutputStream: T
 }
 
 /**
- * Simply search for `runTest` function in a compilation result, then run it.
+ * Simply search for `runTest` function in MainKt, then run it.
  */
 @OptIn(ExperimentalCompilerApi::class)
-fun JvmCompilationResult.runRunTest(packageName:String? = null, onTestOutput:(TestOutput)->Unit={} ):TestOutput {
+fun JvmCompilationResult.executeRunTestFunction(
+    onTestOutput:(TestOutput)->Unit={}
+):TestOutput {
+    return this.executeRunTestFunction(null,onTestOutput)
+}
+
+/**
+ * Simply search for `runTest` function in MainKt, then run it.
+ */
+@OptIn(ExperimentalCompilerApi::class)
+fun JvmCompilationResult.executeRunTestFunction(
+    /**
+     * package name of the MainKt class.
+     */
+    packageName:String?,
+    onTestOutput:(TestOutput)->Unit={}
+):TestOutput {
     val kClazz = findMainClass(packageName)
-    val main = kClazz.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
+    val runTestFunction = kClazz.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
     try {
-        val rt = main.invoke(null) as TestOutput
+        val rt = runTestFunction.invoke(null) as TestOutput
         onTestOutput(rt)
         return rt
     } catch (t: InvocationTargetException) {
         throw t.cause!!
     }
 }
+
 @OptIn(ExperimentalCompilerApi::class)
 fun JvmCompilationResult.findMainClass(packageName:String? = null):Class<*> {
     val result = this

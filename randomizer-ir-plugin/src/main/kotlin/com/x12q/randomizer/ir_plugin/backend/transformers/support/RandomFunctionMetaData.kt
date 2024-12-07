@@ -26,7 +26,7 @@ class RandomFunctionMetaData(
             companionObj: IrClass,
         ): RandomFunctionMetaData {
             return RandomFunctionMetaData(
-                initTypeMap = TypeMap.make(classTypes,randomFunctionTypes),
+                initTypeMap = TypeMap.makeFromTypeParams(classTypes,randomFunctionTypes),
                 targetClass = targetClass,
                 companionObj = companionObj
             )
