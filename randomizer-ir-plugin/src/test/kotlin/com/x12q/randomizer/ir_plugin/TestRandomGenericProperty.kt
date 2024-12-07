@@ -6,6 +6,7 @@ import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.RandomConfigForTest
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
+import com.x12q.randomizer.test.util.test_code.testBlock
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -224,8 +225,11 @@ class TestRandomGenericProperty {
     }
 
 
+    /**
+     * Test custom "randomizers" that calls a generated "random" function of another class.
+     */
     @Test
-    fun `complex class as generic with custom randomizer 2`() {
+    fun `complex class as generic with custom randomizers 2`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports

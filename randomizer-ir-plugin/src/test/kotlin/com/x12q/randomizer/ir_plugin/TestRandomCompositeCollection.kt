@@ -95,7 +95,6 @@ class TestRandomCompositeCollection {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                    
                         putData(QxC.random<Set<Set<List<Double>>>>())
                         putData(QxC.random<List<Set<Set<Qx2<Float>>>>>())
                         putData(QxC.random<Set<List<Set<Qx2<Qx4<String>>>>>>())
@@ -108,15 +107,7 @@ class TestRandomCompositeCollection {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
-                val q = makeList(cSize, { rdConfig.resetRandomState() }) {
-                    List(cSize) {
-                        buildMap {
-                            repeat(cSize) {
-                                put(TwoGeneric(int, str), Qx2(boolean))
-                            }
-                        }
-                    }
-                }
+
                 objectList shouldBe listOf<Any>(
                     makeList(
                         cSize,
@@ -136,7 +127,16 @@ class TestRandomCompositeCollection {
                             }
                         }.toSet()
                     }.toSet(),
-                    q
+
+                    makeList(cSize, { rdConfig.resetRandomState() }) {
+                        List(cSize) {
+                            buildMap {
+                                repeat(cSize) {
+                                    put(TwoGeneric(int, str), Qx2(boolean))
+                                }
+                            }
+                        }
+                    } as List<List<Map<TwoGeneric<Int, String>, Qx2<Boolean>>>> //casting is actually needed here, otherwise compiler complains
                 )
             }
         }
