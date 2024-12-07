@@ -399,7 +399,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 developerErrorMsg("randomizers function is missing.")
             }
 
-            randomFunction.body = constructRandomFunctionBody(
+            randomFunction.body = generateRandomFunctionBody(
                 builder = builder,
                 randomContextBuilderConfigFunctionParam = randomContextBuilderConfigFunctionParam,
                 randomFunction = randomFunction,
@@ -455,7 +455,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val randomContextBuilderConfigFunctionParam = randomFunction.valueParameters.lastOrNull().crashOnNull {
                 "randomizers function is missing. This is impossible, and is a bug by developer"
             }
-            randomFunction.body = constructRandomFunctionBody(
+            randomFunction.body = generateRandomFunctionBody(
                 builder = builder,
                 randomContextBuilderConfigFunctionParam = randomContextBuilderConfigFunctionParam,
                 randomFunction = randomFunction,
@@ -468,7 +468,7 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Construct random() function body, used in both the 1st and 2nd random() function.
      */
-    private fun constructRandomFunctionBody(
+    private fun generateRandomFunctionBody(
         builder: DeclarationIrBuilder,
         randomContextBuilderConfigFunctionParam: IrValueParameter,
         randomFunction: IrFunction,
@@ -488,32 +488,57 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val getRandomContext = builder.irGet(randomContextVar)
 
-        val constructorCall = generateRandomInstanceOfClass(
+        val makeRandomPrimaryClass = generateRandomInstanceOfPrimaryClass(
             declarationParent = randomFunction,
-            receivedTypeArguments = emptyList(),
-            irType = null,
             irClass = target,
             getRandomContextExpr = getRandomContext,
             getRandomConfigExpr = getRandomConfigFromVar,
             builder = builder,
-            param = null,
-            enclosingClass = null,
             randomFunctionMetaData = randomFunctionMetaData,
-            prevTypeMap = randomFunctionMetaData.initTypeMap
         )
-        if (constructorCall != null) {
+        if (makeRandomPrimaryClass != null) {
             return builder.irBlockBody {
                 +randomConfigVar
                 +randomContextVar
-                +builder.irReturn(constructorCall)
+                +builder.irReturn(makeRandomPrimaryClass)
             }
         } else {
-            throw IllegalArgumentException("unable generate constructor call for $target")
+            throw IllegalArgumentException("unable generate random for primary target [$target].")
         }
     }
 
     /**
-     * Make a var that hold a [RandomConfig]
+     * Generate a random instance of the primary class returned by random() function.
+     */
+    private fun generateRandomInstanceOfPrimaryClass(
+        declarationParent: IrDeclarationParent?,
+        irClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        randomFunctionMetaData: RandomFunctionMetaData,
+    ):IrExpression?{
+        return generateRandomInstanceOfClass(
+            declarationParent = declarationParent,
+            // this is within the random() function body, so there's no received type arguments.
+            receivedTypeArguments = emptyList(),
+            // because within random() function body
+            irType = null,
+            irClass = irClass,
+            getRandomContextExpr = getRandomContextExpr,
+            getRandomConfigExpr = getRandomConfigExpr,
+            builder = builder,
+            // because within random() function body
+            param = null,
+            // because within random() function body
+            enclosingClass = null,
+            randomFunctionMetaData = randomFunctionMetaData,
+            prevTypeMap = randomFunctionMetaData.initTypeMap
+        )
+    }
+
+    /**
+     * Make a var that holds a [RandomConfig]
      */
     private fun makeRandomConfigVar(
         randomFunction: IrFunction,
@@ -1713,6 +1738,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
     /**
      * Extract concrete type from provided generic type argument from various sources.
+     * TODO this function is problematic, try to find a way to replace it with TypeMap
      */
     private fun extractTypeArgument(
         /**

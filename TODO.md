@@ -152,6 +152,7 @@ Front end:
   - Conclusion, no need to call random function of nested class
 # TODO:
 - TODO: cleanup the dangerous code of the new type passing feature
+  - TODO: extractTypeArgument -> this one needs to be replaced with TypeMap
 - TODO: at the moment, it is not possible to use custom randomizer with nullable type.
   - Nullable type is being generated based on non-null type and a boolean check from RandomConfig.
   - It should be that nullable randomizer can be declared directly within custom randomizer list.
