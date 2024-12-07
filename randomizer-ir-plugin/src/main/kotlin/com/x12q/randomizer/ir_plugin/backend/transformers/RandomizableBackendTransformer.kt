@@ -20,6 +20,7 @@ import com.x12q.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.randomizer.ir_plugin.util.runSideEffect
 import com.x12q.randomizer.ir_plugin.util.stopAtFirstNotNull
 import com.x12q.randomizer.lib.*
+import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.ir.addExtensionReceiver
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -230,9 +231,8 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * This build lambdas passed to "addForTier2"
-     * These lambdas accept a RandomContext as their extension param, and return a ClassRandomizer<*>
-     * Like this:
+     * This build lambdas passed to [RandomContextBuilder.addForTier2]
+     * These lambdas look like this:
      *     RandomContext.() -> ClassRandomizer<*>
      */
     private fun generate_makeClassRandomizer_Lambdas(
@@ -294,7 +294,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
     /**
      * Generate a lambda like this: ()-> SomeType
-     * The lambda is passed to [factoryRandomizer] function, like this: factoryRandomizer(makeRandom = factoryLambda <~ this one)
+     * The lambda is passed to [factoryRandomizer] function.
      * This factoryLambda return a random instance of [randomTargetType]
      */
     private fun generate_makeRandom_Lambda(
@@ -367,8 +367,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * complete random() function in [companionObj].
-     * This function use the random config in annotation.
+     * complete the 1st random() function in [companionObj].
      *
      * ```
      *      fun random(
@@ -416,6 +415,59 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Complete the 2nd random() function that accept a [RandomConfig]:
+     * ```
+     *      fun random(
+     *          randomConfig = ...,
+     *      )
+     * ```
+     */
+    private fun completeRandomFunction2(companionObj: IrClass, target: IrClass) {
+        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
+            val con1 = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 2
+            val con2 = function.valueParameters.firstOrNull()?.let { firstParam ->
+                firstParam.name == BaseObjects.randomConfigParamName
+            } ?: false
+
+            con1 && con2
+        }
+
+        if (randomFunction != null) {
+            val builder = DeclarationIrBuilder(
+                generatorContext = pluginContext,
+                symbol = randomFunction.symbol,
+            )
+
+            val randomConfigParam =
+                randomFunction.valueParameters.firstOrNull { it.name == BaseObjects.randomConfigParamName }
+                    .crashOnNull {
+                        "random(randomConfig,...) must have first parameter being randomConfig. This is a bug from developer side. "
+                    }
+            val getBaseRandomConfigExpr = builder.irGet(randomConfigParam)
+            val randomFunctionMetaData = RandomFunctionMetaData.make(
+                randomFunctionTypes = randomFunction.typeParameters,
+                classTypes = target.typeParameters,
+                targetClass = target,
+                companionObj = companionObj,
+            )
+
+            val randomContextBuilderConfigFunctionParam = randomFunction.valueParameters.lastOrNull().crashOnNull {
+                "randomizers function is missing. This is impossible, and is a bug by developer"
+            }
+            randomFunction.body = constructRandomFunctionBody(
+                builder = builder,
+                randomContextBuilderConfigFunctionParam = randomContextBuilderConfigFunctionParam,
+                randomFunction = randomFunction,
+                getRandomConfigExpr = getBaseRandomConfigExpr,
+                randomFunctionMetaData = randomFunctionMetaData,
+            )
+        }
+    }
+
+    /**
+     * Construct random() function body, used in both the 1st and 2nd random() function.
+     */
     private fun constructRandomFunctionBody(
         builder: DeclarationIrBuilder,
         randomContextBuilderConfigFunctionParam: IrValueParameter,
@@ -460,6 +512,9 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Make a var that hold a [RandomConfig]
+     */
     private fun makeRandomConfigVar(
         randomFunction: IrFunction,
         getRandomConfig: IrExpression,
@@ -475,7 +530,7 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * Create a var that holds the newly created [RandomContext]
+     * Create a var that holds a [RandomContext]
      */
     private fun makeRandomContextVar(
         builder: DeclarationIrBuilder,
@@ -560,50 +615,6 @@ class RandomizableBackendTransformer @Inject constructor(
         return rt
     }
 
-    /**
-     * Complete random(randomConfig) function
-     */
-    private fun completeRandomFunction2(companionObj: IrClass, target: IrClass) {
-        val randomFunction = companionObj.findDeclaration<IrSimpleFunction> { function ->
-            val con1 = function.name == BaseObjects.randomFunctionName && function.valueParameters.size == 2
-            val con2 = function.valueParameters.firstOrNull()?.let { firstParam ->
-                firstParam.name == BaseObjects.randomConfigParamName
-            } ?: false
-
-            con1 && con2
-        }
-
-        if (randomFunction != null) {
-            val builder = DeclarationIrBuilder(
-                generatorContext = pluginContext,
-                symbol = randomFunction.symbol,
-            )
-
-            val randomConfigParam =
-                randomFunction.valueParameters.firstOrNull { it.name == BaseObjects.randomConfigParamName }
-                    .crashOnNull {
-                        "random(randomConfig,...) must have first parameter being randomConfig. This is a bug from developer side. "
-                    }
-            val getBaseRandomConfigExpr = builder.irGet(randomConfigParam)
-            val randomFunctionMetaData = RandomFunctionMetaData.make(
-                randomFunctionTypes = randomFunction.typeParameters,
-                classTypes = target.typeParameters,
-                targetClass = target,
-                companionObj = companionObj,
-            )
-
-            val randomContextBuilderConfigFunctionParam = randomFunction.valueParameters.lastOrNull().crashOnNull {
-                "randomizers function is missing. This is impossible, and is a bug by developer"
-            }
-            randomFunction.body = constructRandomFunctionBody(
-                builder = builder,
-                randomContextBuilderConfigFunctionParam = randomContextBuilderConfigFunctionParam,
-                randomFunction = randomFunction,
-                getRandomConfigExpr = getBaseRandomConfigExpr,
-                randomFunctionMetaData = randomFunctionMetaData,
-            )
-        }
-    }
 
     /**
      * Create an IR expression that returns a [RandomConfig] instance from [Randomizable] annotation
