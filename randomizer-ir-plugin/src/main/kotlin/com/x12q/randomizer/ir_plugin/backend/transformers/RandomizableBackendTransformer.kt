@@ -1690,8 +1690,8 @@ class RandomizableBackendTransformer @Inject constructor(
             return randomPrimitiveExpr
         }
 
-        val typeMapFromType = irType?.makeTypeMap() ?: TypeMap.empty
-        val baseTypeMap = randomFunctionMetaData.initTypeMap
+        val typeMapFromType: TypeMap = irType?.makeTypeMap() ?: TypeMap.empty
+        val baseTypeMap: TypeMap = randomFunctionMetaData.initTypeMap
 
         val constructor = getConstructor(irClass)
 
@@ -1707,7 +1707,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     .bridgeType(baseTypeMap)
                     .mergeAndOverwriteWith(baseTypeMap)
 
-                val receivedType = if (param.isGeneric()) {
+                val receivedType: IrType? = if (param.isGeneric()) {
                     paramTypeMap.get(param.getTypeParamFromGenericParam())
                 } else {
                     null
