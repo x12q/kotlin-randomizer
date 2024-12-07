@@ -342,7 +342,7 @@ class RandomizableBackendTransformer @Inject constructor(
              */
             val newBody = innerBuilder.irBlockBody {
                 +irReturn(irBlock {
-                    val generateExpr = generateRandomInstanceOfClass(
+                    val generateExpr = generateRandomClass(
                         declarationParent = function,
                         receivedTypeArguments = randomTargetType.arguments,
                         irType = randomTargetType,
@@ -488,14 +488,15 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val getRandomContext = builder.irGet(randomContextVar)
 
-        val makeRandomPrimaryClass = generateRandomInstanceOfPrimaryClass(
-            declarationParent = randomFunction,
+        val makeRandomPrimaryClass = generateRandomPrimaryClass(
             irClass = target,
+            builder = builder,
+            declarationParent = randomFunction,
             getRandomContextExpr = getRandomContext,
             getRandomConfigExpr = getRandomConfigFromVar,
-            builder = builder,
             randomFunctionMetaData = randomFunctionMetaData,
         )
+
         if (makeRandomPrimaryClass != null) {
             return builder.irBlockBody {
                 +randomConfigVar
@@ -510,27 +511,24 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Generate a random instance of the primary class returned by random() function.
      */
-    private fun generateRandomInstanceOfPrimaryClass(
-        declarationParent: IrDeclarationParent?,
+    private fun generateRandomPrimaryClass(
         irClass: IrClass,
-        getRandomContextExpr: IrExpression,
-        getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
         randomFunctionMetaData: RandomFunctionMetaData,
+        declarationParent: IrDeclarationParent?,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
     ):IrExpression?{
-        return generateRandomInstanceOfClass(
+        return generateRandomClass(
             declarationParent = declarationParent,
             // this is within the random() function body, so there's no received type arguments.
             receivedTypeArguments = emptyList(),
-            // because within random() function body
             irType = null,
             irClass = irClass,
             getRandomContextExpr = getRandomContextExpr,
             getRandomConfigExpr = getRandomConfigExpr,
             builder = builder,
-            // because within random() function body
             param = null,
-            // because within random() function body
             enclosingClass = null,
             randomFunctionMetaData = randomFunctionMetaData,
             prevTypeMap = randomFunctionMetaData.initTypeMap
@@ -724,7 +722,7 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Generate an [IrExpression] that can return a random instance of [irClass]
      */
-    private fun generateRandomInstanceOfClass(
+    private fun generateRandomClass(
         irClass: IrClass,
         irType: IrType?,
         /**
@@ -1594,6 +1592,9 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
+    /**
+     * Random enum is generate using either "entries" or "values" from the enum class.
+     */
     private fun generateRandomEnum(
         irClass: IrClass,
         getRandomConfigExpr: IrExpression,
@@ -1603,31 +1604,34 @@ class RandomizableBackendTransformer @Inject constructor(
             val getRandom = getRandomConfigExpr.dotCall(randomConfigAccessor.random(builder))
             if (irClass.hasEnumEntries) {
                 // make an IR to access "entries"
-                val irEntriesFunction = run {
-                    val irEntries = irClass.declarations.firstOrNull {
-                        it.getNameWithAssert().toString() == "entries"
-                    } as? IrProperty
-                    irEntries?.getter.crashOnNull {
-                        "enum ${irClass.name} does not have \"entries\" field"
-                    }
+
+                val irEntries = irClass.declarations.firstOrNull {
+                    it.getNameWithAssert().toString() == "entries"
+                } as? IrProperty
+
+                val irEntriesFunction =   irEntries?.getter.crashOnNull {
+                    "enum ${irClass.name} does not have \"entries\" field"
                 }
 
                 // then call randomFunction on "entries" accessor ir
                 val rt = builder.irCall(irEntriesFunction)
-                    .extensionDotCall(builder.irCall(randomAccessor.randomFunctionOnCollectionOneArg))
+                    .extensionDotCall(builder.irCall(randomAccessor.randomOnCollectionOneArg))
                     .withValueArgs(getRandom)
 
                 return rt
             } else {
-                val irValues =
-                    irClass.declarations.firstOrNull { it.getNameWithAssert().toString() == "values" } as? IrFunction
+                // make an IR to access "values"
 
-                if (irValues != null) {
-                    val randomFunction = randomAccessor.randomFunctionOnArrayOneArg
-                    val rt = builder.irCall(irValues).extensionDotCall(builder.irCall(randomFunction))
-                        .withValueArgs(getRandom)
-                    return rt
-                }
+                val irValuesFunction = (irClass.declarations
+                    .firstOrNull { it.getNameWithAssert().toString() == "values" } as? IrFunction)
+
+                val irValues = irValuesFunction
+                    .crashOnNull {  "enum ${irClass.name} does not have \"values\" field" }
+
+                val rt = builder.irCall(irValues)
+                    .extensionDotCall(builder.irCall(randomAccessor.randomFunctionOnArrayOneArg))
+                    .withValueArgs(getRandom)
+                return rt
             }
 
             throw IllegalArgumentException("Impossible - Enum ${irClass.name} does not have entries or values()")
@@ -2009,7 +2013,7 @@ class RandomizableBackendTransformer @Inject constructor(
         val clazz = actualParamType.classOrNull?.owner
         if (clazz != null) {
 
-            val randomInstanceExpr = generateRandomInstanceOfClass(
+            val randomInstanceExpr = generateRandomClass(
                 declarationParent = declarationParent,
                 receivedTypeArguments = receivedType?.arguments,
                 param = param,

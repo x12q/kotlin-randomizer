@@ -17,7 +17,6 @@ import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.isArray
 import org.jetbrains.kotlin.ir.types.isCollection
 import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 import kotlin.random.Random
@@ -46,7 +45,7 @@ class RandomAccessor @Inject constructor(
      * kotlin.collection.random on Collection<T>, that accept a [Random] argument
      */
     @OptIn(UnsafeDuringIrConstructionAPI::class)
-    val randomFunctionOnCollectionOneArg: IrFunctionSymbol by lazy {
+    val randomOnCollectionOneArg: IrFunctionSymbol by lazy {
         val allRandoms = pluginContext.referenceFunctions(kotlinCollectionRandomFunctionName)
         requireNotNull(allRandoms.firstOrNull { functionSymbol ->
             val irFunction = functionSymbol.owner
