@@ -3,8 +3,10 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.NonNullRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.lib.randomizer.ConstantRandomizer
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -49,7 +51,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest { output ->
+                result.executeRunTestFunction { output ->
                     output.getObjs() shouldBe listOf(
                         PrimitivesContainer(
                             LegalRandomConfigObject.nextBoolean(),
@@ -97,7 +99,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {output->
+                result.executeRunTestFunction { output->
                     output.getObjs() shouldBe listOf(
                         UPrimitivies(
                             LegalRandomConfigObject.nextUInt(),
@@ -137,7 +139,7 @@ class TestRandomPrimitive {
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(Q123.random(NullRandomConfig))
-//                        putData(Q123.random(NonNullRandomConfig))
+                       putData(Q123.random(NonNullRandomConfig))
                     }
                 }
 
@@ -150,23 +152,23 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest { output->
+                result.executeRunTestFunction { output->
                         output.getObjs() shouldBe   listOf(
                         NullablePrimitives(null,null,null,null,null,null,null,null,null,null,null,null,),
-//                        NullablePrimitives(
-//                            NonNullRandomConfig.nextIntOrNull(),
-//                            NonNullRandomConfig.nextBoolOrNull(),
-//                            NonNullRandomConfig.nextLongOrNull(),
-//                            NonNullRandomConfig.nextFloatOrNull(),
-//                            NonNullRandomConfig.nextDoubleOrNull(),
-//                            NonNullRandomConfig.nextByteOrNull(),
-//                            NonNullRandomConfig.nextCharOrNull(),
-//                            NonNullRandomConfig.nextShortOrNull(),
-//                            NonNullRandomConfig.nextStringUUIDOrNull(),
-//                            NonNullRandomConfig.nextNumberOrNull(),
-//                            NonNullRandomConfig.nextUnitOrNull(),
-//                            NonNullRandomConfig.nextAnyOrNull()
-//                        ),
+                       NullablePrimitives(
+                           int = NonNullRandomConfig.nextInt(),
+                           boolean = NonNullRandomConfig.nextBoolean(),
+                           long = NonNullRandomConfig.nextLong(),
+                           float = NonNullRandomConfig.nextFloat(),
+                           double = NonNullRandomConfig.nextDouble(),
+                           byte = NonNullRandomConfig.nextByte(),
+                           char = NonNullRandomConfig.nextChar(),
+                           short = NonNullRandomConfig.nextShort(),
+                           string = NonNullRandomConfig.nextString(),
+                           number = NonNullRandomConfig.nextNumber(),
+                           unit = NonNullRandomConfig.nextUnit(),
+                           any = NonNullRandomConfig.nextAny()
+                       ),
                     )
                 }
             }
@@ -256,7 +258,7 @@ class TestRandomPrimitive {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {output->
+                result.executeRunTestFunction { output->
                     output.getObjs() shouldBe listOf(
                         NullableUPrim(null,null,null,null),
                         NullableUPrim(
@@ -274,4 +276,98 @@ class TestRandomPrimitive {
     }
 
 
+    data class PrimitivesContainer_WithNullable(
+        val boolean: Boolean,
+        val int: Int,
+        val long: Long,
+        val float: Float,
+        val double: Double,
+        val byte: Byte,
+        val char: Char,
+        val short: Short,
+        val string: String,
+        val number: Number,
+        val unit: Unit,
+        val any: Any,
+
+        val intN: Int?,
+//        val booleanN: Boolean?,
+//        val longN: Long?,
+//        val floatN: Float?,
+//        val doubleN: Double?,
+//        val byteN: Byte?,
+//        val charN: Char?,
+//        val shortN: Short?,
+//        val stringN: String?,
+//        val numberN: Number?,
+//        val unitN: Unit?,
+//        val anyN: Any?,
+    )
+
+
+    /**
+     * This test generating nullable primitive with custom "randomizers"
+     */
+    @Test
+    fun `nullable primitive with custom randomizers`() {
+
+        val imports = TestImportsBuilder.stdImport.import(PrimitivesContainer::class).import(
+            PrimitivesContainer_WithNullable::class)
+        testGeneratedCodeUsingStandardPlugin(
+            """
+               $imports
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random{
+                            add(ConstantRandomizer.of(true))
+                            add(ConstantRandomizer.of(123))
+                            add(ConstantRandomizer.of(321L))
+                            add(ConstantRandomizer.of(543f))
+                            add(ConstantRandomizer.of(89.78))
+                            add(ConstantRandomizer.of(123.toByte()))
+                            add(ConstantRandomizer.of('z'))
+                            add(ConstantRandomizer.of(88.toShort()))
+                            add(ConstantRandomizer.of("qwezxc123"))
+                            add(ConstantRandomizer.of<Number>(44.123))
+                            add(ConstantRandomizer.of(Unit))
+                            add(ConstantRandomizer.of<Any>("mmmm"))
+                        })
+                    }
+                }
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC(override val data:PrimitivesContainer_WithNullable):WithData
+            """,
+        ) {
+
+            testCompilation = { result, testStream ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.executeRunTestFunction {
+                    val c = TestRandomConfig()
+                    val expectation = PrimitivesContainer_WithNullable(
+                        boolean = true,
+                        int = 123,
+                        long = 321L,
+                        float = 543f,
+                        double = 89.78,
+                        byte = 123.toByte(),
+                        char = 'z',
+                        short = 88.toShort(),
+                        string = "qwezxc123",
+                        number = 44.123,
+                        unit = Unit,
+                        any = "mmmm",
+                        intN = if(c.nextBoolean()){
+                            123
+                        }else{
+                            null
+                        }
+                    )
+                    it.getObjs() shouldBe listOf(
+                        expectation
+                    )
+                }
+            }
+        }
+    }
 }

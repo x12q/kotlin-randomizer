@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.random_function
+package com.x12q.randomizer.ir_plugin.backend.transformers.support
 
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import kotlin.collections.component1
@@ -8,7 +8,7 @@ import kotlin.collections.component2
  * A mapping of type parameters of a **class** to some other type parameters or type arguments
  */
 class TypeMap private constructor(
-    val tm: Map<IrTypeParameter, TypeParamOrArg>
+    private val tm: Map<IrTypeParameter, TypeParamOrArg>
 ) {
     /**
      * Merge and overwrite data of this type map with data from [other] type map.
@@ -21,10 +21,6 @@ class TypeMap private constructor(
         return tm[typeParam]
     }
 
-    fun remove(typeParam:IrTypeParameter): TypeMap{
-        return TypeMap(tm - typeParam)
-    }
-
     override fun toString(): String {
         return tm.map { (k,v)->
             k.name to v.toString()
@@ -32,10 +28,10 @@ class TypeMap private constructor(
     }
 
     /**
-     * replace VALUES inside [tm] with whatever can be found in [anotherTypeMapX] using the VALUEs inside [tm] as key
+     * replace VALUES inside [tm] with whatever can be found in [anotherTypeMap] using the VALUEs inside [tm] as key
      */
-    fun bridgeTypeValue(anotherTypeMapX: TypeMap): TypeMap {
-        val prevTypeMap: TypeMap = anotherTypeMapX
+    fun bridgeType(anotherTypeMap: TypeMap): TypeMap {
+        val prevTypeMap: TypeMap = anotherTypeMap
         val localTypeMap: TypeMap = this
 
         val newMap = localTypeMap.tm.mapNotNull { (k, v) ->
@@ -44,7 +40,7 @@ class TypeMap private constructor(
             if (newV != null) {
                 k to newV
             } else {
-                // keep intact in case cannot find a new target for k
+                // keep the old mapping intact in case cannot find a new target for k
                 k to v
             }
         }.toMap()
@@ -58,7 +54,7 @@ class TypeMap private constructor(
 
         val empty = TypeMap(emptyMap())
 
-        fun make(
+        fun makeFromTypeParams(
             keyList: List<IrTypeParameter>,
             valueList: List<IrTypeParameter>
         ): TypeMap {
@@ -71,11 +67,11 @@ class TypeMap private constructor(
             )
         }
 
-        fun make2(
-            keyList: List<IrTypeParameter>,
+        fun make(
+            typeParams: List<IrTypeParameter>,
             valueList: List<TypeParamOrArg>
         ): TypeMap {
-            val tm = keyList.zip(valueList).toMap()
+            val tm = typeParams.zip(valueList).toMap()
             return TypeMap(
                 tm = tm
             )

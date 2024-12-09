@@ -5,7 +5,7 @@ import kotlin.random.Random
 
 /**
  * A test random config that can be reset to initial state.
- * Use case: so that it can re-generate a random sequence of object
+ * Use case: so that it can re-generate a consistent sequence of objects
  */
 class TestRandomConfig : RandomConfig  {
     override var random: Random = Random(123)

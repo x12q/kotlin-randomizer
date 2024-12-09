@@ -4,9 +4,8 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomContext
 import com.x12q.randomizer.lib.RandomContextBuilderImp
-import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -19,28 +18,20 @@ import kotlin.test.Test
 class TestTypePassing {
 
     data class Qx<T1>(val i: T1?)
-    data class Qx2<Q2T>(val paramOfQ2: Q2T)
-    data class Qx4<Q4T>(val paramOfQ4: Q4T)
-    data class Qx6<H>(val paramOfQ6: H)
-    data class Qx3<T1, T2, T3>(val i1: T1, val i2: T2, val i3: T3)
-    data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
-    data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
-    data class QxArray<TL>(val listT: Array<TL>)
-    data class HI(val i: Int)
+    // data class Qx2<Q2T>(val paramOfQ2: Q2T)
+    // data class Qx4<Q4T>(val paramOfQ4: Q4T)
+    // data class Qx6<H>(val paramOfQ6: H)
+    // data class Qx3<T1, T2, T3>(val i1: T1, val i2: T2, val i3: T3)
+    // data class TwoGeneric<G1, G2>(val g1: G1, val g2: G2)
+    // data class ThreeGeneric<G1, G2, G3>(val g1: G1, val g2: G2, val g3: G3)
+    // data class QxArray<TL>(val listT: Array<TL>)
+    // data class HI(val i: Int)
 
+    // ###
 
-    data class Bx2<B_V, B_M>(
-        val cx2: Cx2<B_V>,
-        val m: B_M
-    )
-
-    data class Cx2<C_T>(
-        val ct: C_T,
-    )
-
-    data class Cx<C_T, C_M>(
-        val ct: C_T,
-        val cm: C_M
+    data class Ax<A_K>(
+        val bx: Bx<Float, A_K>,
+        val ak: A_K,
     )
 
     data class Bx<B_V, B_M>(
@@ -48,81 +39,24 @@ class TestTypePassing {
         val q: B_V
     )
 
-    @Randomizable
-    data class Ax<A_K>(
-        val bx: Bx<Float, A_K>,
-        val ak: A_K,
+    data class Cx<C_T, C_M>(
+        val ct: C_T,
+        val cm: C_M
     )
 
     private val imports = TestImportsBuilder.stdImport
         .import(Cx::class)
-        .import(Cx2::class)
         .import(Ax::class)
         .import(Bx::class)
-        .import(Bx2::class)
         .import(Qx::class)
-        .import(Qx2::class)
-        .import(Qx3::class)
-        .import(Qx4::class)
-        .import(Qx6::class)
-        .import(TwoGeneric::class)
-        .import(ThreeGeneric::class)
-        .import(QxArray::class)
-        .import(HI::class)
 
-    private val rdConfig = TestRandomConfig()
-    lateinit var rdContext: RandomContext
-
-    val size get() = rdContext.randomCollectionSize()
-    val int get() = rdContext.nextInt()
-    val boolean get() = rdContext.nextInt()
-    val float get() = rdContext.nextFloat()
-    val str get() = rdContext.nextString()
-    val double get() = rdContext.nextDouble()
-    val short get() = rdContext.nextShort()
-
-    @BeforeTest
-    fun bt() {
-        rdContext = RandomContextBuilderImp()
-            .setRandomConfigAndGenerateStandardRandomizers(rdConfig)
-            .add(factoryRandomizer {
-                Qx2(rdConfig.nextFloat())
-            })
-            .add(factoryRandomizer {
-                Qx2(rdConfig.nextDouble())
-            })
-            .add(factoryRandomizer {
-                Qx4(rdConfig.nextDouble())
-            })
-            .add(factoryRandomizer {
-                Qx4(Qx4(rdConfig.nextShort()))
-            })
-            .add(factoryRandomizer {
-                Qx2(Qx4(rdConfig.nextString()))
-            })
-            .add(factoryRandomizer {
-                Qx2(Qx4(rdConfig.nextShort()))
-            })
-            .add(factoryRandomizer {
-                TwoGeneric(rdConfig.nextInt(), rdConfig.nextString())
-            })
-            .add(factoryRandomizer {
-                TwoGeneric(rdConfig.nextDouble(), rdConfig.nextShort())
-            })
-            .add(factoryRandomizer {
-                TwoGeneric(Qx2(rdConfig.nextInt()), rdConfig.nextString())
-            })
-            .add(factoryRandomizer {
-                ThreeGeneric(rdConfig.nextInt(), Qx2(rdConfig.nextString()), rdConfig.nextDouble())
-            })
-            .build()
-    }
 
     /**
-     * Test passing generic param from random function to generic within property
+     * Test passing generic param from "random" function to generic with a property.
+     * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun `test generic from param`() {
+    fun `test passing generic to property`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -139,10 +73,168 @@ class TestTypePassing {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.runRunTest().getObjs()
-                val z = objectList.first()
-                z.shouldBeInstanceOf<Ax<Double>>()
-                println(z)
+                val objectList = result.executeRunTestFunction().getObjs()
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax<Double>>()
+                ax.ak.shouldBeInstanceOf<Double>()
+
+                val bx = ax.bx
+                bx.shouldBeInstanceOf<Bx<Float,Double>>()
+                bx.q.shouldBeInstanceOf<Float>()
+
+                val cx = bx.cx
+                cx.shouldBeInstanceOf<Cx<Double,Int>>()
+                cx.ct.shouldBeInstanceOf<Double>()
+                cx.cm.shouldBeInstanceOf<Int>()
+            }
+        }
+    }
+
+    data class Ax2<A2_K>(
+        val bx2: Bx2<Float, A2_K>,
+        val ak: A2_K,
+    )
+
+    data class Bx2<B2_V, B2_M>(
+        val cx2: Cx2<B2_V>,
+        val m: B2_M
+    )
+
+    data class Cx2<C2_T>(
+        val ct: C2_T,
+    )
+
+    val imports2 = imports
+    .import(Cx2::class)
+    .import(Ax2::class)
+    .import(Bx2::class)
+
+    /**
+     * Similar to [`test passing generic to property`], but with slightly different class structure.
+     * Test passing generic param from "random" function to generic with a property.
+     * The generic type is further passed down to deeper layer within the class of that property.
+     */
+    @Test
+    fun `test passing generic to property 2`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports2
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC2<K_Q2>(override val data:Ax2<K_Q2>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC2.random<Double>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax2<Double>>()
+                ax.ak.shouldBeInstanceOf<Double>()
+
+                val bx2 = ax.bx2
+                bx2.shouldBeInstanceOf<Bx2<Float,Double>>()
+                bx2.m.shouldBeInstanceOf<Double>()
+
+                val cx2 = bx2.cx2
+                cx2.shouldBeInstanceOf<Cx2<Float>>()
+                cx2.ct.shouldBeInstanceOf<Float>()
+            }
+        }
+    }
+
+
+    data class Ax3<A3_T>(
+        val l:List<A3_T>,
+        val bx3:Bx3<Int,A3_T>,
+    )
+
+    data class Bx3<B3_K,B3_v>(
+        val bx3Map:Map<B3_K,B3_v>,
+        val cx3: Cx3<B3_v>,
+    )
+
+    data class Cx3<C3_T>(val set:Set<C3_T>)
+
+
+    val imports3 = imports2
+        .import(Ax3::class)
+        .import(Bx3::class)
+        .import(Cx3::class)
+
+    @Test
+    fun `test passing generic to collections nested in properties`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports3
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC2<K_Q2>(override val data:Ax3<K_Q2>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC2.random<Double>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax3<Double>>()
+                ax.l.shouldBeInstanceOf<List<Double>>()
+
+                val bx3 = ax.bx3
+                bx3.shouldBeInstanceOf<Bx3<Int,Double>>()
+                bx3.bx3Map.shouldBeInstanceOf<Map<Int,Double>>()
+
+                val cx2 = bx3.cx3
+                cx2.shouldBeInstanceOf<Cx3<Double>>()
+                cx2.set.shouldBeInstanceOf<Set<Double>>()
+            }
+        }
+    }
+
+
+    @Test
+    fun `test passing generic to collections nested in properties - with complex elements`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports3
+
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC2<K_Q2>(override val data:Ax3<K_Q2>):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(QxC2.random<Cx3<String>>())
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                val ax = objectList.first()
+                ax.shouldBeInstanceOf<Ax3<Cx3<String>>>()
+                ax.l.shouldBeInstanceOf<List<Cx3<String>>>()
+
+                val bx3 = ax.bx3
+                bx3.shouldBeInstanceOf<Bx3<Int,Cx3<String>>>()
+                bx3.bx3Map.shouldBeInstanceOf<Map<Int,Cx3<String>>>()
+
+                val cx2 = bx3.cx3
+                cx2.shouldBeInstanceOf<Cx3<Cx3<String>>>()
+                cx2.set.shouldBeInstanceOf<Set<Cx3<String>>>()
             }
         }
     }

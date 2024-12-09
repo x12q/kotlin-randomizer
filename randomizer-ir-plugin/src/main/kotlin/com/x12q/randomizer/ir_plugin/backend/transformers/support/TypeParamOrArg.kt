@@ -1,17 +1,19 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.random_function
+package com.x12q.randomizer.ir_plugin.backend.transformers.support
 
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
-import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
-import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.dumpKotlinLike
 
 sealed class TypeParamOrArg {
+
+    abstract fun getTypeParamOrNull(): IrTypeParameter?
+    abstract fun getTypeArgOrNull(): IrTypeArgument?
+    abstract fun getIrTypeOrNull(): IrType?
 
     data class Param(val typeParam: IrTypeParameter, val typeArg: IrTypeArgument?) : TypeParamOrArg() {
         override fun getTypeParamOrNull(): IrTypeParameter? = typeParam
@@ -36,11 +38,6 @@ sealed class TypeParamOrArg {
         }
     }
 
-    abstract fun getTypeParamOrNull(): IrTypeParameter?
-    abstract fun getTypeArgOrNull(): IrTypeArgument?
-    abstract fun getIrTypeOrNull(): IrType?
-
-
     companion object {
         fun make(typeParam: IrTypeParameter?, typeArg: IrTypeArgument): TypeParamOrArg {
             if (typeParam != null) {
@@ -48,16 +45,6 @@ sealed class TypeParamOrArg {
             } else {
                 return Arg(typeArg)
             }
-        }
-
-        fun extractParam(l: List<TypeParamOrArg>): List<IrTypeParameter?> {
-            val rt = l.map { q: TypeParamOrArg ->
-                when (q) {
-                    is Arg -> null
-                    is Param -> q.typeParam
-                }
-            }
-            return rt
         }
     }
 }

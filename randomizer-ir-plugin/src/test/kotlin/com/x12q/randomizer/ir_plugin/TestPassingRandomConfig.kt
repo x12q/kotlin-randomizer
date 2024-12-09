@@ -3,12 +3,11 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
-import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject2
+import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigWithOppositeInt
 import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.test.util.assertions.runRunTest
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -20,10 +19,10 @@ class TestPassingRandomConfig{
 
 
     data class Q123(val i:Int)
+    val imports = TestImportsBuilder.stdImport.import(Q123::class)
 
     @Test
     fun `class with no RandomConfig`() {
-        val imports = TestImportsBuilder.stdImport.import(Q123::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -41,7 +40,7 @@ class TestPassingRandomConfig{
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs().size shouldBe 2
                 }
             }
@@ -53,7 +52,6 @@ class TestPassingRandomConfig{
     @Test
     fun `class with legal custom random config class via annotation`() {
 
-        val imports = TestImportsBuilder.stdImport.import(Q123::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -72,7 +70,7 @@ class TestPassingRandomConfig{
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Q123(LegalRandomConfig().nextInt()),
                         Q123(LegalRandomConfig().nextInt())
@@ -83,7 +81,7 @@ class TestPassingRandomConfig{
     }
     @Test
     fun `class with legal custom random config object via annotation`() {
-        val imports = TestImportsBuilder.stdImport.import(Q123::class)
+
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -102,7 +100,7 @@ class TestPassingRandomConfig{
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Q123(LegalRandomConfigObject.nextInt()),
                         Q123(LegalRandomConfigObject.nextInt())
@@ -114,7 +112,7 @@ class TestPassingRandomConfig{
 
     @Test
     fun `overriding random config in annotation`() {
-        val imports = TestImportsBuilder.stdImport.import(Q123::class)
+
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -122,7 +120,7 @@ class TestPassingRandomConfig{
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(QxC.random())
-                        putData(QxC.random(${imports.nameOf(LegalRandomConfigObject2::class)}))
+                        putData(QxC.random(${imports.nameOf(LegalRandomConfigWithOppositeInt::class)}))
                     }
                 }
 
@@ -133,10 +131,10 @@ class TestPassingRandomConfig{
         ) {
             testCompilation = { result,_ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runRunTest {
+                result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Q123(LegalRandomConfigObject.nextInt()),
-                        Q123(LegalRandomConfigObject2.nextInt())
+                        Q123(LegalRandomConfigWithOppositeInt.nextInt())
                     )
                 }
             }
@@ -150,18 +148,19 @@ class TestPassingRandomConfig{
         RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport}
+                $imports
 
                 fun main(){
                     println(Q123.random())
                 }
+
                 @Randomizable(randomConfig = IllegalRandomConfig::class)
                 data class Q123(val i:Int)
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_ ->
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
             }
         }
     }

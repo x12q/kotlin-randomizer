@@ -3,12 +3,11 @@ package com.x12q.randomizer.test.util.test_code
 import com.x12q.randomizer.ir_plugin.mock_objects.*
 import com.x12q.randomizer.lib.*
 import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.lib.randomizer.ConstantClassRandomizer
+import com.x12q.randomizer.lib.randomizer.ConstantRandomizer
 import com.x12q.randomizer.lib.randomizer.FactoryClassRandomizer
 import com.x12q.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.randomizer.test.util.TestOutput
 import com.x12q.randomizer.test.util.WithData
-import com.x12q.randomizer.test.util.makeList
 import com.x12q.randomizer.test.util.withTestOutput
 import io.mockk.declaringKotlinFile
 import java.util.Date
@@ -136,6 +135,10 @@ data class TestImportsBuilder(
         return importCode
     }
 
+    fun build():String{
+        return toString()
+    }
+
     companion object {
 
         val stdImport = TestImportsBuilder(
@@ -150,10 +153,10 @@ data class TestImportsBuilder(
                 Collection::class,
                 ArrayList::class,
                 RandomContext::class,
-                LegalRandomConfigObject2::class,
+                LegalRandomConfigWithOppositeInt::class,
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
-                ConstantClassRandomizer::class,
+                ConstantRandomizer::class,
                 MutableRandomizerCollection::class,
                 RandomizerCollection::class,
                 RandomContextBuilder::class,

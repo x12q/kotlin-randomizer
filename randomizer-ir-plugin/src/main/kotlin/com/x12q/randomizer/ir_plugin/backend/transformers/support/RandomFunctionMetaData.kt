@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.random_function
+package com.x12q.randomizer.ir_plugin.backend.transformers.support
 
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
@@ -14,10 +14,6 @@ class RandomFunctionMetaData(
     val targetClass: IrClass,
     val companionObj: IrClass,
 ) {
-    // TODO this look bad but it is actually safe
-    val randomFunctionTypeList:List<IrTypeParameter> = initTypeMap.tm.values.map { it.getTypeParamOrNull()!! }
-    val classTypeList:List<IrTypeParameter> = initTypeMap.tm.keys.toList()
-
     companion object {
         fun make(
             classTypes: List<IrTypeParameter>,
@@ -26,7 +22,7 @@ class RandomFunctionMetaData(
             companionObj: IrClass,
         ): RandomFunctionMetaData {
             return RandomFunctionMetaData(
-                initTypeMap = TypeMap.make(classTypes,randomFunctionTypes),
+                initTypeMap = TypeMap.makeFromTypeParams(classTypes,randomFunctionTypes),
                 targetClass = targetClass,
                 companionObj = companionObj
             )

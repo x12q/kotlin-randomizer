@@ -1,35 +1,30 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeMap
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
 import com.x12q.randomizer.ir_plugin.util.stopAtFirst
-import org.jetbrains.kotlin.backend.jvm.ir.firstSuperMethodFromKotlin
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.util.IdSignature
-import org.jetbrains.kotlin.ir.util.defaultType
-import org.jetbrains.kotlin.ir.util.hasTopLevelEqualFqName
 
 
 /**
- * Make a [TypeMap] from information from an [IrType]
+ * Make a [TypeMap] from information of an [IrType]
  */
-fun IrType.makeTypeMap(): TypeMap{
+fun IrType.makeTypeMap(): TypeMap {
     val clazz = this.classOrNull?.owner
-    if(clazz!=null){
-        val typeArgs = (this as? IrSimpleType)?.arguments
-        if(typeArgs!=null){
-            val typeParams = clazz.typeParameters
-            return TypeMap.make2(
-                keyList = typeParams,
-                valueList = typeArgs.map { TypeParamOrArg.Arg(it) }
-            )
-        }else{
-            return TypeMap.empty
-        }
-    }else{
+    val typeParams = clazz?.typeParameters
+    val typeArgs = (this as? IrSimpleType)?.arguments
+
+    if (typeParams==null || typeParams.isEmpty()
+        || typeArgs == null || typeArgs.isEmpty()) {
         return TypeMap.empty
+    } else {
+        return TypeMap.make(
+            typeParams = typeParams,
+            valueList = typeArgs.map { TypeParamOrArg.Arg(it) }
+        )
     }
 }
 

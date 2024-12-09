@@ -2,10 +2,13 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -15,37 +18,83 @@ import kotlin.test.Test
 @OptIn(ExperimentalCompilerApi::class)
 class TestRandomNestedClass {
 
+    data class Q123(
+        val b1:B1?,
+        val c2:C2?,
+        val d2:D2?,
+    )
+
+    data object B1{
+        val i = 123
+    }
+
+    object C2{
+        val c = "ccc"
+    }
+    data class D2(val x:Int)
+
+    data class Q4(
+        val boolean: Boolean,
+        val b1:B1,
+        val c2:C2,
+    )
+
+    data class Q5(
+        val boolean: Boolean,
+        val enum:MyEnumClass,
+    )
+
+    enum class MyEnumClass{
+        V1,V2,V3,V4,V5,V6
+    }
+
+    data class Q6(
+        val a:AA
+    )
+
+    data class AA(val int:Int, val bb:BB, val c:CC)
+    data class BB(val str:String,val cc:CC)
+    data class CC(val aa:Float)
+
+    val imports = TestImportsBuilder
+        .stdImport
+        .import(Q123::class)
+        .import(Q4::class)
+        .import(Q5::class)
+        .import(Q6::class)
+        .import(AA::class)
+        .import(BB::class)
+        .import(CC::class)
+        .import(B1::class)
+        .import(C2::class)
+        .import(D2::class)
+        .build()
+
+
     @Test
     fun `randomize nullable nested object - always not null`() {
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport}
+                $imports
 
-                fun main(){
-                    println(Q123.random(AlwaysTrueRandomConfig))
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<String>(randomConfig=AlwaysTrueRandomConfig))
+                    }
                 }
 
                 @Randomizable
-                data class Q123(
-                    val b1:B1?,
-                    val c2:C2?,
-                    val d2:D2?,   
-                )
-
-                data object B1{
-                    val i = 123
-                }
-
-                object C2{
-                    val c = "ccc"
-                }
-                data class D2(val x:Int)
+                data class QxC<T1:Any>(override val data:T1):WithData
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.executeRunTestFunction{ testOutput->
+                    testOutput.getObjs() shouldBe listOf(
+                        AlwaysTrueRandomConfig.nextString()
+                    )
+                }
             }
         }
     }
@@ -53,37 +102,28 @@ class TestRandomNestedClass {
 
     @Test
     fun `randomize nullable nested object - always null`() {
-        AlwaysTrueRandomConfig
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport}
+                $imports
 
-                fun main(){
-                    println(Q123.random(AlwaysFalseRandomConfig))
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Q123>(randomConfig=AlwaysFalseRandomConfig))
+                    }
                 }
 
                 @Randomizable
-                data class Q123(
-                    val b1:B1?,
-                    val c2:C2?,
-                    val d2:D2?,
-                )
-
-                data object B1{
-                    val i = 123
-                }
-
-                object C2{
-                    val c = "ccc"
-                }
-
-                data class D2(val x:Int)
+                data class QxC<T1:Any>(override val data:T1):WithData
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.executeRunTestFunction{ testRs->
+                    testRs.getObjs() shouldBe listOf(Q123(
+                        b1 =  null, c2 =  null, d2 =null,
+                    )
+)                }
             }
         }
     }
@@ -94,37 +134,31 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport}
+                $imports
 
-                fun main(){
-                    println(Q123.random())
-                    println(Q123.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
-
-                    val q = Q123.random()
-                    println(q.b1.i.toString())
-                    println(q.c2.c.toString())
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Q4>())
+                    }
                 }
 
-                @Randomizable
-                data class Q123(
-                    val boolean: Boolean,
-                    val b1:B1,
-                    val c2:C2,
-                )
+                @Randomizable(randomConfig=TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
 
-                data object B1{
-                    val i = 123
-                }
-
-                object C2{
-                    val c = "ccc"
-                }
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.executeRunTestFunction{ testRs->
+                    testRs.getObjs() shouldBe listOf(
+                        Q4(
+                            boolean = TestRandomConfig().nextBoolean(),
+                            b1 = B1,
+                            c2 = C2,
+                        ),
+                    )
+                }
             }
         }
     }
@@ -134,29 +168,31 @@ class TestRandomNestedClass {
 
         testGeneratedCodeUsingStandardPlugin(
             """
-                ${TestImportsBuilder.stdImport}
+                $imports
 
-                fun main(){
-                    println(Q123.random())
-                    println(Q123.random())
-                    println(Q123.random())
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Q5>())
+                        putData(QxC.random<Q5>())
+                        putData(QxC.random<Q5>())
+                    }
                 }
 
-                @Randomizable
-                data class Q123(
-                    val boolean: Boolean,
-                    val enum:MyEnumClass,
-                )
-
-                enum class MyEnumClass{
-                    V1,V2,V3,V4,V5,V6
-                }
+                @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+               
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                val rdConfig = TestRandomConfig()
+                result.executeRunTestFunction { testRs->
+                    testRs.getObjs() shouldBe List(3){
+                        rdConfig.resetRandomState()
+                        Q5(rdConfig.nextBoolean(), enum = MyEnumClass.values().random(rdConfig.random))
+                    }
+                }
             }
         }
     }
@@ -167,29 +203,29 @@ class TestRandomNestedClass {
         testGeneratedCodeUsingStandardPlugin(
             """
                 
-                ${TestImportsBuilder.stdImport}
+                $imports
 
-                fun main(){
-                    println(Q123.random())
-                    println(Q123.random())
-                    println(Q123.random())
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        putData(QxC.random<Q6>())
+                        putData(QxC.random<Q6>())
+                        putData(QxC.random<Q6>())
+                    }
                 }
 
                 @Randomizable
-                data class Q123(
-                    val a:AA
-                )
-
-                data class AA(val int:Int, val bb:BB, val c:CC)
-                data class BB(val str:String,val cc:CC)
-                data class CC(val aa:Float)
+                data class QxC<T1:Any>(override val data:T1):WithData
 
             """,
             fileName = "main.kt"
         ) {
             testCompilation = { result,_->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
+                result.executeRunTestFunction { testRs->
+                    testRs.getObjs().forEach {
+                        it.shouldBeInstanceOf<Q6>()
+                    }
+                }
             }
         }
     }

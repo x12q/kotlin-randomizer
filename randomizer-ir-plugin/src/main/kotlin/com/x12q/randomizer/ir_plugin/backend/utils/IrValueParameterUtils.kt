@@ -1,7 +1,7 @@
 package com.x12q.randomizer.ir_plugin.backend.utils
 
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeMap
-import com.x12q.randomizer.ir_plugin.backend.transformers.random_function.TypeParamOrArg
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeMap
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
 import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
@@ -53,8 +53,8 @@ fun IrValueParameter.makeTypeMap(): TypeMap {
     if (typeParam_from_ParamClass != null) {
         val typeParamOrArgList: List<TypeParamOrArg> = param.getGenericTypeParamFromTypeArgs()
 
-        val localTypeMap = TypeMap.make2(
-            keyList = typeParam_from_ParamClass,
+        val localTypeMap = TypeMap.make(
+            typeParams = typeParam_from_ParamClass,
             valueList = typeParamOrArgList
         )
         return localTypeMap

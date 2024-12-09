@@ -9,8 +9,8 @@ class RandomContextBuilderImpTest{
 
     @Test
     fun build(){
-        val intRdm = ConstantClassRandomizer.of(1)
-        val floatRdm = ConstantClassRandomizer.of(2f)
+        val intRdm = ConstantRandomizer.of(1)
+        val floatRdm = ConstantRandomizer.of(2f)
         val builder = RandomContextBuilderImp()
 
         builder.add(intRdm)
@@ -22,7 +22,7 @@ class RandomContextBuilderImpTest{
 
     @Test
     fun addForTier2(){
-        val intRdm = ConstantClassRandomizer.of(1)
+        val intRdm = ConstantRandomizer.of(1)
         val builder = RandomContextBuilderImp()
 
 
