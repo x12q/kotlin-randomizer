@@ -28,6 +28,8 @@ internal object BaseObjects {
 
     val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey
 
+    val indiRandomFunctionPackage = FqName("com.x12q.randomizer.lib.util.developerErrorMsg")
+
     val randomFunctionName = Name.identifier("random")
     val randomConfigParamName= Name.identifier("randomConfig")
 
@@ -83,5 +85,17 @@ internal object BaseObjects {
 
     object Ir{
         val statementOrigin = IrStatementOriginImpl("GENERATED_BY_RANDOMIZER_BACKEND")
+    }
+
+    /**
+     * Metadata of independent random functions
+     */
+    object IndependentRandomFunction{
+        val randomFunctionPackage = FqName("com.x12q.randomizer.lib")
+        val randomFunctionName = Name.identifier("random")
+        val fullFqName = FqName("${randomFunctionPackage}.${randomFunctionName}")
+        val makeRandomParamName = Name.identifier("makeRandom")
+        val randomConfigParamName = Name.identifier("randomConfig")
+        val randomizersParamName = Name.identifier("addRandomizers")
     }
 }

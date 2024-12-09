@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_plugin.backend.transformers.reporting
+package com.x12q.randomizer.lib.util
 
 fun developerErrorMsg(msg:String):String{
     val m = if(msg.endsWith(".")){
