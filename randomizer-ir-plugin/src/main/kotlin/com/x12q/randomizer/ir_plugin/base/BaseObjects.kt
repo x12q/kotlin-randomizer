@@ -23,7 +23,7 @@ internal object BaseObjects {
     val randomizableFqName = FqName(randomizableAnnotationName)
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
 
-    @Deprecated("consider before using, see if this a duplicated concept because there's already a a randomizableDeclarationKey")
+    @Deprecated("consider before using, see if this a duplicated concept because there's already a randomizableDeclarationKey")
     val declarationOrigin = RandomizerDeclarationOrigin
 
     val randomizableDeclarationKey: RandomizableDeclarationKey = RandomizableDeclarationKey

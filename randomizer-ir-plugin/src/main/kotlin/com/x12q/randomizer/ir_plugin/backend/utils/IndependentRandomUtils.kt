@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.util.hasEqualFqName
 
-fun isIndependentRandomFunction(
+fun isRandomFunctions(
     function: IrSimpleFunction
 ): Boolean{
     val correctNameAndPackage = function.hasEqualFqName(BaseObjects.IndependentRandomFunction.fullFqName)

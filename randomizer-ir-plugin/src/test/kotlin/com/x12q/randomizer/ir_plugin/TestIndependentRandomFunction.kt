@@ -69,7 +69,9 @@ class TestIndependentRandomFunction {
         .import(C2::class)
         .import(D2::class)
         .build()
-
+    // putData(random<QxC<String>>(makeRandom={
+    //     QxC("abc")
+    // },randomConfig=AlwaysTrueRandomConfig))
 
     @Test
     fun `randomize nullable nested object - always not null`() {
@@ -79,7 +81,8 @@ class TestIndependentRandomFunction {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<String>>(makeRandom=null,randomConfig=AlwaysTrueRandomConfig))
+                        // putData(random<QxC<String>>(makeRandom = {null!!},randomConfig=AlwaysTrueRandomConfig))
+                        putData(random<QxC<String>>(randomConfig=AlwaysTrueRandomConfig))
                     }
                 }
 
