@@ -2,13 +2,9 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
-import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.test.util.assertions.runMain
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -16,7 +12,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestIndependentRandomFunction {
+class TestRandomFunction2 {
 
     data class Q123(
         val b1:B1?,
@@ -74,14 +70,14 @@ class TestIndependentRandomFunction {
     // },randomConfig=AlwaysTrueRandomConfig))
 
     @Test
-    fun `randomize nullable nested object - always not null`() {
+    fun `test random function 2`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        // putData(random<QxC<String>>(makeRandom = {null!!},randomConfig=AlwaysTrueRandomConfig))
+                        // putData(random<QxC<String>>(makeRandom = {QxC("z")},randomConfig=AlwaysTrueRandomConfig))
                         putData(random<QxC<String>>(randomConfig=AlwaysTrueRandomConfig))
                     }
                 }

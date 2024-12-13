@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.backend.common.ir.addExtensionReceiver
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
+import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
@@ -116,12 +117,12 @@ class RandomizableBackendTransformer @Inject constructor(
             .crashOnNull { developerErrorMsg("makeRandom param does not exist") }
 
         val makeRandomArg = irCall.getMakeRandomArg(makeRandomLambdaParam)
-
+        println("z99: ${irCall.dump()}")
         if (makeRandomArg == null) {
+
 
             // val defaultMakeRandomLambda = (makeRandomLambdaParam.defaultValue?.expression as? IrFunctionExpression)?.function
             //     .crashOnNull { developerErrorMsg("Default value of makeRandom parameter cannot be null") }
-
             // val cloneOfDefault = defaultMakeRandomLambda.cloneFunction(pluginContext)
 
             /**
@@ -132,15 +133,21 @@ class RandomizableBackendTransformer @Inject constructor(
             val lambdaReturnType = irCall.typeArguments.firstOrNull().crashOnNull {
                 developerErrorMsg("Type argument of makeRandom cannot be null")
             }
+            val builder = DeclarationIrBuilder(
+                generatorContext = pluginContext,
+                symbol = irCall.symbol,
+            )
+            builder.parent
+
+            val parent = lambdaReturnType.classOrNull!!.owner.parent
+
             val makeRandomLambda = generateMakeRandomLambda(
                 returnType = lambdaReturnType,
-                // declarationParent = randomFunction, // TODO this has to be whoever is calling IrCall
-                declarationParent = randomContextAccessor.clzz.owner, // TODO this has to be whoever is calling IrCall
-                // declarationParent = lambdaReturnType.classOrNull!!.owner.companionObject()!!, // TODO this has to be whoever is calling IrCall
+                // declarationParent = null,
+                // declarationParent = irCall.symbol.owner,
+                // declarationParent = builder.parent,
+                declarationParent = currentDeclarationParent,
             )
-
-            makeRandomLambda.patchDeclarationParents(irCall.symbol.owner)
-            // insert the generated makeRandom lambda into the call
 
             val makeRandomLambdaArg = makeIrFunctionExpr(
                 lambda = makeRandomLambda,
@@ -151,19 +158,27 @@ class RandomizableBackendTransformer @Inject constructor(
                     )
             )
             irCall.putValueArgument(makeRandomLambdaParam.index, makeRandomLambdaArg)
-        }else{
+        } else {
             "zxc"
         }
-        println("z16: ${irCall.dumpKotlinLike()}")
+        println("z16: ${irCall.dump()}")
         return Unit
     }
 
     private fun generateMakeRandomLambda(
-        // makeRandomFunction: IrSimpleFunction,
         returnType: IrType,
-        declarationParent: IrDeclarationParent,
+        declarationParent: IrDeclarationParent?,
     ): IrSimpleFunction {
-        val makeRandomLambda = makeLocalLambdaWithoutBody(returnType)
+        val makeRandomLambda: IrSimpleFunction = makeLocalLambdaWithoutBody2(
+            returnType = returnType,
+            visibility = DescriptorVisibilities.LOCAL,
+            // name = Name.special("<makeRandom-for-zzz>")
+        )
+
+        if(declarationParent!=null){
+            makeRandomLambda.parent = declarationParent
+        }
+
 
         makeRandomLambda.addValueParameter(
             name = Name.identifier("randomContext"),
@@ -176,20 +191,17 @@ class RandomizableBackendTransformer @Inject constructor(
             symbol = makeRandomLambda.symbol,
         )
 
-        val getRandomContextExpr = builder.irGet(makeRandomLambda.valueParameters[0])
-        val clzz = returnType.classOrNull?.owner
-            .crashOnNull { developerErrorMsg("class passed to random() function must not be null") }
-
         val body = generateMakeRandomBody(
             builder = builder,
             randomFunction = makeRandomLambda,
-            getRandomContext = getRandomContextExpr,
+            getRandomContext = builder.irGet(makeRandomLambda.valueParameters[0]),
             randomFunctionMetaData = RandomFunctionMetaData(
-                targetClass = clzz,
+                targetClass = returnType.classOrNull?.owner
+                    .crashOnNull { developerErrorMsg("class passed to random() function must not be null") },
                 initTypeMap = returnType.makeTypeMap()
             ),
         )
-        makeRandomLambda.parent = declarationParent
+
         makeRandomLambda.body = body
         return makeRandomLambda
     }
@@ -2446,7 +2458,10 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    private fun makeIrFunctionExpr(lambda: IrSimpleFunction, functionType: IrType): IrFunctionExpressionImpl {
+    private fun makeIrFunctionExpr(
+        lambda: IrSimpleFunction,
+        functionType: IrType,
+    ): IrFunctionExpressionImpl {
         return IrFunctionExpressionImpl(
             startOffset = lambda.startOffset,
             endOffset = lambda.endOffset,
@@ -2455,6 +2470,22 @@ class RandomizableBackendTransformer @Inject constructor(
             origin = IrStatementOrigin.LAMBDA
         )
     }
+
+    private fun makeLocalLambdaWithoutBody2(
+        returnType: IrType,
+        visibility: DescriptorVisibility = DescriptorVisibilities.LOCAL,
+        name: Name = SpecialNames.ANONYMOUS
+    ): IrSimpleFunction {
+        return pluginContext.irFactory.buildFun {
+            this.name = name
+            origin = IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA
+            this.visibility = visibility
+            this.returnType = returnType
+            modality = FINAL
+            isSuspend = false
+        }
+    }
+
 
     /**
      * Make a local lambda.
@@ -2466,12 +2497,13 @@ class RandomizableBackendTransformer @Inject constructor(
         returnType: IrType,
         beforeStandardConfig: IrFunctionBuilder.() -> Unit = {},
         afterStandardConfig: IrFunctionBuilder.() -> Unit = {},
+        visibility: DescriptorVisibility = DescriptorVisibilities.LOCAL,
     ): IrSimpleFunction {
         return pluginContext.irFactory.buildFun {
             beforeStandardConfig(this)
-            name = SpecialNames.ANONYMOUS
+            this.name = SpecialNames.ANONYMOUS
             origin = BaseObjects.declarationOrigin
-            visibility = DescriptorVisibilities.LOCAL
+            this.visibility = visibility
             this.returnType = returnType
             modality = FINAL
             isSuspend = false
