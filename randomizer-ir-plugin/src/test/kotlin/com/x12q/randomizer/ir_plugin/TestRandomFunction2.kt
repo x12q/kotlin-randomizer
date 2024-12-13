@@ -77,7 +77,7 @@ class TestRandomFunction2 {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        // putData(random<QxC<String>>(makeRandom = {QxC("z")},randomConfig=AlwaysTrueRandomConfig))
+                        putData(random<QxC<String>>(makeRandom = {QxC("z")},randomConfig=AlwaysTrueRandomConfig))
                         putData(random<QxC<String>>(randomConfig=AlwaysTrueRandomConfig))
                     }
                 }
@@ -91,6 +91,7 @@ class TestRandomFunction2 {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.executeRunTestFunction{ testOutput->
                     testOutput.getObjs() shouldBe listOf(
+                        "z",
                         AlwaysTrueRandomConfig.nextString()
                     )
                 }
