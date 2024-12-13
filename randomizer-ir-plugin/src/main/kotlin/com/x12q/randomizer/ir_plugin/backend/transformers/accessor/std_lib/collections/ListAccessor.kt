@@ -26,7 +26,7 @@ class ListAccessor @Inject constructor(
         val makeListFunctionName = CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeList"))
         pluginContext.referenceFunctions(makeListFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeList does not exist."
+                "function com.x12q.randomizer.lib.util.makeList does not exist."
             }
     }
 
@@ -42,7 +42,7 @@ class ListAccessor @Inject constructor(
             CallableId(FqName("com.x12q.randomizer.lib.util"), Name.identifier("makeArrayList"))
         pluginContext.referenceFunctions(makeArrayListFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArrayList does not exist."
+                "function com.x12q.randomizer.lib.util.makeArrayList does not exist."
             }
     }
 

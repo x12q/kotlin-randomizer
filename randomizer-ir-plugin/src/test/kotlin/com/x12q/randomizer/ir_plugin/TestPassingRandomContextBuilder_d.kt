@@ -2,6 +2,8 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
+import com.x12q.randomizer.ir_plugin.testGeneratedCodeUsingStandardPlugin
+import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -10,27 +12,31 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestPassingRandomContextBuilder {
+class TestPassingRandomContextBuilder_d {
 
     data class Dt(val i: Int)
-
+    data class QxC1(override val data:Dt):WithData
+    val imports = TestImportsBuilder.stdImport
+        .import(Dt::class)
+        .import(QxC1::class)
+        .import(PrimitivesContainer::class)
+        .import(QxC2::class)
     @Test
     fun `access RandomConfig from RandomContextBuilder`() {
-
-        val imports = TestImportsBuilder.stdImport.import(Dt::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random{
-                            add(FactoryClassRandomizer.of{Dt(this.randomConfig.nextInt())})
-                        })
+                        putData(random<QxC1>(
+                            randomConfig = AlwaysTrueRandomConfig,
+                            randomizers = {
+                                add(FactoryClassRandomizer.of{Dt(this.randomConfig.nextInt())})
+                            }
+                        ))
                     }
                 }
-                @Randomizable(randomConfig = AlwaysTrueRandomConfig::class)
-                data class QxC(override val data:Dt):WithData
             """,
         ) {
             testCompilation = { result, testStream ->
@@ -45,21 +51,19 @@ class TestPassingRandomContextBuilder {
     }
     @Test
     fun `pass randomizers config function`() {
-
-        val imports = TestImportsBuilder.stdImport.import(Dt::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random{
-                            add(FactoryClassRandomizer.of({Dt(-999)}))
-                        })
+                        putData(random<QxC1>(
+                            randomizers = {
+                                add(FactoryClassRandomizer.of({Dt(-999)}))
+                            }
+                        ))
                     }
                 }
-                @Randomizable
-                data class QxC(override val data:Dt):WithData
             """,
         ) {
             testCompilation = { result, testStream ->
@@ -99,7 +103,6 @@ class TestPassingRandomContextBuilder {
         val number: Number,
         val unit: Unit,
         val any: Any,
-
        // val intN: Int?,
 //        val booleanN: Boolean?,
 //        val longN: Long?,
@@ -113,57 +116,58 @@ class TestPassingRandomContextBuilder {
 //        val unitN: Unit?,
 //        val anyN: Any?,
     )
+    data class QxC2(override val data:PrimitivesContainer):WithData
 
 
     @Test
     fun `random context overriding default randomizer`() {
 
-        val expectation = PrimitivesContainer(
-            boolean = true,
-            int = 123,
-            long = 321L,
-            float = 543f,
-            double = 89.78,
-            byte = 123.toByte(),
-            char = 'z',
-            short = 88.toShort(),
-            string = "qwezxc123",
-            number = 44.123,
-            unit = Unit,
-            any = "mmmm",
-        )
 
-
-        val imports = TestImportsBuilder.stdImport.import(PrimitivesContainer::class)
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random{
-                            add(ConstantRandomizer.of(true))
-                            add(ConstantRandomizer.of(123))
-                            add(ConstantRandomizer.of(321L))
-                            add(ConstantRandomizer.of(543f))
-                            add(ConstantRandomizer.of(89.78))
-                            add(ConstantRandomizer.of(123.toByte()))
-                            add(ConstantRandomizer.of('z'))
-                            add(ConstantRandomizer.of(88.toShort()))
-                            add(ConstantRandomizer.of("qwezxc123"))
-                            add(ConstantRandomizer.of<Number>(44.123))
-                            add(ConstantRandomizer.of(Unit))
-                            add(ConstantRandomizer.of<Any>("mmmm"))
-                        })
+                        putData(random<QxC2>(
+                            randomizers = {
+                                add(ConstantRandomizer.of(true))
+                                add(ConstantRandomizer.of(123))
+                                add(ConstantRandomizer.of(321L))
+                                add(ConstantRandomizer.of(543f))
+                                add(ConstantRandomizer.of(89.78))
+                                add(ConstantRandomizer.of(123.toByte()))
+                                add(ConstantRandomizer.of('z'))
+                                add(ConstantRandomizer.of(88.toShort()))
+                                add(ConstantRandomizer.of("qwezxc123"))
+                                add(ConstantRandomizer.of<Number>(44.123))
+                                add(ConstantRandomizer.of(Unit))
+                                add(ConstantRandomizer.of<Any>("mmmm"))
+                            }
+                        ))
                     }
                 }
-                @Randomizable
-                data class QxC(override val data:PrimitivesContainer):WithData
             """,
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.executeRunTestFunction {
+
+                    val expectation = PrimitivesContainer(
+                        boolean = true,
+                        int = 123,
+                        long = 321L,
+                        float = 543f,
+                        double = 89.78,
+                        byte = 123.toByte(),
+                        char = 'z',
+                        short = 88.toShort(),
+                        string = "qwezxc123",
+                        number = 44.123,
+                        unit = Unit,
+                        any = "mmmm",
+                    )
+
                     it.getObjs() shouldBe listOf(
                         expectation
                     )

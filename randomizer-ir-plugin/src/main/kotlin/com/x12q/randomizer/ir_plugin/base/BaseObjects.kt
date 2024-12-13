@@ -96,6 +96,6 @@ internal object BaseObjects {
         val fullFqName = FqName("${randomFunctionPackage}.${randomFunctionName}")
         val makeRandomParamName = Name.identifier("makeRandom")
         val randomConfigParamName = Name.identifier("randomConfig")
-        val randomizersParamName = Name.identifier("addRandomizers")
+        val randomizersParamName = Name.identifier("randomizers")
     }
 }

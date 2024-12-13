@@ -17,14 +17,20 @@ fun isRandomFunctions(
     return correctNameAndPackage && (isRandomIndie1 || isRandomIndie2)
 }
 
-fun IrSimpleFunction.getMakeRandomValueParam(): IrValueParameter?{
+fun IrSimpleFunction.getMakeRandomParam(): IrValueParameter?{
     return this.valueParameters.firstOrNull { valueParam->
         valueParam.name == BaseObjects.IndependentRandomFunction.makeRandomParamName
     }
 }
 
-fun IrCall.getMakeRandomArg(makeRandomParameter: IrValueParameter): IrExpression? {
+fun IrSimpleFunction.getRandomizersParam(): IrValueParameter?{
+    return this.valueParameters.firstOrNull { valueParam->
+        valueParam.name == BaseObjects.IndependentRandomFunction.randomizersParamName
+    }
+}
+
+fun IrCall.getArgAtParam(parameter: IrValueParameter): IrExpression? {
     val irCall = this
-    val rt= irCall.getValueArgument(makeRandomParameter.index)
+    val rt= irCall.getValueArgument(parameter.index)
     return rt
 }

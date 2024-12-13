@@ -643,12 +643,11 @@ class TestRandomListAssignable_List {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:List<T1>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>())
+                        putData(random<QxC<Int>>())
                         // putData(QxC.random<Qx2<Float>>())
                         // putData(QxC.random<Qx2<Qx4<String>>>())
                         // putData(QxC.random<TwoGeneric<Int,String>>())

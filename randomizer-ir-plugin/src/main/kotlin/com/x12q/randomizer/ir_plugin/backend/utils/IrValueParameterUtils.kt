@@ -15,7 +15,6 @@ import org.jetbrains.kotlin.ir.types.classifierOrNull
  * When the param is not backed by a class (such as when it backed by a generic), this will return null.
  */
 fun IrValueParameter.getTypeParamsFromClass(): List<IrTypeParameter>? {
-    // val rt = (this.type as? IrSimpleType)?.arguments?.mapNotNull { ((it as? IrSimpleType)?.classifier as? IrTypeParameterSymbol)?.owner}
     val rt = this.type.classOrNull?.owner?.typeParameters
     return rt
 }
