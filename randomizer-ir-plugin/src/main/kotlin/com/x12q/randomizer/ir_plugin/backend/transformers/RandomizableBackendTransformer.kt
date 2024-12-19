@@ -320,25 +320,15 @@ class RandomizableBackendTransformer @Inject constructor(
         )
 
         newMakeRandomLambda.addTypeParameter(
-            name= "RCTX",
+            name = "T",
             upperBound = randomContextAccessor.irType
         )
 
         newMakeRandomLambda.addTypeParameter(
-            name= "RTT",
+            name = "E",
             upperBound = returnType
         )
 
-        // val originalTypeParams = makeRandomLambdaParam.getTypeParamsFromClass()
-        // if(originalTypeParams!=null && originalTypeParams.isNotEmpty()){
-        //     for (typeParam in originalTypeParams){
-        //         newMakeRandomLambda.addTypeParameter(
-        //             name =typeParam.name.asString(),
-        //             upperBound = typeParam.defaultType,
-        //         )
-        //     }
-        //     newMakeRandomLambda.typeParameters = originalTypeParams
-        // }
         val body = generateMakeRandomBody(
             makeRandomFunction = newMakeRandomLambda,
             randomFunctionMetaData = RandomFunctionMetaData(
@@ -364,26 +354,22 @@ class RandomizableBackendTransformer @Inject constructor(
             symbol = makeRandomFunction.symbol,
         )
         return builder.irBlockBody {
-            val target: IrClass = randomFunctionMetaData.targetClass
-            val randomContextParam = makeRandomFunction.valueParameters[0]
-            val randomContextTempVar = irTemporary(
-                value=builder.irGet(randomContextParam),
-                irType = randomContextParam.type,
-                nameHint = "randomContext_kkkkkkkkkkkkkkkk_"
-            )
-            val getVar = builder.irGet(randomContextTempVar)
-            val randomConfigTempVar = irTemporary(
-                value=getVar.dotCall(randomContextAccessor.randomConfig(builder)),
-                irType = randomConfigAccessor.irType,
-                nameHint = "randomConfig_xxxxxxxxxxxxxx_"
-            )
 
+            val target: IrClass = randomFunctionMetaData.targetClass
+
+            val getRandomContextExpr = builder.irGet(makeRandomFunction.valueParameters[0])
+
+            val randomConfigTempVar = irTemporary(
+                value = getRandomContextExpr.dotCall(randomContextAccessor.randomConfig(builder)),
+                irType = randomConfigAccessor.irType,
+                nameHint = "randomConfigInMakeRandom"
+            )
 
             val makeRandomPrimaryClass = generateRandomPrimaryClass(
                 irClass = target,
                 builder = builder,
                 declarationParent = makeRandomFunction,
-                getRandomContextExpr = getVar,
+                getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = builder.irGet(randomConfigTempVar),
                 randomFunctionMetaData = randomFunctionMetaData,
             )
@@ -2398,10 +2384,10 @@ class RandomizableBackendTransformer @Inject constructor(
                 is IrTypeParameterSymbol -> {
                     val typeParamOrTypeArg = typeMap.get(argClassifier.owner)
                     val irType = typeParamOrTypeArg?.getIrTypeOrNull()
-                    if(irType is IrSimpleType){
+                    if (irType is IrSimpleType) {
                         // type info already exist, juts pass it along
                         irType
-                    }else{
+                    } else {
                         // type info does not exist, construct a synthetic type
                         // TODO this branch is problematic, it works with @Randomizable, but it can erase type because the synthetic type is not complete
                         val classifier = when (typeParamOrTypeArg) {

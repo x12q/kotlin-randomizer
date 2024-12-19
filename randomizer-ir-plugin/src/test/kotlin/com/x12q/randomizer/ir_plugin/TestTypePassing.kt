@@ -210,12 +210,9 @@ class TestTypePassing {
             """
                 $imports3
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC2<K_Q2>(override val data:Ax3<K_Q2>):WithData
-
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC2.random<Cx3<String>>())
+                        putData(random<QxC3<Cx3<String>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,

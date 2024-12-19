@@ -545,7 +545,6 @@ class TestRandomListAssignable_List {
             """
                 $imports
 
-                // @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1>(override val data:List<List<T1>>):WithData
 
                 fun runTest():TestOutput {
