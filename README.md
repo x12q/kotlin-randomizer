@@ -9,7 +9,7 @@ A library for (kinda) effortlessly generate random objects.
 
 
 # Usage note
-- This library is best used to randomize classes that only contain data.
+- This library is best used for randomizing classes that only contain data.
 - For service classes that depends on complex interfaces or abstract classes, it's better to initialize them directly.
 
 # Introduction
