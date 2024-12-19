@@ -90,14 +90,13 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:LinkedHashMap<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Short,Double>())
-                        putData(QxC.random<Qx2<Float>,Double>())
-                        putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                        putData(random<QxC<Short,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -146,18 +145,19 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:LinkedHashMap<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<String,Double>(
+                        putData(random<QxC<String,Double>>(
+                            randomConfig=TestRandomConfig(),
                             randomizers = {
                                 constant{"a"}
                             }
                         ))
                     
-                        putData(QxC.random<Short,Double>(
+                        putData(random<QxC<Short,Double>>(
+                            randomConfig=TestRandomConfig(),
                             randomizers = {
                                 constant<LinkedHashMap<Short,Double>>{LinkedHashMap(buildMap {
                                     put(1.toShort(),3.0)
@@ -193,15 +193,14 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC_Nest2<K,V,T>(override val data:LinkedHashMap<LinkedHashMap<K, V>, LinkedHashMap<K,T>>):WithData
 
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC_Nest2.random<Short,Double,String>())
-                        putData(QxC_Nest2.random<Qx2<Short>,Qx4<Double>,Qx6<String>>())
-                        putData(QxC_Nest2.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>())
+                        putData(random<QxC_Nest2<Short,Double,String>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Short>,Qx4<Double>,Qx6<String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -275,17 +274,16 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:LinkedHashMap<K,LinkedHashMap<LinkedHashMap<K,V>,V>>):WithData
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC_Nest3<K,V,T,E>(override val data:LinkedHashMap<LinkedHashMap<LinkedHashMap<K,V>, T>, LinkedHashMap<LinkedHashMap<K,V>,E>>):WithData
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int,Double>())
-                        putData(QxC_Nest3.random<Short,Double,String,Float>())
-                        putData(QxC_Nest3.random<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>())
-                        putData(QxC_Nest3.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>())
+                        putData(random<QxC<Int,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Short,Double,String,Float>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -391,19 +389,19 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<LinkedHashMap<Int,Double>>())
-                         putData(QxC.random<LinkedHashMap<Qx2<Float>,Double>>())
-                         putData(QxC.random<LinkedHashMap<Qx2<Float>,Qx4<Double>>>())
-                         putData(QxC.random<LinkedHashMap<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>())
-                         putData(QxC.random<LinkedHashMap<TwoGeneric<Int,String>,Int>>())
-                         putData(QxC.random<LinkedHashMap<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>())
-                         putData(QxC.random<LinkedHashMap<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>())
-                         putData(QxC.random<LinkedHashMap<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>())
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Float>,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Float>,Qx4<Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Int,String>,Int>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -492,18 +490,20 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<LinkedHashMap<Int,Double>>(
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(1)
                                 constant(2.0)
                             }
                          ))
-                         putData(QxC.random<LinkedHashMap<Int,Double>>(
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                constant<LinkedHashMap<Int,Double>>(LinkedHashMap(mapOf(1 to 3.0, 3 to 4.0)))
                             }
@@ -531,13 +531,12 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<LinkedHashMap<LinkedHashMap<Int,Double>,LinkedHashMap<Int,Double>>>())
-                         putData(QxC.random<LinkedHashMap<LinkedHashMap<Qx2<Int>,Qx4<Double>>,LinkedHashMap<Qx4<Int>,Qx6<Double>>>>())
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<Int,Double>,LinkedHashMap<Int,Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<Qx2<Int>,Qx4<Double>>,LinkedHashMap<Qx4<Int>,Qx6<Double>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -586,12 +585,12 @@ class TestRandomLinkedLinkedHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<LinkedHashMap<LinkedHashMap<LinkedHashMap<Short,Double>, String>, LinkedHashMap<LinkedHashMap<Short,Double>,Float>>>())
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<LinkedHashMap<Short,Double>, String>, LinkedHashMap<LinkedHashMap<Short,Double>,Float>>>>(randomConfig=TestRandomConfig()))
 
                     }
                 }
