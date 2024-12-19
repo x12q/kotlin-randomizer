@@ -6,8 +6,7 @@ A library for (kinda) effortlessly generate random objects.
   
 > :warning: This is a pre-alpha release
 > - Everything, including the public API, is subject to change.
-> - Not suitable for use in production. 
-> - not integrated with IDEs, so there's no auto-complete for generated code.
+
 
 # Usage note
 - This library is best used to randomize classes that only contain data.
