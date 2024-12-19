@@ -53,7 +53,6 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -83,7 +82,6 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -121,7 +119,6 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -157,7 +154,6 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -194,7 +190,6 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -232,10 +227,9 @@ class TestRandomGenericProperty_d {
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
-                // @Randomizable
+
                 data class Qx2x<Z>(val paramOfQ2x: Z)
 
-                // @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput{
@@ -290,7 +284,7 @@ class TestRandomGenericProperty_d {
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
-                @Randomizable
+
                 data class QxC<T1,T2>(override val data: TwoGeneric<Qx2<Qx4<T1>>,Qx4<Qx6<T2>>>):WithData
 
                 fun runTest():TestOutput{
@@ -347,7 +341,7 @@ class TestRandomGenericProperty_d {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
-                // @Randomizable
+                
                 data class QxC<T1>(override val data:Qx2<Qx4<T1>>):WithData
                 
                 fun runTest():TestOutput{
@@ -382,7 +376,7 @@ class TestRandomGenericProperty_d {
                         }))
                     }
                 }
-                @Randomizable
+                
                 data class QxC<T1>(override val data:Qx2<Qx4<Qx6<T1>>>):WithData
             """,
         ) {
@@ -407,7 +401,7 @@ class TestRandomGenericProperty_d {
                         putData(random<QxC<String>>(randomConfig=LegalRandomConfigObject))
                     }
                 }
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                
                 data class QxC<T1>(override val data:Qx2<T1>):WithData
             """,
         ) {
@@ -438,7 +432,7 @@ class TestRandomGenericProperty_d {
                         }))
                     }
                 }
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
+                
                 data class QxC<T1>(override val data:Qx2<T1>):WithData
             """,
         ) {
@@ -489,6 +483,8 @@ class TestRandomGenericProperty_d {
             """
                 $imports
 
+                data class QxC<T1>(override val data:Qx2<T1>):WithData
+
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(random<QxC<Int>>(randomConfig=LegalRandomConfigObject, randomizers = {
@@ -499,8 +495,6 @@ class TestRandomGenericProperty_d {
                         }))
                     }
                 }
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class QxC<T1>(override val data:Qx2<T1>):WithData
             """,
         ) {
             testCompilation = { result, _ ->
@@ -537,7 +531,7 @@ class TestRandomGenericProperty_d {
                         )
                     }
                 }
-                @Randomizable(randomConfig = RandomConfigForTest::class)
+
                 data class QxC<T1,T2,T3>(override val data:Qx3<T1,T2,T3>):WithData{
                     companion object{
                         fun q9(fn:(()->Int)?):Int{
@@ -584,7 +578,7 @@ class TestRandomGenericProperty_d {
                         )
                     }
                 }
-                @Randomizable(randomConfig = RandomConfigForTest::class)
+                
                 data class QxC<T1,T2,T3>(override val data:Qx3Swapped<T1,T2,T3>):WithData{
                     companion object{
                         fun q9(fn:(()->Int)?):Int{
@@ -630,7 +624,7 @@ class TestRandomGenericProperty_d {
                         }))
                     }
                 }
-                @Randomizable(randomConfig = RandomConfigForTest::class)
+                
                 data class QxC<T1>(override val data:Qx<T1>):WithData
             """,
         ) {
@@ -663,7 +657,7 @@ class TestRandomGenericProperty_d {
                         }))
                     }
                 }
-                @Randomizable(randomConfig = RandomConfigForTest::class)
+                
                 data class QxC<T1:Number>(override val data:Qx<T1>):WithData
             """,
         ) {
@@ -684,7 +678,7 @@ class TestRandomGenericProperty_d {
             """
                 $imports
                 
-                @Randomizable(randomConfig = RandomConfigForTest::class)
+                
                 data class QxC<T1:Number>(override val data:Qx<T1>):WithData            
 
                 fun runTest():TestOutput{
