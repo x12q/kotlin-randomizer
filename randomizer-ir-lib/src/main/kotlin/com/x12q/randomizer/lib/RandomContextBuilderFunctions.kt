@@ -27,7 +27,6 @@ object RandomContextBuilderFunctions {
         return constant(makeValue)
     }
 
-    // TODO add other convenient functions such as int(), float(), string()...
     fun RandomContextBuilder.float(i: Float): RandomContextBuilder {
         return constant(i)
     }
