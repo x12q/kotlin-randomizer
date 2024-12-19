@@ -1,8 +1,8 @@
 package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.JvmCompilationResult
-import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
 import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
+import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerRandomizerComponent
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
 import com.x12q.randomizer.test.util.assertions.StringTestOutputStream
 import com.x12q.randomizer.test.util.assertions.TestOutputStream
@@ -24,7 +24,7 @@ fun testGeneratedCodeUsingStandardPlugin(
     @Language("kotlin")
     kotlinSource: String,
     backendTransformerFactory: (IrPluginContext) -> RDBackendTransformer = { pluginContext ->
-        val comp = DaggerP7Component
+        val comp = DaggerRandomizerComponent
             .builder()
             .setIRPluginContext(pluginContext)
             .build()
