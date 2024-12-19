@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-//    alias(libs.plugins.anvil)
     alias(libs.plugins.buildConfig)
     kotlin("plugin.serialization")
 }
