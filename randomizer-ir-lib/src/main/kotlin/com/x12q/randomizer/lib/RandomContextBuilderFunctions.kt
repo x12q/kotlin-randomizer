@@ -32,43 +32,87 @@ object RandomContextBuilderFunctions {
         return constant(i)
     }
 
+    fun RandomContextBuilder.float(makeValue: () -> Float): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.double(i: Double): RandomContextBuilder {
         return constant(i)
+    }
+
+    fun RandomContextBuilder.double(makeValue: () -> Double): RandomContextBuilder {
+        return constant(makeValue)
     }
 
     fun RandomContextBuilder.string(i: String): RandomContextBuilder {
         return constant(i)
     }
 
+    fun RandomContextBuilder.string(makeValue: () -> String): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.long(i: Long): RandomContextBuilder {
         return constant(i)
+    }
+
+    fun RandomContextBuilder.long(makeValue: () -> Long): RandomContextBuilder {
+        return constant(makeValue)
     }
 
     fun RandomContextBuilder.short(i: Short): RandomContextBuilder {
         return constant(i)
     }
 
+    fun RandomContextBuilder.short(makeValue: () -> Short): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.char(i: Char): RandomContextBuilder {
         return constant(i)
+    }
+
+    fun RandomContextBuilder.char(makeValue: () -> Char): RandomContextBuilder {
+        return constant(makeValue)
     }
 
     fun RandomContextBuilder.byte(i: Byte): RandomContextBuilder {
         return constant(i)
     }
 
+    fun RandomContextBuilder.byte(makeValue: () -> Byte): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.uInt(i: UInt): RandomContextBuilder {
         return constant(i)
+    }
+
+    fun RandomContextBuilder.uInt(makeValue: () -> UInt): RandomContextBuilder {
+        return constant(makeValue)
     }
 
     fun RandomContextBuilder.uLong(i: ULong): RandomContextBuilder {
         return constant(i)
     }
 
+    fun RandomContextBuilder.uLong(makeValue: () -> ULong): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.uByte(i: UByte): RandomContextBuilder {
         return constant(i)
     }
 
+    fun RandomContextBuilder.uByte(makeValue: () -> UByte): RandomContextBuilder {
+        return constant(makeValue)
+    }
+
     fun RandomContextBuilder.uShort(i: UShort): RandomContextBuilder {
         return constant(i)
+    }
+
+    fun RandomContextBuilder.uShort(makeValue: () -> UShort): RandomContextBuilder {
+        return constant(makeValue)
     }
 }
