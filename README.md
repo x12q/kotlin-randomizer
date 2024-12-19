@@ -18,13 +18,14 @@ A library for (kinda) effortlessly generate random objects.
 A random instance of any class can be created as easy as this:
 
 ```kotlin
-@Randomizable
+import com.x12q.randomizer.lib.random
+
 class ExampleClass(
     val i: Int,
     val f: Float,
 )
 
-val instance = ExampleClass.random()
+val instance = random<ExampleClass>()
 ```
 
 ## Gradle
@@ -43,14 +44,9 @@ dependencies {
 Custom randomizers can be added like this:
 
 ```kotlin
-@Randomizable
-class ExampleClass(
-    val i: Int,
-    val f: Float,
-)
 
-val instance = ExampleClass.random(randomizers = {
-    constant<Int>{333}
+val instance = ExampleClass.random<ExampleClass>(randomizers = {
+    int(333)
     factory<Float>{
         listOf(1.2f, 2f,4f).random()
     }
@@ -62,24 +58,24 @@ val instance = ExampleClass.random(randomizers = {
 Generic is supported, so it is possible to do this:
 
 ```kotlin
-@Randomizable
+import com.x12q.randomizer.lib.random
+
 class ExampleClass<T>(
     val t:T
 )
-
-val instance = ExampleClass.random<Int>()
+val instance = random<ExampleClass<Int>>()
 ```
 
 Nested generic is also supported
 
 ```kotlin
-@Randomizable
+import com.x12q.randomizer.lib.random
+
 class ExampleClass<T>(
     val t:T
 )
-
-val instance = ExampleClass.random<Map<Int, String>>()
-val instance2 = ExampleClass.random<List<Map<Int, String>>>()
+val instance = random<ExampleClass<Map<Int, String>>>()
+val instance2 = random<ExampleClass<List<Map<Int, String>>>>()
 ```
 
 # Built-in type support
@@ -98,18 +94,17 @@ The library support the following built-in types:
 - `LinkedHashSet`
 - `Array`
 
-# Provide a custom Random object
+# Customize the randomness
+
 A custom `Random` object can be via a `RandomConfig` object passed to `random()` function
 
 ```kotlin
+import com.x12q.randomizer.lib.random
 import kotlin.random.Random
 
-@Randomizable
-class ExampleClass
-
-val yourRandomObj: Random = Random(123)
+val yourRandomObj: Random = Random(seed=123)
         
-val instance = ExampleClass.random(
-    randomConfig = DefaultRandomConfig.default(random = yourRandomObj)
+val instance = random<ExampleClass>(
+    randomConfig = RandomConfig.defaultWith(random = yourRandomObj)
 )
 ```
