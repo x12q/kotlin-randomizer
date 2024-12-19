@@ -27,7 +27,7 @@ class ExampleClass(
 val instance = random<ExampleClass>()
 ```
 
-## Gradle
+## Install with gradle
 ```
 plugins{
   id("com.x12q.randomizer") version "1.0.0-alpha.7"
