@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomMap {
+class TestRandomMap_d {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -90,14 +90,13 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Short,Double>())
-                        putData(QxC.random<Qx2<Float>,Double>())
-                        putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                        putData(random<QxC<Short,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -143,18 +142,19 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<String,Double>(
+                        putData(random<QxC<String,Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{"a"}
                             }
                         ))
                     
-                        putData(QxC.random<Short,Double>(
+                        putData(random<QxC<Short,Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{buildMap {
                                     put(1.toShort(),3.0)
@@ -190,15 +190,13 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC_Nest2<K,V,T>(override val data:Map<Map<K, V>, Map<K,T>>):WithData
-
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC_Nest2.random<Short,Double,String>())
-                        putData(QxC_Nest2.random<Qx2<Short>,Qx4<Double>,Qx6<String>>())
-                        putData(QxC_Nest2.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>())
+                        putData(random<QxC_Nest2<Short,Double,String>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Short>,Qx4<Double>,Qx6<String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -272,17 +270,16 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<K,V>(override val data:Map<K,Map<Map<K,V>,V>>):WithData
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC_Nest3<K,V,T,E>(override val data:Map<Map<Map<K,V>, T>, Map<Map<K,V>,E>>):WithData
+
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int,Double>())
-                        putData(QxC_Nest3.random<Short,Double,String,Float>())
-                        putData(QxC_Nest3.random<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>())
-                        putData(QxC_Nest3.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>())
+                        putData(random<QxC<Int,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Short,Double,String,Float>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -388,19 +385,18 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Int,Double>>())
-                         putData(QxC.random<Map<Qx2<Float>,Double>>())
-                         putData(QxC.random<Map<Qx2<Float>,Qx4<Double>>>())
-                         putData(QxC.random<Map<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>())
-                         putData(QxC.random<Map<TwoGeneric<Int,String>,Int>>())
-                         putData(QxC.random<Map<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>())
-                         putData(QxC.random<Map<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>())
-                         putData(QxC.random<Map<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>())
+                         putData(random<QxC<Map<Int,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<Qx2<Float>,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<Qx2<Float>,Qx4<Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<TwoGeneric<Int,String>,Int>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -489,18 +485,19 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Int,Double>>(
+                         putData(random<QxC<Map<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(1)
                                 constant(2.0)
                             }
                          ))
-                         putData(QxC.random<Map<Int,Double>>(
+                         putData(random<QxC<Map<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                constant(mapOf(1 to 3.0, 3 to 4.0))
                             }
@@ -528,13 +525,12 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Map<Int,Double>,Map<Int,Double>>>())
-                         putData(QxC.random<Map<Map<Qx2<Int>,Qx4<Double>>,Map<Qx4<Int>,Qx6<Double>>>>())
+                         putData(random<QxC<Map<Map<Int,Double>,Map<Int,Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<Map<Map<Qx2<Int>,Qx4<Double>>,Map<Qx4<Int>,Qx6<Double>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -583,12 +579,11 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Map<Map<Short,Double>, String>, Map<Map<Short,Double>,Float>>>())
+                         putData(random<QxC<Map<Map<Map<Short,Double>, String>, Map<Map<Short,Double>,Float>>>>(randomConfig=TestRandomConfig()))
 
                     }
                 }

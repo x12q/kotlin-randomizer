@@ -2,22 +2,18 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.lib.RandomContext
-import com.x12q.randomizer.lib.RandomContextBuilderImp
 import com.x12q.randomizer.lib.annotations.Randomizable
-import com.x12q.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestTypePassing {
+class TestTypePassing_d {
 
     data class Qx<T1>(val i: T1?)
     // data class Qx2<Q2T>(val paramOfQ2: Q2T)
