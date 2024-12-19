@@ -3,8 +3,8 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.lib.RandomConfigImp
-import com.x12q.randomizer.test.util.assertions.runMain
+import com.x12q.randomizer.ir_plugin.testGeneratedCodeUsingStandardPlugin
+import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -16,7 +16,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomNestedClass {
+class TestRandomNestedClass_d {
 
     data class Q123(
         val b1:B1?,
@@ -68,9 +68,10 @@ class TestRandomNestedClass {
         .import(B1::class)
         .import(C2::class)
         .import(D2::class)
+        .import(QxC::class)
         .build()
 
-
+    data class QxC<T1:Any>(override val data:T1):WithData
     @Test
     fun `randomize nullable nested object - always not null`() {
         testGeneratedCodeUsingStandardPlugin(
@@ -79,12 +80,10 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<String>(randomConfig=AlwaysTrueRandomConfig))
+                        putData(random<QxC<String>>(randomConfig=AlwaysTrueRandomConfig))
                     }
                 }
 
-                @Randomizable
-                data class QxC<T1:Any>(override val data:T1):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -108,12 +107,9 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Q123>(randomConfig=AlwaysFalseRandomConfig))
+                        putData(random<QxC<Q123>>(randomConfig=AlwaysFalseRandomConfig))
                     }
                 }
-
-                @Randomizable
-                data class QxC<T1:Any>(override val data:T1):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -138,13 +134,9 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Q4>())
+                        putData(random<QxC<Q4>>(randomConfig=TestRandomConfig()))
                     }
                 }
-
-                @Randomizable(randomConfig=TestRandomConfig::class)
-                data class QxC<T1:Any>(override val data:T1):WithData
-
             """,
             fileName = "main.kt"
         ) {
@@ -172,15 +164,11 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Q5>())
-                        putData(QxC.random<Q5>())
-                        putData(QxC.random<Q5>())
+                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
                     }
                 }
-
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC<T1:Any>(override val data:T1):WithData
-               
             """,
             fileName = "main.kt"
         ) {
@@ -207,15 +195,11 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random<Q6>())
-                        putData(QxC.random<Q6>())
-                        putData(QxC.random<Q6>())
+                        putData(random<QxC<Q6>>())
+                        putData(random<QxC<Q6>>())
+                        putData(random<QxC<Q6>>())
                     }
                 }
-
-                @Randomizable
-                data class QxC<T1:Any>(override val data:T1):WithData
-
             """,
             fileName = "main.kt"
         ) {

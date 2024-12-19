@@ -5,7 +5,7 @@ import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.*
-class TestRandomInnerClass {
+class TestRandomInnerClass_d {
 
     class Q{
         inner class I1(val i: Int,)
@@ -22,12 +22,11 @@ class TestRandomInnerClass {
             """
                 $imports
 
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Q.I1>())
+                        putData(random<QxC<Q.I1>>(randomConfig=LegalRandomConfigObject))
                     }
                 }
             """,

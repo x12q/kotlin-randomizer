@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomLinkedHashSet {
+class TestRandomLinkedHashSet_d {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -98,25 +98,25 @@ class TestRandomLinkedHashSet {
                 fun runTest():TestOutput {
                     return withTestOutput {
                     
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Int, String>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>())
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Int, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Int, String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>(TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Int, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -161,12 +161,14 @@ class TestRandomLinkedHashSet {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>(
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{333.222}
                             }
                         ))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>(
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<LinkedHashSet<Double>>>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{linkedSetOf(linkedSetOf(linkedSetOf(1.0),linkedSetOf(2.0)),linkedSetOf(linkedSetOf(3.0),linkedSetOf(4.0)))}
                             }
@@ -199,25 +201,25 @@ class TestRandomLinkedHashSet {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Double>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Int,String>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,String>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,Qx4<String>>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,String,Double>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,Qx2<String>,Double>>>>())
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>())
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Int,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,String,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,Qx2<String>,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Double>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Int,String>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,String>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,Qx4<String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,String,Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,Qx2<String>,Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Qx2<Float>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Qx2<Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Int,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<TwoGeneric<Qx2<Int>,Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,String,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Int,Qx2<String>,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -257,17 +259,18 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Double>>>(
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Double>>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{1.0}
                             }
                         ))
-                        putData(QxC.random<LinkedHashSet<LinkedHashSet<Double>>>(
+                        putData(random<QxC<LinkedHashSet<LinkedHashSet<Double>>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{linkedSetOf(linkedSetOf(1.0),linkedSetOf(2.0))}
                             }
@@ -294,30 +297,29 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<LinkedHashSet<Double>>())
-                        putData(QxC.random<LinkedHashSet<Qx2<Float>>>())
-                        putData(QxC.random<LinkedHashSet<Qx2<Qx4<String>>>>())
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Int, String>>>())
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>())
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>())
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Int, String, Double>>>())
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>())
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>())
+                        putData(random<QxC<LinkedHashSet<Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<Qx2<Float>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<Qx2<Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Int, String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>(randomConfig=TestRandomConfig()))
                         
-                        putData(QxC.random<LinkedHashSet<Double>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<Qx2<Float>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<Qx2<Qx4<String>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Int, String>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Int, String, Double>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>(TestRandomConfig()))
-                        putData(QxC.random<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>(TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<Qx2<Float>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<Qx2<Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Int, String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Qx2<Int>, String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<TwoGeneric<Qx2<Int>, Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Int, String, Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Int, Qx2<String>, Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<LinkedHashSet<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -359,30 +361,30 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:LinkedHashSet<LinkedHashSet<LinkedHashSet<T1>>>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Double>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Float>>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Int,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(TestRandomConfig()))
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -422,17 +424,19 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:LinkedHashSet<LinkedHashSet<LinkedHashSet<T1>>>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>(
+                        putData(random<QxC<Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(123.222)
                             }
                         ))
-                        putData(QxC.random<Double>(
+                        putData(random<QxC<Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(linkedSetOf(linkedSetOf(linkedSetOf(333.1111))))
                             }
@@ -453,39 +457,36 @@ class TestRandomLinkedHashSet {
         }
     }
 
-    /**
-     * something like this: random<Int>() ~> param:List<Int>
-     */
     @Test
     fun `set in value param - 2 nested layers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:LinkedHashSet<LinkedHashSet<T1>>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Double>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Float>>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Int,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(TestRandomConfig()))
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -524,17 +525,19 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:LinkedHashSet<LinkedHashSet<T1>>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>(
+                        putData(random<QxC<Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(3.11)
                             }
                         ))
-                        putData(QxC.random<Double>(
+                        putData(random<QxC<Double>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(linkedSetOf(linkedSetOf(1.0),linkedSetOf(2.0,3.0)))
                             }
@@ -556,7 +559,7 @@ class TestRandomLinkedHashSet {
     }
 
     /**
-     * something like this: random<Int>() ~> param:List<Int>
+     * something like this: random<Int>>(randomConfig=TestRandomConfig()) ~> param:List<Int>
      */
     @Test
     fun `set in value param`() {
@@ -564,30 +567,30 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:LinkedHashSet<T1>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Int>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Int>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Float>>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Int,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(TestRandomConfig()))
+                        putData(random<QxC<Int>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -626,22 +629,25 @@ class TestRandomLinkedHashSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:LinkedHashSet<T1>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>(
+                        putData(random<QxC<Int>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant{3}
                             }
                         ))
-                        putData(QxC.random<Int>(
+                        putData(random<QxC<Int>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant<LinkedHashSet<Int>>{LinkedHashSet(setOf(1,2,3))}
                             }
                         ))
-                        putData(QxC.random<Qx2<Float>>(
+                        putData(random<QxC<Qx2<Float>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                  constant(Qx2(12f))
                             }

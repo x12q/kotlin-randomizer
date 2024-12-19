@@ -2,20 +2,18 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.lib.RandomContext
-import com.x12q.randomizer.lib.RandomContextBuilderImp
-import com.x12q.randomizer.lib.randomizer.factoryRandomizer
+import com.x12q.randomizer.lib.annotations.Randomizable
+import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestTypePassing {
+class TestTypePassing_d {
 
     data class Qx<T1>(val i: T1?)
     // data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -49,7 +47,9 @@ class TestTypePassing {
         .import(Ax::class)
         .import(Bx::class)
         .import(Qx::class)
+        .import(QxC::class)
 
+    data class QxC<K_Q>(override val data:Ax<K_Q>):WithData
 
     /**
      * Test passing generic param from "random" function to generic with a property.
@@ -61,12 +61,9 @@ class TestTypePassing {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC<K_Q>(override val data:Ax<K_Q>):WithData
-
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -105,10 +102,13 @@ class TestTypePassing {
     )
 
     val imports2 = imports
-    .import(Cx2::class)
-    .import(Ax2::class)
-    .import(Bx2::class)
+        .import(Cx2::class)
+        .import(Ax2::class)
+        .import(Bx2::class)
+        .import(QxC2::class)
 
+    @Randomizable(randomConfig = TestRandomConfig::class)
+    data class QxC2<K_Q2>(override val data:Ax2<K_Q2>):WithData
     /**
      * Similar to [`test passing generic to property`], but with slightly different class structure.
      * Test passing generic param from "random" function to generic with a property.
@@ -119,13 +119,9 @@ class TestTypePassing {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports2
-
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC2<K_Q2>(override val data:Ax2<K_Q2>):WithData
-
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC2.random<Double>())
+                        putData(random<QxC2<Double>>())
                     }
                 }
             """,
@@ -167,6 +163,9 @@ class TestTypePassing {
         .import(Ax3::class)
         .import(Bx3::class)
         .import(Cx3::class)
+        .import(QxC3::class)
+
+    data class QxC3<K_Q3>(override val data:Ax3<K_Q3>):WithData
 
     @Test
     fun `test passing generic to collections nested in properties`() {
@@ -174,12 +173,9 @@ class TestTypePassing {
             """
                 $imports3
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC2<K_Q2>(override val data:Ax3<K_Q2>):WithData
-
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC2.random<Double>())
+                        putData(random<QxC3<Double>>())
                     }
                 }
             """,
@@ -210,12 +206,9 @@ class TestTypePassing {
             """
                 $imports3
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC2<K_Q2>(override val data:Ax3<K_Q2>):WithData
-
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC2.random<Cx3<String>>())
+                        putData(random<QxC3<Cx3<String>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,

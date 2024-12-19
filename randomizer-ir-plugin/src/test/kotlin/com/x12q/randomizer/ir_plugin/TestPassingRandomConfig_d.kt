@@ -4,7 +4,9 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigWithOppositeInt
+import com.x12q.randomizer.ir_plugin.testGeneratedCodeUsingStandardPlugin
 import com.x12q.randomizer.lib.RandomConfigImp
+import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
@@ -15,11 +17,14 @@ import kotlin.test.Test
  * Test passing random config directly via random() function and indirectly via @Randomizable annotation
  */
 @OptIn(ExperimentalCompilerApi::class)
-class TestPassingRandomConfig{
+class TestPassingRandomConfig_d{
 
 
     data class Q123(val i:Int)
-    val imports = TestImportsBuilder.stdImport.import(Q123::class)
+    data class QxC(override val data: Q123):WithData
+    val imports = TestImportsBuilder.stdImport
+        .import(Q123::class)
+        .import(QxC::class)
 
     @Test
     fun `class with no RandomConfig`() {
@@ -28,13 +33,10 @@ class TestPassingRandomConfig{
                 $imports
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random())
-                        putData(QxC.random(${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
+                        putData(random<QxC>())
+                        putData(random<QxC>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
                     }
                 }
-
-                @Randomizable
-                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -48,7 +50,6 @@ class TestPassingRandomConfig{
     }
 
 
-
     @Test
     fun `class with legal custom random config class via annotation`() {
 
@@ -58,13 +59,9 @@ class TestPassingRandomConfig{
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random())
-                        putData(QxC.random(LegalRandomConfig()))
+                        putData(random<QxC>(randomConfig=LegalRandomConfig()))
                     }
                 }
-
-                @Randomizable(randomConfig = LegalRandomConfig::class)
-                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -73,7 +70,6 @@ class TestPassingRandomConfig{
                 result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Q123(LegalRandomConfig().nextInt()),
-                        Q123(LegalRandomConfig().nextInt())
                     )
                 }
             }
@@ -88,13 +84,9 @@ class TestPassingRandomConfig{
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random())
-                        putData(QxC.random(LegalRandomConfigObject))
+                        putData(random<QxC>(randomConfig=LegalRandomConfigObject))
                     }
                 }
-
-                @Randomizable(randomConfig = LegalRandomConfigObject::class)
-                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -103,7 +95,6 @@ class TestPassingRandomConfig{
                 result.executeRunTestFunction {
                     it.getObjs() shouldBe listOf(
                         Q123(LegalRandomConfigObject.nextInt()),
-                        Q123(LegalRandomConfigObject.nextInt())
                     )
                 }
             }
@@ -119,13 +110,10 @@ class TestPassingRandomConfig{
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(QxC.random())
-                        putData(QxC.random(${imports.nameOf(LegalRandomConfigWithOppositeInt::class)}))
+                        putData(random<QxC>(randomConfig=${imports.nameOf(LegalRandomConfigObject::class)}))
+                        putData(random<QxC>(randomConfig=${imports.nameOf(LegalRandomConfigWithOppositeInt::class)}))
                     }
                 }
-
-                @Randomizable(randomConfig = ${imports.nameOf(LegalRandomConfigObject::class)}::class)
-                data class QxC(override val data: Q123):WithData
             """,
             fileName = "main.kt"
         ) {
@@ -151,11 +139,8 @@ class TestPassingRandomConfig{
                 $imports
 
                 fun main(){
-                    println(Q123.random())
+                    println(random<Q123>(randomConfig=IllegalRandomConfig))
                 }
-
-                @Randomizable(randomConfig = IllegalRandomConfig::class)
-                data class Q123(val i:Int)
             """,
             fileName = "main.kt"
         ) {

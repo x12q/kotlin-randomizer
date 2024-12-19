@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomCompositeCollection {
+class TestRandomCompositeCollection_d {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -90,16 +90,15 @@ class TestRandomCompositeCollection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Set<Set<List<Double>>>>())
-                        putData(QxC.random<List<Set<Set<Qx2<Float>>>>>())
-                        putData(QxC.random<Set<List<Set<Qx2<Qx4<String>>>>>>())
-                        putData(QxC.random<Set<Set<Map<TwoGeneric<Int, String>,Qx2<Boolean>>>>>())
-                        putData(QxC.random<List<List<Map<TwoGeneric<Int, String>,Qx2<Boolean>>>>>())
+                        putData(random<QxC<Set<Set<List<Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<Set<Set<Qx2<Float>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Set<List<Set<Qx2<Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Set<Set<Map<TwoGeneric<Int, String>,Qx2<Boolean>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<List<Map<TwoGeneric<Int, String>,Qx2<Boolean>>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -148,14 +147,13 @@ class TestRandomCompositeCollection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1>(override val data:List<Map<Set<T1>,T1>>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,

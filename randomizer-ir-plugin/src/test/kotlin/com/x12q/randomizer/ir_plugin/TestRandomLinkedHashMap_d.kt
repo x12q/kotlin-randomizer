@@ -15,7 +15,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomMap {
+class TestRandomLinkedLinkedHashMap {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -90,14 +90,13 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC<K,V>(override val data:Map<K,V>):WithData
+                data class QxC<K,V>(override val data:LinkedHashMap<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Short,Double>())
-                        putData(QxC.random<Qx2<Float>,Double>())
-                        putData(QxC.random<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>())
+                        putData(random<QxC<Short,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>,Qx2<Qx4<Short>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -108,29 +107,32 @@ class TestRandomMap {
 
                 objectList shouldBe listOf(
 
-                    buildMap {
-                        rdConfig.resetRandomState()
-                        repeat(mapSize) {
-                            put(nextShort(), nextDouble())
+                    LinkedHashMap(
+                        buildMap {
+                            rdConfig.resetRandomState()
+                            repeat(mapSize) {
+                                put(nextShort(), nextDouble())
+                            }
                         }
-                    },
-
-                    buildMap {
+                    ),
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(Qx2(nextFloat()), nextDouble())
                         }
-                    },
+                    }),
 
-                    buildMap {
-                        rdConfig.resetRandomState()
+                    LinkedHashMap(
+                        buildMap {
+                            rdConfig.resetRandomState()
 
-                        repeat(mapSize) {
-                            val z = Qx2(Qx4(nextStr()))
-                            val q = Qx2(Qx4(nextShort()))
-                            put(z, q)
-                        }
-                    },
+                            repeat(mapSize) {
+                                val z = Qx2(Qx4(nextStr()))
+                                val q = Qx2(Qx4(nextShort()))
+                                put(z, q)
+                            }
+                        },
+                    ),
                 )
             }
         }
@@ -143,23 +145,24 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC<K,V>(override val data:Map<K,V>):WithData
+                data class QxC<K,V>(override val data:LinkedHashMap<K,V>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<String,Double>(
+                        putData(random<QxC<String,Double>>(
+                            randomConfig=TestRandomConfig(),
                             randomizers = {
                                 constant{"a"}
                             }
                         ))
                     
-                        putData(QxC.random<Short,Double>(
+                        putData(random<QxC<Short,Double>>(
+                            randomConfig=TestRandomConfig(),
                             randomizers = {
-                                constant{buildMap {
+                                constant<LinkedHashMap<Short,Double>>{LinkedHashMap(buildMap {
                                     put(1.toShort(),3.0)
                                     put(1.toShort(),3.0)
-                                }}
+                                })}
                             }
                         ))
                     }
@@ -169,14 +172,14 @@ class TestRandomMap {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
-                val m = buildMap {
-                    repeat(mapSize){
-                        put("a",nextDouble())
+                val m = LinkedHashMap(buildMap {
+                    repeat(mapSize) {
+                        put("a", nextDouble())
                     }
-                }
+                })
                 objectList shouldBe listOf(
                     m,
-                    mapOf(1.toShort() to 3.0)
+                    LinkedHashMap(mapOf(1.toShort() to 3.0))
                 )
             }
         }
@@ -190,15 +193,14 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC_Nest2<K,V,T>(override val data:Map<Map<K, V>, Map<K,T>>):WithData
+                data class QxC_Nest2<K,V,T>(override val data:LinkedHashMap<LinkedHashMap<K, V>, LinkedHashMap<K,T>>):WithData
 
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC_Nest2.random<Short,Double,String>())
-                        putData(QxC_Nest2.random<Qx2<Short>,Qx4<Double>,Qx6<String>>())
-                        putData(QxC_Nest2.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>())
+                        putData(random<QxC_Nest2<Short,Double,String>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Short>,Qx4<Double>,Qx6<String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest2<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>, Qx6<Qx4<String>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -272,17 +274,16 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC<K,V>(override val data:Map<K,Map<Map<K,V>,V>>):WithData
+                data class QxC<K,V>(override val data:LinkedHashMap<K,LinkedHashMap<LinkedHashMap<K,V>,V>>):WithData
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
-                data class QxC_Nest3<K,V,T,E>(override val data:Map<Map<Map<K,V>, T>, Map<Map<K,V>,E>>):WithData
+                
+                data class QxC_Nest3<K,V,T,E>(override val data:LinkedHashMap<LinkedHashMap<LinkedHashMap<K,V>, T>, LinkedHashMap<LinkedHashMap<K,V>,E>>):WithData
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int,Double>())
-                        putData(QxC_Nest3.random<Short,Double,String,Float>())
-                        putData(QxC_Nest3.random<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>())
-                        putData(QxC_Nest3.random<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>())
+                        putData(random<QxC<Int,Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Short,Double,String,Float>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Short>,Qx4<Double>,Qx6<String>,Qx<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC_Nest3<Qx2<Qx4<Short>>,Qx4<Qx4<Double>>,Qx6<Qx4<String>>,Qx<Qx4<Float>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -293,71 +294,71 @@ class TestRandomMap {
 
 
                 objectList shouldBe listOf(
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(nextInt(), buildMap {
+                            put(nextInt(), LinkedHashMap(buildMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(LinkedHashMap(buildMap {
                                         repeat(mapSize) {
                                             put(nextInt(), nextDouble())
                                         }
-                                    }, nextDouble())
+                                    }), nextDouble())
                                 }
-                            })
+                            }))
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(buildMap {
+                            put(LinkedHashMap(buildMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(LinkedHashMap(buildMap {
                                         repeat(mapSize) {
                                             put(nextShort(), nextDouble())
                                         }
-                                    }, nextStr())
+                                    }), nextStr())
                                 }
-                            }, buildMap {
+                            }), LinkedHashMap(buildMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(LinkedHashMap(buildMap {
                                         repeat(mapSize) {
                                             put(nextShort(), nextDouble())
                                         }
-                                    }, nextFloat())
+                                    }), nextFloat())
                                 }
-                            })
+                            }))
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(buildMap {
+                            put(LinkedHashMap(buildMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(LinkedHashMap(buildMap {
                                         repeat(mapSize) {
                                             put(Qx2(nextShort()), Qx4(nextDouble()))
                                         }
-                                    }, Qx6(nextStr()))
+                                    }), Qx6(nextStr()))
                                 }
-                            }, buildMap {
+                            }), LinkedHashMap(buildMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(LinkedHashMap(buildMap {
                                         repeat(mapSize) {
                                             put(Qx2(nextShort()), Qx4(nextDouble()))
                                         }
-                                    }, Qx(nextFloat()))
+                                    }), Qx(nextFloat()))
                                 }
-                            })
+                            }))
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(buildMap {
+                            put(LinkedHashMap(buildMap {
                                 repeat(mapSize) {
                                     put(buildMap {
                                         repeat(mapSize) {
@@ -365,7 +366,7 @@ class TestRandomMap {
                                         }
                                     }, Qx6(Qx4(nextStr())))
                                 }
-                            }, buildMap {
+                            }), LinkedHashMap(buildMap {
                                 repeat(mapSize) {
                                     put(buildMap {
                                         repeat(mapSize) {
@@ -373,9 +374,9 @@ class TestRandomMap {
                                         }
                                     }, Qx(Qx4(nextFloat())))
                                 }
-                            })
+                            }))
                         }
-                    }
+                    })
                 )
             }
         }
@@ -388,19 +389,19 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Int,Double>>())
-                         putData(QxC.random<Map<Qx2<Float>,Double>>())
-                         putData(QxC.random<Map<Qx2<Float>,Qx4<Double>>>())
-                         putData(QxC.random<Map<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>())
-                         putData(QxC.random<Map<TwoGeneric<Int,String>,Int>>())
-                         putData(QxC.random<Map<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>())
-                         putData(QxC.random<Map<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>())
-                         putData(QxC.random<Map<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>())
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Float>,Double>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Float>,Qx4<Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<Qx2<Qx4<String>>, Qx4<Qx4<Short>>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Int,String>,Int>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Int,String>,TwoGeneric<Double,Short>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<TwoGeneric<Qx2<Int>,String>,TwoGeneric<Qx2<Int>,String>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<ThreeGeneric<Int,Qx2<String>,Double>,ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -411,35 +412,35 @@ class TestRandomMap {
 
 
                 objectList shouldBe listOf(
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(nextInt(), nextDouble())
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(rdContext.random<Qx2<Float>>(), nextDouble())
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(rdContext.random<Qx2<Float>>(), rdContext.random<Qx4<Double>>())
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(rdContext.random<Qx2<Qx4<String>>>(), rdContext.random<Qx4<Qx4<Short>>>())
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
@@ -447,9 +448,9 @@ class TestRandomMap {
                                 rdContext.nextInt(),
                             )
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
@@ -457,9 +458,9 @@ class TestRandomMap {
                                 rdContext.random<TwoGeneric<Double, Short>>(),
                             )
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
@@ -467,9 +468,9 @@ class TestRandomMap {
                                 rdContext.random<TwoGeneric<Qx2<Int>, String>>(),
                             )
                         }
-                    },
+                    }),
 
-                    buildMap {
+                    LinkedHashMap(buildMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
                             put(
@@ -477,7 +478,7 @@ class TestRandomMap {
                                 rdContext.random<ThreeGeneric<Int, Qx2<String>, Double>>(),
                             )
                         }
-                    },
+                    }),
                 )
             }
         }
@@ -489,20 +490,22 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Int,Double>>(
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(1)
                                 constant(2.0)
                             }
                          ))
-                         putData(QxC.random<Map<Int,Double>>(
+                         putData(random<QxC<LinkedHashMap<Int,Double>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
-                               constant(mapOf(1 to 3.0, 3 to 4.0))
+                               constant<LinkedHashMap<Int,Double>>(LinkedHashMap(mapOf(1 to 3.0, 3 to 4.0)))
                             }
                          ))
                     }
@@ -514,8 +517,8 @@ class TestRandomMap {
                 val objectList = result.executeRunTestFunction().getObjs()
 
                 objectList shouldBe listOf(
-                    mapOf(1 to 2.0),
-                    mapOf(1 to 3.0, 3 to 4.0)
+                    LinkedHashMap(mapOf(1 to 2.0)),
+                    LinkedHashMap(mapOf(1 to 3.0, 3 to 4.0))
                 )
             }
         }
@@ -528,13 +531,12 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Map<Int,Double>,Map<Int,Double>>>())
-                         putData(QxC.random<Map<Map<Qx2<Int>,Qx4<Double>>,Map<Qx4<Int>,Qx6<Double>>>>())
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<Int,Double>,LinkedHashMap<Int,Double>>>>(randomConfig=TestRandomConfig()))
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<Qx2<Int>,Qx4<Double>>,LinkedHashMap<Qx4<Int>,Qx6<Double>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -543,36 +545,36 @@ class TestRandomMap {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
 
-                objectList shouldBe listOf(
-                    buildMap {
-                        rdConfig.resetRandomState()
-                        repeat(mapSize) {
-                            put(buildMap {
-                                repeat(mapSize) {
-                                    put(nextInt(), nextDouble())
-                                }
-                            }, buildMap {
-                                repeat(mapSize) {
-                                    put(nextInt(),nextDouble())
-                                }
-                            })
-                        }
-                    },
-                    buildMap {
-                        rdConfig.resetRandomState()
-                        repeat(mapSize) {
-                            put(buildMap {
-                                repeat(mapSize) {
-                                    put(Qx2(nextInt()), Qx4(nextDouble()))
-                                }
-                            }, buildMap {
-                                repeat(mapSize) {
-                                    put(Qx4(nextInt()),Qx6(nextDouble()))
-                                }
-                            })
-                        }
-                    },
-                )
+                val m1:LinkedHashMap<LinkedHashMap<Int,Double>,LinkedHashMap<Int,Double>> = buildLinkedHashMap {
+                    rdConfig.resetRandomState()
+                    repeat(mapSize) {
+                        put(buildLinkedHashMap {
+                            repeat(mapSize) {
+                                put(nextInt(), nextDouble())
+                            }
+                        }, buildLinkedHashMap {
+                            repeat(mapSize) {
+                                put(nextInt(), nextDouble())
+                            }
+                        })
+                    }
+                }
+                val m2:LinkedHashMap<LinkedHashMap<Qx2<Int>,Qx4<Double>>,LinkedHashMap<Qx4<Int>,Qx6<Double>>> = buildLinkedHashMap {
+                    rdConfig.resetRandomState()
+                    repeat(mapSize) {
+                        put(buildLinkedHashMap {
+                            repeat(mapSize) {
+                                put(Qx2(nextInt()), Qx4(nextDouble()))
+                            }
+                        }, buildLinkedHashMap {
+                            repeat(mapSize) {
+                                put(Qx4(nextInt()), Qx6(nextDouble()))
+                            }
+                        })
+                    }
+                }
+
+                objectList shouldBe listOf(m1, m2)
             }
         }
     }
@@ -583,12 +585,12 @@ class TestRandomMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                         putData(QxC.random<Map<Map<Map<Short,Double>, String>, Map<Map<Short,Double>,Float>>>())
+                         putData(random<QxC<LinkedHashMap<LinkedHashMap<LinkedHashMap<Short,Double>, String>, LinkedHashMap<LinkedHashMap<Short,Double>,Float>>>>(randomConfig=TestRandomConfig()))
 
                     }
                 }
@@ -598,21 +600,22 @@ class TestRandomMap {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
 
-                objectList shouldBe listOf(
-                    buildMap {
+
+                val m: LinkedHashMap<LinkedHashMap<LinkedHashMap<Short, Double>, String>, LinkedHashMap<LinkedHashMap<Short, Double>, Float>> =
+                    buildLinkedHashMap {
                         rdConfig.resetRandomState()
                         repeat(mapSize) {
-                            put(buildMap {
+                            put(buildLinkedHashMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(buildLinkedHashMap {
                                         repeat(mapSize) {
                                             put(nextShort(), nextDouble())
                                         }
                                     }, nextStr())
                                 }
-                            }, buildMap {
+                            }, buildLinkedHashMap {
                                 repeat(mapSize) {
-                                    put(buildMap {
+                                    put(buildLinkedHashMap {
                                         repeat(mapSize) {
                                             put(nextShort(), nextDouble())
                                         }
@@ -620,10 +623,15 @@ class TestRandomMap {
                                 }
                             })
                         }
-                    },
+                    }
+                objectList shouldBe listOf(
+                    m
                 )
             }
         }
     }
 
+    private inline fun <K, V> buildLinkedHashMap(builderAction: MutableMap<K, V>.() -> Unit): LinkedHashMap<K, V> {
+        return LinkedHashMap(buildMap(builderAction))
+    }
 }

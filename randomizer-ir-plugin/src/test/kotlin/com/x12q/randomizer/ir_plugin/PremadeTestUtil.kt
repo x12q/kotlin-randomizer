@@ -34,7 +34,7 @@ fun testGeneratedCodeUsingStandardPlugin(
         transformer
     },
     frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(
-        ::RDFrontEndGenerationExtension,
+        // ::RDFrontEndGenerationExtension,
     ),
     frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension> = listOf(
         ::RDCheckersExtension
