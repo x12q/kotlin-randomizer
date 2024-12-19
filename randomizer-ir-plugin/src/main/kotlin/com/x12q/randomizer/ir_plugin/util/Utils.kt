@@ -26,15 +26,9 @@ fun <T> stopAtFirstNotNull(
 }
 
 
-fun <T>Collection<T>.toMapWithIndex():Map<Int,T>{
-    val rt = this.withIndex().associateBy({ it.index },{ it.value }) .toMap()
-    return rt
-}
-
 fun runSideEffect(sideEffect:()->Unit){
     sideEffect()
 }
-
 
 inline fun <T> T?.crashOnNull(msg:()->Any):T{
     return requireNotNull(this,msg)

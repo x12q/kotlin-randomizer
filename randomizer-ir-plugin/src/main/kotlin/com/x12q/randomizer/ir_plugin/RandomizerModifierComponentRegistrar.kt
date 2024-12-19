@@ -2,7 +2,6 @@ package com.x12q.randomizer.ir_plugin
 
 import com.google.auto.service.AutoService
 import com.x12q.randomizer.ir_plugin.backend.RDIrGenerationExtension
-import com.x12q.randomizer.ir_plugin.frontend.RDFirExtensionRegistrar
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
@@ -21,11 +20,7 @@ class RandomizerModifierComponentRegistrar() : CompilerPluginRegistrar() {
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
         val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val enable = configuration.get(RandomizerModifierCommandLineProcessor.argEnable,false)
-
-//        IrGenerationExtension.registerExtension(RDIrGenerationExtension(messageCollector,enable))
-        FirExtensionRegistrarAdapter.registerExtension(RDFirExtensionRegistrar())
         IrGenerationExtension.registerExtension(RDIrGenerationExtension(enable))
-
     }
 }
 

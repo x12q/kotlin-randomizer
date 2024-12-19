@@ -3,8 +3,6 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.JvmCompilationResult
 import com.x12q.randomizer.ir_plugin.backend.transformers.di.DaggerP7Component
 import com.x12q.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
-import com.x12q.randomizer.ir_plugin.frontend.k2.RDFrontEndGenerationExtension
-import com.x12q.randomizer.ir_plugin.frontend.k2.diagnos.RDCheckersExtension
 import com.x12q.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
 import com.x12q.randomizer.test.util.assertions.StringTestOutputStream
 import com.x12q.randomizer.test.util.assertions.TestOutputStream
@@ -33,12 +31,8 @@ fun testGeneratedCodeUsingStandardPlugin(
         val transformer = comp.randomizableTransformer2()
         transformer
     },
-    frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(
-        // ::RDFrontEndGenerationExtension,
-    ),
-    frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension> = listOf(
-        ::RDCheckersExtension
-    ),
+    frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(),
+    frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension> = listOf(),
     fileName: String = "main.kt",
     outputStream: OutputStream = System.out,
     testOutputStream:TestOutputStream = StringTestOutputStream(),
