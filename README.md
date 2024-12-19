@@ -77,25 +77,9 @@ val instance = random<ExampleClass<Map<Int, String>>>()
 val instance2 = random<ExampleClass<List<Map<Int, String>>>>()
 ```
 
-# Built-in type support
-
-The library support the following built-in types:
-- `Int`, `Long`, `Byte`, `Short`
-- `UInt`, `ULong`, `UByte`, `UShort`
-- `Float`, `Double`, `Number`
-- `Boolean`, `Char`
-- `String`, `Unit`, `Any`
-- `List`, `Map`, `Set`
-- `ArrayList`
-- `HashMap`
-- `LinkedHashMap`
-- `HashSet`
-- `LinkedHashSet`
-- `Array`
-
 # Customize the randomness
 
-A custom `Random` object can be via a `RandomConfig` object passed to `random()` function
+A custom `Random` object can be added via a `RandomConfig` object passed to `random()` function
 
 ```kotlin
 import com.x12q.randomizer.lib.random
