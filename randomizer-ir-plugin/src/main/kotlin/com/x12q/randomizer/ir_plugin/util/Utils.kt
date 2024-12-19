@@ -25,11 +25,6 @@ fun <T> stopAtFirstNotNull(
     return stopAtFirst({ it != null }, *functionList)
 }
 
-
-fun runSideEffect(sideEffect:()->Unit){
-    sideEffect()
-}
-
 inline fun <T> T?.crashOnNull(msg:()->Any):T{
     return requireNotNull(this,msg)
 }

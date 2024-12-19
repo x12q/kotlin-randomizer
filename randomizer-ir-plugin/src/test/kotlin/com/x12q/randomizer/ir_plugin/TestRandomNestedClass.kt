@@ -3,7 +3,6 @@ package com.x12q.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.ir_plugin.testGeneratedCodeUsingStandardPlugin
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
@@ -16,7 +15,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomNestedClass_d {
+class TestRandomNestedClass {
 
     data class Q123(
         val b1:B1?,

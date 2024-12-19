@@ -12,7 +12,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomFunction2_d {
+class TestRandomFunction2 {
 
     data class Q123(
         val b1:B1?,
