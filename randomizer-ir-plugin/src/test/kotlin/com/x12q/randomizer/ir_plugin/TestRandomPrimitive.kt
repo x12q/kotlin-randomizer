@@ -4,6 +4,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.NonNullRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
+import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
@@ -202,7 +203,7 @@ class TestRandomPrimitive {
 
                 fun main(){
                     println(random<Q1234>())
-                    println(random<Q1234>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
+                    println(random<Q1234>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfig::class)}.default))
                 }
             """,
             fileName = "main.kt"
@@ -223,7 +224,7 @@ class TestRandomPrimitive {
 
                 fun main(){
                     println(random<Q123Nothing>())
-                    println(random<Q123Nothing>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
+                    println(random<Q123Nothing>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfig::class)}.default))
                 }
             """,
             fileName = "main.kt"

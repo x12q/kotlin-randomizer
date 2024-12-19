@@ -6,7 +6,7 @@ fun <T> random(
     makeRandom: (randomContext: RandomContext)->T = {
         throw IllegalArgumentException("makeRandom is supposed to be replaced by a generated substitute.")
     },
-    randomConfig: RandomConfig = RandomConfigImp.default,
+    randomConfig: RandomConfig = RandomConfig.default,
     randomizers: RandomContextBuilder.()-> Unit = {}
 ):T{
     val randomContextBuilder = RandomContextBuilderImp()

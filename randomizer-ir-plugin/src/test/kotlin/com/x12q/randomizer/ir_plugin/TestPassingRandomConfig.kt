@@ -4,6 +4,7 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigWithOppositeInt
+import com.x12q.randomizer.lib.RandomConfig
 import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
@@ -33,7 +34,7 @@ class TestPassingRandomConfig{
                 fun runTest():TestOutput{
                     return withTestOutput{
                         putData(random<QxC>())
-                        putData(random<QxC>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfigImp::class)}.default))
+                        putData(random<QxC>(randomConfig=${TestImportsBuilder.stdImport.nameOf(RandomConfig::class)}.default))
                     }
                 }
             """,
@@ -132,7 +133,6 @@ class TestPassingRandomConfig{
     @Test
     fun `class with illegal random config via annotation`() {
 
-        RandomConfigImp
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports

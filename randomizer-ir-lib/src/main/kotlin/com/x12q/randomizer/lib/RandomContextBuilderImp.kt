@@ -93,7 +93,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
     }
 
     override fun build(): RandomContext {
-        val baseRandomConfig = _randomConfig ?: RandomConfigImp.default
+        val baseRandomConfig = _randomConfig ?: RandomConfig.default
         val rdCollection = getOrInitRdCollection()
         val rt = RandomContextImp(baseRandomConfig, rdCollection)
         addTier2Randomizers(rt)
