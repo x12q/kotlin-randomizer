@@ -327,10 +327,9 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<Int>>(randomConfig=NullRandomConfig))
+                        putData(random<QxC<Int?>>(randomConfig=NullRandomConfig))
                     }
                 }
-                // @Randomizable(NullRandomConfig::class)
                 data class QxC<T1>(override val data:Qx2<Qx<T1>>):WithData
             """,
         ) {
@@ -462,10 +461,10 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<Int>>(randomConfig=AlwaysFalseRandomConfig, randomizers={
+                        putData(random<QxC<Int?>>(randomConfig=AlwaysFalseRandomConfig, randomizers={
                             factory{randomConfig.nextInt()}
                         }))
-                        putData(random<QxC<Int>>(randomConfig=AlwaysTrueRandomConfig, randomizers={
+                        putData(random<QxC<Int?>>(randomConfig=AlwaysTrueRandomConfig, randomizers={
                             factory{randomConfig.nextInt()}
                         }))
                     }
