@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomListAssignable_Collection {
+class TestRandomListAssignable_Collection_d {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -96,25 +96,25 @@ class TestRandomListAssignable_Collection {
                 fun runTest():TestOutput {
                     return withTestOutput {
                     
-                        putData(QxC.random<Collection<Collection<Collection<Double>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<Qx2<Float>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<Qx2<Qx4<String>>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Int, String>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, String>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Int, String, Double>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Int, Qx2<String>, Double>>>>>())
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>())
+                        putData(random<QxC<Collection<Collection<Collection<Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<Qx2<Float>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<Qx2<Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Int, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Int, String, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Int, Qx2<String>, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Collection<Collection<Collection<Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<Qx2<Float>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<Qx2<Qx4<String>>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Int, String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Int, String, Double>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Int, Qx2<String>, Double>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Collection<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>(TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<Qx2<Float>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<Qx2<Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Int, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<TwoGeneric<Qx2<Int>, Qx4<String>>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Int, String, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Int, Qx2<String>, Double>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Collection<ThreeGeneric<Qx6<Int>, Qx4<String>, Qx2<Double>>>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -274,25 +274,25 @@ class TestRandomListAssignable_Collection {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Collection<Collection<Double>>>())
-                        putData(QxC.random<Collection<Collection<Qx2<Float>>>>())
-                        putData(QxC.random<Collection<Collection<Qx2<Qx4<String>>>>>())
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Int,String>>>>())
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Qx2<Int>,String>>>>())
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Qx2<Int>,Qx4<String>>>>>())
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Int,String,Double>>>>())
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Int,Qx2<String>,Double>>>>())
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>())
+                        putData(random<QxC<Collection<Collection<Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Qx2<Float>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Qx2<Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Int,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Qx2<Int>,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Qx2<Int>,Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Int,String,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Int,Qx2<String>,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Collection<Collection<Double>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Qx2<Float>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<Qx2<Qx4<String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Int,String>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Qx2<Int>,String>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<TwoGeneric<Qx2<Int>,Qx4<String>>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Int,String,Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Int,Qx2<String>,Double>>>>(TestRandomConfig()))
-                        putData(QxC.random<Collection<Collection<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Qx2<Float>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<Qx2<Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Int,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Qx2<Int>,String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<TwoGeneric<Qx2<Int>,Qx4<String>>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Int,String,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Int,Qx2<String>,Double>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Collection<Collection<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -370,25 +370,25 @@ class TestRandomListAssignable_Collection {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Double>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Float>>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Int,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(TestRandomConfig()))
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -537,7 +537,7 @@ class TestRandomListAssignable_Collection {
     }
 
     /**
-     * something like this: random<Int>() ~> param:List<Int>
+     * something like this: random<Int>>(randomConfig=TestRandomConfig()) ~> param:List<Int>
      */
     @Test
     fun `list in value param with 2 nested list`() {
@@ -550,25 +550,25 @@ class TestRandomListAssignable_Collection {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Double>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
 
-                        putData(QxC.random<Double>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Float>>(TestRandomConfig()))
-                        putData(QxC.random<Qx2<Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Int,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(TestRandomConfig()))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(TestRandomConfig()))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(TestRandomConfig()))
+                        putData(random<QxC<Double>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -635,7 +635,7 @@ class TestRandomListAssignable_Collection {
     }
 
     /**
-     * something like this: random<Int>() ~> param:List<Int>
+     * something like this: random<Int>>(randomConfig=TestRandomConfig()) ~> param:List<Int>
      */
     @Test
     fun `list in value param`() {
@@ -648,25 +648,25 @@ class TestRandomListAssignable_Collection {
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>())
-                        putData(QxC.random<Qx2<Float>>())
-                        putData(QxC.random<Qx2<Qx4<String>>>())
-                        putData(QxC.random<TwoGeneric<Int,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>())
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>())
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>())
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>())
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>())
+                        putData(random<QxC<Int>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=TestRandomConfig()))
                         val rdConfig = TestRandomConfig()
-                        putData(QxC.random<Int>(rdConfig))
-                        putData(QxC.random<Qx2<Float>>(rdConfig))
-                        putData(QxC.random<Qx2<Qx4<String>>>(rdConfig))
-                        putData(QxC.random<TwoGeneric<Int,String>>(rdConfig))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,String>>(rdConfig))
-                        putData(QxC.random<TwoGeneric<Qx2<Int>,Qx4<String>>>(rdConfig))
-                        putData(QxC.random<ThreeGeneric<Int,String,Double>>(rdConfig))
-                        putData(QxC.random<ThreeGeneric<Int,Qx2<String>,Double>>(rdConfig))
-                        putData(QxC.random<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>(rdConfig))
+                        putData(random<QxC<Int>>(randomConfig=rdConfig))
+                        putData(random<QxC<Qx2<Float>>>(randomConfig=rdConfig))
+                        putData(random<QxC<Qx2<Qx4<String>>>>(randomConfig=rdConfig))
+                        putData(random<QxC<TwoGeneric<Int,String>>>(randomConfig=rdConfig))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,String>>>(randomConfig=rdConfig))
+                        putData(random<QxC<TwoGeneric<Qx2<Int>,Qx4<String>>>>(randomConfig=rdConfig))
+                        putData(random<QxC<ThreeGeneric<Int,String,Double>>>(randomConfig=rdConfig))
+                        putData(random<QxC<ThreeGeneric<Int,Qx2<String>,Double>>>(randomConfig=rdConfig))
+                        putData(random<QxC<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>(randomConfig=rdConfig))
                     }
                 }
             """,
@@ -711,28 +711,30 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:Collection<T1>):WithData
 
                 fun runTest():TestOutput {
                     return withTestOutput{
-                        putData(QxC.random<Int>(randomizers = {
+                        putData(random<QxC<Int>>(randomConfig=TestRandomConfig(), randomizers = {
                              constant(123)
                         }))
-                        putData(QxC.random<Int>(randomizers = {
+                        putData(random<QxC<Int>>(randomConfig=TestRandomConfig(), randomizers = {
                              constant<Collection<Int>>(listOf(1))
                         }))
-                        putData(QxC.random<Qx2<Float>>(
+                        putData(random<QxC<Qx2<Float>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 factory{999f}
                             }
                         ))
-                        putData(QxC.random<Qx2<Float>>(
+                        putData(random<QxC<Qx2<Float>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant(Qx2(222f))
                             }
                         ))
-                        putData(QxC.random<Qx2<Float>>(
+                        putData(random<QxC<Qx2<Float>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant<Collection<Qx2<Float>>>{ listOf(Qx2(1f)) }
                             }
@@ -770,12 +772,14 @@ class TestRandomListAssignable_Collection {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(QxC.random<Collection<Collection<Double>>>(
+                        putData(random<QxC<Collection<Collection<Double>>>>(
+                            randomConfig=TestRandomConfig(),
                             randomizers = {
                                 constant<Collection<Collection<Double>>>{listOf((listOf(123.0)))}
                             }
                         ))
-                        putData(QxC.random<Collection<Qx2<Float>>>(
+                        putData(random<QxC<Collection<Qx2<Float>>>>(
+                            randomConfig=TestRandomConfig(), 
                             randomizers = {
                                 constant<Collection<Qx2<Float>>>{listOf(Qx2(123f),Qx2(222f))}
                             }
