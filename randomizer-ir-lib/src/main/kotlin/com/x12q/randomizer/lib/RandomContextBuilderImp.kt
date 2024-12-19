@@ -22,12 +22,12 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     override fun setRandomConfigAndGenerateStandardRandomizers(randomConfig: RandomConfig): RandomContextBuilder {
         setRandomConfig(randomConfig)
-        generateStandardRandomizers(randomConfig)
+        makePrimitiveRandomizers(randomConfig)
         return this
     }
 
 
-    override fun generateStandardRandomizers(randomConfig: RandomConfig) {
+    override fun makePrimitiveRandomizers(randomConfig: RandomConfig) {
         val stdRdm = listOf(
             factoryRandomizer { randomConfig.nextInt() },
             factoryRandomizer { randomConfig.nextByte() },
@@ -56,19 +56,20 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     private val tier2RandomizerFactoryFunctionList: MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
 
-    override fun addForTier2(makeRandomizer: (RandomContext.() -> ClassRandomizer<*>)?): RandomContextBuilderImp {
-        if (makeRandomizer != null) {
-            tier2RandomizerFactoryFunctionList.add(makeRandomizer)
-        }
+    override fun addTier2Randomizer(makeRandomizer: RandomContext.() -> ClassRandomizer<*>): RandomContextBuilderImp {
+        tier2RandomizerFactoryFunctionList.add(makeRandomizer)
         return this
     }
 
     private var builtRandomizerCollection: RandomizerCollection? = null
 
+    /**
+     * Tier1 randomizers are simply normal randomizers.
+     */
     private fun addTier1Randomizers() {
-        val rdCollection = getOrInitRdCollection()
-        randomizersMap.forEach { (rdmKey, randomizer) ->
-            rdCollection.add(rdmKey, randomizer)
+        val rdCollection = getOrInitRandomizerCollection()
+        randomizersMap.forEach { (typeKey, randomizer) ->
+            rdCollection.add(typeKey, randomizer)
         }
     }
 
@@ -77,15 +78,18 @@ class RandomContextBuilderImp : RandomContextBuilder {
             "_randomConfig is not set yet. This is a bug by the developer."
         }
 
+    /**
+     * Tier2 randomizers are randomizer that has access to the final [RandomContext] obj
+     */
     private fun addTier2Randomizers(rdContext: RandomContext) {
-        val rdCollection = getOrInitRdCollection()
+        val rdCollection = getOrInitRandomizerCollection()
         for (makeRandomizer in tier2RandomizerFactoryFunctionList) {
             val t2Randomizer = makeRandomizer(rdContext)
             rdCollection.add(t2Randomizer.returnType, t2Randomizer)
         }
     }
 
-    private fun getOrInitRdCollection(): RandomizerCollection {
+    private fun getOrInitRandomizerCollection(): RandomizerCollection {
         val rdCollection = (builtRandomizerCollection ?: MutableRandomizerCollection(emptyMap())).also {
             builtRandomizerCollection = it
         }
@@ -94,10 +98,10 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     override fun build(): RandomContext {
         val baseRandomConfig = _randomConfig ?: RandomConfig.default
-        val rdCollection = getOrInitRdCollection()
+        val rdCollection = getOrInitRandomizerCollection()
         val rt = RandomContextImp(baseRandomConfig, rdCollection)
-        addTier2Randomizers(rt)
         addTier1Randomizers()
+        addTier2Randomizers(rt)
         return rt
     }
 

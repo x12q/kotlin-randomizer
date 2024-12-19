@@ -1,14 +1,15 @@
 package com.x12q.randomizer.lib
 
+import com.x12q.randomizer.lib.util.developerErrorMsg
 
 
 fun <T> random(
-    makeRandom: (randomContext: RandomContext)->T = {
-        throw IllegalArgumentException("makeRandom is supposed to be replaced by a generated substitute.")
+    makeRandom: (randomContext: RandomContext) -> T = {
+        throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by a generated substitute."))
     },
     randomConfig: RandomConfig = RandomConfig.default,
-    randomizers: RandomContextBuilder.()-> Unit = {}
-):T{
+    randomizers: RandomContextBuilder.() -> Unit = {}
+): T {
     val randomContextBuilder = RandomContextBuilderImp()
     randomContextBuilder.setRandomConfigAndGenerateStandardRandomizers(randomConfig)
     randomContextBuilder.randomizers()

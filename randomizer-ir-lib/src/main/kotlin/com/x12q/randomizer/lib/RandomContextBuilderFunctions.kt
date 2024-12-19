@@ -16,4 +16,6 @@ object RandomContextBuilderFunctions{
     inline fun <reified T : Any> RandomContextBuilder.factory(noinline makeRandom:()->T): RandomContextBuilder {
         return add(factoryRandomizer(makeRandom))
     }
+
+    // TODO add other convenient functions such as int(), float(), string()...
 }

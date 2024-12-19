@@ -4,11 +4,11 @@ import com.x12q.randomizer.lib.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 
-class RandomContextBuilderImpTest{
+class RandomContextBuilderImpTest {
 
 
     @Test
-    fun build(){
+    fun build() {
         val intRdm = ConstantRandomizer.of(1)
         val floatRdm = ConstantRandomizer.of(2f)
         val builder = RandomContextBuilderImp()
@@ -17,21 +17,20 @@ class RandomContextBuilderImpTest{
         builder.add(floatRdm)
 
         val context = builder.build()
-        context.randomizersMap shouldBe listOf(intRdm,floatRdm).associateBy { it.returnType }
+        context.randomizersMap shouldBe listOf(intRdm, floatRdm).associateBy { it.returnType }
     }
 
     @Test
-    fun addForTier2(){
+    fun addTier2Randomizer() {
         val intRdm = ConstantRandomizer.of(1)
         val builder = RandomContextBuilderImp()
 
-
         builder.add(intRdm)
 
-        builder.addForTier2 {
+        builder.addTier2Randomizer(makeRandomizer = {
             val tier1Context = this
             constantRandomizer(tier1Context.random<Int>()!!.toFloat())
-        }
+        })
 
 
         val context = builder.build()
@@ -39,12 +38,12 @@ class RandomContextBuilderImpTest{
     }
 
     @Test
-    fun qweqwe(){
+    fun qweqwe() {
 
         val builder = RandomContextBuilderImp()
 
-        val intList = List(5){1}
-        val strList = List(3){"qqq"}
+        val intList = List(5) { 1 }
+        val strList = List(3) { "qqq" }
 
         builder.add(factoryRandomizer { intList })
             .add(factoryRandomizer { strList })

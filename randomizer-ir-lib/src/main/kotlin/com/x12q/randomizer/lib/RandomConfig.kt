@@ -4,6 +4,14 @@ import kotlin.random.Random
 import kotlin.random.nextUBytes
 import kotlin.random.nextULong
 
+/**
+ * RandomConfig contains the basic random configuration such as:
+ * - The base [Random] object (which contains the random seed)
+ * - random functions for all primitive types
+ * - random size for collections (map, list, set)
+ * - random size for string
+ * - character range
+ */
 interface RandomConfig {
 
     val random: Random
@@ -98,24 +106,6 @@ interface RandomConfig {
         }
         return strBuilder.toString()
     }
-
-    // fun nextCalendar(): Calendar {
-    //     return Calendar.getInstance().apply {
-    //         val currentYear = this.get(Calendar.YEAR)
-    //         set(
-    //             (currentYear-20 .. currentYear).random(random),
-    //             (0 .. 11).random(random),
-    //             (1 .. 28).random(random),
-    //             (0 .. 24).random(random),
-    //             (0 .. 60).random(random),
-    //             (0 .. 60).random(random),
-    //         )
-    //     }
-    // }
-    //
-    // fun nextDate():Date{
-    //     return nextCalendar().time
-    // }
 
     fun nextUnit(): Unit {
         return Unit
