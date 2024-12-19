@@ -14,7 +14,7 @@ import kotlin.test.Test
 
 
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomArrayList {
+class TestRandomArrayList_d {
 
     data class Qx<T1>(val i: T1?)
     data class Qx2<Q2T>(val paramOfQ2: Q2T)
@@ -90,7 +90,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -155,7 +155,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -219,7 +219,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:List<List<List<T1>>>):WithData
 
                 fun runTest():TestOutput {
@@ -285,7 +285,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1>(override val data:ArrayList<ArrayList<T1>>):WithData
 
                 fun runTest():TestOutput {
@@ -348,7 +348,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:ArrayList<T1>):WithData
 
                 fun runTest():TestOutput {
@@ -416,7 +416,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:ArrayList<T1>):WithData
 
                 fun runTest():TestOutput {
@@ -474,7 +474,7 @@ class TestRandomArrayList {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
+                
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {

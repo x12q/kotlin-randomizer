@@ -321,7 +321,7 @@ class TestRandomPrimitive_d {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC>{
+                        putData(random<QxC>(randomConfig=TestRandomConfig()){
                             add(ConstantRandomizer.of(true))
                             add(ConstantRandomizer.of(123))
                             add(ConstantRandomizer.of(321L))
