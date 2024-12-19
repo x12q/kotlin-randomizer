@@ -90,7 +90,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -269,7 +268,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -365,7 +363,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1>(override val data:Collection<Collection<Collection<T1>>>):WithData
 
                 fun runTest():TestOutput {
@@ -545,7 +542,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1>(override val data:Collection<Collection<T1>>):WithData
 
                 fun runTest():TestOutput {
@@ -643,7 +639,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:Collection<T1>):WithData
 
                 fun runTest():TestOutput {
@@ -767,7 +762,6 @@ class TestRandomListAssignable_Collection {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {

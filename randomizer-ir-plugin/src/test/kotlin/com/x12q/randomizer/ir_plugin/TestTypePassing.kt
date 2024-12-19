@@ -2,7 +2,6 @@ package com.x12q.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.randomizer.lib.annotations.Randomizable
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
@@ -107,7 +106,6 @@ class TestTypePassing {
         .import(Bx2::class)
         .import(QxC2::class)
 
-    @Randomizable(randomConfig = TestRandomConfig::class)
     data class QxC2<K_Q2>(override val data:Ax2<K_Q2>):WithData
     /**
      * Similar to [`test passing generic to property`], but with slightly different class structure.

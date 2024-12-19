@@ -388,7 +388,6 @@ class TestRandomHashMap {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T:Any>(override val data:T):WithData
 
                 fun runTest():TestOutput {

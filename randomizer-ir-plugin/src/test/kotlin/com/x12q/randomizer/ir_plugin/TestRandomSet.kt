@@ -292,7 +292,6 @@ class TestRandomSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:T1):WithData
 
                 fun runTest():TestOutput {
@@ -562,7 +561,6 @@ class TestRandomSet {
             """
                 $imports
 
-                @Randomizable(randomConfig = TestRandomConfig::class)
                 data class QxC<T1:Any>(override val data:Set<T1>):WithData
 
                 fun runTest():TestOutput {

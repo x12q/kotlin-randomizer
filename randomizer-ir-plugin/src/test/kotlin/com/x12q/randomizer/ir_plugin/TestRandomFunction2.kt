@@ -82,7 +82,6 @@ class TestRandomFunction2 {
                     }
                 }
 
-                @Randomizable
                 data class QxC<T1:Any>(override val data:T1):WithData
             """,
             fileName = "main.kt"
