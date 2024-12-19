@@ -44,7 +44,7 @@ Custom randomizers can be added like this:
 
 ```kotlin
 
-val instance = ExampleClass.random<ExampleClass>(randomizers = {
+val instance = random<ExampleClass>(randomizers = {
     int(333)
     factory<Float>{
         listOf(1.2f, 2f,4f).random()
@@ -73,8 +73,8 @@ import com.x12q.randomizer.lib.random
 class ExampleClass<T>(
     val t:T
 )
-val instance = random<ExampleClass<Map<Int, String>>>()
-val instance2 = random<ExampleClass<List<Map<Int, String>>>>()
+val i = random<ExampleClass<Map<Int, String>>>()
+val i2 = random<ExampleClass<List<Map<Int, String>>>>()
 ```
 
 # Customize the randomness
