@@ -23,7 +23,7 @@ class RDIrGenerationExtension(
                 .builder()
                 .setIRPluginContext(pluginContext)
                 .build()
-            val randomizableTransformer2: RandomizableBackendTransformer = comp.randomizableTransformer2()
+            val randomizableTransformer2: RandomizableBackendTransformer = comp.randomizableTransformer()
             moduleFragment.transform(randomizableTransformer2, null)
         }
     }

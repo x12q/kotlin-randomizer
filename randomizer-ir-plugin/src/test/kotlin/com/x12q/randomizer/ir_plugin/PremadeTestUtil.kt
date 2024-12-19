@@ -28,7 +28,7 @@ fun testGeneratedCodeUsingStandardPlugin(
             .builder()
             .setIRPluginContext(pluginContext)
             .build()
-        val transformer = comp.randomizableTransformer2()
+        val transformer = comp.randomizableTransformer()
         transformer
     },
     frontEndTransformerFactories: List<(FirSession) -> FirDeclarationGenerationExtension> = listOf(),
