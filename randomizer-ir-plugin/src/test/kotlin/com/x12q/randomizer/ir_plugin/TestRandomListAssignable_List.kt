@@ -282,7 +282,7 @@ class TestRandomListAssignable_List {
                         putData(random<QxC<List<ThreeGeneric<Int,String,Double>>>>(randomConfig=TestRandomConfig()))
                         putData(random<QxC<List<ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
                         putData(random<QxC<List<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(randomConfig=TestRandomConfig()))
-                        //
+
                         putData(random<QxC<List<Double>>>(randomConfig=TestRandomConfig()))
                         putData(random<QxC<List<Qx2<Float>>>>(randomConfig=TestRandomConfig()))
                         putData(random<QxC<List<Qx2<Qx4<String>>>>>(randomConfig=TestRandomConfig()))
