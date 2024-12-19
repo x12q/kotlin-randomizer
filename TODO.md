@@ -1,10 +1,18 @@
-Current order of priority:
-generic factory function > random context > lv1 random
-
 # Maintain reflection randomizer
 - Some built in class need special treatment when call their constructors:
   - Date(). Number passed to constructor must not be null
   - Also, need more descriptive error message for these cases to tell users exactly which constructor is being called, and what is the arguments.
+
+
+# TODO:
+- TODO: cleanup the dangerous code of the new type passing feature
+  - TODO: extractTypeArgument -> this one needs to be replaced with TypeMap
+- TODO: at the moment, it is not possible to use custom randomizer with nullable type.
+  - Nullable type is being generated based on non-null type and a boolean check from RandomConfig.
+  - It should be that nullable randomizer can be declared directly within custom randomizer list.
+- Reconsider default Random config creation. Should a new seed be used each time, should all random() of all class shared 1 random config or have their own?
+- TODO: somehow, not storing RandomConfig in a variable is causing problem in the new random function 2
+
 
 
 # Transition to compiler plugin
@@ -150,13 +158,7 @@ Front end:
         - Need to construct the correct Ir param to pass to them. For generic this can be a real hassle because it involve type look up + resolution.
     - Effect: the effect will be exactly as calling constructor, because when I call constructor, I already use all the random config and whatever
   - Conclusion, no need to call random function of nested class
-# TODO:
-- TODO: cleanup the dangerous code of the new type passing feature
-  - TODO: extractTypeArgument -> this one needs to be replaced with TypeMap
-- TODO: at the moment, it is not possible to use custom randomizer with nullable type.
-  - Nullable type is being generated based on non-null type and a boolean check from RandomConfig.
-  - It should be that nullable randomizer can be declared directly within custom randomizer list.
-- Reconsider default Random config creation. Should a new seed be used each time, should all random() of all class shared 1 random config or have their own?
+
 # NEXT:
 
 - randomizable list, map, set: ...

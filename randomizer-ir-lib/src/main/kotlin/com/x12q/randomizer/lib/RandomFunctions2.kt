@@ -2,7 +2,7 @@ package com.x12q.randomizer.lib
 
 
 
-fun <T:Any> random(
+fun <T> random(
     makeRandom: (randomContext: RandomContext)->T = {
         throw IllegalArgumentException("makeRandom is supposed to be replaced by a generated substitute.")
     },
@@ -14,10 +14,4 @@ fun <T:Any> random(
     randomContextBuilder.randomizers()
     val randomContext = randomContextBuilder.build()
     return makeRandom(randomContext)
-    // val t = randomContext.random<T>()
-    // if(t!=null){
-    //     return t
-    // }else{
-    //
-    // }
 }
