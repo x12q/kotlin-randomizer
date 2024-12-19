@@ -4,7 +4,7 @@ A library for (kinda) effortlessly generate random objects.
 
 ## :construction: :construction: :construction: Work in progress :construction: :construction: :construction: 
   
-> :warning: This is a pre-alpha release
+> :warning:
 > - Everything, including the public API, is subject to change.
 
 
