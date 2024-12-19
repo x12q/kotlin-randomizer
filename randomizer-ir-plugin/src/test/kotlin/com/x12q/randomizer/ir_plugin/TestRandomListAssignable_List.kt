@@ -262,6 +262,92 @@ class TestRandomListAssignable_List {
         }
     }
 
+    @Test
+    fun `list in type param - 1 nested`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                // @Randomizable(randomConfig = TestRandomConfig::class)
+                data class QxC<T1:Any>(override val data:T1):WithData
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(random<QxC<List<Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<Qx2<Float>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<Qx2<Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Int,String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Qx2<Int>,String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Qx2<Int>,Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Int,String,Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(randomConfig=TestRandomConfig()))
+                        //
+                        putData(random<QxC<List<Double>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<Qx2<Float>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<Qx2<Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Int,String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Qx2<Int>,String>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<TwoGeneric<Qx2<Int>,Qx4<String>>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Int,String,Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Int,Qx2<String>,Double>>>>(randomConfig=TestRandomConfig()))
+                        putData(random<QxC<List<ThreeGeneric<Qx6<Int>,Qx4<String>,Qx2<Double>>>>>(randomConfig=TestRandomConfig()))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                objectList shouldBe listOf(
+                    makeList(size, { rdConfig.resetRandomState() }) {  double  },
+                    makeList(size, { rdConfig.resetRandomState() }) {  Qx2(float) } ,
+                    makeList(size, { rdConfig.resetRandomState() }) { Qx2(Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(int, str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { ThreeGeneric(int, str, double) },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        ThreeGeneric(
+                            int,
+                            Qx2(str),
+                            double
+                        )
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        ThreeGeneric(
+                            Qx6(int),
+                            Qx4(str),
+                            Qx2(double)
+                        )
+                    },
+
+                    makeList(size, { rdConfig.resetRandomState() }) { double },
+                    makeList(size, { rdConfig.resetRandomState() }) { Qx2(float) },
+                    makeList(size, { rdConfig.resetRandomState() }) { Qx2(Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(int, str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), str) },
+                    makeList(size, { rdConfig.resetRandomState() }) { TwoGeneric(Qx2(int), Qx4(str)) },
+                    makeList(size, { rdConfig.resetRandomState() }) { ThreeGeneric(int, str, double) },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        ThreeGeneric(
+                            int,
+                            Qx2(str),
+                            double
+                        )
+                    },
+                    makeList(size, { rdConfig.resetRandomState() }) {
+                        ThreeGeneric(
+                            Qx6(int),
+                            Qx4(str),
+                            Qx2(double)
+                        )
+                    },
+                )
+            }
+        }
+    }
 
     @Test
     fun `list in type param - 2 nested`() {
