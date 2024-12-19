@@ -9,13 +9,13 @@ import javax.inject.Singleton
 
 @Singleton
 @Component
-interface P7Component {
+interface RandomizerComponent {
 
     fun randomizableTransformer(): RandomizableBackendTransformer
 
     @Component.Builder
     interface Builder {
         fun setIRPluginContext( @BindsInstance pluginContext: IrPluginContext): Builder
-        fun build(): P7Component
+        fun build(): RandomizerComponent
     }
 }

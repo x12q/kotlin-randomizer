@@ -4,7 +4,6 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfig
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.randomizer.ir_plugin.mock_objects.LegalRandomConfigWithOppositeInt
-import com.x12q.randomizer.ir_plugin.testGeneratedCodeUsingStandardPlugin
 import com.x12q.randomizer.lib.RandomConfigImp
 import com.x12q.randomizer.test.util.WithData
 import com.x12q.randomizer.test.util.assertions.executeRunTestFunction
@@ -17,7 +16,7 @@ import kotlin.test.Test
  * Test passing random config directly via random() function and indirectly via @Randomizable annotation
  */
 @OptIn(ExperimentalCompilerApi::class)
-class TestPassingRandomConfig_d{
+class TestPassingRandomConfig{
 
 
     data class Q123(val i:Int)

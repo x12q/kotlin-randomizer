@@ -4,14 +4,12 @@ import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ListAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.MapAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.SetAccessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function0Accessor
-import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.function_n.Function1Accessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.rd_lib.*
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.RandomAccessor
 import com.x12q.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections.ArrayAccessor
 import com.x12q.randomizer.ir_plugin.backend.utils.isRandomFunctions
 import com.x12q.randomizer.ir_plugin.backend.transformers.reporting.*
-import com.x12q.randomizer.ir_plugin.backend.transformers.support.RandomFunctionMetaData
+import com.x12q.randomizer.ir_plugin.backend.transformers.support.InitMetaData
 import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeMap
 import com.x12q.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
 import com.x12q.randomizer.ir_plugin.backend.utils.*
@@ -152,7 +150,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val body = generateMakeRandomBody(
             makeRandomFunction = newMakeRandomLambda,
-            randomFunctionMetaData = RandomFunctionMetaData(
+            initMetadata = InitMetaData(
                 targetClass = returnType.classOrNull?.owner
                     .crashOnNull { developerErrorMsg("class passed to random() function must not be null") },
                 initTypeMap = returnType.makeTypeMap()
@@ -168,7 +166,7 @@ class RandomizableBackendTransformer @Inject constructor(
      */
     private fun generateMakeRandomBody(
         makeRandomFunction: IrFunction,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        initMetadata: InitMetaData,
     ): IrBlockBody {
         val builder = DeclarationIrBuilder(
             generatorContext = pluginContext,
@@ -176,7 +174,7 @@ class RandomizableBackendTransformer @Inject constructor(
         )
         return builder.irBlockBody {
 
-            val target: IrClass = randomFunctionMetaData.targetClass
+            val target: IrClass = initMetadata.targetClass
 
             val getRandomContextExpr = builder.irGet(makeRandomFunction.valueParameters[0])
 
@@ -192,7 +190,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 declarationParent = makeRandomFunction,
                 getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = builder.irGet(randomConfigTempVar),
-                randomFunctionMetaData = randomFunctionMetaData,
+                randomFunctionMetaData = initMetadata,
             )
             if (makeRandomPrimaryClass != null) {
                 +builder.irReturn(makeRandomPrimaryClass)
@@ -208,14 +206,14 @@ class RandomizableBackendTransformer @Inject constructor(
     private fun generateRandomPrimaryClass(
         irClass: IrClass,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
         declarationParent: IrDeclarationParent?,
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
     ): IrExpression? {
         return generateRandomClass(
             declarationParent = declarationParent,
-            // this is within the random() function body, so there's no received type arguments.
+            // this is the starting point, so there's no received type arguments.
             receivedTypeArguments = emptyList(),
             irType = null,
             irClass = irClass,
@@ -249,7 +247,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
         prevTypeMap: TypeMap,
     ): IrExpression? {
         if (irClass.isInner) {
@@ -313,7 +311,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         val rt = stopAtFirstNotNull(
             {
@@ -466,7 +464,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateGenerateListDerivative(
             classCheck = { listIrClass.isArrayList() },
@@ -500,7 +498,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateGenerateListDerivative(
             classCheck = { arrayAccessor.isArray(arrayIrClass) },
@@ -539,7 +537,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (!classCheck()) {
             return null
@@ -597,7 +595,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
 
 
@@ -643,7 +641,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         builder = builder,
                         getRandomContextExpr = getRandomContextExpr,
                         getRandomConfigExpr = getRandomConfigExpr,
-                        randomFunctionMetaData = randomFunctionMetaData,
+                        initMetaData = randomFunctionMetaData,
                         optionalParamMetaDataForReporting = ListReportData(
                             valueType = type.dumpKotlinLike(),
                             paramName = param?.name?.asString(),
@@ -699,7 +697,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (!mapIrClass.isMap()) {
             return null
@@ -741,7 +739,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             builder = keyLambdaBuilder,
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
-                            randomFunctionMetaData = randomFunctionMetaData,
+                            initMetaData = randomFunctionMetaData,
                             optionalParamMetaDataForReporting = MapKeyReportData(
                                 keyType = keyType.dumpKotlinLike(),
                                 paramName = param?.name?.asString(),
@@ -777,7 +775,7 @@ class RandomizableBackendTransformer @Inject constructor(
                             builder = valueLambdaBuilder,
                             getRandomContextExpr = getRandomContextExpr,
                             getRandomConfigExpr = getRandomConfigExpr,
-                            randomFunctionMetaData = randomFunctionMetaData,
+                            initMetaData = randomFunctionMetaData,
                             optionalParamMetaDataForReporting = MapValueReportData(
                                 valueType = valueType.dumpKotlinLike(),
                                 paramName = param?.name?.asString(),
@@ -822,7 +820,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         val rt = templateToGenerateMap(
             isMapCheck = { mapIrClass.isHashMap() },
@@ -857,7 +855,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateToGenerateMap(
             isMapCheck = { mapIrClass.isLinkedHashMap() },
@@ -894,7 +892,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (!isMapCheck()) {
             return null
@@ -942,7 +940,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isSet() },
@@ -976,7 +974,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isHashSet() },
@@ -1010,7 +1008,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         return templateToGenerateSet(
             setCheck = { setIrClass.isLinkedHashSet() },
@@ -1047,7 +1045,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (!setCheck()) {
             return null
@@ -1162,7 +1160,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
 
         if (irClass.isArrayList() ||
@@ -1332,7 +1330,7 @@ class RandomizableBackendTransformer @Inject constructor(
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (irClass.isSealed()) {
             TODO()
@@ -1345,7 +1343,7 @@ class RandomizableBackendTransformer @Inject constructor(
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWithRandomizable()) {
             TODO("not supported yet")
@@ -1374,7 +1372,7 @@ class RandomizableBackendTransformer @Inject constructor(
          */
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        randomFunctionMetaData: InitMetaData,
         /**
          * Allow any generic type within [param], [receivedType] to look up its type. These include the type of the param itself.
          */
@@ -1394,7 +1392,7 @@ class RandomizableBackendTransformer @Inject constructor(
             optionalParamMetaDataForReporting = ParamReportData.fromIrElements(
                 param, paramType, enclosingClass
             ),
-            randomFunctionMetaData = randomFunctionMetaData,
+            initMetaData = randomFunctionMetaData,
             typeMap = typeMapForParam,
             tempVarName = param.name.asString()
         )
@@ -1430,7 +1428,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * If given, a more descriptive message can be generated, otherwise, the message will be based on [targetType]
          */
         optionalParamMetaDataForReporting: ReportData,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        initMetaData: InitMetaData,
         typeMap: TypeMap,
         tempVarName: String?,
     ): IrExpression {
@@ -1478,7 +1476,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = getRandomConfigExpr,
                 optionalParamMetaDataForReporting = optionalParamMetaDataForReporting,
-                randomFunctionMetaData = randomFunctionMetaData,
+                initMetaData = initMetaData,
                 typeMap = typeMap,
             )
         }
@@ -1500,7 +1498,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         optionalParamMetaDataForReporting: ReportData,
-        randomFunctionMetaData: RandomFunctionMetaData,
+        initMetaData: InitMetaData,
         typeMap: TypeMap
     ): IrExpression {
         var actualParamType = receivedType ?: targetType
@@ -1519,7 +1517,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = getRandomConfigExpr,
                 builder = builder,
-                randomFunctionMetaData = randomFunctionMetaData,
+                randomFunctionMetaData = initMetaData,
                 prevTypeMap = typeMap
             )
 
@@ -1897,32 +1895,5 @@ class RandomizableBackendTransformer @Inject constructor(
         )
         this.configBuilder(builder)
         return this
-    }
-
-    private fun irPrintln(
-        prefix: String,
-        builder: IrBuilderWithScope,
-        irExpr: IrExpression,
-    ): IrCall {
-
-        val typeAnyOrNull = pluginContext.irBuiltIns.anyNType
-        val printlnFunction = pluginContext.referenceFunctions(BaseObjects.printlnCallId).firstOrNull {
-            it.owner.valueParameters.let {
-                it.size == 1 && it[0].type == typeAnyOrNull
-            }
-        }
-
-
-        val strContent = builder.irConcat().apply {
-            addArgument(builder.irString("$prefix:"))
-            addArgument(irExpr)
-        }
-
-        val printlnCall = printlnFunction?.let {
-            builder.irCall(it).apply {
-                this.putValueArgument(0, strContent)
-            }
-        }
-        return printlnCall!!
     }
 }

@@ -5,7 +5,7 @@ import com.x12q.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.*
-class TestRandomInnerClass_d {
+class TestRandomInnerClass {
 
     class Q{
         inner class I1(val i: Int,)
