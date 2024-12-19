@@ -51,15 +51,6 @@ class RDFrontEndGenerationExtension(session: FirSession) : FirDeclarationGenerat
     val unitConeType = session.builtinTypes.unitType.coneType
     val strBuilder = StringBuilder()
 
-    fun example_use_predicate() {
-        /**
-         * Find all symbol annotated with randomizable annotation
-         */
-//        val annotatedSymbols = predicateProvider.getSymbolsByPredicate(RDPredicates.annotatedRandomizable)
-    }
-    //FirExtension.registerPredicates
-
-
     override fun FirDeclarationPredicateRegistrar.registerPredicates() {
         /**
          * Must register a predicate to detect @Randomizable, so that such annotations are resolve on COMPILER_REQUIRED_ANNOTATIONS.
