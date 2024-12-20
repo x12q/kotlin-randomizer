@@ -46,8 +46,7 @@ mavenPublishing {
    version = libs.versions.version.get()
    val artifactId =  "randomizer-lib"
 
-
-   publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+   publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
    signAllPublications()
    coordinates(group.toString(), artifactId, version.toString())
 
