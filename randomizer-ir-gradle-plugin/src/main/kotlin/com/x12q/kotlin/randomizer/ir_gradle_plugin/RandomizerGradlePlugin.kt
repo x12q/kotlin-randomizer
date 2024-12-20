@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_gradle_plugin
+package com.x12q.kotlin.randomizer.ir_gradle_plugin
 
 import com.x__q.randomizer_ir_gradle_plugin.BuildConfig
 import org.gradle.api.Project

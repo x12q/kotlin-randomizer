@@ -28,7 +28,7 @@ dependencies {
 buildConfig {
     buildConfigField("String", "IR_PLUGIN_ID", "\"${libs.versions.irPluginId.get()}\"")
     buildConfigField("String", "IR_PLUGIN_GROUP_ID", "\"${group}\"")
-    buildConfigField("String", "IR_PLUGIN_ARTIFACT_ID", "\"randomizer-ir-plugin\"")
+    buildConfigField("String", "IR_PLUGIN_ARTIFACT_ID", "\"${libs.versions.irPluginArtifactId.get()}\"")
     buildConfigField("String", "IR_PLUGIN_VERSION", "\"$version\"")
 }
 tasks.test {
@@ -37,10 +37,10 @@ tasks.test {
 gradlePlugin {
     plugins {
         create("kotlinIrPluginTemplate") {
-            id = libs.versions.gradlePluginId.get() //com.x12q.randomizer
-            displayName = "Randomizer IR Gradle plugin"
-            description = "Randomizer IR Gradle plugin"
-            implementationClass = "com.x12q.randomizer.ir_gradle_plugin.RandomizerGradlePlugin"
+            id = libs.versions.gradlePluginId.get()
+            displayName = "kotlin-randomizer IR Gradle plugin"
+            description = "kotlin-randomizer IR Gradle plugin"
+            implementationClass = "com.x12q.kotlin.randomizer.ir_gradle_plugin.RandomizerGradlePlugin"
         }
     }
 }

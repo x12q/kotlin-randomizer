@@ -4,6 +4,7 @@ version="1.0.0-alpha.8"
 irPluginId="com.x12q.kotlin.randomizer.ir.plugin"
 irPluginArtifactId = "kotlin-randomizer-ir-plugin"
 gradlePluginId = "com.x12q.kotlin.randomizer"
+libArtifactId = "kotlin-randomizer-lib"
 
 kotlin="2.0.0"
 jvmVersion = "8"

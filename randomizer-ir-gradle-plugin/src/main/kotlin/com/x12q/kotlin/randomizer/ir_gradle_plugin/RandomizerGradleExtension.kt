@@ -1,4 +1,4 @@
-package com.x12q.randomizer.ir_gradle_plugin
+package com.x12q.kotlin.randomizer.ir_gradle_plugin
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property

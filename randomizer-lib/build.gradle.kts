@@ -42,7 +42,7 @@ mavenPublishing {
 
    group = libs.versions.groupId.get()
    version = libs.versions.version.get()
-   val artifactId = "kotlin-randomizer-lib"
+   val artifactId = libs.versions.libArtifactId.get()
 
    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
    signAllPublications()
