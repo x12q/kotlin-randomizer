@@ -49,7 +49,7 @@ mavenPublishing {
    coordinates(group.toString(), artifactId, version.toString())
 
    pom{
-       name.set("kotlin-randomizer")
+       name.set(artifactId)
        description.set("A randomizer library for Kotlin")
        inceptionYear.set("2024")
        url.set("https://github.com/x12q/randomizer")
@@ -62,7 +62,7 @@ mavenPublishing {
        }
        developers {
            developer {
-               id.set("x12q")
+               id.set("phong")
                name.set("Phong The Pham")
                url.set("x12q.com")
            }
