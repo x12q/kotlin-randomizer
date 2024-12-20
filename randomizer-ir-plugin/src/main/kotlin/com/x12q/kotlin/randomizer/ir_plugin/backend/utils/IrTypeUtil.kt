@@ -1,7 +1,7 @@
 package com.x12q.kotlin.randomizer.ir_plugin.backend.utils
 
-import com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.support.TypeMap
-import com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.support.TypeParamOrArg
+import com.x12q.kotlin.randomizer.ir_plugin.backend.support.TypeMap
+import com.x12q.kotlin.randomizer.ir_plugin.backend.support.TypeParamOrArg
 import com.x12q.kotlin.randomizer.ir_plugin.util.stopAtFirst
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.declarations.IrClass

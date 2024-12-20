@@ -2,17 +2,15 @@ package com.x12q.kotlin.randomizer.test.util
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
-import com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.RDBackendTransformer
+import com.x12q.kotlin.randomizer.ir_plugin.backend.RDBackendTransformer
 import com.x12q.kotlin.randomizer.test.util.assertions.GeneratedCodeAssertions
 import com.x12q.kotlin.randomizer.test.util.assertions.TestOutputStream
-import com.x12q.kotlin.randomizer.test.util.assertions.findMainClass
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
-import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 /**
