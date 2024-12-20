@@ -52,7 +52,7 @@ mavenPublishing {
        name.set(artifactId)
        description.set("A randomizer library for Kotlin")
        inceptionYear.set("2024")
-       url.set("https://github.com/x12q/randomizer")
+       url.set("https://github.com/x12q/kotlin-randomizer")
        licenses {
            license {
                name.set("The Apache License, Version 2.0")
@@ -69,12 +69,12 @@ mavenPublishing {
        }
        scm {
            url.set("https://github.com/x12q/randomizer")
-           connection.set("scm:git:git://github.com/x12q/randomizer.git")
-           developerConnection.set("scm:git:ssh://git@github.com/x12q/randomizer.git")
+           connection.set("scm:git:git://github.com/x12q/kotlin-randomizer.git")
+           developerConnection.set("scm:git:ssh://git@github.com/x12q/kotlin-randomizer.git")
        }
        issueManagement {
            system.set("GitHub Issues")
-           url.set("https://github.com/x12q/randomizer/issues")
+           url.set("https://github.com/x12q/kotlin-randomizer/issues")
        }
    }
 }
