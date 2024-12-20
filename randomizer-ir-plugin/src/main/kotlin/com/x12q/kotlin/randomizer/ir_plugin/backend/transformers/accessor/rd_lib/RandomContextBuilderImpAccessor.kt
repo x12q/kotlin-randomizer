@@ -18,10 +18,9 @@ class RandomContextBuilderImpAccessor @Inject constructor(
 ) : ClassAccessor() {
 
     private val classId = ClassId.topLevel(
-        FqName(RandomContextBuilderImp::class.qualifiedName
-            .crashOnNull {
-                "Class RandomContextBuilder interface does not exist in the class path"
-            }
+        FqName(
+            RandomContextBuilderImp::class.qualifiedName
+                .crashOnNull { "Class RandomContextBuilder interface does not exist in the class path" }
         )
     )
 

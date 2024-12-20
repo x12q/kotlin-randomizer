@@ -10,14 +10,17 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
 class Function0Accessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
+    private val classId = ClassId(packageFqName = FqName("kotlin"), topLevelName = Name.identifier("Function0"))
+
     override val clzz: IrClassSymbol by lazy {
-        pluginContext.referenceClass(ClassId.topLevel(FqName(Function0::class.qualifiedName!!)))
+        pluginContext.referenceClass(classId)
             .crashOnNull {
                 "kotlin.Function0 class is not in the class path."
             }

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
 import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
@@ -18,14 +19,20 @@ import javax.inject.Inject
 class RandomContextAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
+
+    private val classId = ClassId.topLevel(FqName(requireNotNull(RandomContext::class.qualifiedName) {
+        "RandomContext interface does not exist in the class path."
+    }))
+
     override val clzz: IrClassSymbol by lazy {
-        pluginContext.referenceClass(BaseObjects.RandomContext_ClassId)
+        pluginContext.referenceClass(classId)
             .crashOnNull {
                 "RandomConfig interface is not in the class path."
             }
     }
 
-    private val packageName = FqName("com.x12q.kotlin.randomizer.lib")
+    private val packageName = FqName("${BaseObjects.COM_X12Q_KOTLIN_RANDOMIZER}.lib")
+
     fun randomConfig(builder: DeclarationIrBuilder): IrCall {
         val propGetter = clzz.getPropertyGetter("randomConfig")
             .crashOnNull {

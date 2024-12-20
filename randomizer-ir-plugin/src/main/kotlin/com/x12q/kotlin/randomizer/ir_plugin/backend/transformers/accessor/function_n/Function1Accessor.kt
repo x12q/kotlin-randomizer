@@ -16,8 +16,10 @@ class Function1Accessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
+    private val classId = ClassId.topLevel(FqName(Function1::class.qualifiedName!!))
+
     override val clzz: IrClassSymbol by lazy {
-        pluginContext.referenceClass(ClassId.topLevel(FqName(Function1::class.qualifiedName!!)))
+        pluginContext.referenceClass(classId)
             .crashOnNull {
                 "kotlin.Function1 class is not in the class path."
             }

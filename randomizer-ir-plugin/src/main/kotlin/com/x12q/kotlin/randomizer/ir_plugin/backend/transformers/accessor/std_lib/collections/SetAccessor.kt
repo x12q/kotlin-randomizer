@@ -17,17 +17,20 @@ class SetAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
+    private val classId = ClassId.topLevel(FqName(Set::class.qualifiedName!!))
+
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Set::class.qualifiedName!!)))) {
+        requireNotNull(pluginContext.referenceClass(classId)) {
             "kotlin.collections.Set is not in the class path."
         }
     }
 
+    private val listToSetFunctionName = CallableId(libraryPackageName, Name.identifier("listToSet"))
+
     private val listToSetFunctionSymbol by lazy {
-        val listToSetFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("listToSet"))
         pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.listToSet does not exist."
+                "function $listToSetFunctionName does not exist."
             }
     }
 
@@ -38,11 +41,12 @@ class SetAccessor @Inject constructor(
         return builder.irCall(listToSetFunctionSymbol)
     }
 
+    private val makeHashSetFunctionCallId = CallableId(libraryPackageName, Name.identifier("makeHashSet"))
+
     private val makeHashSetFunctionSymbol by lazy {
-        val listToSetFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeHashSet"))
-        pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
+        pluginContext.referenceFunctions(makeHashSetFunctionCallId).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeHashSet does not exist."
+                "function $makeHashSetFunctionCallId does not exist."
             }
     }
     /**
@@ -52,11 +56,12 @@ class SetAccessor @Inject constructor(
         return builder.irCall(makeHashSetFunctionSymbol)
     }
 
+    private val makeLinkedHashSetCallId = CallableId(libraryPackageName, Name.identifier("makeLinkedHashSet"))
+
     private val makeLinkedHashSetFunctionSymbol by lazy {
-        val listToSetFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeLinkedHashSet"))
-        pluginContext.referenceFunctions(listToSetFunctionName).firstOrNull()
+        pluginContext.referenceFunctions(makeLinkedHashSetCallId).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeLinkedHashSet does not exist."
+                "function $makeLinkedHashSetCallId does not exist."
             }
     }
     /**

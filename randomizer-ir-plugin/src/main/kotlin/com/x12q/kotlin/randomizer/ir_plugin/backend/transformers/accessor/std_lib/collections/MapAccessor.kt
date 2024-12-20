@@ -18,17 +18,21 @@ class MapAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
+    private val classId = ClassId.topLevel(FqName(Map::class.qualifiedName!!))
+
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Map::class.qualifiedName!!)))) {
+        requireNotNull(pluginContext.referenceClass(classId)) {
             "kotlin.collections.Map is not in the class path."
         }
     }
 
+    private val makeMapFunctionName = CallableId(libraryPackageName, Name.identifier("makeMap"))
+
     private val makeMapFunctionSymbol by lazy {
-        val makeMapFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeMap"))
+
         pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeMap does not exist."
+                "function $makeMapFunctionName does not exist."
             }
     }
 
@@ -39,11 +43,12 @@ class MapAccessor @Inject constructor(
         return builder.irCall(makeMapFunctionSymbol)
     }
 
+    private val makeHashMapFunctionName = CallableId(libraryPackageName, Name.identifier("makeHashMap"))
+
     private val makeHashMapFunctionSymbol by lazy {
-        val makeMapFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeHashMap"))
-        pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+        pluginContext.referenceFunctions(makeHashMapFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeHashMap does not exist."
+                "function $makeHashMapFunctionName does not exist."
             }
     }
 
@@ -54,11 +59,12 @@ class MapAccessor @Inject constructor(
         return builder.irCall(makeHashMapFunctionSymbol)
     }
 
+    private val makeLinkedHashMapFunctionName = CallableId(libraryPackageName, Name.identifier("makeLinkedHashMap"))
+
     private val makeLinkedHashMapFunctionSymbol by lazy {
-        val makeMapFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeLinkedHashMap"))
-        pluginContext.referenceFunctions(makeMapFunctionName).firstOrNull()
+        pluginContext.referenceFunctions(makeLinkedHashMapFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeLinkedHashMap does not exist."
+                "function $makeLinkedHashMapFunctionName does not exist."
             }
     }
 

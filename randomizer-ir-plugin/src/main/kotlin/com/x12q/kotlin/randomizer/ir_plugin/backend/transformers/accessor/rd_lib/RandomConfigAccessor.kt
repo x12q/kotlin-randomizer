@@ -3,6 +3,7 @@ package com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.accessor.rd_li
 import com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
 import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
+import com.x12q.kotlin.randomizer.lib.RandomConfig
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -10,14 +11,20 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.getPropertyGetter
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import javax.inject.Inject
 
 class RandomConfigAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
+    private val classId = ClassId.topLevel(FqName(requireNotNull(RandomConfig::class.qualifiedName) {
+        "RandomConfig interface does not exist in the class path."
+    }))
+
     override val clzz: IrClassSymbol by lazy {
-        pluginContext.referenceClass(BaseObjects.RandomConfig_ClassId)
+        pluginContext.referenceClass(classId)
             .crashOnNull {
                 "RandomConfig interface is not in the class path."
             }
@@ -26,7 +33,7 @@ class RandomConfigAccessor @Inject constructor(
     private val randomProperty by lazy {
         clzz.getPropertyGetter("random")
             .crashOnNull {
-                "impossible, ${BaseObjects.RandomConfig_ClassId.shortClassName} must provide a ${BaseObjects.Random_ClassId} instance"
+                "impossible, ${classId.shortClassName} must provide a ${BaseObjects.Random_ClassId} instance"
             }
     }
 

@@ -20,7 +20,7 @@ class UnableToMakeRandomExceptionAccessor @Inject constructor(
     private val pluginContext: IrPluginContext,
 ) : ClassAccessor() {
 
-    val name = ClassId.topLevel(FqName(UnableToMakeRandomException::class.qualifiedName.crashOnNull {
+    private val name = ClassId.topLevel(FqName(UnableToMakeRandomException::class.qualifiedName.crashOnNull {
         "Class UnableToMakeRandomException does not exist in the class path"
     }))
 

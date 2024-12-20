@@ -1,6 +1,7 @@
 package com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.accessor.std_lib.collections
 
 import com.x12q.kotlin.randomizer.ir_plugin.backend.transformers.accessor.ClassAccessor
+import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
@@ -17,21 +18,26 @@ import javax.inject.Inject
 class ArrayAccessor @Inject constructor(
     val pluginContext: IrPluginContext
 ) : ClassAccessor() {
+
+    private val classId = ClassId.topLevel(FqName(Array::class.qualifiedName!!))
+
     override val clzz: IrClassSymbol by lazy {
-        requireNotNull(pluginContext.referenceClass(ClassId.topLevel(FqName(Array::class.qualifiedName!!)))) {
+        requireNotNull(pluginContext.referenceClass(classId)) {
             "kotlin.collections.Array is not in the class path."
         }
     }
 
-    fun isArray(irClass: IrClass):Boolean{
+    fun isArray(irClass: IrClass): Boolean {
         return irClass.symbol == clzz
     }
 
+    val makeListFunctionName = CallableId(libraryPackageName, Name.identifier("makeArray"))
+
     private val makeArrayFunctionSymbol by lazy {
-        val makeListFunctionName = CallableId(FqName("com.x12q.kotlin.randomizer.lib.util"), Name.identifier("makeArray"))
+
         pluginContext.referenceFunctions(makeListFunctionName).firstOrNull()
             .crashOnNull {
-                "function com.x12q.randomizer.ir_plugin.backend.transformers.accessor.collections.makeArray does not exist."
+                "function $makeListFunctionName does not exist."
             }
     }
 
