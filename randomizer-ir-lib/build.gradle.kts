@@ -11,7 +11,6 @@ plugins {
 group = libs.versions.groupId.get()
 version = libs.versions.version.get()
 
-
 repositories {
     mavenCentral()
 }
@@ -43,7 +42,7 @@ mavenPublishing {
 
    group = libs.versions.groupId.get()
    version = libs.versions.version.get()
-   val artifactId =  "randomizer-lib"
+   val artifactId = "kotlin-randomizer-lib"
 
    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
    signAllPublications()
@@ -79,19 +78,3 @@ mavenPublishing {
        }
    }
 }
-// val v = libs.versions.version.get()
-// val g = libs.versions.groupId.get()
-
-// publishing {
-//     /**
-//      * This is for local publishing
-//      */
-//     publications {
-//         create<MavenPublication>("maven") {
-//             groupId = g
-//             artifactId = "randomizer-ir-lib"
-//             version = v
-//             from(components["java"])
-//         }
-//     }
-// }
