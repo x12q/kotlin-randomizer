@@ -2,7 +2,9 @@ package com.x12q.kotlin.randomizer.lib
 
 import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
 
-
+/**
+ * Generate a random instance of [T]
+ */
 fun <T> random(
     makeRandom: (randomContext: RandomContext) -> T = {
         throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by a generated substitute."))
