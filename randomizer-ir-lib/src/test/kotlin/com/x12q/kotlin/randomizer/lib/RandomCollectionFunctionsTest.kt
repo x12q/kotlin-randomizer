@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib
+package com.x12q.kotlin.randomizer.lib
 
 import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
 import com.x12q.kotlin.randomizer.lib.test_utils.mock_obj.random_config.TestRandomConfig

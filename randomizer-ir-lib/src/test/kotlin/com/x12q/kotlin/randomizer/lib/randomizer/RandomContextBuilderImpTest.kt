@@ -1,4 +1,4 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.kotlin.randomizer.lib.randomizer
 
 import com.x12q.kotlin.randomizer.lib.*
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int

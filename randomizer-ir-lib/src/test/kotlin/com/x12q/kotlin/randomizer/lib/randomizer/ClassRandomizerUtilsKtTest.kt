@@ -1,6 +1,7 @@
-package com.x12q.randomizer.lib.randomizer
+package com.x12q.kotlin.randomizer.lib.randomizer
 
 import com.x12q.kotlin.randomizer.lib.*
+import com.x12q.kotlin.randomizer.lib.random
 import com.x12q.kotlin.randomizer.lib.test_utils.mock_obj.random_config.AlwaysTrueRandomConfig
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
