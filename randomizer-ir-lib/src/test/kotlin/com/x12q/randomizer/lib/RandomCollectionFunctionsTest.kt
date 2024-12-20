@@ -1,7 +1,7 @@
 package com.x12q.randomizer.lib
 
-import com.x12q.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.randomizer.lib.test_utils.mock_obj.random_config.TestRandomConfig
+import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
+import com.x12q.kotlin.randomizer.lib.test_utils.mock_obj.random_config.TestRandomConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.*

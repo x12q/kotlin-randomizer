@@ -17,7 +17,7 @@ A library for (kinda) effortlessly generate random objects.
 A random instance of any class can be created as easy as this:
 
 ```kotlin
-import com.x12q.randomizer.lib.random
+import com.x12q.kotlin.randomizer.lib.random
 
 class ExampleClass(
     val i: Int,
@@ -57,7 +57,7 @@ val instance = random<ExampleClass>(randomizers = {
 Generic is supported, so it is possible to do this:
 
 ```kotlin
-import com.x12q.randomizer.lib.random
+import com.x12q.kotlin.randomizer.lib.random
 
 class ExampleClass<T>(
     val t:T
@@ -68,7 +68,7 @@ val instance = random<ExampleClass<Int>>()
 Nested generic is also supported
 
 ```kotlin
-import com.x12q.randomizer.lib.random
+import com.x12q.kotlin.randomizer.lib.random
 
 class ExampleClass<T>(
     val t:T
@@ -82,7 +82,7 @@ val i2 = random<ExampleClass<List<Map<Int, String>>>>()
 A custom `Random` object can be added via a `RandomConfig` object passed to `random()` function
 
 ```kotlin
-import com.x12q.randomizer.lib.random
+import com.x12q.kotlin.randomizer.lib.random
 import kotlin.random.Random
 
 val yourRandomObj: Random = Random(seed=123)

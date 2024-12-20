@@ -1,7 +1,7 @@
 package com.x12q.randomizer.lib.randomizer
 
-import com.x12q.randomizer.lib.*
-import com.x12q.randomizer.lib.RandomContextBuilderFunctions.int
+import com.x12q.kotlin.randomizer.lib.*
+import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
 

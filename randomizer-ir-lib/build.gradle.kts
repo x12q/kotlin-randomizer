@@ -6,7 +6,6 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     kotlin("plugin.serialization")
-    // `maven-publish`
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 group = libs.versions.groupId.get()

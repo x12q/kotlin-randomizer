@@ -1,6 +1,6 @@
 package com.x12q.randomizer.lib.test_utils.mock_obj.random_config
 
-import com.x12q.randomizer.lib.RandomConfig
+import com.x12q.kotlin.randomizer.lib.RandomConfig
 import kotlin.random.Random
 
 
