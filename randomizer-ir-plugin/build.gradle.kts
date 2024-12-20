@@ -25,7 +25,7 @@ buildConfig{
 }
 
 dependencies {
-    implementation(project(":randomizer-ir-lib"))
+    implementation(project(":randomizer-lib"))
 
     implementation(libs.michaelbull.kotlinResult)
 
@@ -38,7 +38,7 @@ dependencies {
     implementation(libs.dagger)
     kaptTest(libs.dagger.compiler)
 
-    testImplementation(project(":randomizer-ir-lib"))
+    testImplementation(project(":randomizer-lib"))
     testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.coroutine)
     testImplementation(libs.kotest.assertions.core)
