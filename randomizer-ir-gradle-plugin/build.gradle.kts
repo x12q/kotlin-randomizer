@@ -4,8 +4,7 @@ plugins {
     `maven-publish`
     alias(libs.plugins.gradle.publish)
     alias(libs.plugins.buildConfig)
-
-
+    signing
 }
 repositories {
     mavenCentral()
@@ -28,19 +27,23 @@ dependencies {
 buildConfig {
     buildConfigField("String", "IR_PLUGIN_ID", "\"${libs.versions.irPluginId.get()}\"")
     buildConfigField("String", "IR_PLUGIN_GROUP_ID", "\"${group}\"")
-    buildConfigField("String", "IR_PLUGIN_ARTIFACT_ID", "\"randomizer-ir-plugin\"")
+    buildConfigField("String", "IR_PLUGIN_ARTIFACT_ID", "\"${libs.versions.irPluginArtifactId.get()}\"")
     buildConfigField("String", "IR_PLUGIN_VERSION", "\"$version\"")
 }
 tasks.test {
     useJUnitPlatform()
 }
 gradlePlugin {
+    website = "https://github.com/x12q/kotlin-randomizer"
+    vcsUrl = "https://github.com/x12q/kotlin-randomizer.git"
+
     plugins {
-        create("kotlinIrPluginTemplate") {
-            id = libs.versions.gradlePluginId.get() //com.x12q.randomizer
-            displayName = "Randomizer IR Gradle plugin"
-            description = "Randomizer IR Gradle plugin"
-            implementationClass = "com.x12q.randomizer.ir_gradle_plugin.RandomizerGradlePlugin"
+        create("kotlin-randomizer-ir-gradle-plugin") {
+            id = libs.versions.gradlePluginId.get()
+            displayName = "kotlin-randomizer IR Gradle plugin"
+            description = "kotlin-randomizer IR Gradle plugin"
+            tags=listOf("kotlin", "kotlin-randomizer", "randomizer")
+            implementationClass = "com.x12q.kotlin.randomizer.ir_gradle_plugin.RandomizerGradlePlugin"
         }
     }
 }

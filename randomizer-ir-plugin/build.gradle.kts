@@ -1,16 +1,15 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-//    alias(libs.plugins.anvil)
     alias(libs.plugins.buildConfig)
-    kotlin("plugin.serialization")
+    alias(libs.plugins.vanniktech.mavenPublish)
+
 }
 
 group = libs.versions.groupId.get()
 version = libs.versions.version.get()
-
 
 repositories {
     mavenCentral()
@@ -26,9 +25,7 @@ buildConfig{
 }
 
 dependencies {
-    implementation(project(":randomizer-ir-lib"))
-
-    implementation(libs.michaelbull.kotlinResult)
+    implementation(project(":randomizer-lib"))
 
     compileOnly(libs.kotlin.compiler.embeddable)
     kapt("com.google.auto.service:auto-service:1.0.1")
@@ -39,9 +36,8 @@ dependencies {
     implementation(libs.dagger)
     kaptTest(libs.dagger.compiler)
 
-    testImplementation(project(":randomizer-ir-lib"))
+    testImplementation(project(":randomizer-lib"))
     testImplementation(kotlin("test"))
-    testImplementation(libs.kotlin.coroutine)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.compile.test)
@@ -51,4 +47,46 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+
+mavenPublishing {
+
+    group = libs.versions.groupId.get()
+    version = libs.versions.version.get()
+    val artifactId = libs.versions.irPluginArtifactId.get()
+
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
+    coordinates(group.toString(), artifactId, version.toString())
+
+    pom{
+        name.set(artifactId)
+        description.set("Compiler plugin for kotlin-randomizer")
+        inceptionYear.set("2024")
+        url.set("https://github.com/x12q/kotlin-randomizer")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("phong")
+                name.set("Phong The Pham")
+                url.set("x12q.com")
+            }
+        }
+        scm {
+            url.set("https://github.com/x12q/randomizer")
+            connection.set("scm:git:git://github.com/x12q/kotlin-randomizer.git")
+            developerConnection.set("scm:git:ssh://git@github.com/x12q/kotlin-randomizer.git")
+        }
+        issueManagement {
+            system.set("GitHub Issues")
+            url.set("https://github.com/x12q/kotlin-randomizer/issues")
+        }
+    }
 }

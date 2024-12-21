@@ -1,3 +1,4 @@
+:construction: :construction: :construction: Work in progress :construction: :construction: :construction:
 ## Be careful when...
 - Using ArrayList with randomizer factory function because:
   - The function may infer the type in an unexpected way
