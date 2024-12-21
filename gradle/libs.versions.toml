@@ -5,7 +5,6 @@ irPluginId="com.x12q.kotlin.randomizer.ir.plugin"
 irPluginArtifactId = "kotlin-randomizer-ir-plugin"
 libArtifactId = "kotlin-randomizer-lib"
 gradlePluginId = "com.x12q.kotlin.randomizer"
-
 kotlin="2.0.0"
 jvmVersion = "8"
 dagger2Version = "2.46.1"
@@ -18,8 +17,6 @@ kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version 
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger2Version" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger2Version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-michaelbull-kotlinResult = { module = "com.michael-bull.kotlin-result:kotlin-result-jvm", version = "1.1.12" }
-
 kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version = "0.5.1"}
 kotlin-compiler-embeddable = {module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin"}
 

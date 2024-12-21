@@ -3,7 +3,6 @@ import com.vanniktech.maven.publish.SonatypeHost
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-    kotlin("plugin.serialization")
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 group = libs.versions.groupId.get()
@@ -14,18 +13,12 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.michaelbull.kotlinResult)
     implementation(libs.kotlin.reflect)
-    implementation(libs.dagger)
-    kapt(libs.dagger.compiler)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.kotlin.coroutine)
 
-    kaptTest(libs.dagger.compiler)
     testImplementation(kotlin("test"))
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
 
 tasks.test {

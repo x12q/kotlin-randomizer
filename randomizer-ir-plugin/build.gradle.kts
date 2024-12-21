@@ -4,14 +4,12 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     alias(libs.plugins.buildConfig)
-    kotlin("plugin.serialization")
     alias(libs.plugins.vanniktech.mavenPublish)
 
 }
 
 group = libs.versions.groupId.get()
 version = libs.versions.version.get()
-
 
 repositories {
     mavenCentral()
@@ -29,8 +27,6 @@ buildConfig{
 dependencies {
     implementation(project(":randomizer-lib"))
 
-    implementation(libs.michaelbull.kotlinResult)
-
     compileOnly(libs.kotlin.compiler.embeddable)
     kapt("com.google.auto.service:auto-service:1.0.1")
     compileOnly("com.google.auto.service:auto-service-annotations:1.0.1")
@@ -42,7 +38,6 @@ dependencies {
 
     testImplementation(project(":randomizer-lib"))
     testImplementation(kotlin("test"))
-    testImplementation(libs.kotlin.coroutine)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.compile.test)
