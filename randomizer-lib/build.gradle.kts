@@ -1,6 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.version
 
 plugins {
     kotlin("jvm")
