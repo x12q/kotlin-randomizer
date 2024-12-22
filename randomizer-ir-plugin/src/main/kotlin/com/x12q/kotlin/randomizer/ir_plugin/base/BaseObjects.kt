@@ -11,13 +11,10 @@ internal object BaseObjects {
 
     const val COM_X12Q_KOTLIN_RANDOMIZER = "com.x12q.kotlin.randomizer"
 
-    @Deprecated("kept for reference only")
     val randomizableAnnotationName = Randomizable::class.qualifiedName!!
 
-    @Deprecated("kept for reference only")
     val randomizableFqName = FqName(randomizableAnnotationName)
 
-    @Deprecated("kept for reference only")
     val randomizableClassId = ClassId.topLevel(randomizableFqName)
 
     val declarationOrigin = RandomizerDeclarationOrigin

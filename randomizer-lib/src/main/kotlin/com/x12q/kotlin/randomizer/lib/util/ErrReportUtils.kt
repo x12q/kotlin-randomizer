@@ -8,3 +8,7 @@ fun developerErrorMsg(msg:String):String{
     }
     return "$m. This is most likely a bug by the developer."
 }
+
+fun impossibleErr(msg:String):String{
+    return "Impossible: $msg"
+}

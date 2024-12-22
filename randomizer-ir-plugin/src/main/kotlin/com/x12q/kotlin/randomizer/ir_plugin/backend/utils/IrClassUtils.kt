@@ -1,9 +1,11 @@
 package com.x12q.kotlin.randomizer.ir_plugin.backend.utils
 
 import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
+import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import org.jetbrains.kotlin.builtins.StandardNames.COLLECTIONS_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.descriptors.Modality.*
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.types.classFqName
 import org.jetbrains.kotlin.ir.types.getPublicSignature
 import org.jetbrains.kotlin.ir.util.*
@@ -121,21 +123,29 @@ fun IrClass.isClass(clazz: KClass<*>): Boolean {
     return false
 }
 
+fun IrClass.getRandomizableAnnotation(): IrConstructorCall?{
+    return getAnnotation(Randomizable::class)
+}
+
+fun IrClass.getAnnotation(annotationClazz: KClass<*>): IrConstructorCall?{
+    val rt = annotationClazz.qualifiedName?.let { annotationName ->
+        this.annotations.firstOrNull {
+            it.isAnnotation(FqName(annotationName))
+        }
+    }
+    return rt
+}
+
 fun IrClass.hasSignature(sig:IdSignature.CommonSignature): Boolean {
     return this.hasFqNameEqualToSignature2(sig)
 }
 
 fun IrClass.isAnnotatedWithRandomizable(): Boolean {
-    return this.isAnnotatedWith(BaseObjects.randomizableFqName)
+    return this.isAnnotatedWith(Randomizable::class)
 }
 
 fun IrClass.isAnnotatedWith(annotationClazz: KClass<*>): Boolean {
-    val rt = annotationClazz.qualifiedName?.let { annotationName ->
-        this.annotations.any {
-            it.isAnnotation(FqName(annotationName))
-        }
-    } ?: false
-    return rt
+   return getAnnotation(annotationClazz)!=null
 }
 
 
