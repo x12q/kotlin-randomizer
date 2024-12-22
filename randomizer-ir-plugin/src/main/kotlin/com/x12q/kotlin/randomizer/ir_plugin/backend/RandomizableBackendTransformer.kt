@@ -72,6 +72,7 @@ import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.Modality.*
+import org.jetbrains.kotlin.fir.generateTemporaryVariable
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
@@ -82,6 +83,7 @@ import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrWhenImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
@@ -149,7 +151,7 @@ class RandomizableBackendTransformer @Inject constructor(
         for (classRef in classRefList) {
             val clzz = classRef.classType.classOrNull?.owner
                 .crashOnNull { impossibleErr("ClassRef $classRef passed to ${randomizableAccessor.classId} is from a null class.") }
-            if(clzz.isInterface || clzz.modality == ABSTRACT){
+            if (clzz.isInterface || clzz.modality == ABSTRACT) {
                 throw IllegalArgumentException("${clzz} must not be abstract")
             }
         }
@@ -382,6 +384,9 @@ class RandomizableBackendTransformer @Inject constructor(
             {
                 generateRandomAbstractClassAndInterface(
                     irClass = irClass,
+                    irType = irType.crashOnNull {
+                        developerErrorMsg("type of interface cannot be null")
+                    },
                     builder = builder,
                     declarationParent = declarationParent,
                     getRandomContextExpr = getRandomContextExpr,
@@ -1431,12 +1436,8 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private fun generateRandomAbstractClassAndInterface(
-        // target: IrClass,
-        // getRandomContextExpr: IrExpression,
-        // builder: DeclarationIrBuilder,
-        // initMetadata: InitMetaData,
-        //
         declarationParent: IrDeclarationParent?,
+        irType: IrType,
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
@@ -1445,12 +1446,43 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWithRandomizable()) {
             val candidateClasses = extractIrClassesFromRandomizableAnnotation(irClass)
-            if(candidateClasses.isNotEmpty()){
-                val f = candidateClasses.first()
-                return generateRandomPrimaryClass(
-                    f,builder,initMetadata,declarationParent,getRandomContextExpr,getRandomConfigExpr
-                )
-            }else{
+            if (candidateClasses.isNotEmpty()) {
+                val rt = builder.irBlock {
+                    val candidateCount = candidateClasses.size
+                    val candidateIndexExpr: IrCall =
+                        getRandomConfigExpr.dotCall(randomConfigAccessor.randomizableCandidateIndex(builder))
+                            .withValueArgs(builder.irInt(candidateCount))
+                    val candidateIndexVar = irTemporary(candidateIndexExpr, nameHint = "classCandidateIndex")
+                    val whenResultExpr: IrWhen = builder.irWhen(
+                        type = irType,
+                        branches = candidateClasses.withIndex().map { (index, candidate) ->
+                            builder.irBranch(
+                                condition = builder.irEquals(candidateIndexExpr, builder.irInt(index)),
+                                result = generateRandomPrimaryClass(
+                                    candidate,
+                                    builder,
+                                    initMetadata,
+                                    declarationParent,
+                                    getRandomContextExpr,
+                                    getRandomConfigExpr
+                                ) ?: throwUnableToRandomizeException(
+                                    builder,
+                                    "Unable to generate random for $candidate"
+                                )
+                            )
+                        } + builder.irElseBranch(
+                            throwUnableToRandomizeException(builder, msgIr = builder.irConcat().apply {
+                                addArgument(builder.irString("Illegal index for @Randomizable annotation's candidate class at ${irClass.name}. The index should be within [0, $candidateCount), but it is "))
+                                addArgument(builder.irGet(candidateIndexVar))
+                                addArgument(builder.irString("."))
+                            })
+                        )
+                    )
+                    +whenResultExpr
+                }
+                println("z99:${rt.dumpKotlinLike()}")
+                return rt
+            } else {
                 return null
             }
         } else {
@@ -1831,9 +1863,17 @@ class RandomizableBackendTransformer @Inject constructor(
     private fun throwUnableToRandomizeException(
         builder: IrBuilderWithScope, msg: String?
     ): IrThrowImpl {
-        return with(builder) {
-            irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msg))
-        }
+        return builder.irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msg))
+    }
+
+
+    /**
+     * Construct an Ir to throw an instance of [UnableToMakeRandomException]
+     */
+    private fun throwUnableToRandomizeException(
+        builder: IrBuilderWithScope, msgIr: IrExpression
+    ): IrThrowImpl {
+        return builder.irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msgIr))
     }
 
     /**

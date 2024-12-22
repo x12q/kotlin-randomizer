@@ -31,6 +31,13 @@ interface RandomConfig {
         return stringSize.random(random)
     }
 
+    /**
+     * A random int that dictate the choosing of candidate class in [com.x12q.kotlin.randomizer.lib.annotations.Randomizable] annotation
+     */
+    fun randomizableCandidateIndex(candidateCount:Int):Int{
+        return nextInt() % candidateCount
+    }
+
     fun nextAny(): Any {
         return listOf(
             nextInt(),

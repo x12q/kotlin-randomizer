@@ -37,6 +37,10 @@ class RandomConfigAccessor @Inject constructor(
             }
     }
 
+    fun randomizableCandidateIndex(builder: DeclarationIrBuilder): IrCall{
+        return builder.oneAgrFunctionCall("randomizableCandidateIndex")
+    }
+
     fun randomCollectionSize(builder: IrBuilderWithScope): IrCall {
         return builder.zeroAgrFunctionCall("randomCollectionSize")
     }

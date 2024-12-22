@@ -10,6 +10,6 @@ class RandomizableAccessor @Inject constructor() {
     val randomizableAnnotationName = Randomizable::class.qualifiedName!!
     val randomizableFqName = FqName(randomizableAnnotationName)
     val classId = ClassId.topLevel(randomizableFqName)
-    val classesParamName = Name.identifier("classes")
+    val classesParamName = Name.identifier("candidates")
 
 }

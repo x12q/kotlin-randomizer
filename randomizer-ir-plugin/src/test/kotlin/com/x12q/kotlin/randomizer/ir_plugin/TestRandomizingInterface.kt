@@ -1,13 +1,11 @@
 package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -16,7 +14,7 @@ import kotlin.test.Test
 class TestRandomizingInterface {
 
     @Randomizable(
-        classes = [PlainImplementation_2::class],
+        candidates = [PlainImplementation_2::class],
     )
     interface PlainInterface {
         val i:Int
@@ -35,6 +33,10 @@ class TestRandomizingInterface {
         val t2:T2
     }
 
+    class GenericImplementation_1<G0>(override val t1: Int, override val t2: G0) : GenericInterface<Int,G0>{
+
+    }
+
     private val imports = TestImportsBuilder.stdImport
         .import(QxC::class)
         .import(PlainInterface::class)
@@ -47,7 +49,7 @@ class TestRandomizingInterface {
      * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun `test passing generic to property`() {
+    fun `generate random plain interface`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
