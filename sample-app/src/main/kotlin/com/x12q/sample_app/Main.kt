@@ -1,9 +1,5 @@
 package com.x12q.sample_app
 
-import com.x12q.kotlin.randomizer.lib.RandomConfigImp
-import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant
-import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.factory
-import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import java.util.Date
 import com.x12q.kotlin.randomizer.lib.random
 
