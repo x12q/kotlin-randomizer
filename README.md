@@ -133,7 +133,7 @@ val instance = random<ExampleClass>(
 
 
 # How it works
-
-- This plugin is a kotlin compiler plugin, it modifies the IR (intermediate representation) tree to generate and inject code into `makeRandom` argument of the `random` function when it is called.
+- This plugin generates and injects code into `makeRandom` argument of the `random` function when it is called.
+- The generated code is the one responsible for creating random instances of classes.
 - This happens at compile time.
-- It is noticed that if users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
+- If users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
