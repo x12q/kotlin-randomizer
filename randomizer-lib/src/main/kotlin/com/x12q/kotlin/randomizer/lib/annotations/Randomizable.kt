@@ -8,6 +8,7 @@ import kotlin.reflect.KClass
 /**
  * Annotation to provide custom randomizer to class, constructor
  */
+@Deprecated("kept for reference only. Don't use.")
 @Target(CLASS, VALUE_PARAMETER, PROPERTY, CONSTRUCTOR)
 @Retention(RUNTIME)
 annotation class Randomizable(

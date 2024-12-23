@@ -1463,8 +1463,10 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-
-    private fun generateRandomAbstractClassAndInterface_old(
+    /**
+     * Generate random from candidate class from @Randomizable annotation.
+     */
+    private fun generateRandomAbstractClassAndInterface_usingRandomizableAnnotation(
         declarationParent: IrDeclarationParent?,
         irType: IrType,
         irClass: IrClass,
