@@ -16,7 +16,7 @@ A library for (kinda) effortlessly generate random objects.
 ## Install with gradle
 ```
 plugins{
-  id("com.x12q.randomizer") version "1.0.0-alpha.9"
+  id("com.x12q.randomizer")  "1.0.0-alpha.9"
 }
 
 dependencies {
@@ -134,6 +134,6 @@ val instance = random<ExampleClass>(
 
 # How it works
 
-At compile time:
-- if `makeRandom` lambda in `random` function is not provided by users=> this library + plugin will generate a new `makeRandom` lambda that can actually generate a random instance and replace the default `makeRandom` with the generated one.
-- if `makeRandom` lambda is already provided by users => do nothing.
+- This plugin is a kotlin compiler plugin, it modifies the IR (intermediate representation) tree to generate and inject code into `makeRandom` argument of the `random` function when it is called.
+- This happens at compile time.
+- It is noticed that if users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
