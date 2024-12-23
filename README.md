@@ -137,12 +137,3 @@ val instance = random<ExampleClass>(
 At compile time:
 - if `makeRandom` lambda in `random` function is not provided by users=> this library + plugin will generate a new `makeRandom` lambda that can actually generate a random instance and replace the default `makeRandom` with the generated one.
 - if `makeRandom` lambda is already provided by users => do nothing.
-
-# Limitation
-
-At the moment, this library + plugin does not support generating random:
-- abstract class
-- interface
-- inner class
-
-Support for abstract classes and interfaces will come in the form of annotation in the next release, but inner class will not be supported.
