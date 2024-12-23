@@ -63,13 +63,16 @@ import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.kotlin.randomizer.ir_plugin.util.stopAtFirstNotNull
 import com.x12q.kotlin.randomizer.lib.*
+import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
+import com.x12q.kotlin.randomizer.lib.util.impossibleErr
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.Modality.*
+import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
@@ -104,12 +107,54 @@ class RandomizableBackendTransformer @Inject constructor(
     private val mapAccessor: MapAccessor,
     private val setAccessor: SetAccessor,
     private val arrayAccessor: ArrayAccessor,
+    private val randomizableAccessor: RandomizableAccessor,
+    private val builderAccessor: RandomizerContextBuilderAccessor,
 ) : RDBackendTransformer() {
-
 
     override fun visitCall(expression: IrCall): IrExpression {
         completeRandomFunctionCall(expression)
         return super.visitCall(expression)
+    }
+
+    private fun extractClassReferencesFromRandomizableAnnotation(targetClass: IrClass): List<IrClassReference> {
+        val randomizableAnnotation = targetClass.getAnnotation(Randomizable::class)
+        val classListParamArgPair: Pair<IrValueParameter, IrExpression?>? =
+            randomizableAnnotation?.getAllArgumentsWithIr()
+                ?.firstOrNull { (param, _) ->
+                    param.name == randomizableAccessor.classesParamName
+                }
+        if (classListParamArgPair != null) {
+            val arg = classListParamArgPair.second
+            if (arg == null) {
+                return emptyList()
+            }
+
+            val classReferences = (arg as? IrVararg)?.elements?.mapNotNull { it as? IrClassReference }
+                ?: emptyList()
+
+            validateClassInRandomizableAnnotationOrCrash(classReferences)
+
+            return classReferences
+        } else {
+            return emptyList()
+        }
+    }
+
+    private fun extractIrClassesFromRandomizableAnnotation(targetClass: IrClass): List<IrClass> {
+        return extractClassReferencesFromRandomizableAnnotation(targetClass).mapNotNull { it.classType.classOrNull?.owner }
+    }
+
+    /**
+     * Check if all class ref in [classRefList] is legal or not. Crash on illegal ones.
+     */
+    private fun validateClassInRandomizableAnnotationOrCrash(classRefList: List<IrClassReference>) {
+        for (classRef in classRefList) {
+            val clzz = classRef.classType.classOrNull?.owner
+                .crashOnNull { impossibleErr("ClassRef $classRef passed to ${randomizableAccessor.classId} is from a null class.") }
+            if (clzz.isInterface || clzz.modality == ABSTRACT) {
+                throw IllegalArgumentException("${clzz} must not be abstract")
+            }
+        }
     }
 
     /**
@@ -118,7 +163,7 @@ class RandomizableBackendTransformer @Inject constructor(
      */
     private fun completeRandomFunctionCall(irCall: IrCall) {
         val function = irCall.symbol.owner
-        if (!isRandomFunctions(function)) {
+        if (!isRandomFunctions(function, builderAccessor.irType)) {
             return
         }
 
@@ -169,7 +214,7 @@ class RandomizableBackendTransformer @Inject constructor(
         returnType: IrType,
         declarationParent: IrDeclarationParent?,
     ): IrSimpleFunction {
-        val newMakeRandomLambda: IrSimpleFunction = makeLocalLambdaWithoutBody2(
+        val newMakeRandomLambda: IrSimpleFunction = makeLocalLambdaWithoutBody_forMakeRandom(
             returnType = returnType,
             visibility = DescriptorVisibilities.LOCAL,
         )
@@ -268,7 +313,7 @@ class RandomizableBackendTransformer @Inject constructor(
             builder = builder,
             param = null,
             enclosingClass = null,
-            randomFunctionMetaData = randomFunctionMetaData,
+            initMetadata = randomFunctionMetaData,
             prevTypeMap = randomFunctionMetaData.initTypeMap
         )
     }
@@ -293,7 +338,7 @@ class RandomizableBackendTransformer @Inject constructor(
         getRandomContextExpr: IrExpression,
         getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: InitMetaData,
+        initMetadata: InitMetaData,
         prevTypeMap: TypeMap,
     ): IrExpression? {
         if (irClass.isInner) {
@@ -311,7 +356,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     declarationParent = declarationParent,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
-                    randomFunctionMetaData = randomFunctionMetaData,
+                    randomFunctionMetaData = initMetadata,
                 )
             },
             {
@@ -325,7 +370,7 @@ class RandomizableBackendTransformer @Inject constructor(
                     enclosingClass = enclosingClass,
                     getRandomContextExpr = getRandomContextExpr,
                     getRandomConfigExpr = getRandomConfigExpr,
-                    randomFunctionMetaData = randomFunctionMetaData,
+                    randomFunctionMetaData = initMetadata,
                 )
             },
             {
@@ -333,15 +378,21 @@ class RandomizableBackendTransformer @Inject constructor(
                     irClass = irClass,
                     builder = builder,
                     getRandomContextExpr = getRandomContextExpr,
-                    randomFunctionMetaData = randomFunctionMetaData
+                    randomFunctionMetaData = initMetadata
                 )
             },
             {
-                generateRandomAbstractClass(
+                generateRandomAbstractClassAndInterface(
+                    param = param,
                     irClass = irClass,
-                    getRandomContextExpr = getRandomContextExpr,
+                    irType = irType.crashOnNull {
+                        developerErrorMsg("type of interface cannot be null")
+                    },
                     builder = builder,
-                    randomFunctionMetaData = randomFunctionMetaData
+                    declarationParent = declarationParent,
+                    getRandomContextExpr = getRandomContextExpr,
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    initMetadata = initMetadata,
                 )
             })
         return rt
@@ -1385,14 +1436,87 @@ class RandomizableBackendTransformer @Inject constructor(
         }
     }
 
-    private fun generateRandomAbstractClass(
+    private fun generateRandomAbstractClassAndInterface(
+        declarationParent: IrDeclarationParent?,
+        param: IrValueParameter?,
+        irType: IrType,
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: InitMetaData,
+        initMetadata: InitMetaData,
     ): IrExpression? {
+        if (irClass.isAbstract() && !irClass.isSealed()) {
+            // look for value in random context
+            val rt = randomOrThrow(
+                builder = builder,
+                randomExpr = getRandomContextExpr.extensionDotCall(randomContextAccessor.randomFunction(builder))
+                    .withTypeArgs(irType),
+                type = irType,
+                reportData = ParamReportData(param?.name?.asString(), irType.dumpKotlinLike(), irType.classFqName?.asString()),
+                tempVarName = null
+            )
+            return rt
+
+        } else {
+            return null
+        }
+    }
+
+    /**
+     * Generate random from candidate class from @Randomizable annotation.
+     */
+    private fun generateRandomAbstractClassAndInterface_usingRandomizableAnnotation(
+        declarationParent: IrDeclarationParent?,
+        irType: IrType,
+        irClass: IrClass,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        builder: DeclarationIrBuilder,
+        initMetadata: InitMetaData,
+    ): IrExpression? {
+        return null
         if (irClass.isAbstract() && !irClass.isSealed() && irClass.isAnnotatedWithRandomizable()) {
-            TODO("not supported yet")
+            val candidateClasses = extractIrClassesFromRandomizableAnnotation(irClass)
+            if (candidateClasses.isNotEmpty()) {
+                val rt = builder.irBlock {
+                    val candidateCount = candidateClasses.size
+                    val candidateIndexExpr: IrCall =
+                        getRandomConfigExpr.dotCall(randomConfigAccessor.randomizableCandidateIndex(builder))
+                            .withValueArgs(builder.irInt(candidateCount))
+                    val candidateIndexVar = irTemporary(candidateIndexExpr, nameHint = "classCandidateIndex")
+                    val whenResultExpr: IrWhen = builder.irWhen(
+                        type = irType,
+                        branches = candidateClasses.withIndex().map { (index, candidate) ->
+                            builder.irBranch(
+                                condition = builder.irEquals(candidateIndexExpr, builder.irInt(index)),
+                                result = generateRandomPrimaryClass(
+                                    candidate,
+                                    builder,
+                                    initMetadata,
+                                    declarationParent,
+                                    getRandomContextExpr,
+                                    getRandomConfigExpr
+                                ) ?: throwUnableToRandomizeException(
+                                    builder,
+                                    "Unable to generate random for $candidate"
+                                )
+                            )
+                        } + builder.irElseBranch(
+                            throwUnableToRandomizeException(builder, msgIr = builder.irConcat().apply {
+                                addArgument(builder.irString("Illegal index for @Randomizable annotation's candidate class at ${irClass.name}. The index should be within [0, $candidateCount), but it is "))
+                                addArgument(builder.irGet(candidateIndexVar))
+                                addArgument(builder.irString("."))
+                            })
+                        )
+                    )
+                    +whenResultExpr
+                }
+                println("z99:${rt.dumpKotlinLike()}")
+                return rt
+            } else {
+                return null
+            }
         } else {
             return null
         }
@@ -1563,7 +1687,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 getRandomContextExpr = getRandomContextExpr,
                 getRandomConfigExpr = getRandomConfigExpr,
                 builder = builder,
-                randomFunctionMetaData = initMetaData,
+                initMetadata = initMetaData,
                 prevTypeMap = typeMap
             )
 
@@ -1733,7 +1857,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 builder = builder,
                 randomExpr = nonNullRandom,
                 type = targetType,
-                metaData = optionalParamMetaDataForReporting,
+                reportData = optionalParamMetaDataForReporting,
                 tempVarName = tempVarName,
             )
         }
@@ -1750,7 +1874,7 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomExpr: IrExpression,
         type: IrType,
-        metaData: ReportData,
+        reportData: ReportData,
         tempVarName: String?
     ): IrExpression {
         return builder.irBlock {
@@ -1759,7 +1883,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val getRandomResult = irGet(randomResultVar)
             val throwExceptionExpr = throwUnableToRandomizeException(
                 builder = this,
-                msg = metaData.makeMsg(),
+                msg = reportData.makeMsg(),
             )
             +irIfNull(type, getRandomResult, throwExceptionExpr, getRandomResult)
         }
@@ -1771,9 +1895,17 @@ class RandomizableBackendTransformer @Inject constructor(
     private fun throwUnableToRandomizeException(
         builder: IrBuilderWithScope, msg: String?
     ): IrThrowImpl {
-        return with(builder) {
-            irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msg))
-        }
+        return builder.irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msg))
+    }
+
+
+    /**
+     * Construct an Ir to throw an instance of [UnableToMakeRandomException]
+     */
+    private fun throwUnableToRandomizeException(
+        builder: IrBuilderWithScope, msgIr: IrExpression
+    ): IrThrowImpl {
+        return builder.irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msgIr))
     }
 
     /**
@@ -1894,7 +2026,7 @@ class RandomizableBackendTransformer @Inject constructor(
         )
     }
 
-    private fun makeLocalLambdaWithoutBody2(
+    private fun makeLocalLambdaWithoutBody_forMakeRandom(
         returnType: IrType,
         visibility: DescriptorVisibility = DescriptorVisibilities.LOCAL,
         name: Name = SpecialNames.ANONYMOUS

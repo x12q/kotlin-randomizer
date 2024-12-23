@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.util.primaryConstructor
 import org.jetbrains.kotlin.name.ClassId
@@ -33,13 +34,17 @@ class UnableToMakeRandomExceptionAccessor @Inject constructor(
     }
 
     fun callConstructor(builder: IrBuilderWithScope, msg: String?): IrConstructorCall {
+        val msgIr: IrExpression = msg?.let{builder.irString(msg)} ?: builder.irNull()
+        val rt = callConstructor(builder,msgIr )
+        return rt
+    }
+
+    fun callConstructor(builder: IrBuilderWithScope, msgIr: IrExpression): IrConstructorCall {
         val rt = with(builder) {
             irCallConstructor(
                 callee = primaryConstructor.symbol,
                 typeArguments = emptyList()
-            ).withValueArgs(
-                msg?.let{irString(msg)} ?: irNull()
-            ) as IrConstructorCall
+            ).withValueArgs(msgIr) as IrConstructorCall
         }
         return rt
     }
