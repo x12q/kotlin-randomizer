@@ -41,7 +41,7 @@ gradlePlugin {
         create("kotlin-randomizer-ir-gradle-plugin") {
             id = libs.versions.gradlePluginId.get()
             displayName = "kotlin-randomizer IR Gradle plugin"
-            description = "kotlin-randomizer IR Gradle plugin"
+            description = "A plugin to generate random instances of classes in Kotlin."
             tags=listOf("kotlin", "kotlin-randomizer", "randomizer")
             implementationClass = "com.x12q.kotlin.randomizer.ir_gradle_plugin.RandomizerGradlePlugin"
         }
