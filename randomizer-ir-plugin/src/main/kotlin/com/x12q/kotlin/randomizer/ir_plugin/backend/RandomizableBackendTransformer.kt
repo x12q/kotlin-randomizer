@@ -173,6 +173,7 @@ class RandomizableBackendTransformer @Inject constructor(
             randomFunctionCall = irCall,
             randomFunction = randomFunction,
         )
+        println("z19: ${irCall.dumpKotlinLike()}")
     }
 
     private fun completeMakeRandomLambda(randomFunctionCall: IrCall, randomFunction: IrSimpleFunction) {

@@ -4,6 +4,10 @@ inline fun <reified T:Any> constantRandomizer(value:T): ClassRandomizer<T> {
     return ConstantRandomizer.of(value)
 }
 
+inline fun <reified T:Any> constantRandomizer(noinline makeValue:()->T): ClassRandomizer<T> {
+    return LazyConstantRandomizer.of(makeValue)
+}
+
 inline fun <reified T:Any> factoryRandomizer(noinline makeRandom:()->T): ClassRandomizer<T> {
     return FactoryClassRandomizer.of(makeRandom)
 }

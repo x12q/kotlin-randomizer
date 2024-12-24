@@ -1,6 +1,7 @@
 package com.x12q.kotlin.randomizer.lib.randomizer
 
 import com.x12q.kotlin.randomizer.lib.*
+import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
@@ -71,5 +72,22 @@ class RandomContextBuilderImpTest {
         builder.int { 999 }
         val ctx = builder.build()
         ctx.random<Int>() shouldBe 999
+    }
+
+    @Test
+    fun `test RandomContextBuilder config functions`(){
+        val bd = RandomContextBuilderImp()
+
+        fun RandomContextBuilder.config(){
+            int(123)
+            val b= this
+            double{ b.random<Int>().toDouble() }
+        }
+        bd.config()
+
+        val ctx = bd.build()
+
+        ctx.random<Int>() shouldBe 123
+        ctx.random<Double>() shouldBe 123.0
     }
 }

@@ -2,6 +2,7 @@ package com.x12q.kotlin.randomizer.lib
 
 import com.x12q.kotlin.randomizer.lib.randomizer.ClassRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
+import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
 import java.util.Date
 
 
@@ -50,8 +51,11 @@ class RandomContextBuilderImp : RandomContextBuilder {
             factoryRandomizer { randomConfig.nextUnit() },
             factoryRandomizer { randomConfig.nextAny() },
             factoryRandomizer { Date() }
-        )
-        randomizersMap.putAll(stdRdm.associateBy { it.returnType })
+        ).associateBy { it.returnType }.toMutableMap()
+
+        stdRdm.putAll(randomizersMap)
+
+        randomizersMap.putAll(stdRdm)
     }
 
     private val tier2RandomizerFactoryFunctionList: MutableList<(RandomContext) -> ClassRandomizer<*>> = mutableListOf()
@@ -75,7 +79,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
     override val randomConfig: RandomConfig
         get() = requireNotNull(_randomConfig) {
-            "_randomConfig is not set yet. This is a bug by the developer."
+            developerErrorMsg("_randomConfig is not set yet.")
         }
 
     /**

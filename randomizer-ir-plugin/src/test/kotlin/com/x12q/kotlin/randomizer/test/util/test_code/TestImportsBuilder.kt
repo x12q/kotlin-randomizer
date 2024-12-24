@@ -176,17 +176,19 @@ data class TestImportsBuilder(
             ),
             functionList = listOf(
                 ::withTestOutput,
-                ::constantRandomizer,
-
-
             ),
             packages = listOf(
                 "kotlin.collections",
             ),
             literalImports = listOf(
+                "com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.long",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.string",
                 "com.x12q.kotlin.randomizer.lib.random",
                 "com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer",
-                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.factory",
                 "kotlin.random.Random",
                 "com.x12q.kotlin.randomizer.test.util.makeList",
