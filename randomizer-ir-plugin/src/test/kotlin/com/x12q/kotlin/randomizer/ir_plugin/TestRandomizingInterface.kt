@@ -10,7 +10,6 @@ import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
-import kotlin.test.fail
 
 
 @OptIn(ExperimentalCompilerApi::class)

@@ -5,7 +5,6 @@ import com.x12q.kotlin.randomizer.lib.*
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.lib.randomizer.ConstantRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.FactoryClassRandomizer
-import com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.kotlin.randomizer.test.util.TestOutput
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.withTestOutput
@@ -181,6 +180,7 @@ data class TestImportsBuilder(
                 "kotlin.collections",
             ),
             literalImports = listOf(
+                "com.x12q.kotlin.randomizer.test.util.testOutput",
                 "com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double",

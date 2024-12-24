@@ -1,12 +1,12 @@
 package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
+import com.x12q.kotlin.randomizer.ir_plugin.TestNestedRandomFunction.QxC
+import com.x12q.kotlin.randomizer.ir_plugin.TestNestedRandomFunction.XYZ
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
@@ -30,14 +30,20 @@ class TestNestedRandomFunction {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<XYZ<Int,Double>>>(randomizers = {
-                            int(123)
-                            double{ random<Int>().toDouble() }
-                        }))
+                        putData(
+                            random<QxC<XYZ<Int,Double>>>(randomizers = {
+                                int(123)
+                                double{ random<Int>().toDouble() }
+                            })
+                        )
                     }
                 }
-            """,
+            """
         ) {
+
+
+
+
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.executeRunTestFunction {
@@ -57,28 +63,30 @@ class TestNestedRandomFunction {
                $imports
 
                 fun runTest():TestOutput{
-                    println(random<XYZ<Int,Long>>(randomConfig=TestRandomConfig(), randomizers = {
-                            int(123)
-                            long{ 123L }
-                    }))
-                    println(random<Int>())
+                    val q = random<QxC<XYZ<Int, Double>>>(randomizers = {
+                        int(123)
+                        double{ random<Int>().toDouble() }
+                    })
                     return withTestOutput{
-                        putData(random<QxC<XYZ<Int,Long>>>(randomConfig=TestRandomConfig(), randomizers = {
-                            int(123)
-                            // long{ random<Int>().toLong() }
-                            long{ random<Int>().toLong() }
-                        }))
+
+                        putData(
+                            q
+                        )
                     }
                 }
-               
-            """,
+
+                // fun main(){
+                //     println(runTest())
+                //     // println("zzzxczxc212312321ho9u4wh859uh5r3q")
+                // }
+            """
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                // result.runMain()
                 result.executeRunTestFunction {
-                    val c = TestRandomConfig()
                     it.getObjs() shouldBe listOf(
-                        XYZ(123, 123L)
+                        XYZ(123, 123.0)
                     )
                 }
             }

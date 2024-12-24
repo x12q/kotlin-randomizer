@@ -2,6 +2,7 @@ package com.x12q.kotlin.randomizer.ir_plugin.backend.utils
 
 import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilder
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -13,7 +14,9 @@ fun isRandomFunctions(
     function: IrSimpleFunction,
     randomContextBuilderType: IrType
 ): Boolean{
-    return isStandAloneRandomFunctions(function) || isRandomFunctionForRdContextBuilder(function,randomContextBuilderType)
+    val c1 = isStandAloneRandomFunctions(function)
+    val c2 = isRandomFunctionForRdContextBuilder(function,randomContextBuilderType)
+    return c1 || c2
 }
 
 fun isStandAloneRandomFunctions(
