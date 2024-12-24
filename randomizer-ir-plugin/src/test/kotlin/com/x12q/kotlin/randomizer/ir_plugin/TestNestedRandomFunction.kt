@@ -22,7 +22,7 @@ class TestNestedRandomFunction {
     data class XYZ<T,E>(val i:T, val d:E)
 
     @Test
-    fun `zxczxcz`() {
+    fun `test nested random function calls`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """

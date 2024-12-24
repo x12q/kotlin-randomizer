@@ -75,18 +75,17 @@ class RandomContextBuilderImpTest {
     }
 
     @Test
-    fun `test RandomContextBuilder config functions`(){
+    fun `test RandomContextBuilder config functions`() {
         val bd = RandomContextBuilderImp()
-
-        fun RandomContextBuilder.config(){
+        val rdConfig = RandomConfig.default
+        bd.setRandomConfigAndGenerateStandardRandomizers(rdConfig)
+        fun RandomContextBuilder.config() {
             int(123)
-            val b= this
-            double{ b.random<Int>().toDouble() }
+            val b = this
+            double { b.random<Int>(makeRandom = { 123 }).toDouble() }
         }
         bd.config()
-
         val ctx = bd.build()
-
         ctx.random<Int>() shouldBe 123
         ctx.random<Double>() shouldBe 123.0
     }
