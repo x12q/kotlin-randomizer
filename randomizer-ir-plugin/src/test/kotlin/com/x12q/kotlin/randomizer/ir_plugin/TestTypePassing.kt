@@ -48,48 +48,10 @@ class TestTypePassing {
         .import(Qx::class)
         .import(QxC::class)
         .import(QxCx::class)
-        .import(XYZ::class)
 
     data class QxC<K_Q>(override val data:Ax<K_Q>):WithData
     data class QxCx<K_Q:Any>(override val data:K_Q):WithData
 
-    data class XYZ<T,E>(val t:T, val e:E)
-
-    @Test
-    fun `zxczxcz`() {
-
-        testGeneratedCodeUsingStandardPlugin(
-            """
-               $imports
-
-                fun runTest():TestOutput{
-                    // println(random<XYZ<Int,Long>>(randomConfig=TestRandomConfig(), randomizers = {
-                    //         int(123)
-                    //         long{ 123L }
-                    // }))
-                    println(random<Int>())
-                    return withTestOutput{
-                        putData(random<QxCx<XYZ<Int,Long>>>(randomConfig=TestRandomConfig(), randomizers = {
-                            int(123)
-                            long{ 123L }
-                        }))
-                    }
-                }
-               
-            """,
-        ) {
-            testCompilation = { result, testStream ->
-                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.executeRunTestFunction {
-                    val c = TestRandomConfig()
-                    it.getObjs() shouldBe listOf(
-                        XYZ(123, 123L)
-                    )
-                    // println(it.getObjs())
-                }
-            }
-        }
-    }
 
     /**
      * Test passing generic param from "random" function to generic with a property.
