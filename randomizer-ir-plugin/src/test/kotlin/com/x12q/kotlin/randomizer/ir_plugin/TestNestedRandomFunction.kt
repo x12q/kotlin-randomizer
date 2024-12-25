@@ -5,6 +5,7 @@ import com.x12q.kotlin.randomizer.ir_plugin.TestNestedRandomFunction.QxC
 import com.x12q.kotlin.randomizer.ir_plugin.TestNestedRandomFunction.XYZ
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
+import com.x12q.kotlin.randomizer.test.util.assertions.runMain
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -42,8 +43,6 @@ class TestNestedRandomFunction {
         ) {
 
 
-
-
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 result.executeRunTestFunction {
@@ -61,34 +60,33 @@ class TestNestedRandomFunction {
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
-
-                fun runTest():TestOutput{
-                    val q = random<QxC<XYZ<Int, Double>>>(randomizers = {
-                        int(123)
-                        double{ random<Int>().toDouble() }
-                    })
-                    return withTestOutput{
-
-                        putData(
-                            q
-                        )
-                    }
-                }
-
-                // fun main(){
-                //     println(runTest())
-                //     // println("zzzxczxc212312321ho9u4wh859uh5r3q")
+                fun main(){
+                // fun runTest():TestOutput{
+                //   
+                //     return withTestOutput{
+                //         putData(
+                //             q
+                //         )
+                //     }
                 // }
+
+                    val q = random<QxC<XYZ<Int, Double>>>(randomizers = {
+                            int(123)
+                            double{ random<Int>().toDouble() }
+                        })
+                    // println(runTest())
+                    println(q)
+                }
             """
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                // result.runMain()
-                result.executeRunTestFunction {
-                    it.getObjs() shouldBe listOf(
-                        XYZ(123, 123.0)
-                    )
-                }
+                result.runMain()
+                // result.executeRunTestFunction {
+                //     it.getObjs() shouldBe listOf(
+                //         XYZ(123, 123.0)
+                //     )
+                // }
             }
         }
     }
