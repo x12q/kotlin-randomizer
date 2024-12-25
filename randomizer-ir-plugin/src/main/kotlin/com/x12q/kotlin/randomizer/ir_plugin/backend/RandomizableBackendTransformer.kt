@@ -72,6 +72,7 @@ import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.Modality.*
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
@@ -87,7 +88,6 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
-import org.jetbrains.kotlin.ir.types.impl.originalKotlinType
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
@@ -111,9 +111,9 @@ class RandomizableBackendTransformer @Inject constructor(
     private val builderAccessor: RandomizerContextBuilderAccessor,
 ) : RDBackendTransformer() {
 
-    override fun visitCall(expression: IrCall): IrExpression {
+    override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
         completeRandomFunctionCall(expression)
-        return super.visitCall(expression)
+        return super.visitFunctionAccess(expression)
     }
 
     private fun extractClassReferencesFromRandomizableAnnotation(targetClass: IrClass): List<IrClassReference> {
@@ -161,7 +161,7 @@ class RandomizableBackendTransformer @Inject constructor(
      * This involves:
      * - completing "makeRandom" lambda
      */
-    private fun completeRandomFunctionCall(irCall: IrCall) {
+    private fun completeRandomFunctionCall(irCall: IrFunctionAccessExpression) {
         val function = irCall.symbol.owner
         if (!isRandomFunctions(function, builderAccessor.irType)) {
             return
@@ -176,12 +176,13 @@ class RandomizableBackendTransformer @Inject constructor(
         println("z19: ${irCall.dumpKotlinLike()}")
     }
 
-    private fun completeMakeRandomLambda(randomFunctionCall: IrCall, randomFunction: IrSimpleFunction) {
+    private fun completeMakeRandomLambda(randomFunctionCall: IrFunctionAccessExpression, randomFunction: IrFunction) {
 
         val makeRandomLambdaParam = randomFunction.getMakeRandomParam()
             .crashOnNull { developerErrorMsg("makeRandom param does not exist") }
 
         val providedMakeRandomArg = randomFunctionCall.getArgAtParam(makeRandomLambdaParam)
+        val decParent = currentDeclarationParent
 
         if (providedMakeRandomArg == null) {
 
@@ -195,7 +196,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val makeRandomLambda = generateMakeRandomLambda(
                 returnType = makeRandomReturnType,
-                declarationParent = currentDeclarationParent,
+                declarationParent = decParent,
             )
 
             val makeRandomLambdaArg = makeIrFunctionExpr(
@@ -1792,12 +1793,12 @@ class RandomizableBackendTransformer @Inject constructor(
                         val argSimpleType = (arg as? IrSimpleType)
                         if (argSimpleType != null && classifier != null) {
                             val alteredArg = IrSimpleTypeImpl(
-                                kotlinType = arg.originalKotlinType,
                                 classifier = classifier,
                                 nullability = arg.nullability,
                                 arguments = argSimpleType.arguments,
                                 annotations = arg.annotations,
                                 abbreviation = arg.abbreviation,
+
                             )
                             alteredArg
                         } else {
@@ -1811,7 +1812,6 @@ class RandomizableBackendTransformer @Inject constructor(
             newArg
         }
         val rt = IrSimpleTypeImpl(
-            kotlinType = irType.originalKotlinType,
             classifier = irType.classifier,
             nullability = irType.nullability,
             arguments = newArg,
