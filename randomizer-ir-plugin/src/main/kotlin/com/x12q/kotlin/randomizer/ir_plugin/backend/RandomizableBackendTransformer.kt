@@ -113,10 +113,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
     override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
         completeRandomFunctionCall(expression)
-        val f = expression.symbol.owner
-        if(expression.symbol.owner.name.asString().contains("runTest")){
-            println("z12")
-        }
         return super.visitFunctionAccess(expression)
     }
 
@@ -201,7 +197,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 returnType = makeRandomReturnType,
                 declarationParent = decParent,
             )
-            println("z13")
 
             val makeRandomLambdaArg = makeIrFunctionExpr(
                 lambda = makeRandomLambda,
@@ -230,7 +225,7 @@ class RandomizableBackendTransformer @Inject constructor(
         }
 
         newMakeRandomLambda.addValueParameter(
-            name = Name.identifier("randomContextzzzz"),
+            name = Name.identifier("randomContext"),
             type = randomContextAccessor.irType,
             origin = BaseObjects.declarationOrigin
         )
@@ -1518,7 +1513,6 @@ class RandomizableBackendTransformer @Inject constructor(
                     )
                     +whenResultExpr
                 }
-                println("z99:${rt.dumpKotlinLike()}")
                 return rt
             } else {
                 return null
@@ -1866,7 +1860,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 tempVarName = tempVarName,
             )
         }
-        // println("z16: ${rt.dumpKotlinLike()}")
         return rt
     }
 

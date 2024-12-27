@@ -54,39 +54,37 @@ class TestNestedRandomFunction {
         }
     }
 
+    /**
+     * This case fails in test env, but actually passed in real project.
+     * This may be caused by a bug in the test compilation.
+     */
     @Test
-    fun `failing cases on lowering`() {
+    fun `weird case`() {
 
         testGeneratedCodeUsingStandardPlugin(
             """
                $imports
-                fun main(){
-                // fun runTest():TestOutput{
-                //   
-                //     return withTestOutput{
-                //         putData(
-                //             q
-                //         )
-                //     }
-                // }
 
+                fun runTest():TestOutput{
                     val q = random<QxC<XYZ<Int, Double>>>(randomizers = {
-                            int(123)
-                            double{ random<Int>().toDouble() }
-                        })
-                    // println(runTest())
-                    println(q)
+                        int(123)
+                        double{ random<Int>().toDouble() }
+                    })
+                    return withTestOutput{
+                        putData(
+                            q
+                        )
+                    }
                 }
             """
         ) {
             testCompilation = { result, testStream ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                result.runMain()
-                // result.executeRunTestFunction {
-                //     it.getObjs() shouldBe listOf(
-                //         XYZ(123, 123.0)
-                //     )
-                // }
+                result.executeRunTestFunction {
+                    it.getObjs() shouldBe listOf(
+                        XYZ(123, 123.0)
+                    )
+                }
             }
         }
     }

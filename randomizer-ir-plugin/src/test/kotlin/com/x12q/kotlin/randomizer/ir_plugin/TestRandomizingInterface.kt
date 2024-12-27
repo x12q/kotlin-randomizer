@@ -3,10 +3,12 @@ package com.x12q.kotlin.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfigForAbstractClassAndInterface
+import com.x12q.kotlin.randomizer.lib.UnableToMakeRandomException
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
@@ -81,10 +83,10 @@ class TestRandomizingInterface {
 
 
     /**
-     * This test fails by design, this feature is not yet implemented
+     * This feature is not supported, so the code should throw an exception
      */
     @Test
-    fun `generate random plain interface _ using annotation_`() {
+    fun `generate random plain interface without providing custom randomizer`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -99,15 +101,9 @@ class TestRandomizingInterface {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.executeRunTestFunction().getObjs()
-                val t = TestRandomConfigForAbstractClassAndInterface(1)
-                objectList shouldBe listOf(
-                    PlainImplementation_2,
-                    PlainImplementation_1(
-                        str = t.nextString(),
-                        d = t.nextDouble()
-                    )
-                )
+                shouldThrow<UnableToMakeRandomException> {
+                    result.executeRunTestFunction()
+                }
             }
         }
     }
@@ -181,10 +177,10 @@ class TestRandomizingInterface {
 
 
     /**
-     * This test fails by design, this feature is not yet implemented
+     * This feature is not supported, so the code should throw an exception
      */
     @Test
-    fun `generate random generic interface _ using annotation_ `() {
+    fun `generate random generic interface without providing custom randomizers`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
@@ -199,18 +195,9 @@ class TestRandomizingInterface {
         ) {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
-                val objectList = result.executeRunTestFunction().getObjs()
-
-                objectList shouldBe listOf(
-                    run {
-                        val cf = TestRandomConfigForAbstractClassAndInterface(0)
-                        GenericImplementation_1(t1 = cf.nextString(), t2 = cf.nextDouble())
-                    },
-                    run {
-                        val cf = TestRandomConfigForAbstractClassAndInterface(1)
-                        GenericImplementation_2(t1 = cf.nextString(), t2 = cf.nextDouble())
-                    },
-                )
+                shouldThrow<UnableToMakeRandomException> {
+                    result.executeRunTestFunction()
+                }
             }
         }
     }
