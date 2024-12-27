@@ -71,9 +71,7 @@ class TestNestedRandomFunction {
                         double{ random<Int>().toDouble() }
                     })
                     return withTestOutput{
-                        putData(
-                            q
-                        )
+                        putData(q)
                     }
                 }
             """
