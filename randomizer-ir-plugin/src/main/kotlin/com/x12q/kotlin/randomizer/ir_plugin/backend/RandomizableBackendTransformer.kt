@@ -15,7 +15,6 @@ import com.x12q.kotlin.randomizer.ir_plugin.backend.reporting.ParamReportData
 import com.x12q.kotlin.randomizer.ir_plugin.backend.reporting.ReportData
 import com.x12q.kotlin.randomizer.ir_plugin.backend.support.InitMetaData
 import com.x12q.kotlin.randomizer.ir_plugin.backend.support.TypeMap
-import com.x12q.kotlin.randomizer.ir_plugin.backend.support.TypeParamOrArg
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.dotCall
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.extensionDotCall
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.getArgAtParam
@@ -72,8 +71,6 @@ import org.jetbrains.kotlin.backend.common.lower.irThrow
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.descriptors.Modality.*
-import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.backend.js.utils.typeArguments
 import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.builders.declarations.IrFunctionBuilder
@@ -166,6 +163,7 @@ class RandomizableBackendTransformer @Inject constructor(
         if (!isRandomFunctions(function, builderAccessor.irType)) {
             return
         }
+        println("mm123 mm123")
 
         val randomFunction = function
 
@@ -1753,13 +1751,13 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     /**
-     * TODO This function is highly problematic by its nature. Try to find a better way to swap type without resolving to recursive call.
+     * Replace generic type arg in [irType] using information from [typeMap]
      */
     private fun replaceTypeArgument(
         irType: IrSimpleType,
         typeMap: TypeMap
     ): IrSimpleType {
-        val newArg = irType.arguments.map { arg ->
+        val newTypeArg = irType.arguments.map { arg ->
 
             val argType = arg.typeOrNull
             val argClassifier = argType?.classifierOrNull
@@ -1781,27 +1779,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         // type info already exist, juts pass it along
                         irType
                     } else {
-                        // type info does not exist, construct a synthetic type
-                        // TODO this branch is problematic, it works with @Randomizable, but it can erase type because the synthetic type is not complete
-                        val classifier = when (typeParamOrTypeArg) {
-                            is TypeParamOrArg.Arg -> typeParamOrTypeArg.typeArg.typeOrNull?.classifierOrNull
-                            is TypeParamOrArg.Param -> typeParamOrTypeArg.typeParam.symbol
-                            null -> null
-                        }
-                        val argSimpleType = (arg as? IrSimpleType)
-                        if (argSimpleType != null && classifier != null) {
-                            val alteredArg = IrSimpleTypeImpl(
-                                classifier = classifier,
-                                nullability = arg.nullability,
-                                arguments = argSimpleType.arguments,
-                                annotations = arg.annotations,
-                                abbreviation = arg.abbreviation,
-
-                            )
-                            alteredArg
-                        } else {
-                            arg
-                        }
+                        arg
                     }
                 }
 
@@ -1812,7 +1790,7 @@ class RandomizableBackendTransformer @Inject constructor(
         val rt = IrSimpleTypeImpl(
             classifier = irType.classifier,
             nullability = irType.nullability,
-            arguments = newArg,
+            arguments = newTypeArg,
             annotations = irType.annotations,
             abbreviation = irType.abbreviation
         )
