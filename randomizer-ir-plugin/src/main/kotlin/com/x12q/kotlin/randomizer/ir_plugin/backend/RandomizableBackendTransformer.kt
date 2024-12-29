@@ -1632,7 +1632,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 param = constructorParam,
                 enclosingClass = enclosingClass,
                 declarationParent = declarationParent,
-                receivedType = receivedType as? IrSimpleType, // TODO why is there received type here? this may not be correct
+                receivedType = receivedType as? IrSimpleType,
                 targetType = targetType,
                 builder = builder,
                 getRandomContextExpr = getRandomContextExpr,
