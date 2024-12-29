@@ -561,19 +561,22 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
-        return templateGenerateListDerivative(
-            classCheck = { listIrClass.isArrayList() },
-            factoryFunctionCall = listAccessor.makeArrayList(builder),
-            declarationParent = declarationParent,
-            receivedTypeArguments = receivedTypeArguments,
-            param = param,
-            enclosingClass = enclosingClass,
-            irListType = irListType,
-            getRandomContextExpr = getRandomContextExpr,
-            getRandomConfigExpr = getRandomConfigExpr,
-            builder = builder,
-            randomFunctionMetaData = randomFunctionMetaData,
-        )
+        if(listIrClass.isArrayList()){
+            return generateCollectionUsingListAsInput(
+                factoryFunctionCall = listAccessor.makeArrayList(builder),
+                declarationParent = declarationParent,
+                receivedTypeArguments = receivedTypeArguments,
+                param = param,
+                enclosingClass = enclosingClass,
+                irListType = irListType,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                builder = builder,
+                randomFunctionMetaData = randomFunctionMetaData,
+            )
+        }else{
+            return null
+        }
     }
 
     private fun generateArray(
@@ -594,26 +597,29 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
-        return templateGenerateListDerivative(
-            classCheck = { arrayAccessor.isArray(arrayIrClass) },
-            factoryFunctionCall = arrayAccessor.makeArray(builder),
-            declarationParent = declarationParent,
-            receivedTypeArguments = receivedTypeArguments,
-            param = param,
-            enclosingClass = enclosingClass,
-            irListType = irListType,
-            getRandomContextExpr = getRandomContextExpr,
-            getRandomConfigExpr = getRandomConfigExpr,
-            builder = builder,
-            randomFunctionMetaData = randomFunctionMetaData,
-        )
+        if(arrayAccessor.isArray(arrayIrClass)){
+            return generateCollectionUsingListAsInput(
+                factoryFunctionCall = arrayAccessor.makeArray(builder),
+                declarationParent = declarationParent,
+                receivedTypeArguments = receivedTypeArguments,
+                param = param,
+                enclosingClass = enclosingClass,
+                irListType = irListType,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                builder = builder,
+                randomFunctionMetaData = randomFunctionMetaData,
+            )
+        }else{
+            return null
+        }
     }
 
     /**
-     * A template to generate collection derived from [List]
+     * This creates an expression that invoke [factoryFunctionCall] to create a collection object.
+     * The [factoryFunctionCall] must looks like this: makeCollection<Type>(listOf(element1, element2, ...))
      */
-    private fun templateGenerateListDerivative(
-        classCheck: () -> Boolean,
+    private fun generateCollectionUsingListAsInput(
         factoryFunctionCall: IrCall,
         declarationParent: IrDeclarationParent?,
         /**
@@ -631,10 +637,8 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
-        if (!classCheck()) {
-            return null
-        }
 
+        // extract element type from the collection type declaration
         val elementTypes = extractTypeArgument(
             receivedTypeArgument = receivedTypeArguments, irType = irListType
         ).firstOrNull()
@@ -702,7 +706,7 @@ class RandomizableBackendTransformer @Inject constructor(
         if (elementTypes != null) {
             val type = elementTypes.typeOrNull.crashOnNull {
                 val paramNamePrefix = param?.let { "${param.name}:" } ?: ""
-                "$paramNamePrefix List's element type must be specified. It is null here."
+                impossibleErr("$paramNamePrefix: List element type must be specified. It is null here.")
             }
 
             val randomElementLambdaExpr = run {
@@ -1327,7 +1331,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
     /**
      * Extract concrete type from provided generic type argument from various sources.
-     * TODO this function is problematic, try to find a way to replace it with TypeMap
      */
     private fun extractTypeArgument(
         /**
@@ -1662,6 +1665,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression {
         val actualParamType: IrType = run{
             val tp0 = receivedType ?: targetType
+            // val tp0 = targetType
             val typeWithReplacement = (tp0 as? IrSimpleType)?.let { replaceTypeArgument(tp0, typeMap) }
             typeWithReplacement ?: tp0
         }
