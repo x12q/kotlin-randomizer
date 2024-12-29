@@ -163,7 +163,6 @@ class RandomizableBackendTransformer @Inject constructor(
         if (!isRandomFunctions(function, builderAccessor.irType)) {
             return
         }
-        println("mm123 mm123")
 
         val randomFunction = function
 
@@ -1630,7 +1629,6 @@ class RandomizableBackendTransformer @Inject constructor(
                 tempVarName = tempVarName,
             )
         } else {
-            val _receivedType = receivedType as? IrSimpleType
             /**
              * This is the case in which it is possible to retrieve a concrete/define class for the generic type.
              */
@@ -1638,7 +1636,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 param = constructorParam,
                 enclosingClass = enclosingClass,
                 declarationParent = declarationParent,
-                receivedType = _receivedType, // TODO why is there received type here? this may not be correct
+                receivedType = receivedType as? IrSimpleType, // TODO why is there received type here? this may not be correct
                 targetType = targetType,
                 builder = builder,
                 getRandomContextExpr = getRandomContextExpr,
@@ -1669,9 +1667,11 @@ class RandomizableBackendTransformer @Inject constructor(
         initMetaData: InitMetaData,
         typeMap: TypeMap
     ): IrExpression {
-        var actualParamType = receivedType ?: targetType
-        // TODO this is not good !!!!
-        actualParamType = (actualParamType as? IrSimpleType)?.let { replaceTypeArgument(it, typeMap) }!!
+        val actualParamType: IrType = run{
+            val tp0 = receivedType ?: targetType
+            val typeWithReplacement = (tp0 as? IrSimpleType)?.let { replaceTypeArgument(tp0, typeMap) }
+            typeWithReplacement ?: tp0
+        }
         val clazz = actualParamType.classOrNull?.owner
         if (clazz != null) {
 
@@ -1764,8 +1764,7 @@ class RandomizableBackendTransformer @Inject constructor(
 
             val newArg: IrTypeArgument = when (argClassifier) {
                 is IrClassSymbol -> {
-                    val spType = argType as? IrSimpleType
-                    if (spType != null) {
+                    if (argType is IrSimpleType) {
                         replaceTypeArgument(argType, typeMap)
                     } else {
                         arg
