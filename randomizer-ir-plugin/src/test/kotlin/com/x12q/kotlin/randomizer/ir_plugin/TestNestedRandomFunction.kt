@@ -9,6 +9,7 @@ import com.x12q.kotlin.randomizer.test.util.assertions.runMain
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 
@@ -59,6 +60,7 @@ class TestNestedRandomFunction {
      * This may be caused by a bug in the test compilation.
      */
     @Test
+    @Ignore
     fun `weird case`() {
 
         testGeneratedCodeUsingStandardPlugin(
