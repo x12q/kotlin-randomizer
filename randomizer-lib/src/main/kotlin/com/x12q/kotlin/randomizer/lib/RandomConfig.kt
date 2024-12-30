@@ -34,6 +34,7 @@ interface RandomConfig {
     /**
      * A random int that dictate the choosing of candidate class in [com.x12q.kotlin.randomizer.lib.annotations.Randomizable] annotation
      */
+    @ForKotlinRandomizerGeneratedCodeOnly
     fun randomizableCandidateIndex(candidateCount:Int):Int{
         return nextInt() % candidateCount
     }
@@ -146,6 +147,7 @@ interface RandomConfig {
             charRange: CharRange = 'A' .. 'z',
             stringSize: IntRange = 1 .. 20,
             stringCandidates: List<Char> = charRange.toList(),
+            candidateIndex:Int? = null
         ):RandomConfig{
             return RandomConfigImp(
                 random = random,
@@ -153,6 +155,7 @@ interface RandomConfig {
                 charRange = charRange,
                 stringSize = stringSize,
                 stringCandidates = stringCandidates,
+                candidateIndex = null,
             )
         }
     }

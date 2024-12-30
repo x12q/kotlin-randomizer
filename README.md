@@ -130,6 +130,54 @@ val instance = random<ExampleClass>(
     randomConfig = RandomConfig.defaultWith(random = yourRandomObj)
 )
 ```
+# Constructor picking rules
+
+The plugin employs the follwing rules when picking a constructor to generate random instances.
+
+- Rule 1: Only public and internal constructors are used. This applies to all constructors, annotated or not.
+- Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance.
+- Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors will be used instead.
+- Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking logic. It's best to use `@Randomizable` annotation.
+
+Example of using `@Randomizable` on constructor:
+
+```kotlin
+class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:String){
+    constructor(i:Int):this(-1.0,"str1")
+    @Randomizable
+    constructor(i:Int, d:Double):this("str2")
+}
+```
+The primary constructor of a class annotated with `@Randomizable` is considered annotated too. 
+
+```kotlin
+// These two are the same
+@Randomizable
+class SomeClass (val i:Int, val d:Double, val str:String)
+class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:String)
+```
+
+## Why not use `RandomConfig` to change constructor picking behavior?
+
+Constructors are picked randomly under the influence of `RandomConfig`. Users can therefore control this behavior by providing a custom `RandomConfig`. However, this is not advisable because:
+  - This involves declaring an explicit positional integer index that will be used to pick a constructor. 
+  - For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked.
+  - If users change the order of constructors or delete a constructor in their code, a fixed index will lead to calling the wrong constructor, or outright crash their code.
+
+Therefore, it's best to use `@Randomizable` to customize constructor picking behavior. 
+
+Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it.
+
+```kotlin
+class YourRandomConfig () : RandomConfig {
+  override fun randomizableCandidateIndex(candidateCount: Int): Int {
+    val yourIndex = 0
+    return yourIndex
+  }
+  //...
+}
+```
+
 
 
 # How it works

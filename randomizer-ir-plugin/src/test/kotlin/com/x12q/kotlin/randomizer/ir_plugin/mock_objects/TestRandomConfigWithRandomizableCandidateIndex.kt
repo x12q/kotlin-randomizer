@@ -1,5 +1,6 @@
 package com.x12q.kotlin.randomizer.ir_plugin.mock_objects
 
+import com.x12q.kotlin.randomizer.lib.ForKotlinRandomizerGeneratedCodeOnly
 import com.x12q.kotlin.randomizer.lib.RandomConfig
 import kotlin.random.Random
 
@@ -29,6 +30,7 @@ class TestRandomConfigWithRandomizableCandidateIndex(val candidateIndex: Int? = 
         random = Random(123)
     }
 
+    @ForKotlinRandomizerGeneratedCodeOnly
     override fun randomizableCandidateIndex(candidateCount: Int): Int {
         return candidateIndex ?: super.randomizableCandidateIndex(candidateCount)
     }

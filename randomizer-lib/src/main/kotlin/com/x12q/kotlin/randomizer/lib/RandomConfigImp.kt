@@ -8,4 +8,10 @@ data class RandomConfigImp(
     override val charRange: CharRange,
     override val stringSize: IntRange,
     override val stringCandidates: List<Char>,
-) : RandomConfig
+    val candidateIndex: Int?
+) : RandomConfig{
+    @ForKotlinRandomizerGeneratedCodeOnly
+    override fun randomizableCandidateIndex(candidateCount: Int): Int {
+        return candidateIndex ?: super.randomizableCandidateIndex(candidateCount)
+    }
+}
