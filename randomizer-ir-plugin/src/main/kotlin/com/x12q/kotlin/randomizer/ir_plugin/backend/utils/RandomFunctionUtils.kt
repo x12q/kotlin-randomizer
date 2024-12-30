@@ -2,7 +2,6 @@ package com.x12q.kotlin.randomizer.ir_plugin.backend.utils
 
 import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
@@ -24,8 +23,9 @@ fun isStandAloneRandomFunctions(
 ): Boolean{
     val correctNameAndPackage = function.hasEqualFqName(BaseObjects.IndependentRandomFunction.fullFqName)
     // TODO this check is good enough for now, but it may need to be strengthen a bit more.
-    val isRandomIndie1 = function.valueParameters.size == 3
-    return correctNameAndPackage && (isRandomIndie1)
+    val rightNumberOfArg = function.valueParameters.size == 3
+    val noExtensionReceiver = function.extensionReceiverParameter == null
+    return correctNameAndPackage && (rightNumberOfArg) && noExtensionReceiver
 }
 
 
@@ -35,9 +35,9 @@ fun isRandomFunctionForRdContextBuilder(
 ): Boolean{
     val correctNameAndPackage = function.hasEqualFqName(BaseObjects.IndependentRandomFunction.fullFqName)
     // TODO this check is good enough for now, but it may need to be strengthen a bit more.
-    val isRandomIndie1 = function.valueParameters.size == 3
+    val rightNumberOfArg = function.valueParameters.size == 3
     val isExtensionFunctionofRandomContextBuilder = function.extensionReceiverParameter?.type == randomContextBuilderType
-    return correctNameAndPackage && isRandomIndie1 && isExtensionFunctionofRandomContextBuilder
+    return correctNameAndPackage && rightNumberOfArg && isExtensionFunctionofRandomContextBuilder
 }
 
 fun IrFunction.getMakeRandomParam(): IrValueParameter?{
