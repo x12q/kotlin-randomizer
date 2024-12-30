@@ -130,6 +130,14 @@ val i = random<ExampleClass>(
     randomConfig = RandomConfig.defaultWith(random = yourRandomObj)
 )
 ```
+
+
+# How the plugin works
+- This plugin generates and injects code into `makeRandom` argument of the `random` function when it is called.
+- The generated code is the one responsible for creating random instances of classes.
+- This happens at compile time.
+- If users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
+
 # Constructor picking rules
 
 The plugin employs the follwing rules when picking a constructor to generate random instances.
@@ -148,7 +156,7 @@ class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:Strin
     constructor(i:Int, d:Double):this("str2")
 }
 ```
-The primary constructor of a class annotated with `@Randomizable` is considered annotated too. 
+The primary constructor of a class annotated with `@Randomizable` is considered annotated too.
 
 ```kotlin
 // These two are the same
@@ -160,11 +168,11 @@ class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:Strin
 ## Why not use `RandomConfig` to change constructor picking behavior?
 
 Constructors are picked randomly under the influence of `RandomConfig`. Users can therefore control this behavior by providing a custom `RandomConfig`. However, this is not advisable because:
-  - This involves declaring an explicit positional integer index that will be used to pick a constructor. 
-  - For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked.
-  - If users change the order of constructors or delete a constructor in their code, a fixed index will lead to calling the wrong constructor, or outright crash their code.
+- This involves declaring an explicit positional integer index that will be used to pick a constructor.
+- For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked.
+- If users change the order of constructors or delete a constructor in their code, a fixed index will lead to calling the wrong constructor, or outright crash their code.
 
-Therefore, it's best to use `@Randomizable` to customize constructor picking behavior. 
+Therefore, it's best to use `@Randomizable` to customize constructor picking behavior.
 
 Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it.
 
@@ -178,10 +186,28 @@ class YourRandomConfig () : RandomConfig {
 }
 ```
 
+# Handling interfaces, abstract classes, sealed classes and sealed interfaces
 
+These targets are not handled by the randomizer plugin because there are cases that it is not possible to automatically infer the concrete class to use, such as the below example
 
-# How it works
-- This plugin generates and injects code into `makeRandom` argument of the `random` function when it is called.
-- The generated code is the one responsible for creating random instances of classes.
-- This happens at compile time.
-- If users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
+```kotlin
+interface SomeInterface<T>
+
+class Class1<T> : SomeInterface<T>
+class Class2<T, E> : SomeInterface<T>
+
+val i = random<SomeInterface<Int>>()
+```
+
+In this example, it is not possible to infer the concrete class for SomeInterface<Int>, it could be `Class1<Int>`, but it could also be `Class2<Int,E>`, and `E` is completely unknown.
+
+A non-complete solution can be implemented to aid with some cases, but it will introduce a lot of gotcha and confusion.
+
+So, for interfaces, abstract classes, sealed classes, sealed interfaces, users must provide their own explicit custom randomizers. Like this:
+
+```kotlin
+val i = random<SomeInterface<Int>>(randomizers = {
+    factory<SomeInterface<Int>>{Class1<Int>(...)}
+})
+```
+

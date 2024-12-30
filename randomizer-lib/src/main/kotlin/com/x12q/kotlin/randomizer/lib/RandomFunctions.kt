@@ -7,7 +7,7 @@ import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
  */
 fun <T> random(
     makeRandom: (randomContext: RandomContext) -> T = {
-        throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by a generated substitute."))
+        throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by generated code. Ensure that the plugin is enabled."))
     },
     randomConfig: RandomConfig = RandomConfig.default,
     randomizers: RandomContextBuilder.() -> Unit = {}
@@ -27,7 +27,7 @@ fun <T> random(
  */
 fun <T> RandomContextBuilder.random(
     makeRandom: ((randomContext: RandomContext) -> T) = {
-        throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by a generated substitute."))
+        throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by generated code. Ensure that the plugin is enabled."))
     },
     randomConfig: RandomConfig = this.randomConfig,
     randomizers: RandomContextBuilder.() -> Unit = {}
