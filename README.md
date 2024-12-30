@@ -153,7 +153,6 @@ fun <T> someFunction():T {
     val i = random<T>() // crash because `T` is not defined.
     return i
 }
-
 ```
 
 # Constructor picking rules
