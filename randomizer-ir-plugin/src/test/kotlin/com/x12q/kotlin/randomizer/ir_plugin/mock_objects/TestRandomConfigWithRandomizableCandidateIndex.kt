@@ -7,7 +7,8 @@ import kotlin.random.Random
  * A test random config that can be reset to initial state.
  * Use case: so that it can re-generate a consistent sequence of objects
  */
-class TestRandomConfigForAbstractClassAndInterface(val candidateIndex: Int? = null) : RandomConfig {
+
+class TestRandomConfigWithRandomizableCandidateIndex(val candidateIndex: Int? = null) : RandomConfig {
     override var random: Random = Random(123)
     override val stringSize: IntRange = 1..20
 
