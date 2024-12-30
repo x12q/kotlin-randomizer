@@ -50,11 +50,11 @@ fun JvmCompilationResult.executeRunTestFunction(
     /**
      * package name of the MainKt class.
      */
-    packageName:String?,
+    mainPackageName:String?,
     onTestOutput:(TestOutput)->Unit={}
 ):TestOutput {
-    val kClazz = findMainClass(packageName)
-    val runTestFunction = kClazz.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
+    val mainClass = findMainClass(mainPackageName)
+    val runTestFunction = mainClass.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
     try {
         val rt = runTestFunction.invoke(null) as TestOutput
         onTestOutput(rt)

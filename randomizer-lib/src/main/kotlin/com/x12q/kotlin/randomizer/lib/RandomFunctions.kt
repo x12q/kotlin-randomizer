@@ -13,15 +13,18 @@ fun <T> random(
     randomizers: RandomContextBuilder.() -> Unit = {}
 ): T {
     val randomContextBuilder = RandomContextBuilderImp()
-    return random(
+    val rt = random(
         makeRandom = makeRandom,
         randomConfig = randomConfig,
         randomContextBuilder = randomContextBuilder,
         configRandomContextBuilder = randomizers
     )
+    return rt
 }
 
-
+/**
+ * this is equivalent of random above, but with access to a premature random context builder.
+ */
 fun <T> RandomContextBuilder.random(
     makeRandom: ((randomContext: RandomContext) -> T) = {
         throw IllegalArgumentException(developerErrorMsg("makeRandom is supposed to be replaced by a generated substitute."))
@@ -29,12 +32,13 @@ fun <T> RandomContextBuilder.random(
     randomConfig: RandomConfig = this.randomConfig,
     randomizers: RandomContextBuilder.() -> Unit = {}
 ): T {
-    return random(
+    val rt = random(
         makeRandom = makeRandom,
         randomConfig = randomConfig,
         randomContextBuilder = this,
         configRandomContextBuilder = randomizers
     )
+    return rt
 }
 
 
@@ -47,5 +51,6 @@ fun <T> random(
     randomContextBuilder.setRandomConfigAndGenerateStandardRandomizers(randomConfig)
     randomContextBuilder.configRandomContextBuilder()
     val randomContext = randomContextBuilder.build()
-    return makeRandom(randomContext)
+    val rt = makeRandom(randomContext)
+    return rt
 }

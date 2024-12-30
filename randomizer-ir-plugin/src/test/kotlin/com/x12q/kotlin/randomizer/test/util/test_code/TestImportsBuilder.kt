@@ -5,7 +5,6 @@ import com.x12q.kotlin.randomizer.lib.*
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.lib.randomizer.ConstantRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.FactoryClassRandomizer
-import com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.kotlin.randomizer.test.util.TestOutput
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.withTestOutput
@@ -173,20 +172,24 @@ data class TestImportsBuilder(
                 TypeKey::class,
                 TestRandomConfig::class,
                 RandomConfig::class,
+                TestRandomConfigWithRandomizableCandidateIndex::class,
             ),
             functionList = listOf(
                 ::withTestOutput,
-                ::constantRandomizer,
-
-
             ),
             packages = listOf(
                 "kotlin.collections",
             ),
             literalImports = listOf(
+                "com.x12q.kotlin.randomizer.test.util.testOutput",
+                "com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.long",
+                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.string",
                 "com.x12q.kotlin.randomizer.lib.random",
                 "com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer",
-                "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.factory",
                 "kotlin.random.Random",
                 "com.x12q.kotlin.randomizer.test.util.makeList",

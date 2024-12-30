@@ -1,7 +1,6 @@
 package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.kotlin.randomizer.test.util.WithData
 import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
 import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
@@ -47,8 +46,11 @@ class TestTypePassing {
         .import(Bx::class)
         .import(Qx::class)
         .import(QxC::class)
+        .import(QxCx::class)
 
     data class QxC<K_Q>(override val data:Ax<K_Q>):WithData
+    data class QxCx<K_Q:Any>(override val data:K_Q):WithData
+
 
     /**
      * Test passing generic param from "random" function to generic with a property.

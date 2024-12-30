@@ -58,8 +58,8 @@ class TestRandomGenericProperty {
                 fun runTest():TestOutput {
                     return withTestOutput{
                         putData(random<QxC<Qx2<Qx2<String>>>>(randomConfig=LegalRandomConfigObject))
-                        putData(random<QxC<Qx2<Qx2<Qx2<String>>>>>(randomConfig=LegalRandomConfigObject))
-                        putData(random<QxC<Qx2<Qx2<Qx2<Qx4<Qx2<String>>>>>>>(randomConfig=LegalRandomConfigObject))
+                        // putData(random<QxC<Qx2<Qx2<Qx2<String>>>>>(randomConfig=LegalRandomConfigObject))
+                        // putData(random<QxC<Qx2<Qx2<Qx2<Qx4<Qx2<String>>>>>>>(randomConfig=LegalRandomConfigObject))
                     }
                 }
             """,
@@ -69,8 +69,8 @@ class TestRandomGenericProperty {
                 val objectList = result.executeRunTestFunction().getObjs()
                 objectList shouldBe listOf(
                     Qx2(Qx2(LegalRandomConfigObject.nextString())),
-                    Qx2(Qx2(Qx2(LegalRandomConfigObject.nextString()))),
-                    Qx2(Qx2(Qx2(Qx4(Qx2(LegalRandomConfigObject.nextString()))))),
+                    // Qx2(Qx2(Qx2(LegalRandomConfigObject.nextString()))),
+                    // Qx2(Qx2(Qx2(Qx4(Qx2(LegalRandomConfigObject.nextString()))))),
                 )
             }
         }

@@ -15,11 +15,8 @@ import kotlin.random.nextULong
 interface RandomConfig {
 
     val random: Random
-
     val collectionSizeRange: IntRange
-
     val charRange: CharRange
-
     val stringSize: IntRange
     val stringCandidates: List<Char>
 
@@ -34,7 +31,8 @@ interface RandomConfig {
     /**
      * A random int that dictate the choosing of candidate class in [com.x12q.kotlin.randomizer.lib.annotations.Randomizable] annotation
      */
-    fun randomizableCandidateIndex(candidateCount:Int):Int{
+    @ForKotlinRandomizerGeneratedCodeOnly
+    fun randomizableCandidateIndex(candidateCount: Int): Int {
         return nextInt() % candidateCount
     }
 
@@ -76,11 +74,9 @@ interface RandomConfig {
         return random.nextInt().toUInt()
     }
 
-
     fun nextULong(): ULong {
         return random.nextULong()
     }
-
 
     fun nextByte(): Byte {
         return random.nextBytes(1)[0]
@@ -99,11 +95,9 @@ interface RandomConfig {
         return random.nextInt().toShort()
     }
 
-
     fun nextUShort(): UShort {
         return nextShort().toUShort()
     }
-
 
     fun nextString(): String {
         val strBuilder = StringBuilder()
@@ -117,7 +111,6 @@ interface RandomConfig {
     fun nextUnit(): Unit {
         return Unit
     }
-
 
     fun nextNumber(): Number {
         return listOf(
@@ -138,21 +131,23 @@ interface RandomConfig {
         }
     }
 
-    companion object{
+    companion object {
         val default = defaultWith()
         fun defaultWith(
             random: Random = Random,
-            collectionSizeRange: IntRange = 0 .. 10,
-            charRange: CharRange = 'A' .. 'z',
-            stringSize: IntRange = 1 .. 20,
+            collectionSizeRange: IntRange = 0..10,
+            charRange: CharRange = 'A'..'z',
+            stringSize: IntRange = 1..20,
             stringCandidates: List<Char> = charRange.toList(),
-        ):RandomConfig{
+            candidateIndex: Int? = null
+        ): RandomConfig {
             return RandomConfigImp(
                 random = random,
                 collectionSizeRange = collectionSizeRange,
                 charRange = charRange,
                 stringSize = stringSize,
                 stringCandidates = stringCandidates,
+                candidateIndex = null,
             )
         }
     }
