@@ -36,6 +36,11 @@ class TestSealClass {
         .import(A.A2::class)
         .import(A.A3::class)
         .import(A.A4::class)
+        .import(B::class)
+        .import(B.B1::class)
+        .import(B.B2::class)
+        .import(B.B3::class)
+        .import(B.B4::class)
         .import(QxC::class)
 
 
@@ -91,6 +96,80 @@ class TestSealClass {
                 fun runTest():TestOutput {
                     return withTestOutput {
                         putData(random<QxC<A>>(randomConfig=TestRandomConfig()))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                shouldThrow<UnableToMakeRandomException> {
+                    result.executeRunTestFunction().getObjs()
+                }
+            }
+        }
+    }
+
+    sealed interface B{
+        data class B1(val i: Int, val d: Double, val str: String): B {
+            constructor(i: Int, d: Double) : this(i, d, "str0")
+            @Randomizable
+            constructor(i: Int) : this(i, -1.0, "str1")
+            constructor() : this(0, -2.0, "str2")
+        }
+        object B2:B
+        data class B3(val d:List<Int>) : B
+        class B4<T>(val t:T): A()
+    }
+    @Test
+    fun `test randomizing sealed interface without custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(random<QxC<B>>(randomConfig=TestRandomConfig(), randomizers = {
+                            factory<B>{B.B2}
+                        }))
+
+                        putData(random<QxC<B>>(randomConfig=TestRandomConfig(), randomizers = {
+                            factory<B>{random<B.B1>()}
+                        }))
+
+                        putData(random<QxC<B>>(randomConfig=TestRandomConfig(), randomizers = {
+                            factory<B>{random<B.B1>(randomizers={
+                                factory{B.B1()}
+                            })}
+                        }))
+                    }
+                }
+            """,
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+
+                val objectList = result.executeRunTestFunction().getObjs()
+                val cf = TestRandomConfigWithRandomizableCandidateIndex(0)
+                val cf2 = TestRandomConfigWithRandomizableCandidateIndex(1)
+                objectList shouldBe listOf(
+                    B.B2,
+                    B.B1(cf.nextInt()),
+                    B.B1()
+                )
+            }
+        }
+    }
+
+
+    @Test
+    fun `test randomizing sealed interface with custom randomizer`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        putData(random<QxC<B>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
