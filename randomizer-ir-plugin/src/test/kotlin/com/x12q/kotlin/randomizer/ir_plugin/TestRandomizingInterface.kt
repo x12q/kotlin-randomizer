@@ -2,7 +2,7 @@ package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfigForAbstractClassAndInterface
+import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfigWithRandomizableCandidateIndex
 import com.x12q.kotlin.randomizer.lib.UnableToMakeRandomException
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.test.util.WithData
@@ -38,7 +38,6 @@ class TestRandomizingInterface {
         .import(PlainImplementation_1::class)
         .import(PlainImplementation_2::class)
         .import(GenericInterface::class)
-        .import(TestRandomConfigForAbstractClassAndInterface::class)
         .import(GenericImplementation_1::class)
         .import(GenericImplementation_2::class)
         .import(GenericImplementation_3::class)
@@ -93,8 +92,8 @@ class TestRandomizingInterface {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(random<QxC<PlainInterface>>(randomConfig=TestRandomConfigForAbstractClassAndInterface(0)))
-                        putData(random<QxC<PlainInterface>>(randomConfig=TestRandomConfigForAbstractClassAndInterface(1)))
+                        putData(random<QxC<PlainInterface>>(randomConfig=TestRandomConfigWithRandomizableCandidateIndex(0)))
+                        putData(random<QxC<PlainInterface>>(randomConfig=TestRandomConfigWithRandomizableCandidateIndex(1)))
                     }
                 }
             """,
@@ -187,8 +186,8 @@ class TestRandomizingInterface {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        putData(random<QxC<GenericInterface<String,Double>>>(randomConfig=TestRandomConfigForAbstractClassAndInterface(0)))
-                        putData(random<QxC<GenericInterface<String,Double>>>(randomConfig=TestRandomConfigForAbstractClassAndInterface(1)))
+                        putData(random<QxC<GenericInterface<String,Double>>>(randomConfig=TestRandomConfigWithRandomizableCandidateIndex(0)))
+                        putData(random<QxC<GenericInterface<String,Double>>>(randomConfig=TestRandomConfigWithRandomizableCandidateIndex(1)))
                     }
                 }
             """,
