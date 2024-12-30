@@ -1568,7 +1568,7 @@ class RandomizableBackendTransformer @Inject constructor(
         randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
         if (irClass.isSealed()) {
-            TODO()
+            TODO("add code to generate random seal class")
         } else {
             return null
         }
@@ -2027,11 +2027,6 @@ class RandomizableBackendTransformer @Inject constructor(
         return builder.irThrow(unableToMakeRandomExceptionAccessor.callConstructor(builder, msgIr))
     }
 
-    /**
-     * TODO add logic to pick a constructor:
-     *  - prioritize annotated constructors
-     *  - pick randomly
-     */
     @Deprecated("Kept for reference. Don't use.")
     private fun getConstructor(targetClass: IrClass): IrConstructor? {
         val primary = targetClass.primaryConstructor
