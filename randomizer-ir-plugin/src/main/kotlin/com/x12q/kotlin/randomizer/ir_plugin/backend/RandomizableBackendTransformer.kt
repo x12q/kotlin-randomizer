@@ -382,10 +382,16 @@ class RandomizableBackendTransformer @Inject constructor(
             },
             {
                 generateRandomSealClass(
+                    param = param,
                     irClass = irClass,
+                    irType = irType.crashOnNull {
+                        developerErrorMsg("type of interface (${irClass.name}) cannot be null")
+                    },
                     builder = builder,
+                    declarationParent = declarationParent,
                     getRandomContextExpr = getRandomContextExpr,
-                    randomFunctionMetaData = initMetadata
+                    getRandomConfigExpr = getRandomConfigExpr,
+                    initMetadata = initMetadata,
                 )
             },
             {
@@ -1562,13 +1568,30 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private fun generateRandomSealClass(
+        declarationParent: IrDeclarationParent?,
+        param: IrValueParameter?,
+        irType: IrType,
         irClass: IrClass,
         getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
         builder: DeclarationIrBuilder,
-        randomFunctionMetaData: InitMetaData,
+        initMetadata: InitMetaData,
     ): IrExpression? {
         if (irClass.isSealed()) {
-            TODO("add code to generate random seal class")
+            val rt = randomOrThrow(
+                builder = builder,
+                randomExpr = getRandomContextExpr.extensionDotCall(randomContextAccessor.randomFunction(builder))
+                    .withTypeArgs(irType),
+                type = irType,
+                reportData = ParamReportData(
+                    param?.name?.asString(),
+                    irType.dumpKotlinLike(),
+                    irType.classFqName?.asString()
+                ),
+                tempVarName = null
+            )
+            return rt
+
         } else {
             return null
         }

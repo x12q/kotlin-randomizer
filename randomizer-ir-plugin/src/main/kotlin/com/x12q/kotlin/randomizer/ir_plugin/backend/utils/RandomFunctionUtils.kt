@@ -22,7 +22,6 @@ fun isStandAloneRandomFunctions(
     function: IrFunction
 ): Boolean{
     val correctNameAndPackage = function.hasEqualFqName(BaseObjects.IndependentRandomFunction.fullFqName)
-    // TODO this check is good enough for now, but it may need to be strengthen a bit more.
     val rightNumberOfArg = function.valueParameters.size == 3
     val noExtensionReceiver = function.extensionReceiverParameter == null
     return correctNameAndPackage && (rightNumberOfArg) && noExtensionReceiver
@@ -34,7 +33,6 @@ fun isRandomFunctionForRdContextBuilder(
     randomContextBuilderType: IrType
 ): Boolean{
     val correctNameAndPackage = function.hasEqualFqName(BaseObjects.IndependentRandomFunction.fullFqName)
-    // TODO this check is good enough for now, but it may need to be strengthen a bit more.
     val rightNumberOfArg = function.valueParameters.size == 3
     val isExtensionFunctionofRandomContextBuilder = function.extensionReceiverParameter?.type == randomContextBuilderType
     return correctNameAndPackage && rightNumberOfArg && isExtensionFunctionofRandomContextBuilder
