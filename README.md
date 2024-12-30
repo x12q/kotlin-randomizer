@@ -46,7 +46,7 @@ val instance = random<ExampleClass>()
 
 ## Add custom randomizers
 
-Custom randomizers can be added to override the default random logic for certain data type. Demostration is below
+Custom randomizers can be added to override the default random logic for certain data type. Demostration is below.
 
 ```kotlin
 
@@ -82,7 +82,7 @@ val instance = random<ExampleClass>(randomizers = {
 The default randomizing logic can be override altogether by providing your own `makeRandom` lambda, like this:
 
 ```kotlin
-val instance = random<ExampleClass>(
+val i = random<ExampleClass>(
     makeRandom = { ExampleClass(123, 33f) }
 )
 ```
@@ -104,7 +104,7 @@ Generic is supported, so it is possible to do this:
 ```kotlin
 import com.x12q.kotlin.randomizer.lib.random
 
-val instance = random<ExampleClass<Int>>()
+val i = random<ExampleClass<Int>>()
 ```
 
 Nested generic is also supported
@@ -116,7 +116,7 @@ val i = random<ExampleClass<Map<Int, String>>>()
 val i2 = random<ExampleClass<List<Map<Int, String>>>>()
 ```
 
-# Customize the randomness
+# Customize random seed
 
 A custom kotlin `Random` object with custom seed can be added via a `RandomConfig` object passed to `random()` function
 
@@ -126,7 +126,7 @@ import kotlin.random.Random
 
 val yourRandomObj: Random = Random(seed=123)
         
-val instance = random<ExampleClass>(
+val i = random<ExampleClass>(
     randomConfig = RandomConfig.defaultWith(random = yourRandomObj)
 )
 ```
@@ -136,7 +136,7 @@ The plugin employs the follwing rules when picking a constructor to generate ran
 
 - Rule 1: Only public and internal constructors are used. This applies to all constructors, annotated or not.
 - Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance.
-- Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors will be used instead.
+- Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors (obeying `Rule 1`) will be used instead.
 - Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking logic. It's best to use `@Randomizable` annotation.
 
 Example of using `@Randomizable` on constructor:
