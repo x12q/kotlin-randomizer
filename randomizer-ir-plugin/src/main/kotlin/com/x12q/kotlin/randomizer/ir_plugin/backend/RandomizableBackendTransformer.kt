@@ -112,7 +112,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
     override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
         completeRandomFunctionCall(expression)
-
         return super.visitFunctionAccess(expression)
     }
 
@@ -245,7 +244,7 @@ class RandomizableBackendTransformer @Inject constructor(
             makeRandomFunction = newMakeRandomLambda,
             initMetadata = InitMetaData(
                 targetClass = returnType.classOrNull?.owner
-                    .crashOnNull { developerErrorMsg("class passed to random() function must not be null") },
+                    .crashOnNull { "class/type passed to random() function must be defined."},
                 initTypeMap = returnType.makeTypeMap()
             ),
         )

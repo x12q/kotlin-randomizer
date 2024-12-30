@@ -9,8 +9,10 @@ A library for (kinda) effortlessly generate random objects.
 
 
 # Usage note
-- This library is best used for randomizing classes that only contain data.
+- This library is best used for randomizing defined classes or interfaces that only contain data.
+- Although the plugin code can be called anywhere, it is intended for use in test code (such as unit test or integration test).
 - For service classes that depends on complex interfaces or abstract classes, it's better to initialize them directly.
+- See [Limitation](#limitation) below to see when it is not possible to use the plugin.
 
 
 ## Install with gradle
@@ -27,7 +29,7 @@ dependencies {
 
 # Introduction
 
-Given a class 
+Given a class as followed:
 
 ```kotlin
 class ExampleClass(
@@ -36,7 +38,7 @@ class ExampleClass(
 )
 ```
 
-A random instance of it can be created as this:
+A random instance of such class can be created as this:
 
 ```kotlin
 import com.x12q.kotlin.randomizer.lib.random
@@ -46,7 +48,7 @@ val instance = random<ExampleClass>()
 
 ## Add custom randomizers
 
-Custom randomizers can be added to override the default random logic for certain data type. Demostration is below.
+Custom randomizers can be added to override the default random logic for certain data type. A demonstration is below.
 
 ```kotlin
 
@@ -79,7 +81,7 @@ val instance = random<ExampleClass>(randomizers = {
 ```
 
 ## Overriding the default randomizer altogether
-The default randomizing logic can be override altogether by providing your own `makeRandom` lambda, like this:
+The default randomizing logic can be override altogether by providing your own `makeRandom = ...` lambda, like this:
 
 ```kotlin
 val i = random<ExampleClass>(
@@ -133,10 +135,26 @@ val i = random<ExampleClass>(
 
 
 # How the plugin works
-- This plugin generates and injects code into `makeRandom` argument of the `random` function when it is called.
+- This plugin generates and injects code into `makeRandom = ...` parameter of the `random()` function when it is called.
 - The generated code is the one responsible for creating random instances of classes.
 - This happens at compile time.
-- If users provide a `makeRandom` argument, this plugin will not modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom`.
+- If users provide a `makeRandom = ...` argument, this plugin will NOT modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom = ...`.
+
+
+# Limitation
+<a id="limitation"></a>
+
+The plugin it relies on type arguments passed to `random()` to modify `makeRandom = ...`. Therefore, if `random()` is called without a defined type, it will crash. See the below example for better clarification.
+
+```kotlin
+val i = random<ExampleClass>() // ok because `ExampleClass` is a defined type
+
+fun <T> someFunction():T {
+    val i = random<T>() // crash because `T` is not defined.
+    return i
+}
+
+```
 
 # Constructor picking rules
 
@@ -207,7 +225,7 @@ So, for interfaces, abstract classes, sealed classes, sealed interfaces, users m
 
 ```kotlin
 val i = random<SomeInterface<Int>>(randomizers = {
-    factory<SomeInterface<Int>>{Class1<Int>(...)}
+    factory<SomeInterface<Int>>{ random<Class1<Int>>() }
 })
 ```
 

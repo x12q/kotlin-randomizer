@@ -13,7 +13,12 @@ data class XYZ<T, E>(val t: T, val e:E)
 data class Q(val i:ABC<String,Int>)
 data class QxC<Z>(val z:Z)
 
+fun <T> z():T{
+    return random<T>()
+}
+
 fun main() {
+    println(z<Int>())
     println(random<Int>(randomizers = {int(123)}))
     println(random<XYZ<Int,Long>>(randomizers = {
         int(123)
