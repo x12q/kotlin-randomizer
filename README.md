@@ -165,8 +165,8 @@ fun <T> makeRandomList():T {
 
 The plugin employs the follwing rules when picking a constructor to generate random instances.
 
-- Rule 1: Only public and internal constructors are used. This applies to all constructors, annotated or not.
-- Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance.
+- Rule 1: Only `public` and `internal` constructors are used. This applies to all constructors, annotated with `@Randomizable` or not.
+- Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance. The non-annotated constructors will be ignored entirely.
 - Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors (obeying `Rule 1`) will be used instead.
 - Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking behavior, see [Why](#why_not_random_config) below. It's best to use `@Randomizable` annotation.
 
