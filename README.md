@@ -192,7 +192,7 @@ class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:Strin
 
 Constructors are picked randomly under the influence of `RandomConfig`. Users can therefore control this behavior by providing a custom `RandomConfig`. However, this is not advisable because:
 - `RandomConfig` provides a random integer index at runtime to pick constructor. For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked. This behavior is dynamic, that means when new constructors are added, or old ones get deleted, the index generation mechanism will change automatically to reflect that.
-- If a fixed behavior (such as a fixed index) is to replace the default behavior, then it will no longer be able to adapt to code changes anymore. Actions such as changing the order of constructors or deleting a constructor in the source files may lead to calling the wrong constructor, or outright crash the code.
+- If a fixed behavior (such as a fixed index) is to replace the default behavior, then it will no longer be able to adapt to code changes anymore. Actions such as changing the order of constructors or deleting a constructor in the source files may lead to calling the wrong constructor or crash the code.
 
 Therefore, it's best to use `@Randomizable` to customize constructor picking behavior.
 
