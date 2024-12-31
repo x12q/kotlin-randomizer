@@ -11,7 +11,7 @@ A library for (kinda) effortlessly generating random objects.
 # Usage note
 - This library is best used for randomizing defined classes or interfaces that only contain data.
 - Although the plugin code can be called anywhere, it is intended for use in test code (such as unit test or integration test).
-- For service classes that depends on complex interfaces or abstract classes, it's better to initialize them directly.
+- For service classes that depend on complex interfaces or abstract classes, it's better to initialize them directly.
 - See [Limitation](#limitation) below to see when it is not possible to use the plugin.
 
 
