@@ -6,6 +6,7 @@ A library for (kinda) effortlessly generating random objects.
   
 > :warning:
 > - Everything, including the public API, is subject to change.
+> - This only works with kotlin 2.0.0 for now
 
 
 # Usage note
