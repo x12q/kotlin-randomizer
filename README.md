@@ -43,7 +43,7 @@ A random instance of such class can be created as this:
 ```kotlin
 import com.x12q.kotlin.randomizer.lib.random
 
-val instance = random<ExampleClass>()
+val i = random<ExampleClass>()
 ```
 
 ## Add custom randomizers
@@ -52,7 +52,7 @@ Custom randomizers can be added to override the default random logic for certain
 
 ```kotlin
 
-val instance = random<ExampleClass>(randomizers = {
+val i = random<ExampleClass>(randomizers = {
     // overriding for Int type
     int(333)
 
@@ -94,7 +94,7 @@ In this example, the `instance` variable will always have the value `ExampleClas
 
 ## Generic support
 
-Given this class
+Given this class:
 ```kotlin
 class ExampleClass<T>(
     val t:T
@@ -147,15 +147,21 @@ val i = random<ExampleClass>(
 The plugin it relies on type arguments passed to `random()` to modify `makeRandom = ...`. Therefore, if `random()` is called without a defined type, it will crash. See the below example for better clarification.
 
 ```kotlin
-val i = random<ExampleClass>() // ok because `ExampleClass` is a defined type
+val i = random<ExampleClass>() // ok because `ExampleClass` is defined
+val i2 = random<List<Int>>() // ok because `List<Int>` is defined
 
 fun <T> someFunction():T {
     val i = random<T>() // crash because `T` is not defined.
     return i
 }
+
+fun <T> makeRandomList():T {
+    val i = random<List<T>>() // crash because `T` is not defined.
+    return i
+}
 ```
 
-# Constructor picking rules
+# Constructor picking rules and @Randomizable annotation
 
 The plugin employs the follwing rules when picking a constructor to generate random instances.
 
