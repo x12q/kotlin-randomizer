@@ -18,11 +18,11 @@ A library for (kinda) effortlessly generate random objects.
 ## Install with gradle
 ```
 plugins{
-  id("com.x12q.randomizer")  "1.0.0-alpha.9"
+  id("com.x12q.randomizer")  "1.0.0-alpha.11"
 }
 
 dependencies {
-    implementation("com.x12q:randomizer-ir-lib:1.0.0-alpha.9")
+    implementation("com.x12q:randomizer-ir-lib:1.0.0-alpha.11")
 }
 ```
 
@@ -72,8 +72,8 @@ val instance = random<ExampleClass>(randomizers = {
     
     // overriding for class XYZ type using a factory function
     factory<XYZ>{
-        val x=1+2
-        val y="yyyy"
+        val x = 1+2
+        val y = "yyyy"
         val z = "$x"
         XYZ(x,y,z)
     }
