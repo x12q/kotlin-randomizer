@@ -204,7 +204,6 @@ class YourRandomConfig () : RandomConfig {
     val yourIndex = 0
     return yourIndex
   }
-  //...
 }
 ```
 
