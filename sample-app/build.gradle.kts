@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.invoke
 
 plugins {
     kotlin("jvm") version "2.0.0"
-    id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.10"
+    id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.11"
     kotlin("plugin.serialization") version "2.0.0"
 }
 
@@ -23,7 +23,7 @@ kotlin {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     testImplementation(kotlin("test"))
-    implementation("com.x12q:kotlin-randomizer-lib:1.0.0-alpha.10")
+    implementation("com.x12q:kotlin-randomizer-lib:1.0.0-alpha.11")
 }
 
 randomizer{
