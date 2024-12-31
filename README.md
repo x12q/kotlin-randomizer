@@ -21,6 +21,10 @@ plugins{
   id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.11"
 }
 
+randomizer{
+    enable = true
+}
+
 dependencies {
      implementation("com.x12q:kotlin-randomizer-lib:1.0.0-alpha.11")
 }
