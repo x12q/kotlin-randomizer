@@ -1,6 +1,6 @@
 # Randomizer
+A library for (kinda) effortlessly generating random objects. 
 
-A library for (kinda) effortlessly generate random objects. 
 
 ## :construction: :construction: :construction: Work in progress :construction: :construction: :construction: 
   
@@ -11,7 +11,7 @@ A library for (kinda) effortlessly generate random objects.
 # Usage note
 - This library is best used for randomizing defined classes or interfaces that only contain data.
 - Although the plugin code can be called anywhere, it is intended for use in test code (such as unit test or integration test).
-- For service classes that depends on complex interfaces or abstract classes, it's better to initialize them directly.
+- For service classes that depend on complex interfaces or abstract classes, it's better to initialize them directly.
 - See [Limitation](#limitation) below to see when it is not possible to use the plugin.
 
 
@@ -43,7 +43,7 @@ A random instance of such class can be created as this:
 ```kotlin
 import com.x12q.kotlin.randomizer.lib.random
 
-val instance = random<ExampleClass>()
+val i = random<ExampleClass>()
 ```
 
 ## Add custom randomizers
@@ -52,7 +52,7 @@ Custom randomizers can be added to override the default random logic for certain
 
 ```kotlin
 
-val instance = random<ExampleClass>(randomizers = {
+val i = random<ExampleClass>(randomizers = {
     // overriding for Int type
     int(333)
 
@@ -94,7 +94,7 @@ In this example, the `instance` variable will always have the value `ExampleClas
 
 ## Generic support
 
-Given this class
+Given this class:
 ```kotlin
 class ExampleClass<T>(
     val t:T
@@ -147,24 +147,30 @@ val i = random<ExampleClass>(
 The plugin it relies on type arguments passed to `random()` to modify `makeRandom = ...`. Therefore, if `random()` is called without a defined type, it will crash. See the below example for better clarification.
 
 ```kotlin
-val i = random<ExampleClass>() // ok because `ExampleClass` is a defined type
+val i = random<ExampleClass>() // ok because `ExampleClass` is defined
+val i2 = random<List<Int>>() // ok because `List<Int>` is defined
 
 fun <T> someFunction():T {
     val i = random<T>() // crash because `T` is not defined.
     return i
 }
+
+fun <T> makeRandomList():T {
+    val i = random<List<T>>() // crash because `T` is not defined.
+    return i
+}
 ```
 
-# Constructor picking rules
+# Constructor picking rules and @Randomizable annotation
 
 The plugin employs the follwing rules when picking a constructor to generate random instances.
 
-- Rule 1: Only public and internal constructors are used. This applies to all constructors, annotated or not.
-- Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance.
+- Rule 1: Only `public` and `internal` constructors are used. This applies to all constructors, annotated with `@Randomizable` or not.
+- Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance. The non-annotated constructors will be ignored entirely.
 - Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors (obeying `Rule 1`) will be used instead.
-- Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking logic. It's best to use `@Randomizable` annotation.
+- Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking behavior, see [Why](#why_not_random_config) below. It's best to use `@Randomizable` annotation.
 
-Example of using `@Randomizable` on constructor:
+Example of using `@Randomizable` to appoint constructor to be used:
 
 ```kotlin
 class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:String){
@@ -181,17 +187,16 @@ The primary constructor of a class annotated with `@Randomizable` is considered 
 class SomeClass (val i:Int, val d:Double, val str:String)
 class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:String)
 ```
-
+<a id="why_not_random_config"></a>
 ## Why not use `RandomConfig` to change constructor picking behavior?
 
 Constructors are picked randomly under the influence of `RandomConfig`. Users can therefore control this behavior by providing a custom `RandomConfig`. However, this is not advisable because:
-- This involves declaring an explicit positional integer index that will be used to pick a constructor.
-- For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked.
-- If users change the order of constructors or delete a constructor in their code, a fixed index will lead to calling the wrong constructor, or outright crash their code.
+- `RandomConfig` provides a random integer index at runtime to pick constructor. For example, if the index is 0, the first constructor will be picked. If the index is 1, the second constructor will be picked. This behavior is dynamic, that means when new constructors are added, or old ones get deleted, the index generation mechanism will change automatically to reflect that.
+- If a fixed behavior (such as a fixed index) is to replace the default behavior, then it will no longer be able to adapt to code changes anymore. Actions such as changing the order of constructors or deleting a constructor in the source files may lead to calling the wrong constructor or crashing.
 
 Therefore, it's best to use `@Randomizable` to customize constructor picking behavior.
 
-Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it.
+Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it. But keep in mid that it is not safe to do this.
 
 ```kotlin
 class YourRandomConfig () : RandomConfig {
@@ -199,7 +204,6 @@ class YourRandomConfig () : RandomConfig {
     val yourIndex = 0
     return yourIndex
   }
-  //...
 }
 ```
 
@@ -216,15 +220,14 @@ class Class2<T, E> : SomeInterface<T>
 val i = random<SomeInterface<Int>>()
 ```
 
-In this example, it is not possible to infer the concrete class for SomeInterface<Int>, it could be `Class1<Int>`, but it could also be `Class2<Int,E>`, and `E` is completely unknown.
+In this example, it is not possible to infer the concrete class for `SomeInterface<Int>`, it could be `Class1<Int>`, but it could also be `Class2<Int, E>`, and `E` is completely unknown.
 
 A non-complete solution can be implemented to aid with some cases, but it will introduce a lot of gotcha and confusion.
 
-So, for interfaces, abstract classes, sealed classes, sealed interfaces, users must provide their own explicit custom randomizers. Like this:
+Therefore, for interfaces, abstract classes, sealed classes, sealed interfaces, users must provide their own explicit custom randomizers. Like this:
 
 ```kotlin
 val i = random<SomeInterface<Int>>(randomizers = {
     factory<SomeInterface<Int>>{ random<Class1<Int>>() }
 })
 ```
-
