@@ -196,7 +196,7 @@ Constructors are picked randomly under the influence of `RandomConfig`. Users ca
 
 Therefore, it's best to use `@Randomizable` to customize constructor picking behavior.
 
-Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it.
+Nevertheless, if users choose to use `RandomConfig` instead for whatever reason, here is how to do it. But keep in mid that it is not safe to do this.
 
 ```kotlin
 class YourRandomConfig () : RandomConfig {
