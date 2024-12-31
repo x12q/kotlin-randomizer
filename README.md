@@ -168,7 +168,7 @@ The plugin employs the follwing rules when picking a constructor to generate ran
 - Rule 1: Only public and internal constructors are used. This applies to all constructors, annotated or not.
 - Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance.
 - Rule 3: If the target class does NOT have any constructor annotated with `@Randomizable`, a random constructor among all legit constructors (obeying `Rule 1`) will be used instead.
-- Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking behavior. It's best to use `@Randomizable` annotation.
+- Rule 4: Constructor picking is influenced by the randomness of `RandomConfig`. It is noticed that users should not take this route to customize constructor picking behavior, see [Why](#why_not_random_config) below. It's best to use `@Randomizable` annotation.
 
 Example of using `@Randomizable` to appoint constructor to be used:
 
@@ -187,7 +187,7 @@ The primary constructor of a class annotated with `@Randomizable` is considered 
 class SomeClass (val i:Int, val d:Double, val str:String)
 class SomeClass @Randomizable constructor(val i:Int, val d:Double, val str:String)
 ```
-
+<a id="why_not_random_config"></a>
 ## Why not use `RandomConfig` to change constructor picking behavior?
 
 Constructors are picked randomly under the influence of `RandomConfig`. Users can therefore control this behavior by providing a custom `RandomConfig`. However, this is not advisable because:
