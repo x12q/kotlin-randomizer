@@ -220,15 +220,14 @@ class Class2<T, E> : SomeInterface<T>
 val i = random<SomeInterface<Int>>()
 ```
 
-In this example, it is not possible to infer the concrete class for SomeInterface<Int>, it could be `Class1<Int>`, but it could also be `Class2<Int,E>`, and `E` is completely unknown.
+In this example, it is not possible to infer the concrete class for `SomeInterface<Int>`, it could be `Class1<Int>`, but it could also be `Class2<Int, E>`, and `E` is completely unknown.
 
 A non-complete solution can be implemented to aid with some cases, but it will introduce a lot of gotcha and confusion.
 
-So, for interfaces, abstract classes, sealed classes, sealed interfaces, users must provide their own explicit custom randomizers. Like this:
+Therefore, for interfaces, abstract classes, sealed classes, sealed interfaces, users must provide their own explicit custom randomizers. Like this:
 
 ```kotlin
 val i = random<SomeInterface<Int>>(randomizers = {
     factory<SomeInterface<Int>>{ random<Class1<Int>>() }
 })
 ```
-
