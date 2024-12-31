@@ -1,6 +1,6 @@
 # Randomizer
+A library for (kinda) effortlessly generating random objects. 
 
-A library for (kinda) effortlessly generate random objects. 
 
 ## :construction: :construction: :construction: Work in progress :construction: :construction: :construction: 
   
