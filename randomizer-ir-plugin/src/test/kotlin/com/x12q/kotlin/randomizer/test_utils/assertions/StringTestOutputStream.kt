@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util.assertions
+package com.x12q.kotlin.randomizer.test_utils.assertions
 
 import java.io.ByteArrayOutputStream
 

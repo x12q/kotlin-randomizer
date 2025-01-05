@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util.assertions
+package com.x12q.kotlin.randomizer.test_utils.assertions
 
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter

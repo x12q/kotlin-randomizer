@@ -1,6 +1,5 @@
-package com.x12q.kotlin.randomizer.test.util
+package com.x12q.kotlin.randomizer.test_utils
 
-import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 
 class ManyOutputStream(

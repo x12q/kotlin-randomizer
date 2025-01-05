@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util.assertions
+package com.x12q.kotlin.randomizer.test_utils.assertions
 
 fun codeGenAssertions(factory: GeneratedCodeAssertionBuilder.()-> Unit): GeneratedCodeAssertions {
     val builder = GeneratedCodeAssertionBuilder()

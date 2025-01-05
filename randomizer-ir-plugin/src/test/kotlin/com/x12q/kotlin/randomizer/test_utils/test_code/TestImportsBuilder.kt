@@ -1,13 +1,13 @@
-package com.x12q.kotlin.randomizer.test.util.test_code
+package com.x12q.kotlin.randomizer.test_utils.test_code
 
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.*
 import com.x12q.kotlin.randomizer.lib.*
 import com.x12q.kotlin.randomizer.lib.annotations.Randomizable
 import com.x12q.kotlin.randomizer.lib.randomizer.ConstantRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.FactoryClassRandomizer
-import com.x12q.kotlin.randomizer.test.util.TestOutput
-import com.x12q.kotlin.randomizer.test.util.WithData
-import com.x12q.kotlin.randomizer.test.util.withTestOutput
+import com.x12q.kotlin.randomizer.test_utils.TestOutput
+import com.x12q.kotlin.randomizer.test_utils.WithData
+import com.x12q.kotlin.randomizer.test_utils.withTestOutput
 import io.mockk.declaringKotlinFile
 import java.util.Date
 import kotlin.reflect.KClass
@@ -181,7 +181,7 @@ data class TestImportsBuilder(
                 "kotlin.collections",
             ),
             literalImports = listOf(
-                "com.x12q.kotlin.randomizer.test.util.testOutput",
+                "com.x12q.kotlin.randomizer.test_utils.testOutput",
                 "com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double",
@@ -192,7 +192,7 @@ data class TestImportsBuilder(
                 "com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer",
                 "com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.factory",
                 "kotlin.random.Random",
-                "com.x12q.kotlin.randomizer.test.util.makeList",
+                "com.x12q.kotlin.randomizer.test_utils.makeList",
             )
         )
     }

@@ -2,18 +2,16 @@ package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.x12q.kotlin.randomizer.ir_plugin.backend.RDBackendTransformer
 import com.x12q.kotlin.randomizer.ir_plugin.backend.di.DaggerRandomizerComponent
-import com.x12q.kotlin.randomizer.ir_plugin.backend.di.RandomizerComponent
-import com.x12q.kotlin.randomizer.test.util.assertions.GeneratedCodeAssertionBuilder
-import com.x12q.kotlin.randomizer.test.util.assertions.StringTestOutputStream
-import com.x12q.kotlin.randomizer.test.util.assertions.TestOutputStream
-import com.x12q.kotlin.randomizer.test.util.testGeneratedCode
+import com.x12q.kotlin.randomizer.test_utils.assertions.GeneratedCodeAssertionBuilder
+import com.x12q.kotlin.randomizer.test_utils.assertions.StringTestOutputStream
+import com.x12q.kotlin.randomizer.test_utils.assertions.TestOutputStream
+import com.x12q.kotlin.randomizer.test_utils.testGeneratedCode
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.fir.FirSession
 import org.jetbrains.kotlin.fir.analysis.extensions.FirAdditionalCheckersExtension
 import org.jetbrains.kotlin.fir.extensions.FirDeclarationGenerationExtension
 import java.io.OutputStream
-import java.util.*
 
 /**
  * A shortcut to [testGeneratedCode] with pre-define all the relevant plugins + some default behaviors.

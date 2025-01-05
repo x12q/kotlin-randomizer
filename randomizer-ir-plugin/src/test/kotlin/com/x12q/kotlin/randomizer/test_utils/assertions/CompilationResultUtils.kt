@@ -1,7 +1,7 @@
-package com.x12q.kotlin.randomizer.test.util.assertions
+package com.x12q.kotlin.randomizer.test_utils.assertions
 
 import com.tschuchort.compiletesting.JvmCompilationResult
-import com.x12q.kotlin.randomizer.test.util.TestOutput
+import com.x12q.kotlin.randomizer.test_utils.TestOutput
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.PrintStream
 import java.lang.reflect.InvocationTargetException
@@ -38,7 +38,7 @@ fun JvmCompilationResult.runMain(packageName:String? = null, testOutputStream: T
 @OptIn(ExperimentalCompilerApi::class)
 fun JvmCompilationResult.executeRunTestFunction(
     onTestOutput:(TestOutput)->Unit={}
-):TestOutput {
+): TestOutput {
     return this.executeRunTestFunction(null,onTestOutput)
 }
 
@@ -52,7 +52,7 @@ fun JvmCompilationResult.executeRunTestFunction(
      */
     mainPackageName:String?,
     onTestOutput:(TestOutput)->Unit={}
-):TestOutput {
+): TestOutput {
     val mainClass = findMainClass(mainPackageName)
     val runTestFunction = mainClass.declaredMethods.single { it.name == "runTest" && it.parameterCount == 0 }
     try {

@@ -3,9 +3,9 @@ package com.x12q.kotlin.randomizer.ir_plugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
-import com.x12q.kotlin.randomizer.test.util.WithData
-import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
-import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
+import com.x12q.kotlin.randomizer.test_utils.WithData
+import com.x12q.kotlin.randomizer.test_utils.assertions.executeRunTestFunction
+import com.x12q.kotlin.randomizer.test_utils.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi

@@ -1,10 +1,10 @@
-package com.x12q.kotlin.randomizer.test.util
+package com.x12q.kotlin.randomizer.test_utils
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.x12q.kotlin.randomizer.ir_plugin.backend.RDBackendTransformer
-import com.x12q.kotlin.randomizer.test.util.assertions.GeneratedCodeAssertions
-import com.x12q.kotlin.randomizer.test.util.assertions.TestOutputStream
+import com.x12q.kotlin.randomizer.test_utils.assertions.GeneratedCodeAssertions
+import com.x12q.kotlin.randomizer.test_utils.assertions.TestOutputStream
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -23,7 +23,7 @@ fun testGeneratedCode(
     makeBackendTransformer: (IrPluginContext) -> RDBackendTransformer,
     frontEndTransformerFactoryFunctions: List<(FirSession) -> FirDeclarationGenerationExtension>,
     frontEndCheckerExtensionFactoryFunctions:List<(FirSession) -> FirAdditionalCheckersExtension>,
-    makeAssertions:()->GeneratedCodeAssertions,
+    makeAssertions:()-> GeneratedCodeAssertions,
     /**
      * name for the file that will contain [kotlinSource].
      * This is not a name for a real file, but the name for the virtual file that will be created by this test.

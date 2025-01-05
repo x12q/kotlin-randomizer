@@ -1,7 +1,7 @@
-package com.x12q.kotlin.randomizer.test.util
+package com.x12q.kotlin.randomizer.test_utils
 
 import com.x12q.kotlin.randomizer.ir_plugin.backend.RDBackendTransformer
-import com.x12q.kotlin.randomizer.test.util.assertions.GeneratedCodeAssertions
+import com.x12q.kotlin.randomizer.test_utils.assertions.GeneratedCodeAssertions
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass

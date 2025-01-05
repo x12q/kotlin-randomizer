@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util
+package com.x12q.kotlin.randomizer.test_utils
 
 import com.x__q.randomizer_ir_plugin.BuildConfig
 import org.jetbrains.kotlin.compiler.plugin.CliOption

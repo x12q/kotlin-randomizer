@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util.test_code
+package com.x12q.kotlin.randomizer.test_utils.test_code
 
 import org.intellij.lang.annotations.Language
 

@@ -1,6 +1,5 @@
 
 # TODO:
-- TODO: cleanup the dangerous code of the new type passing feature
 - TODO: at the moment, it is not possible to use custom randomizer with nullable type.
   - Nullable type is being generated based on non-null type and a boolean check from RandomConfig.
   - It should be that nullable randomizer can be declared directly within custom randomizer list.
@@ -83,48 +82,9 @@
   - error reporting on error cases.
   - add a property on @Randomizable allowing user to provide a @Randomizable/or non-annotated implementation directly
 
-- How to pass custom Random instances to generator?
-  
-  - Conclusion :
-    - Provide 2 ways in which user can inject random configuration
-      - Via randomizable annotation
-      - Via random(randomConfig) function
-  - Reasoning:
-    - Generate another random function that accepts a RandomConfig Obj
-      - can this co-exist with passing RandomConfig via Annotation?
-      - What is the advantages + disadvantages of this over Annotation?
-        - Advantages
-          - i don't need to write code to read the random config + init random config from the annotation
-          - users can pass random config explicitly
-        - Disadvantage:
-          - random() is locked to a default random config
-            - counter-point: the default random config can be modified by users in their code.
-      - Is it nice to have both?
-        - It may not be nice to have both because:
-          - it is confusing: users can provide both a config in annotation + use another one in their random(config) called.
-        - It is nice to have both because:
-          - a target is not locked to a single random config, but can have a default one, and countless other for random(config)
-          - at the same time, users can provide a custom default config, so that they don't have to think about what to use down the line if they don't want to.
-
-
-- randomizer-lib:contain annotation + randomizer interface + basic randomizer implementation: this is used by both the compiler plugin + end user
-  
-  - randomizer-reflection: contains reflection code
-
 # NEXT:
 
 - randomizing std class from std library implementations? -> can be written directly in the randomizer-lib module
-
-- Constructor selection logic: CONT
-  - Annotation on constructors -> pick a random one
-  - Annotation on class -> consider it as marked primary constructor
-  - Multiple constructors -> put the generation code in lambda -> pick a random lambda from the list, run it.
-    - Otherwise, use the normal one.
-- Inject custom randomizer via annotation:
-  - this one needs to be done after constructor selection logic? or before?
-
-- invoke random functions if param is from a class that is annotated with @Randomizable
-  - must create a new random function that accept a RandomContext object, so that it is easier to pass RandomContext to random function called by another random function.
 
 # BACKLOG:
 - randomizable enum

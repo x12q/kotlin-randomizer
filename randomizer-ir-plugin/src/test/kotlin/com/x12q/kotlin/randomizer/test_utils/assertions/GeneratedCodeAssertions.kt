@@ -1,14 +1,12 @@
-package com.x12q.kotlin.randomizer.test.util.assertions
+package com.x12q.kotlin.randomizer.test_utils.assertions
 
 import com.tschuchort.compiletesting.JvmCompilationResult
-import com.tschuchort.compiletesting.KotlinCompilation
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import java.io.OutputStream
 
 @OptIn(ExperimentalCompilerApi::class)
 class GeneratedCodeAssertions(

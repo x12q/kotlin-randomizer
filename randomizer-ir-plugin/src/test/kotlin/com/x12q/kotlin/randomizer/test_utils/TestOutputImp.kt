@@ -1,4 +1,4 @@
-package com.x12q.kotlin.randomizer.test.util
+package com.x12q.kotlin.randomizer.test_utils
 
 class TestOutputImp: TestOutput {
     private val strBuilder=StringBuilder()

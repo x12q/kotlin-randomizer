@@ -5,8 +5,8 @@ import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.TestRandomConfig
 import com.x12q.kotlin.randomizer.lib.RandomContext
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderImp
 import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
-import com.x12q.kotlin.randomizer.test.util.assertions.executeRunTestFunction
-import com.x12q.kotlin.randomizer.test.util.test_code.TestImportsBuilder
+import com.x12q.kotlin.randomizer.test_utils.assertions.executeRunTestFunction
+import com.x12q.kotlin.randomizer.test_utils.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.BeforeTest
