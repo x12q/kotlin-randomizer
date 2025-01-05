@@ -17,7 +17,6 @@ class RandomizerModifierComponentRegistrar() : CompilerPluginRegistrar() {
     override val supportsK2: Boolean = true
 
     override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        val messageCollector = configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
         val enable = configuration.get(RandomizerModifierCommandLineProcessor.argEnable,false)
         IrGenerationExtension.registerExtension(RDIrGenerationExtension(enable))
     }

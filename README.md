@@ -22,7 +22,7 @@ plugins{
   id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.11"
 }
 
-randomizer{
+kotlinRandomizer{
     enable = true
 }
 

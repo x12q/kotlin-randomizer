@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 
 
 class RDIrGenerationExtension(
-    val enable: Boolean = true,
+    val enable: Boolean = false,
 ) : IrGenerationExtension {
 
     override fun generate(
@@ -19,8 +19,8 @@ class RDIrGenerationExtension(
                 .builder()
                 .setIRPluginContext(pluginContext)
                 .build()
-            val randomizableTransformer2: RandomizableBackendTransformer = comp.randomizableTransformer()
-            moduleFragment.transform(randomizableTransformer2, null)
+            val backendTransformer: RandomizableBackendTransformer = comp.randomizableTransformer()
+            moduleFragment.transform(backendTransformer, null)
         }
     }
 }

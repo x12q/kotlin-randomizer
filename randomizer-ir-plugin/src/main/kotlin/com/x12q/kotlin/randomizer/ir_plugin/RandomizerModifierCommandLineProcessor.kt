@@ -19,7 +19,7 @@ class RandomizerModifierCommandLineProcessor : CommandLineProcessor {
     CliOption(
       optionName = enableOption,
       valueDescription = "boolean",
-      description = "enable or disable the ir-plugin",
+      description = "enable or disable the kotlinRandomizer ir-plugin",
       required = false,
     ),
   )
@@ -30,8 +30,8 @@ class RandomizerModifierCommandLineProcessor : CommandLineProcessor {
     configuration: CompilerConfiguration
   ) {
     return when (option.optionName) {
-      enableOption->configuration.put(argEnable,value.toBooleanStrictOrNull() ?: true)
-      else -> throw IllegalArgumentException("Unexpected config option ${option.optionName}")
+      enableOption->configuration.put(argEnable,value.toBooleanStrict())
+      else -> throw IllegalArgumentException("kotlinRandomizer - Unexpected config option ${option.optionName}")
     }
   }
 
