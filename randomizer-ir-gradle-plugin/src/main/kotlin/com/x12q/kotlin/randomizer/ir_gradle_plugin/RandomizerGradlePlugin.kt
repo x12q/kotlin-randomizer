@@ -11,7 +11,7 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 class RandomizerGradlePlugin : KotlinCompilerPluginSupportPlugin {
 
     override fun apply(target: Project): Unit = with(target) {
-        extensions.create("randomizer", RandomizerGradleExtension::class.java)
+        extensions.create("kotlinRandomizer", RandomizerGradleExtension::class.java)
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
