@@ -1,6 +1,6 @@
 [versions]
 groupId="com.x12q"
-version="1.0.0-alpha.12"
+version="1.0.0-alpha.13-2.1.0"
 irPluginId="com.x12q.kotlin.randomizer.ir.plugin"
 irPluginArtifactId = "kotlin-randomizer-ir-plugin"
 libArtifactId = "kotlin-randomizer-lib"
