@@ -3,7 +3,7 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.kotlin.dsl.invoke
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.1.0"
     id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.12"
     kotlin("plugin.serialization") version "2.0.0"
 }
