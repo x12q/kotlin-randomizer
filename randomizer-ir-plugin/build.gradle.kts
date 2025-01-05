@@ -80,7 +80,7 @@ mavenPublishing {
             }
         }
         scm {
-            url.set("https://github.com/x12q/randomizer")
+            url.set("https://github.com/x12q/kotlin-randomizer")
             connection.set("scm:git:git://github.com/x12q/kotlin-randomizer.git")
             developerConnection.set("scm:git:ssh://git@github.com/x12q/kotlin-randomizer.git")
         }
