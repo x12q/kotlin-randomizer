@@ -4,6 +4,7 @@ import com.x12q.kotlin.randomizer.ir_plugin.backend.accessor.ClassAccessor
 import com.x12q.kotlin.randomizer.ir_plugin.base.BaseObjects
 import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.kotlin.randomizer.lib.RandomContext
+import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -20,14 +21,13 @@ class RandomContextAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) : ClassAccessor() {
 
-    private val classId = ClassId.topLevel(FqName(requireNotNull(RandomContext::class.qualifiedName) {
-        "RandomContext interface does not exist in the class path."
-    }))
-
     override val clzz: IrClassSymbol by lazy {
+        val classId = ClassId.topLevel(FqName(requireNotNull(RandomContext::class.qualifiedName) {
+            "RandomContext interface does not exist in the class path."
+        }))
         pluginContext.referenceClass(classId)
             .crashOnNull {
-                "RandomConfig interface is not in the class path."
+                "RandomContext interface is not in the class path."
             }
     }
 
@@ -41,13 +41,11 @@ class RandomContextAccessor @Inject constructor(
         return builder.irCall(propGetter)
     }
 
-    private val randomFunctionCallId =
-        CallableId(packageName = packageName, callableName = Name.identifier("random"))
-
     private val randomFunctionSymbol by lazy {
+        val randomFunctionCallId = CallableId(packageName = packageName, callableName = Name.identifier("random"))
         pluginContext.referenceFunctions(randomFunctionCallId).firstOrNull()
             .crashOnNull {
-                "$randomFunctionCallId on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
+                developerErrorMsg("$randomFunctionCallId on ${RandomContext::class.simpleName} does not exist.")
             }
     }
 
@@ -55,13 +53,23 @@ class RandomContextAccessor @Inject constructor(
         return builder.irCall(randomFunctionSymbol)
     }
 
-
-    private val randomListFunctionCallId =
-        CallableId(packageName = packageName, callableName = Name.identifier("randomList"))
-    private val randomListFunctionSymbol by lazy {
-        pluginContext.referenceFunctions(randomListFunctionCallId).firstOrNull()
+    private val randomRsFunctionSymbol by lazy {
+        val callId = CallableId(packageName = packageName, callableName = Name.identifier("randomRs"))
+        pluginContext.referenceFunctions(callId).firstOrNull()
             .crashOnNull {
-                "$randomListFunctionCallId on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
+                developerErrorMsg("$callId on ${RandomContext::class.simpleName} does not exist.")
+            }
+    }
+
+    fun randomRsFunction(builder: DeclarationIrBuilder): IrCall {
+        return builder.irCall(randomRsFunctionSymbol)
+    }
+
+    private val randomListFunctionSymbol by lazy {
+        val callId = CallableId(packageName = packageName, callableName = Name.identifier("randomList"))
+        pluginContext.referenceFunctions(callId).firstOrNull()
+            .crashOnNull {
+                developerErrorMsg("$callId on ${RandomContext::class.simpleName} does not exist.")
             }
     }
 
@@ -69,12 +77,12 @@ class RandomContextAccessor @Inject constructor(
         return builder.irCall(randomListFunctionSymbol)
     }
 
-    private val randomMapFunctionCallId =
-        CallableId(packageName = packageName, callableName = Name.identifier("randomMap"))
+
     private val randomMapFunctionSymbol by lazy {
-        pluginContext.referenceFunctions(randomMapFunctionCallId).firstOrNull()
+        val callId = CallableId(packageName = packageName, callableName = Name.identifier("randomMap"))
+        pluginContext.referenceFunctions(callId).firstOrNull()
             .crashOnNull {
-                "$randomMapFunctionCallId on ${RandomContext::class.simpleName} does not exist. This is a bug by the developer."
+                developerErrorMsg("$callId on ${RandomContext::class.simpleName} does not exist.")
             }
     }
 

@@ -5,7 +5,7 @@ import com.x12q.kotlin.randomizer.lib.TypeKey
 /**
  * A class randomizer that run a factory function to produce random values
  */
-class FactoryClassRandomizer<T : Any>(
+class FactoryClassRandomizer<T>(
     val makeRandom: () -> T,
     override val returnType: TypeKey
 ) : ClassRandomizer<T> {
@@ -14,7 +14,7 @@ class FactoryClassRandomizer<T : Any>(
     }
 
     companion object {
-        inline fun <reified T : Any> of(noinline makeRandom: () -> T): FactoryClassRandomizer<T> {
+        inline fun <reified T > of(noinline makeRandom: () -> T): FactoryClassRandomizer<T> {
             return FactoryClassRandomizer(makeRandom, TypeKey.of<T>())
         }
     }
