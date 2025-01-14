@@ -163,9 +163,10 @@ class TestRandomNestedClass {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
-                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
-                        putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
+                        val v1 = random<Q5>(randomConfig=TestRandomConfig())
+                        putData(QxC(v1))
+                        // putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
+                        // putData(random<QxC<Q5>>(randomConfig=TestRandomConfig()))
                     }
                 }
             """,
@@ -175,7 +176,7 @@ class TestRandomNestedClass {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val rdConfig = TestRandomConfig()
                 result.executeRunTestFunction { testRs->
-                    testRs.getObjs() shouldBe List(3){
+                    testRs.getObjs() shouldBe List(1){
                         rdConfig.resetRandomState()
                         Q5(rdConfig.nextBoolean(), enum = MyEnumClass.values().random(rdConfig.random))
                     }

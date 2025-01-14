@@ -1,6 +1,7 @@
 package com.x12q.kotlin.randomizer.lib.randomizer
 
 import com.x12q.kotlin.randomizer.lib.*
+import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int
 import io.kotest.matchers.shouldBe
@@ -61,17 +62,24 @@ class RandomContextBuilderImpTest {
     }
 
     @Test
-    fun `add int 1`() {
+    fun `add int constant`() {
         builder.int(123)
         val c = builder.build()
         c.random<Int>() shouldBe 123
     }
 
     @Test
-    fun `add int 2`() {
+    fun `add int constant factory`() {
         builder.int { 999 }
         val ctx = builder.build()
         ctx.random<Int>() shouldBe 999
+    }
+
+    @Test
+    fun `add nullable int`() {
+        builder.constant<Int?> { null }
+        val ctx = builder.build()
+        ctx.random<Int?>() shouldBe null
     }
 
     @Test

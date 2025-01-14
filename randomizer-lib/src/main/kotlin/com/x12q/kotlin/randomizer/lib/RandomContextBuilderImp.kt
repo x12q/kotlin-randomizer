@@ -29,7 +29,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
 
 
     override fun makePrimitiveRandomizers(randomConfig: RandomConfig) {
-        val stdRdm = listOf(
+        val stdRdm: MutableMap<TypeKey, ClassRandomizer<*>> = listOf(
             factoryRandomizer { randomConfig.nextInt() },
             factoryRandomizer { randomConfig.nextByte() },
             factoryRandomizer { randomConfig.nextLong() },

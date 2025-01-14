@@ -2,7 +2,7 @@ package com.x12q.kotlin.randomizer.lib.randomizer
 
 import com.x12q.kotlin.randomizer.lib.TypeKey
 
-data class LazyConstantRandomizer<T:Any>(val makeValue:()->T,override val returnType: TypeKey) : ClassRandomizer<T> {
+data class LazyConstantRandomizer<T>(val makeValue:()->T,override val returnType: TypeKey) : ClassRandomizer<T> {
 
     private val value: T by lazy {
         makeValue()
@@ -12,7 +12,7 @@ data class LazyConstantRandomizer<T:Any>(val makeValue:()->T,override val return
     }
 
     companion object{
-        inline fun <reified T:Any> of(noinline makeValue:()->T): LazyConstantRandomizer<T> {
+        inline fun <reified T> of(noinline makeValue:()->T): LazyConstantRandomizer<T> {
             return LazyConstantRandomizer(makeValue, TypeKey.of<T>())
         }
     }

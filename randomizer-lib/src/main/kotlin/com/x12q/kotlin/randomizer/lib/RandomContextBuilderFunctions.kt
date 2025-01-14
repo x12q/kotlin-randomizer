@@ -3,13 +3,15 @@ package com.x12q.kotlin.randomizer.lib
 import com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
 
-
+/**
+ * This includes builder functions for adding custom randomizers to [RandomContextBuilder]
+ */
 object RandomContextBuilderFunctions {
-    inline fun <reified T : Any> RandomContextBuilder.constant(value: T): RandomContextBuilder {
+    inline fun <reified T> RandomContextBuilder.constant(value: T): RandomContextBuilder {
         return add(constantRandomizer(value))
     }
 
-    inline fun <reified T : Any> RandomContextBuilder.constant(noinline makeValue: () -> T): RandomContextBuilder {
+    inline fun <reified T> RandomContextBuilder.constant(noinline makeValue: () -> T): RandomContextBuilder {
         return add(constantRandomizer(makeValue))
     }
 

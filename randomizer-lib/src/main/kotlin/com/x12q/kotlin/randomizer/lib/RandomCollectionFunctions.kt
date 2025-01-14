@@ -5,7 +5,7 @@ import kotlin.jvm.Throws
 /**
  * Construct a random [Map] using a [RandomContext]
  */
-@Deprecated("not relevant to generated code")
+@Deprecated("not relevant to generated code, for now")
 @Throws(UnableToMakeRandomException::class)
 inline fun <reified K:Any,reified V:Any> RandomContext.randomMap():Map<K,V>{
     val randomContext = this
@@ -24,7 +24,7 @@ inline fun <reified K:Any,reified V:Any> RandomContext.randomMap():Map<K,V>{
 /**
  * Construct a random [List] using a [RandomContext]
  */
-@Deprecated("not relevant to generated code")
+@Deprecated("not relevant to generated code, for now")
 @Throws(UnableToMakeRandomException::class)
 inline fun <reified T:Any> RandomContext.randomList():List<T>{
     val randomContext = this

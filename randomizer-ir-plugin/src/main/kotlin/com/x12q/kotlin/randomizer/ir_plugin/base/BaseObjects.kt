@@ -10,6 +10,7 @@ import kotlin.random.Random
 internal object BaseObjects {
 
     const val COM_X12Q_KOTLIN_RANDOMIZER = "com.x12q.kotlin.randomizer"
+    const val RANDOMIZER_LIB_ROOT_PACKAGE = COM_X12Q_KOTLIN_RANDOMIZER
 
     val randomizableAnnotationName = Randomizable::class.qualifiedName!!
 
