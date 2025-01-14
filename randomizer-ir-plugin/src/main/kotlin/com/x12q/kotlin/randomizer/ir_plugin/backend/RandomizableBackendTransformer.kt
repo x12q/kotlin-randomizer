@@ -80,12 +80,17 @@ import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
+import org.jetbrains.kotlin.ir.types.impl.IrCapturedType
+import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeBuilder
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.model.CaptureStatus
 import javax.inject.Inject
 import kotlin.collections.plus
 
@@ -2199,8 +2204,9 @@ class RandomizableBackendTransformer @Inject constructor(
             val randomRsFromContext = irTemporary(
                 value = randomRsFromRandomContext,
                 nameHint = "randomRsFromContext",
-                irType = rdRsAccessor.clzz.createType(false, listOf(type, rdRsAccessor.noRandomizerErrIrType)),
+                irType = rdRsAccessor.clzz.typeWith(listOf(type, rdRsAccessor.noRandomizerErrIrType))
             )
+
             val randomRsFromContextVar = irGet(randomRsFromContext)
 
             val isOkCall = randomRsFromRandomContext.extensionDotCall(
