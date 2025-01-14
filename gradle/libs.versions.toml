@@ -18,7 +18,7 @@ kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version 
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger2Version" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger2Version" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
-kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version = "ktCompileTest"}
+kotlin-compile-test = {module = "dev.zacsweers.kctfork:core", version.ref = "ktCompileTest"}
 kotlin-compiler-embeddable = {module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin"}
 
 
