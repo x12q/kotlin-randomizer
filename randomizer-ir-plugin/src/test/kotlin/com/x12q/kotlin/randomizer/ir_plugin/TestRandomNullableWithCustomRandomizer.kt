@@ -1,6 +1,7 @@
 package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.kotlin.randomizer.test_utils.WithData
 import com.x12q.kotlin.randomizer.test_utils.assertions.executeRunTestFunction
@@ -43,7 +44,6 @@ class TestRandomNullableWithCustomRandomizer {
         .import(Q::class)
         .import(DtContainer1::class)
         .import(DtContainer2::class)
-        // .import(UInt::class)
         .import(ABC::class)
 
     @Test
@@ -204,6 +204,39 @@ class TestRandomNullableWithCustomRandomizer {
                 result.executeRunTestFunction { output ->
                     output.getObjs() shouldBe listOf(
                         DtContainer2(null)
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `randomize nullable complex class with null custom randomizer z`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput{
+                    return withTestOutput{
+                        val v1 = random<DtContainer2>(randomConfig=AlwaysFalseRandomConfig)
+                        putData(Q(v1))
+                        val v2 = random<DtContainer2>(randomConfig=AlwaysTrueRandomConfig)
+                        putData(Q(v2))
+                    }
+                }
+            """
+            ,
+            fileName = "main.kt"
+        ) {
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.executeRunTestFunction { output ->
+                    output.getObjs().toSet() shouldBe listOf(
+                        DtContainer2(null),
+                        DtContainer2(ABC(
+                            str =  AlwaysTrueRandomConfig.nextString(),
+                            i = AlwaysTrueRandomConfig.nextInt()
+                        ))
                     )
                 }
             }
