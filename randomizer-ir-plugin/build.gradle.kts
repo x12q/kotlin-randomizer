@@ -5,6 +5,7 @@ plugins {
     kotlin("kapt")
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.vanniktech.mavenPublish)
+    alias(libs.plugins.kotlin.serialization)
 
 }
 
@@ -27,6 +28,7 @@ buildConfig{
 dependencies {
     implementation(project(":randomizer-lib"))
 
+
     compileOnly(libs.kotlin.compiler.embeddable)
     kapt("com.google.auto.service:auto-service:1.0.1")
     compileOnly("com.google.auto.service:auto-service-annotations:1.0.1")
@@ -42,7 +44,8 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.compile.test)
     testImplementation(libs.kotlin.compiler.embeddable)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    testImplementation(libs.kotlin.serialization)
+    testImplementation(libs.kotlin.serialization.plugin)
 }
 
 tasks.test {
