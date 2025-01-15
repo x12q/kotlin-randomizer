@@ -6,11 +6,12 @@ A library for (kinda) effortlessly generating random objects.
   
 > :warning:
 > - Everything, including the public API, is subject to change.
-> - This only works with kotlin 2.0.0 for now
+> - This only works with some certain versions of kotlin, see below for a list of supported versions.
 
 
 # Usage note
-- This library is best used for randomizing defined classes or interfaces that only contain data.
+- This plugin is best applied before any constructor manipulator plugins (such as kotlinx.serialization plugin) to ensure that no generated constructors are taken into randomization code.
+- This plugin is best used for randomizing defined classes or interfaces that only contain data.
 - Although the plugin code can be called anywhere, it is intended for use in test code (such as unit test or integration test).
 - For service classes that depend on complex interfaces or abstract classes, it's better to initialize them directly.
 - See [Limitation](#limitation) below to see when it is not possible to use the plugin.
@@ -148,7 +149,7 @@ val i = random<ExampleClass>(
 
 
 # How the plugin works
-- This plugin generates and injects code into `makeRandom = ...` parameter of the `random()` function when it is called.
+- This plugin generates a new and replaces `makeRandom = ...` parameter of the `random()` function wherever the function is called.
 - The generated code is the one responsible for creating random instances of classes.
 - This happens at compile time.
 - If users provide a `makeRandom = ...` argument, this plugin will NOT modify that one. Code generation only runs when users __DO NOT__ provide a `makeRandom = ...`.
@@ -176,7 +177,7 @@ fun <T> makeRandomList():T {
 
 # Constructor picking rules and @Randomizable annotation
 
-The plugin employs the follwing rules when picking a constructor to generate random instances.
+The plugin employs the following rules when picking a constructor to generate random instances.
 
 - Rule 1: Only `public` and `internal` constructors are used. This applies to all constructors, annotated with `@Randomizable` or not.
 - Rule 2: If the target class has constructors annotated with `@Randomizable`, one of them will be picked randomly to construct the random instance. The non-annotated constructors will be ignored entirely.
