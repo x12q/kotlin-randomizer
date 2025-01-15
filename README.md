@@ -19,7 +19,7 @@ A library for (kinda) effortlessly generating random objects.
 ## Install with gradle
 ```
 plugins{
-  id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.13-<kotlin-version>"
+  id("com.x12q.kotlin.randomizer") version "1.0.0-alpha.14-<kotlin-version>"
 }
 
 kotlinRandomizer{
@@ -27,7 +27,7 @@ kotlinRandomizer{
 }
 
 dependencies {
-     implementation("com.x12q:kotlin-randomizer-lib:1.0.0-alpha.13-<kotlin-version>")
+     implementation("com.x12q:kotlin-randomizer-lib:1.0.0-alpha.14-<kotlin-version>")
 }
 ```
 Current supported kotlin versions are:
