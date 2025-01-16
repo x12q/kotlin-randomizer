@@ -3,7 +3,7 @@ package com.x12q.kotlin.randomizer.lib
 import com.x12q.kotlin.randomizer.lib.randomizer.ClassRandomizer
 import com.x12q.kotlin.randomizer.lib.rs.Err
 import com.x12q.kotlin.randomizer.lib.rs.Ok
-import com.x12q.kotlin.randomizer.lib.rs.RdRs
+import com.x12q.kotlin.randomizer.lib.rs.RandomResult
 import kotlin.reflect.typeOf
 
 
@@ -18,7 +18,7 @@ inline fun <reified T> RandomContext.random(): T?{
     return resultFromRandomizer
 }
 
-inline fun <reified T> RandomContext.randomRs(): RdRs<T?, NoRandomizerErr>{
+inline fun <reified T> RandomContext.randomRs(): RandomResult<T?, NoRandomizerErr>{
     val randomizer = this.getRandomizer<T>()
     if(randomizer == null){
         return Err(NoRandomizerErr)

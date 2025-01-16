@@ -7,7 +7,7 @@ import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
 import com.x12q.kotlin.randomizer.lib.NoRandomizerErr
 import com.x12q.kotlin.randomizer.lib.RandomContext
 import com.x12q.kotlin.randomizer.lib.rs.Ok
-import com.x12q.kotlin.randomizer.lib.rs.RdRs
+import com.x12q.kotlin.randomizer.lib.rs.RandomResult
 import com.x12q.kotlin.randomizer.lib.util.developerErrorMsg
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -23,14 +23,14 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import javax.inject.Inject
 
-class RdRsAccessor @Inject constructor(
+class RandomResultAccessor @Inject constructor(
     private val pluginContext: IrPluginContext
 ) :  ClassAccessor(){
 
     private val packageName = FqName("${BaseObjects.RANDOMIZER_LIB_ROOT_PACKAGE}.lib.rs")
 
     override val clzz: IrClassSymbol by lazy {
-        val classId = ClassId.topLevel(FqName(RdRs::class.qualifiedName.crashOnNull {
+        val classId = ClassId.topLevel(FqName(RandomResult::class.qualifiedName.crashOnNull {
             "RdRs class does not exist in the class path."
         }))
         pluginContext.referenceClass(classId)
@@ -71,7 +71,7 @@ class RdRsAccessor @Inject constructor(
     }
 
     /**
-     * Access `value` property of [RdRs.Ok]
+     * Access `value` property of [RandomResult.Ok]
      */
     fun value(builder: DeclarationIrBuilder):IrCall{
         val propGetter = okClzz.getPropertyGetter("value")

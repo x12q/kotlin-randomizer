@@ -4,7 +4,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
-fun <V,E> RdRs<V,E>.isErr(): Boolean{
+fun <V,E> RandomResult<V,E>.isErr(): Boolean{
     contract {
         returns(true) implies (this@isErr is Err<E>)
         returns(false) implies (this@isErr is Ok<V>)
@@ -13,7 +13,7 @@ fun <V,E> RdRs<V,E>.isErr(): Boolean{
 }
 
 @OptIn(ExperimentalContracts::class)
-fun <V,E> RdRs<V,E>.isOk(): Boolean{
+fun <V,E> RandomResult<V,E>.isOk(): Boolean{
     contract {
         returns(true) implies (this@isOk is Ok<V>)
         returns(false) implies (this@isOk is Err<E>)

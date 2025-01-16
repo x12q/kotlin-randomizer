@@ -80,17 +80,12 @@ import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.types.*
-import org.jetbrains.kotlin.ir.types.impl.IrCapturedType
-import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeBuilder
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.model.CaptureStatus
 import javax.inject.Inject
 import kotlin.collections.plus
 
@@ -110,7 +105,7 @@ class RandomizableBackendTransformer @Inject constructor(
     private val arrayAccessor: ArrayAccessor,
     private val randomizableAccessor: RandomizableAccessor,
     private val builderAccessor: RandomizerContextBuilderAccessor,
-    private val rdRsAccessor: RdRsAccessor,
+    private val randomResultAccessor: RandomResultAccessor,
 ) : RDBackendTransformer() {
 
     override fun visitFunctionAccess(expression: IrFunctionAccessExpression): IrExpression {
@@ -203,7 +198,6 @@ class RandomizableBackendTransformer @Inject constructor(
                     randomContextAccessor.irType, makeRandomReturnType
                 )
             )
-            println("x12q:${makeRandomLambda.dumpKotlinLike()}")
             randomFunctionCall.putValueArgument(makeRandomLambdaParam.index, makeRandomLambdaArg)
         }
 
@@ -2204,16 +2198,16 @@ class RandomizableBackendTransformer @Inject constructor(
             val randomRsFromContext = irTemporary(
                 value = randomRsFromRandomContext,
                 nameHint = "randomRsFromContext",
-                irType = rdRsAccessor.clzz.typeWith(listOf(type, rdRsAccessor.noRandomizerErrIrType))
+                irType = randomResultAccessor.clzz.typeWith(listOf(type, randomResultAccessor.noRandomizerErrIrType))
             )
 
             val randomRsFromContextVar = irGet(randomRsFromContext)
 
             val isOkCall = randomRsFromRandomContext.extensionDotCall(
-                rdRsAccessor.isOkFunction(
+                randomResultAccessor.isOkFunction(
                     builder = builder,
                     vType = type,
-                    eType = rdRsAccessor.noRandomizerErrIrType,
+                    eType = randomResultAccessor.noRandomizerErrIrType,
                 )
             )
             val isOkVar = irTemporary(
@@ -2222,7 +2216,7 @@ class RandomizableBackendTransformer @Inject constructor(
             +builder.irIfThenElse(
                 type = type,
                 condition = builder.irGet(isOkVar),
-                thenPart = randomRsFromContextVar.dotCall { rdRsAccessor.value(builder) },
+                thenPart = randomRsFromContextVar.dotCall { randomResultAccessor.value(builder) },
                 elsePart = run {
 
                     if (type.isNullable()) {
