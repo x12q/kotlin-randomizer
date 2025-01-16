@@ -2023,7 +2023,12 @@ class RandomizableBackendTransformer @Inject constructor(
 
     private fun getConstructorCandidates(targetClass: IrClass): List<IrConstructor> {
 
-        val allPublicConstructors = targetClass.constructors.filter { it.isPublic() || it.isInternal() }.toList()
+        val o = targetClass.constructors.filter { it.isPublic() || it.isInternal() }.toList()
+        val allPublicConstructors = if(targetClass.name.asString().contains("ABC")){
+            listOf(o[1])
+        }else{
+            o
+        }
 
         val annotatedConstructors = run {
             val onlyAnnotatedConstructors = allPublicConstructors.filter { it.isAnnotatedWithRandomizable() }
