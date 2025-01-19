@@ -761,6 +761,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         typeMap = TypeMap.Companion.emptyTODO,
                         tempVarName = null
                     ).getIrExpression()
+
                     body = lambdaBuilder.irBlockBody {
                         +irReturn(randomElementExpr)
                     }
@@ -838,8 +839,8 @@ class RandomizableBackendTransformer @Inject constructor(
                     declarationParent?.let { parent = it }
                     val keyLambda = this
                     body = keyLambdaBuilder.irBlockBody {
-                        // call something to return a random key
-                        val randomKey = generateRandomType(
+                        // call something to return a random map key
+                        val randomMapKey = generateRandomType(
                             declarationParent = keyLambda,
                             constructorParam = null,
                             enclosingClass = enclosingClass,
@@ -857,7 +858,8 @@ class RandomizableBackendTransformer @Inject constructor(
                             typeMap = TypeMap.Companion.emptyTODO,
                             tempVarName = null
                         ).getIrExpression()
-                        +keyLambdaBuilder.irReturn(randomKey)
+
+                        +keyLambdaBuilder.irReturn(randomMapKey)
                     }
                 }
                 makeIrFunctionExpr(
@@ -1344,7 +1346,7 @@ class RandomizableBackendTransformer @Inject constructor(
         val rt: List<IrExpression> = candidateConstructors.mapNotNull { constructor ->
 
             val paramExpressions: MutableList<IrExpression> = mutableListOf()
-            var firstPassedOverThrowExpression: PassedOverThrowExpression? = null
+            var throwExceptionExpression: ThrowExpressionErr? = null
 
             for (param in constructor.valueParameters) {
                 val typeMapFromParam: TypeMap = param.makeTypeMap()
@@ -1374,19 +1376,23 @@ class RandomizableBackendTransformer @Inject constructor(
                 if (paramExprRs.isOk()) {
                     paramExpressions.add(paramExprRs.value)
                 } else {
-                    firstPassedOverThrowExpression = paramExprRs.err
+                    // in this case, it is not possible to generate a random expression for a parameter
+                    throwExceptionExpression = paramExprRs.err
                     break
                 }
             }
-            val q = if (firstPassedOverThrowExpression != null) {
+            val constructorCall: IrExpression? = if(throwExceptionExpression != null) {
+                /**
+                 * Unable to generate a random expression for a parameter -> no need to generate an expression to call the constructor
+                 */
                 null
             } else {
-                val constructorCall = builder.irCallConstructor(
+                val call = builder.irCallConstructor(
                     callee = constructor.symbol, typeArguments = emptyList()
                 ).withValueArgs(paramExpressions)
-                constructorCall as IrExpression
+                call as IrExpression
             }
-            q
+            constructorCall
         }
 
         return rt
@@ -1620,7 +1626,7 @@ class RandomizableBackendTransformer @Inject constructor(
          * Allow any generic type within [param], [receivedType] to look up its type. These include the type of the param itself.
          */
         typeMapForParam: TypeMap,
-    ): RdRs<IrExpression, PassedOverThrowExpression> {
+    ): RdRs<IrExpression, ThrowExpressionErr> {
         val paramType = (param.type as? IrSimpleTypeImpl)!!
 
         return generateRandomType(
@@ -1674,7 +1680,7 @@ class RandomizableBackendTransformer @Inject constructor(
         initMetaData: InitMetaData,
         typeMap: TypeMap,
         tempVarName: String?,
-    ): RdRs<IrExpression, PassedOverThrowExpression> {
+    ): RdRs<IrExpression, ThrowExpressionErr> {
         val primitive = generateRandomPrimitive(
             type = targetType,
             builder = builder,
@@ -1739,7 +1745,7 @@ class RandomizableBackendTransformer @Inject constructor(
         optionalParamMetaDataForReporting: ReportData,
         initMetaData: InitMetaData,
         typeMap: TypeMap
-    ): RdRs<IrExpression, PassedOverThrowExpression> {
+    ): RdRs<IrExpression, ThrowExpressionErr> {
         try {
             return RdRs.Ok(
                 generateRandomTypeWithDefinedType(
@@ -1761,7 +1767,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 is IllegalRandomizerArg -> {
                     val errMsg = e.message ?: ""
                     return RdRs.Err(
-                        PassedOverThrowExpression(
+                        ThrowExpressionErr(
                             throwExpress = throwUnableToRandomizeException(
                                 builder = builder,
                                 msg = ErrMsg.err2(errMsg)
@@ -2340,7 +2346,7 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Extract ir expression from a [RdRs]
      */
-    private fun RdRs<IrExpression, PassedOverThrowExpression>.getIrExpression(): IrExpression {
+    private fun RdRs<IrExpression, ThrowExpressionErr>.getIrExpression(): IrExpression {
         if (this.isOk()) {
             return this.value
         } else {
