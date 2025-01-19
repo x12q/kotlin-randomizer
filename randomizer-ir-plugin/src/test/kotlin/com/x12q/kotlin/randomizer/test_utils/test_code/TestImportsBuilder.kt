@@ -9,6 +9,8 @@ import com.x12q.kotlin.randomizer.test_utils.TestOutput
 import com.x12q.kotlin.randomizer.test_utils.WithData
 import com.x12q.kotlin.randomizer.test_utils.withTestOutput
 import io.mockk.declaringKotlinFile
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
@@ -142,6 +144,8 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                Clock::class,
+                Instant::class,
                 Date::class,
                 Array::class,
                 HashSet::class,
