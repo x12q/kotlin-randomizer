@@ -42,6 +42,7 @@ import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isMap
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isNothing2
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isNumber2
 import com.x12q.kotlin.randomizer.ir_plugin.backend.accessor.rd_lib.*
+import com.x12q.kotlin.randomizer.ir_plugin.backend.reporting.ErrMsg
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isRandomFunctions
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isSealed
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isSet
@@ -1753,7 +1754,8 @@ class RandomizableBackendTransformer @Inject constructor(
             /**
              * This is the case in which it is possible to retrieve a concrete/define class for the generic type.
              */
-            return generateRandomTypeWithDefinedType(
+            // return generateRandomTypeWithDefinedType(
+            return generateRandomTypeWithDefinedTypeOrThrowInGeneratedCode(
                 param = constructorParam,
                 enclosingClass = enclosingClass,
                 declarationParent = declarationParent,
@@ -1766,6 +1768,77 @@ class RandomizableBackendTransformer @Inject constructor(
                 initMetaData = initMetaData,
                 typeMap = typeMap,
             )
+        }
+    }
+
+    private fun generateRandomTypeWithDefinedTypeOrThrowInGeneratedCode(
+        /**
+         * Declaration parent is for generating lambda down the line. For now, it is only for the lambda passed to List() function
+         */
+        declarationParent: IrDeclarationParent?,
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        receivedType: IrSimpleType?,
+        targetType: IrType,
+        builder: DeclarationIrBuilder,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        optionalParamMetaDataForReporting: ReportData,
+        initMetaData: InitMetaData,
+        typeMap: TypeMap
+    ): IrExpression{
+        try{
+            return generateRandomTypeWithDefinedType(
+                declarationParent = declarationParent,
+                param = param,
+                enclosingClass = enclosingClass,
+                receivedType = receivedType,
+                targetType = targetType,
+                builder = builder,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                optionalParamMetaDataForReporting = optionalParamMetaDataForReporting,
+                initMetaData = initMetaData,
+                typeMap = typeMap,
+            )
+        }catch (e: Exception){
+            return throwUnableToRandomizeException(builder, ErrMsg.err2(e.message?:""))
+        }
+    }
+
+
+    private fun generateRandomTypeWithDefinedTypeOrNull(
+        /**
+         * Declaration parent is for generating lambda down the line. For now, it is only for the lambda passed to List() function
+         */
+        declarationParent: IrDeclarationParent?,
+        param: IrValueParameter?,
+        enclosingClass: IrClass?,
+        receivedType: IrSimpleType?,
+        targetType: IrType,
+        builder: DeclarationIrBuilder,
+        getRandomContextExpr: IrExpression,
+        getRandomConfigExpr: IrExpression,
+        optionalParamMetaDataForReporting: ReportData,
+        initMetaData: InitMetaData,
+        typeMap: TypeMap
+    ): IrExpression? {
+        try{
+            return generateRandomTypeWithDefinedType(
+                declarationParent = declarationParent,
+                param = param,
+                enclosingClass = enclosingClass,
+                receivedType = receivedType,
+                targetType = targetType,
+                builder = builder,
+                getRandomContextExpr = getRandomContextExpr,
+                getRandomConfigExpr = getRandomConfigExpr,
+                optionalParamMetaDataForReporting = optionalParamMetaDataForReporting,
+                initMetaData = initMetaData,
+                typeMap = typeMap,
+            )
+        }catch (_: IllegalArgumentException){
+            return null
         }
     }
 
@@ -1870,10 +1943,10 @@ class RandomizableBackendTransformer @Inject constructor(
                 return rt
             } else {
 
-                val paramNameText = param?.name?.let { "param $it:" } ?: ""
+                val paramNameText = param?.name?.let { "param $it" } ?: ""
 
                 throw IllegalArgumentException(
-                    "unable to construct an expression to generate a random instance for $paramNameText${clazz.name}"
+                    ErrMsg.err1("unable to construct an expression to generate a random instance for $paramNameText:${clazz.fqNameWhenAvailable}")
                 )
             }
         } else {

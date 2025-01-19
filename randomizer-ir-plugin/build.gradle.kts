@@ -42,7 +42,8 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.compile.test)
     testImplementation(libs.kotlin.compiler.embeddable)
-    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    testImplementation(libs.kotlin.datetime)
+
 }
 
 tasks.test {
