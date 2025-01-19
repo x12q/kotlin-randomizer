@@ -22,12 +22,15 @@ class TestRandomizingImpossibleClass {
 
     data class ABC(
         val timestamp: Instant,
-        // val intf: Interface123
+        val intf: Interface123,
+        val intf2: Interface123?
     )
     data class QxC<K_Q:Any>(override val data:K_Q):WithData
     private val imports = TestImportsBuilder.stdImport
         .import(ABC::class)
         .import(QxC::class)
+        .import(Interface123::class)
+        .import(Imp::class)
 
 
 
@@ -45,19 +48,25 @@ class TestRandomizingImpossibleClass {
                 fun runTest():TestOutput {
                     return withTestOutput {
                         val v = random<ABC>(randomizers = {
-                            factory<Instant>{Clock.System.now()}
+                            factory<Instant>{Instant.fromEpochMilliseconds(123)}
+                            constant<Interface123>(Imp(123))
+                            constant<Interface123?>(Imp(123))
                         })
                         putData(QxC(v))
                     }
                 }
             """,
         ) {
+            Instant.fromEpochMilliseconds(123)
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
                 val ax = objectList.first()
-                println(ax)
-
+                ax shouldBe ABC(
+                    timestamp = Instant.fromEpochMilliseconds(123),
+                    intf =Imp(123),
+                    intf2 = Imp(123),
+                )
             }
         }
     }

@@ -1271,7 +1271,8 @@ class RandomizableBackendTransformer @Inject constructor(
         )
 
         if (candidateExprs.isEmpty()) {
-            return null
+            val className = irClass.fqNameWhenAvailable?.asString() ?: "unknown class"
+            return throwUnableToRandomizeException(builder, ErrMsg.err4("Cannot use any constructors of class [$className] to generate a random instance"))
         }
 
         val type = irType.crashOnNull {
@@ -1316,10 +1317,9 @@ class RandomizableBackendTransformer @Inject constructor(
 
         val baseTypeMap: TypeMap = randomFunctionMetaData.initTypeMap
         val typeMapFromType: TypeMap = irType?.makeTypeMap() ?: TypeMap.Companion.empty
+        val candidateConstructors: List<IrConstructor> = getConstructorCandidates(irClass)
 
-        val candidateConstructors = getConstructorCandidates(irClass)
-
-        val rt = candidateConstructors.map { constructor ->
+        val rt: List<IrExpression> = candidateConstructors.mapNotNull { constructor ->
 
             val paramExpressions: MutableList<IrExpression> = mutableListOf()
 
@@ -1353,16 +1353,17 @@ class RandomizableBackendTransformer @Inject constructor(
                     break
                 }
             }
-            if (firstPassedOverThrowExpression!=null) {
-                firstPassedOverThrowExpression.throwExpress
+            val q = if (firstPassedOverThrowExpression!=null) {
+                null
             } else {
                 val constructorCall = builder.irCallConstructor(
                     callee = constructor.symbol, typeArguments = emptyList()
                 ).withValueArgs(paramExpressions)
-
-                constructorCall
+                constructorCall as IrExpression
             }
+            q
         }
+
         return rt
     }
 
