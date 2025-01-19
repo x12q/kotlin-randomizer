@@ -8,4 +8,8 @@ object ErrMsg {
     fun err2(msg: String):String{
         return "ERR2: $msg"
     }
+
+    fun err3(msg: String):String{
+        return "ERR3: $msg"
+    }
 }

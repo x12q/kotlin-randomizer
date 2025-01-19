@@ -20,4 +20,3 @@ fun <V,E> RdRs<V,E>.isOk(): Boolean{
     }
     return this is Ok
 }
-

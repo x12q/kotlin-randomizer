@@ -5,18 +5,24 @@ import com.x12q.kotlin.randomizer.test_utils.WithData
 import com.x12q.kotlin.randomizer.test_utils.assertions.executeRunTestFunction
 import com.x12q.kotlin.randomizer.test_utils.test_code.TestImportsBuilder
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.datetime.Instant
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import kotlin.test.Test
 
 
+/**
+ * This test randomizing something that does not have a constructor, or constructor contains parameter that cannot be generated (such as not having constructor/ interface)
+ * but at the same time, a legal randomizer is provided.
+ */
 @OptIn(ExperimentalCompilerApi::class)
-class TestRandomizingKotlinDatetime {
+class TestRandomizingImpossibleClass {
 
+    interface Interface123
+    data class Imp(val l:Long): Interface123
 
     data class ABC(
-        val i: Instant
+        val timestamp: Instant,
+        // val intf: Interface123
     )
     data class QxC<K_Q:Any>(override val data:K_Q):WithData
     private val imports = TestImportsBuilder.stdImport
@@ -31,7 +37,7 @@ class TestRandomizingKotlinDatetime {
      * The generic type is further passed down to deeper layer within the class of that property.
      */
     @Test
-    fun `qweqweqwe123123123`() {
+    fun `test randomizing impossible class`() {
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
