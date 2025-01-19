@@ -1,10 +1,10 @@
 [versions]
 groupId="com.x12q"
-version="1.0.0-alpha.14-2.1.0"
 irPluginId="com.x12q.kotlin.randomizer.ir.plugin"
 irPluginArtifactId = "kotlin-randomizer-ir-plugin"
 libArtifactId = "kotlin-randomizer-lib"
 gradlePluginId = "com.x12q.kotlin.randomizer"
+version="1.0.0-alpha.15-2.1.0"
 kotlin="2.1.0"
 ktCompileTest = "0.7.0"
 jvmVersion = "8"
