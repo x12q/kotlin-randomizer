@@ -20,3 +20,10 @@ fun <V,E> RdRs<V,E>.isOk(): Boolean{
     }
     return this is Ok
 }
+
+
+fun <V,E: Throwable> RdRs<V,E>.throwIfException(){
+    if(this.isErr()){
+        throw err
+    }
+}
