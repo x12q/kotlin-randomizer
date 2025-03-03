@@ -18,14 +18,16 @@ import kotlin.test.Test
 class TestRandomizingImpossibleClass {
 
     interface Interface123
-    data class Imp(val l:Long): Interface123
+    data class Imp(val l: Long) : Interface123
 
     data class ABC(
         val timestamp: Instant,
         val intf: Interface123,
         val intf2: Interface123?
     )
-    data class QxC<K_Q:Any>(override val data:K_Q):WithData
+
+    data class QxC<K_Q : Any>(override val data: K_Q) : WithData
+
     private val imports = TestImportsBuilder.stdImport
         .import(ABC::class)
         .import(QxC::class)
@@ -62,7 +64,7 @@ class TestRandomizingImpossibleClass {
                 val ax = objectList.first()
                 ax shouldBe ABC(
                     timestamp = Instant.fromEpochMilliseconds(123),
-                    intf =Imp(123),
+                    intf = Imp(123),
                     intf2 = Imp(123),
                 )
             }
@@ -93,10 +95,12 @@ class TestRandomizingImpossibleClass {
             testCompilation = { result, _ ->
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
-                val ax = objectList.first()
-                ax shouldBe TimeX123(
-                    t = Instant.fromEpochMilliseconds(123),
-                )
+
+                objectList shouldBe List(10) {
+                    TimeX123(
+                        t = Instant.fromEpochMilliseconds(123),
+                    )
+                }
             }
         }
     }
