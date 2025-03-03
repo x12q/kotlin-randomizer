@@ -31,9 +31,7 @@ class TestRandomizingImpossibleClass {
         .import(QxC::class)
         .import(Interface123::class)
         .import(Imp::class)
-
-
-
+        .import(TimeX123::class)
 
     /**
      * Test passing generic param from "random" function to generic with a property.
@@ -70,4 +68,37 @@ class TestRandomizingImpossibleClass {
             }
         }
     }
+
+    data class TimeX123(val t: Instant?)
+
+    @Test
+    fun `test randomizing nullable impossible class`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        for(x in 0 .. 10){
+                           val v = random<TimeX123>(randomizers = {
+                              factory<Instant>{Instant.fromEpochMilliseconds(123)}
+                           })
+                           putData(QxC(v))
+                        }
+                    }
+                }
+            """,
+        ) {
+            Instant.fromEpochMilliseconds(123)
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+                val ax = objectList.first()
+                ax shouldBe TimeX123(
+                    t = Instant.fromEpochMilliseconds(123),
+                )
+            }
+        }
+    }
+
 }
