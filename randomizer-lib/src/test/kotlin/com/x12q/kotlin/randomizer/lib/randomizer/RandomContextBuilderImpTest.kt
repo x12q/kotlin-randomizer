@@ -3,6 +3,7 @@ package com.x12q.kotlin.randomizer.lib.randomizer
 import com.x12q.kotlin.randomizer.lib.*
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.constant
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.double
+import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.factory
 import com.x12q.kotlin.randomizer.lib.RandomContextBuilderFunctions.int
 import io.kotest.matchers.shouldBe
 import kotlin.test.*
@@ -76,10 +77,17 @@ class RandomContextBuilderImpTest {
     }
 
     @Test
-    fun `add nullable int`() {
+    fun `add constant nullable int}`() {
         builder.constant<Int?> { null }
         val ctx = builder.build()
         ctx.random<Int?>() shouldBe null
+    }
+
+    @Test
+    fun `add factory nullable int}`() {
+        builder.factory <Int?> { 123 }
+        val ctx = builder.build()
+        ctx.random<Int?>() shouldBe 123
     }
 
     @Test

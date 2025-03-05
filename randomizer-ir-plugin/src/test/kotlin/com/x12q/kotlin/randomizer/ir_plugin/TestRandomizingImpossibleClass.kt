@@ -33,7 +33,8 @@ class TestRandomizingImpossibleClass {
         .import(QxC::class)
         .import(Interface123::class)
         .import(Imp::class)
-        .import(TimeX123::class)
+        .import(TimeX1::class)
+        .import(TimeX2::class)
 
     /**
      * Test passing generic param from "random" function to generic with a property.
@@ -71,7 +72,7 @@ class TestRandomizingImpossibleClass {
         }
     }
 
-    data class TimeX123(val t: Instant?)
+    data class TimeX1(val t: Instant?)
 
     @Test
     fun `test randomizing nullable impossible class`() {
@@ -81,8 +82,8 @@ class TestRandomizingImpossibleClass {
 
                 fun runTest():TestOutput {
                     return withTestOutput {
-                        for(x in 0 .. 10){
-                           val v = random<TimeX123>(randomizers = {
+                        repeat(100){
+                            val v = random<TimeX1>(randomizers = {
                               factory<Instant>{Instant.fromEpochMilliseconds(123)}
                            })
                            putData(QxC(v))
@@ -96,8 +97,42 @@ class TestRandomizingImpossibleClass {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val objectList = result.executeRunTestFunction().getObjs()
 
-                objectList shouldBe List(10) {
-                    TimeX123(
+                objectList shouldBe List(100) {
+                    TimeX1(
+                        t = Instant.fromEpochMilliseconds(123),
+                    )
+                }
+            }
+        }
+    }
+
+    data class TimeX2(val t: Instant)
+
+    @Test
+    fun `test randomizing not null impossible class`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        repeat(100){
+                            val v = random<TimeX2>(randomizers = {
+                              factory<Instant>{Instant.fromEpochMilliseconds(123)}
+                           })
+                           putData(QxC(v))
+                        }
+                    }
+                }
+            """,
+        ) {
+            Instant.fromEpochMilliseconds(123)
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                objectList shouldBe List(100) {
+                    TimeX2(
                         t = Instant.fromEpochMilliseconds(123),
                     )
                 }

@@ -42,7 +42,7 @@ import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isMap
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isNothing2
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isNumber2
 import com.x12q.kotlin.randomizer.ir_plugin.backend.accessor.rd_lib.*
-import com.x12q.kotlin.randomizer.ir_plugin.backend.reporting.ErrMsg
+import com.x12q.kotlin.randomizer.ir_plugin.backend.reporting.ErrMsgInGeneratedCode
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isRandomFunctions
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isSealed
 import com.x12q.kotlin.randomizer.ir_plugin.backend.utils.isSet
@@ -355,7 +355,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression? {
         if (irClass.isInner) {
             throw InnerClassNotSupportedException(
-                ErrMsg.err3(
+                ErrMsgInGeneratedCode.ERR3(
                     "Inner class ${
                         irClass.fqNameWhenAvailable?.asString()?.let { "($it)" }
                     }is not supported for now."
@@ -367,7 +367,7 @@ class RandomizableBackendTransformer @Inject constructor(
             { generateRandomObj(irClass, builder) },
             { generateRandomEnum(irClass, getRandomContextExpr, builder) },
             {
-                generateRandomConcreteClass_2(
+                generateRandomConcreteClass(
                     irClass = irClass,
                     irType = irType,
                     builder = builder,
@@ -1252,7 +1252,7 @@ class RandomizableBackendTransformer @Inject constructor(
     /**
      * Generate an instance of a concrete class.
      */
-    private fun generateRandomConcreteClass_2(
+    private fun generateRandomConcreteClass(
         declarationParent: IrDeclarationParent?,
         irType: IrType?,
         irClass: IrClass,
@@ -1261,6 +1261,9 @@ class RandomizableBackendTransformer @Inject constructor(
         builder: DeclarationIrBuilder,
         randomFunctionMetaData: InitMetaData,
     ): IrExpression? {
+        if(irClass.fqNameWhenAvailable?.asString()?.contains("kotlinx.datetime.Instant")==true){
+            println("z")
+        }
         if (irClass.isArrayList() || irClass.isHashSet() || irClass.isLinkedHashSet() || irClass.isHashMap() || irClass.isLinkedHashMap() || arrayAccessor.isArray(
                 irClass
             ) || irClass.isObject || irClass.isEnumClass || !irClass.isFinalOrOpenConcrete()
@@ -1293,7 +1296,7 @@ class RandomizableBackendTransformer @Inject constructor(
             val className = irClass.fqNameWhenAvailable?.asString() ?: "unknown class"
             return throwUnableToRandomizeException(
                 builder,
-                ErrMsg.err4("Cannot use any constructors of class [$className] to generate a random instance")
+                ErrMsgInGeneratedCode.ERR4("Cannot use any constructors of class [$className] to generate a random instance")
             )
         }
 
@@ -1314,7 +1317,7 @@ class RandomizableBackendTransformer @Inject constructor(
                 builder.irWhen(
                     type = type, branches = candidateExprs.withIndex().map { (index, candidate) ->
                         builder.irBranch(
-                            condition = builder.irEquals(candidateIndexExpr, builder.irInt(index)), result = candidate
+                            condition = builder.irEquals(irGet(candidateIndexVar), builder.irInt(index)), result = candidate
                         )
                     } + builder.irElseBranch(
                         throwUnableToRandomizeException(builder, msgIr = builder.irConcat().apply {
@@ -1713,7 +1716,6 @@ class RandomizableBackendTransformer @Inject constructor(
             /**
              * This is the case in which it is possible to retrieve a concrete/define class for the generic type.
              */
-            // return generateRandomTypeWithDefinedType(
             return generateRandomTypeWithDefinedTypeOrThrowInGeneratedCode(
                 param = constructorParam,
                 enclosingClass = enclosingClass,
@@ -1770,7 +1772,7 @@ class RandomizableBackendTransformer @Inject constructor(
                         ThrowExpressionErr(
                             throwExpress = throwUnableToRandomizeException(
                                 builder = builder,
-                                msg = ErrMsg.err2(errMsg)
+                                msg = ErrMsgInGeneratedCode.ERR2(errMsg)
                             ),
                             errMsg = errMsg,
                         )
@@ -1801,6 +1803,7 @@ class RandomizableBackendTransformer @Inject constructor(
         initMetaData: InitMetaData,
         typeMap: TypeMap
     ): IrExpression {
+
         val actualParamType: IrType = run {
             val tp0 = receivedType ?: targetType
             val typeWithReplacement = (tp0 as? IrSimpleType)?.let { replaceTypeArgument(tp0, typeMap) }
@@ -1827,8 +1830,6 @@ class RandomizableBackendTransformer @Inject constructor(
 
                 val nonNullRandom = builder.irBlock {
 
-                    val nameHint = "randomFromContext_${param?.name?.asString() ?: ""}"
-
                     val varRandomFromRandomContext = run {
                         /**
                          * random from random context
@@ -1841,7 +1842,10 @@ class RandomizableBackendTransformer @Inject constructor(
                                 .extensionDotCall(randomContextAccessor.randomFunction(builder))
                                 .withTypeArgs(actualParamType)
 
-                        irTemporary(randomFromRandomContextCall, nameHint).apply {
+                        irTemporary(
+                            value = randomFromRandomContextCall,
+                            nameHint = "randomFromContext_m1_${param?.name?.asString() ?: ""}",
+                        ).apply {
                             this.type = actualParamType.makeNullable()
                         }
                     }
@@ -1859,15 +1863,31 @@ class RandomizableBackendTransformer @Inject constructor(
 
                 val rt = if (actualParamType.isNullable()) {
 
-                    val randomRsFromRandomContext =
-                        getRandomContextExpr
+                    val nullableRandomRsFromRandomContext = getRandomContextExpr
                             .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
                             .withTypeArgs(actualParamType)
 
-                    evaluateRandomRs(
-                        type = actualParamType,
+                    val notNullRandomRsFromRandomContext = getRandomContextExpr
+                        .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
+                        .withTypeArgs(actualParamType.makeNotNull())
+
+                    val q = if(false){
+                        evaluateNullableRandomRs(
+                            nullableType = actualParamType,
+                            getRandomContext = getRandomContextExpr,
+                            nullableRandomRsFromRandomContext = nullableRandomRsFromRandomContext,
+                            nonNullPart = nonNullRandom,
+                            builder = builder,
+                        )
+                    }else{
+                        null
+                    }
+
+                    evaluate3RandomRs(
+                        nullableType = actualParamType,
                         getRandomContext = getRandomContextExpr,
-                        randomRsFromRandomContext = randomRsFromRandomContext,
+                        nullableRandomRs = nullableRandomRsFromRandomContext,
+                        notNullRandomRs = notNullRandomRsFromRandomContext,
                         nonNullPart = nonNullRandom,
                         builder = builder,
                     )
@@ -1887,13 +1907,15 @@ class RandomizableBackendTransformer @Inject constructor(
                 val inClassName =
                     enclosingClass?.let { it.fqNameWhenAvailable?.asString() } ?: "[unknown enclosing class]"
                 throw IllegalRandomizerArg(
-                    ErrMsg.err1("unable to construct an expression to generate a random instance for param $paramNameText:${clazz.fqNameWhenAvailable} in class $inClassName")
+                    ErrMsgInGeneratedCode.ERR1("unable to construct an expression to generate a random instance for param $paramNameText:${clazz.fqNameWhenAvailable} in class $inClassName")
                 )
             }
         } else {
             throw IllegalRandomizerArg("$targetType cannot provide a class.")
         }
     }
+
+
 
     /**
      * Replace generic type arg in [irType] using information from [typeMap]
@@ -2197,36 +2219,191 @@ class RandomizableBackendTransformer @Inject constructor(
         )
 
 
-        return evaluateRandomRs(
-            type = type,
+        return evaluateNullableRandomRs(
+            nullableType = type,
             getRandomContext = getRandomContext,
-            randomRsFromRandomContext = randomRsFromRandomContext,
+            nullableRandomRsFromRandomContext = randomRsFromRandomContext,
             nonNullPart = nonNullPart,
             builder = builder
         )
     }
 
-    private fun evaluateRandomRs(
-        type: IrType,
+
+    private fun makeNullableRandomFromContextCall(
+        builder: DeclarationIrBuilder,
+        type:IrType,
+        getRandomContextExpr:IrExpression,
+    ): IrExpression{
+
+
+        // val randomRsFromRandomContext = getRandomContextExpr
+        //     .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
+        //     .withTypeArgs(type)
+        // evaluateRandomRs(
+        //     type,getRandomContextExpr,
+        // )
+
+        val defaultCall = getRandomContextExpr
+            .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
+            .withTypeArgs(type)
+
+        if(type.isNullable()){
+            return builder.irBlock {
+                val notNullType = type.makeNotNull()
+                val notNullCall = getRandomContextExpr
+                    .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
+                    .withTypeArgs(notNullType)
+
+                val notNullVar = irTemporary(notNullCall,"notNull_randomFromRandomContext").apply {
+                    this.type = type
+                }
+                +irIfNull(type, irGet(notNullVar), defaultCall,irGet(notNullVar))
+            }
+        }else{
+            return defaultCall
+        }
+    }
+
+    private fun evaluate3RandomRs(
+        nullableType: IrType,
+        nullableRandomRs: IrExpression,
+        notNullRandomRs: IrExpression,
         getRandomContext: IrExpression,
-        randomRsFromRandomContext: IrExpression,
+        nonNullPart: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression{
+
+
+        return builder.irBlock {
+            val nullableRandomRsGetVar = run{
+                val rdVar = irTemporary(
+                    value = nullableRandomRs,
+                    nameHint = "nullable_randomRsFromContext",
+                    irType = rdRsAccessor.clzz.typeWith(listOf(nullableType, rdRsAccessor.noRandomizerErrIrType))
+                )
+                irGet(rdVar)
+            }
+
+            val nullableIsOkCall = nullableRandomRsGetVar.extensionDotCall(
+                rdRsAccessor.isOkFunction(
+                    builder = builder,
+                    vType = nullableType,
+                    eType = rdRsAccessor.noRandomizerErrIrType,
+                )
+            )
+
+            +irIfThenElse(
+                type = nullableType,
+                condition = nullableIsOkCall,
+                thenPart = nullableRandomRsGetVar.dotCall { rdRsAccessor.value(builder) },
+                elsePart = builder.irBlock {
+                    val notNullType = nullableType.makeNotNull()
+
+                    val notNullRandomRsFromContextGetVar = run{
+                        val randomRsFromContextVar = irTemporary(
+                            value = notNullRandomRs,
+                            nameHint = "notNull_randomRsFromContext",
+                            irType = rdRsAccessor.clzz.typeWith(listOf(notNullType, rdRsAccessor.noRandomizerErrIrType))
+                        )
+                        irGet(randomRsFromContextVar)
+                    }
+
+                    val notNullIsOkCall = notNullRandomRsFromContextGetVar.extensionDotCall(
+                        rdRsAccessor.isOkFunction(
+                            builder = builder,
+                            vType = notNullType,
+                            eType = rdRsAccessor.noRandomizerErrIrType,
+                        )
+                    )
+                    +irIfThenElse(
+                        type = nullableType,
+                        condition = notNullIsOkCall,
+                        thenPart = notNullRandomRsFromContextGetVar.dotCall { rdRsAccessor.value(builder) },
+                        elsePart = if (nullableType.isNullable()) {
+                            randomOrNull(
+                                builder = builder,
+                                getRandomContext = getRandomContext,
+                                type = nullableType,
+                                nonNullPart = nonNullPart
+                            )
+                        } else {
+                            nonNullPart
+                        }
+                    )
+                },
+            )
+        }
+    }
+
+    private fun evaluate2RandomRs(
+        nullableType: IrType,
+        nullableRandomRsFromRandomContext: IrExpression,
+        notNullRandomRsFromRandomContext: IrExpression,
+        getRandomContext: IrExpression,
+        nonNullPart: IrExpression,
+        builder: DeclarationIrBuilder,
+    ): IrExpression{
+        val notNullType = nullableType.makeNotNull()
+        return builder.irBlock {
+            val notNullRandomRsFromContextGetVar = run{
+                val randomRsFromContextVar = irTemporary(
+                    value = notNullRandomRsFromRandomContext,
+                    nameHint = "notNull_randomRsFromContext",
+                    irType = rdRsAccessor.clzz.typeWith(listOf(notNullType, rdRsAccessor.noRandomizerErrIrType))
+                )
+                irGet(randomRsFromContextVar)
+            }
+
+            val notNullIsOkCall = notNullRandomRsFromContextGetVar.extensionDotCall(
+                rdRsAccessor.isOkFunction(
+                    builder = builder,
+                    vType = notNullType,
+                    eType = rdRsAccessor.noRandomizerErrIrType,
+                )
+            )
+
+            +irIfThenElse(
+                type = nullableType,
+                condition = notNullIsOkCall,
+                thenPart = notNullRandomRsFromContextGetVar.dotCall { rdRsAccessor.value(builder) },
+                elsePart = evaluateNullableRandomRs(
+                    nullableType,getRandomContext,nullableRandomRsFromRandomContext,nonNullPart,builder
+                ),
+            )
+        }
+    }
+
+
+    /**
+     * Attempt to use evaluate [nullableRandomRsFromRandomContext] before resolving to use [nonNullPart] or running random-or-null in case [nullableType] is nullable.
+     * The purpose of randomRs is to check if there's custom randomizers that can handle [nullableType] or not.
+     */
+    private fun evaluateNullableRandomRs(
+        nullableType: IrType,
+        getRandomContext: IrExpression,
+        nullableRandomRsFromRandomContext: IrExpression,
         nonNullPart: IrExpression,
         builder: DeclarationIrBuilder,
     ): IrExpression {
+
+        require(nullableType.isNullable()){
+            developerErrorMsg("evaluateRandomRs() is only applicable to nullable type.")
+        }
+
         val rt = builder.irBlock {
 
             val randomRsFromContext = irTemporary(
-                value = randomRsFromRandomContext,
-                nameHint = "randomRsFromContext",
-                irType = rdRsAccessor.clzz.typeWith(listOf(type, rdRsAccessor.noRandomizerErrIrType))
+                value = nullableRandomRsFromRandomContext,
+                nameHint = "nullable_randomRsFromContext",
+                irType = rdRsAccessor.clzz.typeWith(listOf(nullableType, rdRsAccessor.noRandomizerErrIrType))
             )
 
             val randomRsFromContextVar = irGet(randomRsFromContext)
 
-            val isOkCall = randomRsFromRandomContext.extensionDotCall(
+            val isOkCall = randomRsFromContextVar.extensionDotCall(
                 rdRsAccessor.isOkFunction(
                     builder = builder,
-                    vType = type,
+                    vType = nullableType,
                     eType = rdRsAccessor.noRandomizerErrIrType,
                 )
             )
@@ -2234,16 +2411,18 @@ class RandomizableBackendTransformer @Inject constructor(
                 value = isOkCall, nameHint = "isOk", irType = pluginContext.irBuiltIns.booleanType
             )
             +builder.irIfThenElse(
-                type = type,
+                type = nullableType,
                 condition = builder.irGet(isOkVar),
+                // when the rs is ok -> use its value
                 thenPart = randomRsFromContextVar.dotCall { rdRsAccessor.value(builder) },
+                // when the rs is NOT ok -> run random-or-null
                 elsePart = run {
 
-                    if (type.isNullable()) {
+                    if (nullableType.isNullable()) {
                         randomOrNull(
                             builder = builder,
                             getRandomContext = getRandomContext,
-                            type = type,
+                            type = nullableType,
                             nonNullPart = nonNullPart
                         )
                     } else {
