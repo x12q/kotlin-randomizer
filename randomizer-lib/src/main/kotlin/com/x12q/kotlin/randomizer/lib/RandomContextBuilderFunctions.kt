@@ -15,7 +15,7 @@ object RandomContextBuilderFunctions {
         return add(constantRandomizer(makeValue))
     }
 
-    inline fun <reified T : Any> RandomContextBuilder.factory(noinline makeRandom: () -> T): RandomContextBuilder {
+    inline fun <reified T > RandomContextBuilder.factory(noinline makeRandom: () -> T): RandomContextBuilder {
         return add(factoryRandomizer(makeRandom))
     }
 

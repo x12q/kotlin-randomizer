@@ -1,6 +1,7 @@
 package com.x12q.kotlin.randomizer.ir_plugin
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.AlwaysFalseRandomConfig
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.AlwaysTrueRandomConfig
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.LegalRandomConfigObject
 import com.x12q.kotlin.randomizer.ir_plugin.mock_objects.RandomConfigForTest
@@ -31,6 +32,7 @@ class TestRandomGenericProperty {
         .import(Qx3::class)
         .import(Qx4::class)
         .import(Qx6::class)
+        .import(NullClass::class)
         .import(TwoGeneric::class)
         .import(ThreeGeneric::class)
         .import(QxList::class)
@@ -320,7 +322,7 @@ class TestRandomGenericProperty {
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<Int?>>(randomConfig=NullRandomConfig))
+                        putData(random<QxC<NullClass?>>(randomConfig=NullRandomConfig))
                     }
                 }
                 data class QxC<T1>(override val data:Qx2<Qx<T1>>):WithData
@@ -445,20 +447,21 @@ class TestRandomGenericProperty {
         }
     }
 
+    data class NullClass(val x:Int)
+
     @Test
     fun `nullable generic property`() {
-
         testGeneratedCodeUsingStandardPlugin(
             """
                 $imports
 
                 fun runTest():TestOutput{
                     return withTestOutput{
-                        putData(random<QxC<Int?>>(randomConfig=AlwaysFalseRandomConfig, randomizers={
-                            factory{randomConfig.nextInt()}
+                        putData(random<QxC<NullClass?>>(randomConfig=AlwaysFalseRandomConfig, randomizers={
+                            // no custom randomizers
                         }))
-                        putData(random<QxC<Int?>>(randomConfig=AlwaysTrueRandomConfig, randomizers={
-                            factory{randomConfig.nextInt()}
+                        putData(random<QxC<NullClass?>>(randomConfig=AlwaysTrueRandomConfig, randomizers={
+                            factory<NullClass>{NullClass(344)}
                         }))
                     }
                 }
@@ -469,7 +472,8 @@ class TestRandomGenericProperty {
                 result.exitCode shouldBe KotlinCompilation.ExitCode.OK
                 val l = result.executeRunTestFunction().getObjs()
                 l shouldBe listOf(
-                    Qx<Int>(null), Qx(AlwaysTrueRandomConfig.nextInt())
+                    Qx<NullClass>(null),
+                    Qx<NullClass>(NullClass(344))
                 )
             }
         }

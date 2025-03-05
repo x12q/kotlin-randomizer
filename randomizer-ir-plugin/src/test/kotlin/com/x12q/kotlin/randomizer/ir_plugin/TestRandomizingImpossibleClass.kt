@@ -18,22 +18,23 @@ import kotlin.test.Test
 class TestRandomizingImpossibleClass {
 
     interface Interface123
-    data class Imp(val l:Long): Interface123
+    data class Imp(val l: Long) : Interface123
 
     data class ABC(
         val timestamp: Instant,
         val intf: Interface123,
         val intf2: Interface123?
     )
-    data class QxC<K_Q:Any>(override val data:K_Q):WithData
+
+    data class QxC<K_Q : Any>(override val data: K_Q) : WithData
+
     private val imports = TestImportsBuilder.stdImport
         .import(ABC::class)
         .import(QxC::class)
         .import(Interface123::class)
         .import(Imp::class)
-
-
-
+        .import(TimeX1::class)
+        .import(TimeX2::class)
 
     /**
      * Test passing generic param from "random" function to generic with a property.
@@ -64,10 +65,79 @@ class TestRandomizingImpossibleClass {
                 val ax = objectList.first()
                 ax shouldBe ABC(
                     timestamp = Instant.fromEpochMilliseconds(123),
-                    intf =Imp(123),
+                    intf = Imp(123),
                     intf2 = Imp(123),
                 )
             }
         }
     }
+
+    data class TimeX1(val t: Instant?)
+
+    @Test
+    fun `test randomizing nullable impossible class`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        repeat(100){
+                            val v = random<TimeX1>(randomizers = {
+                              factory<Instant>{Instant.fromEpochMilliseconds(123)}
+                           })
+                           putData(QxC(v))
+                        }
+                    }
+                }
+            """,
+        ) {
+            Instant.fromEpochMilliseconds(123)
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                objectList shouldBe List(100) {
+                    TimeX1(
+                        t = Instant.fromEpochMilliseconds(123),
+                    )
+                }
+            }
+        }
+    }
+
+    data class TimeX2(val t: Instant)
+
+    @Test
+    fun `test randomizing not null impossible class`() {
+        testGeneratedCodeUsingStandardPlugin(
+            """
+                $imports
+
+                fun runTest():TestOutput {
+                    return withTestOutput {
+                        repeat(100){
+                            val v = random<TimeX2>(randomizers = {
+                              factory<Instant>{Instant.fromEpochMilliseconds(123)}
+                           })
+                           putData(QxC(v))
+                        }
+                    }
+                }
+            """,
+        ) {
+            Instant.fromEpochMilliseconds(123)
+            testCompilation = { result, _ ->
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                val objectList = result.executeRunTestFunction().getObjs()
+
+                objectList shouldBe List(100) {
+                    TimeX2(
+                        t = Instant.fromEpochMilliseconds(123),
+                    )
+                }
+            }
+        }
+    }
+
 }
