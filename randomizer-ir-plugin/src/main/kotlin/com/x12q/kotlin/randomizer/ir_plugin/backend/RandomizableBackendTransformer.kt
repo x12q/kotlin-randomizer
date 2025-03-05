@@ -1871,18 +1871,6 @@ class RandomizableBackendTransformer @Inject constructor(
                         .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
                         .withTypeArgs(actualParamType.makeNotNull())
 
-                    val q = if(false){
-                        evaluateNullableRandomRs(
-                            nullableType = actualParamType,
-                            getRandomContext = getRandomContextExpr,
-                            nullableRandomRsFromRandomContext = nullableRandomRsFromRandomContext,
-                            nonNullPart = nonNullRandom,
-                            builder = builder,
-                        )
-                    }else{
-                        null
-                    }
-
                     evaluate3RandomRs(
                         nullableType = actualParamType,
                         getRandomContext = getRandomContextExpr,
@@ -2141,7 +2129,7 @@ class RandomizableBackendTransformer @Inject constructor(
     ): IrExpression {
         return if (type.isNullable()) {
             randomPrimitiveFromRandomContextOrRandomConfig_nullable(
-                type = type,
+                nullableType = type,
                 getRandomContext = getRandomContext,
                 randomFromConfigRandomExpr = randomFromConfigRandomExpr,
                 builder = builder,
@@ -2180,21 +2168,23 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private fun randomPrimitiveFromRandomContextOrRandomConfig_nullable(
-        type: IrType, getRandomContext: IrExpression,
+        nullableType: IrType, getRandomContext: IrExpression,
         /**
-         * [randomFromConfigRandomExpr] return a random instance of [type]
+         * [randomFromConfigRandomExpr] return a random instance of [nullableType]
          */
         randomFromConfigRandomExpr: IrExpression, builder: DeclarationIrBuilder
     ): IrExpression {
-        val randomRsFromContext =
-            getRandomContext.extensionDotCall(randomContextAccessor.randomRsFunction(builder)).withTypeArgs(type)
+
+        val randomRs =
+            getRandomContext.extensionDotCall(randomContextAccessor.randomRsFunction(builder)).withTypeArgs(nullableType)
+
         val randomFromRandomContext =
-            getRandomContext.extensionDotCall(randomContextAccessor.randomFunction(builder)).withTypeArgs(type)
+            getRandomContext.extensionDotCall(randomContextAccessor.randomFunction(builder)).withTypeArgs(nullableType)
 
         val nonNullExpr = evaluateRandomRsForPrimitive(
-            type = type,
+            nullableType = nullableType,
             randomFromContext = randomFromRandomContext,
-            randomRsFromRandomContext = randomRsFromContext,
+            randomRsFromRandomContext = randomRs,
             randomFromRandomConfig = randomFromConfigRandomExpr,
             getRandomContext = getRandomContext,
             builder = builder,
@@ -2203,65 +2193,25 @@ class RandomizableBackendTransformer @Inject constructor(
     }
 
     private fun evaluateRandomRsForPrimitive(
-        type: IrType,
+        nullableType: IrType,
         getRandomContext: IrExpression,
         randomFromContext: IrExpression,
         randomRsFromRandomContext: IrExpression,
         randomFromRandomConfig: IrExpression,
         builder: DeclarationIrBuilder,
     ): IrExpression {
-
-        val nonNullPart = evaluateRandomContextThenRandomConfig(
-            type = type,
-            randomFromRandomContext = randomFromContext,
-            randomFromRandomConfig = randomFromRandomConfig,
-            builder = builder,
-        )
-
-
         return evaluateNullableRandomRs(
-            nullableType = type,
+            nullableType = nullableType,
             getRandomContext = getRandomContext,
             nullableRandomRsFromRandomContext = randomRsFromRandomContext,
-            nonNullPart = nonNullPart,
+            nonNullPart = evaluateRandomContextThenRandomConfig(
+                type = nullableType,
+                randomFromRandomContext = randomFromContext,
+                randomFromRandomConfig = randomFromRandomConfig,
+                builder = builder,
+            ),
             builder = builder
         )
-    }
-
-
-    private fun makeNullableRandomFromContextCall(
-        builder: DeclarationIrBuilder,
-        type:IrType,
-        getRandomContextExpr:IrExpression,
-    ): IrExpression{
-
-
-        // val randomRsFromRandomContext = getRandomContextExpr
-        //     .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
-        //     .withTypeArgs(type)
-        // evaluateRandomRs(
-        //     type,getRandomContextExpr,
-        // )
-
-        val defaultCall = getRandomContextExpr
-            .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
-            .withTypeArgs(type)
-
-        if(type.isNullable()){
-            return builder.irBlock {
-                val notNullType = type.makeNotNull()
-                val notNullCall = getRandomContextExpr
-                    .extensionDotCall(randomContextAccessor.randomRsFunction(builder))
-                    .withTypeArgs(notNullType)
-
-                val notNullVar = irTemporary(notNullCall,"notNull_randomFromRandomContext").apply {
-                    this.type = type
-                }
-                +irIfNull(type, irGet(notNullVar), defaultCall,irGet(notNullVar))
-            }
-        }else{
-            return defaultCall
-        }
     }
 
     private fun evaluate3RandomRs(
@@ -2272,7 +2222,6 @@ class RandomizableBackendTransformer @Inject constructor(
         nonNullPart: IrExpression,
         builder: DeclarationIrBuilder,
     ): IrExpression{
-
 
         return builder.irBlock {
             val nullableRandomRsGetVar = run{
@@ -2331,44 +2280,6 @@ class RandomizableBackendTransformer @Inject constructor(
                         }
                     )
                 },
-            )
-        }
-    }
-
-    private fun evaluate2RandomRs(
-        nullableType: IrType,
-        nullableRandomRsFromRandomContext: IrExpression,
-        notNullRandomRsFromRandomContext: IrExpression,
-        getRandomContext: IrExpression,
-        nonNullPart: IrExpression,
-        builder: DeclarationIrBuilder,
-    ): IrExpression{
-        val notNullType = nullableType.makeNotNull()
-        return builder.irBlock {
-            val notNullRandomRsFromContextGetVar = run{
-                val randomRsFromContextVar = irTemporary(
-                    value = notNullRandomRsFromRandomContext,
-                    nameHint = "notNull_randomRsFromContext",
-                    irType = rdRsAccessor.clzz.typeWith(listOf(notNullType, rdRsAccessor.noRandomizerErrIrType))
-                )
-                irGet(randomRsFromContextVar)
-            }
-
-            val notNullIsOkCall = notNullRandomRsFromContextGetVar.extensionDotCall(
-                rdRsAccessor.isOkFunction(
-                    builder = builder,
-                    vType = notNullType,
-                    eType = rdRsAccessor.noRandomizerErrIrType,
-                )
-            )
-
-            +irIfThenElse(
-                type = nullableType,
-                condition = notNullIsOkCall,
-                thenPart = notNullRandomRsFromContextGetVar.dotCall { rdRsAccessor.value(builder) },
-                elsePart = evaluateNullableRandomRs(
-                    nullableType,getRandomContext,nullableRandomRsFromRandomContext,nonNullPart,builder
-                ),
             )
         }
     }
