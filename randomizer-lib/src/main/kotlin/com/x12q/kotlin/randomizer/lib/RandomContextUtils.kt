@@ -7,7 +7,7 @@ import com.x12q.kotlin.randomizer.lib.rs.RdRs
 import kotlin.reflect.typeOf
 
 
-inline fun <reified T> RandomizerCollection.getRandomizer(): ClassRandomizer<T>?{
+inline fun <reified T> RandomizerContainer.getRandomizer(): ClassRandomizer<T>?{
     val key = TypeKey.of<T>()
     return randomizersMap[key] as? ClassRandomizer<T>
 }

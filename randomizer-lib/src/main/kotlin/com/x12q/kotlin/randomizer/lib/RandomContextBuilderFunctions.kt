@@ -1,7 +1,9 @@
 package com.x12q.kotlin.randomizer.lib
 
+import com.x12q.kotlin.randomizer.lib.randomizer.ClassRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.constantRandomizer
 import com.x12q.kotlin.randomizer.lib.randomizer.factoryRandomizer
+import kotlin.reflect.KProperty1
 
 /**
  * This includes builder functions for adding custom randomizers to [RandomContextBuilder]
@@ -18,6 +20,11 @@ object RandomContextBuilderFunctions {
     inline fun <reified T > RandomContextBuilder.factory(noinline makeRandom: () -> T): RandomContextBuilder {
         return add(factoryRandomizer(makeRandom))
     }
+
+
+    // inline fun <reified T, reified E> factory(kProperty1: KProperty1<T,E>, randomizer:()->E):ClassRandomizer<T>{
+    //
+    // }
 
     fun RandomContextBuilder.int(i: Int): RandomContextBuilder {
         return constant(i)

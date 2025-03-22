@@ -1,5 +1,6 @@
 package com.x12q.kotlin.randomizer.lib.randomizer
 
+import com.x12q.kotlin.randomizer.lib.PropertyKey
 import com.x12q.kotlin.randomizer.lib.TypeKey
 
 
@@ -10,6 +11,8 @@ data class ConstantRandomizer<T>(val value: T, override val returnType: TypeKey)
     override fun random(): T {
         return value
     }
+
+    // override val propertyKey: PropertyKey? = null
 
     companion object{
         inline fun <reified T> of(t:T): ConstantRandomizer<T> {

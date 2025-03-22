@@ -65,7 +65,7 @@ class RandomContextBuilderImp : RandomContextBuilder {
         return this
     }
 
-    private var builtRandomizerCollection: RandomizerCollection? = null
+    private var builtRandomizerContainer: RandomizerContainer? = null
 
     /**
      * Tier1 randomizers are simply normal randomizers.
@@ -93,9 +93,9 @@ class RandomContextBuilderImp : RandomContextBuilder {
         }
     }
 
-    private fun getOrInitRandomizerCollection(): RandomizerCollection {
-        val rdCollection = (builtRandomizerCollection ?: MutableRandomizerCollection(emptyMap())).also {
-            builtRandomizerCollection = it
+    private fun getOrInitRandomizerCollection(): RandomizerContainer {
+        val rdCollection = (builtRandomizerContainer ?: MutableRandomizerContainer(emptyMap(), emptyMap())).also {
+            builtRandomizerContainer = it
         }
         return rdCollection
     }

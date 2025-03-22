@@ -18,8 +18,14 @@ class ClassRandomizerUtilsKtTest {
     val listList = FactoryClassRandomizer.of<List<List<List<Int>>>> {
         List(1) { List(2) { List(3) { 123 } } }
     }
-    val l = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
-    val col = MutableRandomizerCollection(l.associateBy { it.returnType })
+
+    val randomizersByType = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
+    val randomizersByProperty = listOf(floatRdm, strRdm, abcRdm, dddRdm,listList)
+
+    val col = MutableRandomizerContainer(
+        initMap = randomizersByType.associateBy { it.returnType },
+        initPropertyMap = TODO(),
+    )
     val config = AlwaysTrueRandomConfig
     val context = RandomContextImp(
         randomConfig = config,

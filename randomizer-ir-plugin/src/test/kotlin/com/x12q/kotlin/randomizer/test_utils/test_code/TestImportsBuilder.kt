@@ -14,6 +14,8 @@ import kotlinx.datetime.Instant
 import java.util.Date
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
+import kotlin.reflect.KProperty1
+import kotlin.reflect.KProperty2
 
 /**
  * This class is essentially a string builder that builds import statements in string. These statements are used in test subject code to test compilation.
@@ -144,6 +146,8 @@ data class TestImportsBuilder(
 
         val stdImport = TestImportsBuilder(
             classList = listOf(
+                KProperty1::class,
+                KProperty2::class,
                 Clock::class,
                 Instant::class,
                 Date::class,
@@ -160,8 +164,8 @@ data class TestImportsBuilder(
                 LegalRandomConfig::class,
                 FactoryClassRandomizer::class,
                 ConstantRandomizer::class,
-                MutableRandomizerCollection::class,
-                RandomizerCollection::class,
+                MutableRandomizerContainer::class,
+                RandomizerContainer::class,
                 RandomContextBuilder::class,
                 NonNullRandomConfig::class,
                 NullRandomConfig::class,

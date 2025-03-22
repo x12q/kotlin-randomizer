@@ -2,7 +2,7 @@ package com.x12q.kotlin.randomizer.ir_plugin.backend.accessor.rd_lib
 
 import com.x12q.kotlin.randomizer.ir_plugin.backend.accessor.ClassAccessor
 import com.x12q.kotlin.randomizer.ir_plugin.util.crashOnNull
-import com.x12q.kotlin.randomizer.lib.RandomizerCollection
+import com.x12q.kotlin.randomizer.lib.RandomizerContainer
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.name.ClassId
@@ -16,7 +16,7 @@ class RandomizerCollectionAccessor @Inject constructor(
 
     private val classId = ClassId.topLevel(
         FqName(
-            requireNotNull(RandomizerCollection::class.qualifiedName) {
+            requireNotNull(RandomizerContainer::class.qualifiedName) {
                 "ClassRandomizerCollection interface does not exist in the class path"
             }
         )
