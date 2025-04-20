@@ -1,9 +1,9 @@
-package com.x12q.kotlin.randomizer.ir_plugin.util
+package com.x12q.com.x12q.randomizer.internal_utils
+
 
 /**
  * Evaluate each function in [functionList], stop at the first output that satisfies [resultIsOk]
  */
-@Deprecated("use one from randomizer-lib module instead")
 fun <T> stopAtFirst(
     resultIsOk: (T) -> Boolean,
     vararg functionList: () -> T
@@ -20,17 +20,17 @@ fun <T> stopAtFirst(
 /**
  * Evaluate each function in [functionList], stop at the first output that is not null
  */
-@Deprecated("use one from randomizer-lib module instead")
 fun <T> stopAtFirstNotNull(
     vararg functionList: () -> T?
 ): T? {
     return stopAtFirst({ it != null }, *functionList)
 }
-@Deprecated("use one from randomizer-lib module instead")
+
 inline fun <T> T?.crashOnNull(msg:()->Any):T{
     return requireNotNull(this,msg)
 }
-@Deprecated("use one from randomizer-lib module instead")
+
 fun <T> T?.crashOnNull():T{
     return requireNotNull(this)
 }
+

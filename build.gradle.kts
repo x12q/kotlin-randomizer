@@ -5,4 +5,5 @@ plugins {
     kotlin("plugin.serialization") version kotlinVersion apply false
     alias(libs.plugins.vanniktech.mavenPublish) apply false
     alias(libs.plugins.foojay.resolver.convention) apply false
+    alias(libs.plugins.ksp.devtool) apply false
 }
